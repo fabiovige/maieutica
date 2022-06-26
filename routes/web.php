@@ -1,6 +1,8 @@
 <?php
 
-use App\Http\Controllers\KidsController;
+use App\Http\Controllers\CompetenceController;
+use App\Http\Controllers\CompetenceItemController;
+use App\Http\Controllers\KidController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Log;
@@ -19,7 +21,7 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])
 Route::middleware(['auth', 'acl'])->group(function () {
 
     // kids
-    Route::resource('kids', KidsController::class);
+    Route::resource('kids', KidController::class);
 
     // roles
     Route::resource('roles', RoleController::class);
@@ -30,10 +32,22 @@ Route::middleware(['auth', 'acl'])->group(function () {
     // users
     Route::resource('users', UserController::class);
     Route::get('users/{id}/pdf', [UserController::class, 'pdf'])->name('users.pdf');
+
+    // compotences
+    Route::resource('competences', CompetenceController::class);
+
+    // competence_items
+    Route::resource('competenceItems', CompetenceItemController::class);
+
+    // levels
+    //Route::resource('competences', UserController::class);
+
+    // competence_items
+    //Route::resource('competence_items', UserController::class);
 });
 
 // Data Table
-Route::get('kids/datatable/index', [KidsController::class, 'index_data'])->name('kids.index_data')->middleware(['auth']);
+Route::get('kids/datatable/index', [KidController::class, 'index_data'])->name('kids.index_data')->middleware(['auth']);
 Route::get('roles/datatable/index', [RoleController::class, 'index_data'])->name('roles.index_data')->middleware(['auth']);
 Route::get('users/datatable/index', [UserController::class, 'index_data'])->name('users.index_data')->middleware(['auth']);
 

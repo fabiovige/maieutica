@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             KidSeeder::class,
+            CompetenceSeeder::class,
+            CompetenceItemSeeder::class,
         ]);
     }
 }

@@ -17,7 +17,7 @@ abstract class Resources
         ['name' => 'Usuários Excluir', 'ability' => 'users.destroy'],
         ['name' => 'Usuários Visualizar', 'ability' => 'users.show'],
         ['name' => 'Usuários Registrar Atualizar', 'ability' => 'users.store'],
-        ['name' => 'Usuários', 'ability' => 'users.update'],
+        ['name' => 'Usuários Atualizar', 'ability' => 'users.update'],
         ['name' => 'Usuários Tela de cadastro', 'ability' => 'users.create'],
         ['name' => 'Usuários Tela de edição', 'ability' => 'users.edit'],
 
@@ -30,5 +30,22 @@ abstract class Resources
         ['name' => 'Papéis Atualizar recursos', 'ability' => 'roles.resources.update'],
         ['name' => 'Papéis Tela de cadastro', 'ability' => 'roles.create'],
         ['name' => 'Papéis Tela de edição', 'ability' => 'roles.edit'],
+
+        ['name' => 'Competências Listar ', 'ability' => 'competences.index'],
+        ['name' => 'Competências Excluir', 'ability' => 'competences.destroy'],
+        ['name' => 'Competências Visualizar', 'ability' => 'competences.show'],
+        ['name' => 'Competências Registrar Atualizar', 'ability' => 'competences.store'],
+        ['name' => 'Competências Atualizar', 'ability' => 'competences.update'],
+        ['name' => 'Competências Tela de cadastro', 'ability' => 'competences.create'],
+        ['name' => 'Competências Tela de edição', 'ability' => 'competences.edit'],
+
+        ['name' => 'Competência Itens Listar ', 'ability' => 'competenceItems.index'],
+        ['name' => 'Competência Itens Excluir', 'ability' => 'competenceItems.destroy'],
+        ['name' => 'Competência Itens Visualizar', 'ability' => 'competenceItems.show'],
+        ['name' => 'Competência Itens Registrar Atualizar', 'ability' => 'competenceItems.store'],
+        ['name' => 'Competência Itens Atualizar', 'ability' => 'competenceItems.update'],
+        ['name' => 'Competência Itens Tela de cadastro', 'ability' => 'competenceItems.create'],
+        ['name' => 'Competência Itens Tela de edição', 'ability' => 'competenceItems.edit'],
+
     ];
 }

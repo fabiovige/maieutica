@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
 
-class KidsController extends Controller
+class KidController extends Controller
 {
     public function index(Request $request)
     {

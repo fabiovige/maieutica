@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateResourcesTable extends Migration
+class CreateCompetenceItemsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,22 @@ class CreateResourcesTable extends Migration
      */
     public function up()
     {
-        Schema::create('resources', function (Blueprint $table) {
+        Schema::create('competence_items', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->string('ability', 100);
-            $table->boolean('is_menu')->default(false);
+            $table->unsignedBigInteger('level_id')->nullable();
+            $table->unsignedBigInteger('competence_id')->nullable();
+            $table->integer('code');
+            $table->longText('description');
+            $table->longText('description_detail');
             $table->timestamps();
 
             $table->unsignedBigInteger('created_by')->default(1);
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->softDeletes();
+
+            $table->foreign('level_id')->references('id')->on('levels')->onDelete('cascade');
+            $table->foreign('competence_id')->references('id')->on('competences')->onDelete('cascade');
         });
     }
 
@@ -34,6 +39,6 @@ class CreateResourcesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('resources');
+        Schema::dropIfExists('competence_items');
     }
 }
