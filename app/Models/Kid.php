@@ -14,19 +14,6 @@ class Kid extends Model
 
     protected $fillable = ['name', 'birth_date', 'user_id', 'created_by', 'updated_by', 'deleted_by'];
 
-//
-//    public function getBirthDateAttribute(): string
-//    {
-//        $birth_date = $this->attributes['birth_date'];
-//
-//        return $this->attributes['birth_date'] = Carbon::createFromFormat('Y-m-d', $birth_date)->format('d/m/Y');
-//    }
-//
-//    public function setBirthDateAttribute($birth_date)
-//    {
-//        $this->attributes['birth_date'] = Carbon::createFromFormat('d/m/Y', $birth_date)->format('Y-m-d');
-//    }
-
     public function user()
     {
         return $this->belongsTo(User::class);

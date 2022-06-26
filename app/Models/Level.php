@@ -12,4 +12,9 @@ class Level extends Model
     use SoftDeletes;
 
     protected $fillable = ['name', 'created_by', 'updated_by', 'deleted_by'];
+
+    public function competenceItems()
+    {
+        return $this->hasMany(CompetenceItem::class);
+    }
 }
