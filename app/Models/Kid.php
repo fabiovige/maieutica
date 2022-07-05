@@ -26,4 +26,9 @@ class Kid extends Model
 
         return ($now->diffInMonths($birth_date) == 0) ? 1 : $now->diffInMonths($birth_date);
     }
+
+    public function checklists()
+    {
+        return $this->hasMany(Checklist::class);
+    }
 }

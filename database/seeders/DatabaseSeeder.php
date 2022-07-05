@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             KidSeeder::class,
             CompetenceSeeder::class,
             CompetenceItemSeeder::class,
+            ChecklistSeeder::class,
         ]);
     }
 }

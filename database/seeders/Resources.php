@@ -5,6 +5,7 @@ namespace Database\Seeders;
 abstract class Resources
 {
     public const RESOURCES = [
+
         ['name' => 'Crianças Listar', 'ability' => 'kids.index'],
         ['name' => 'Crianças Excluir', 'ability' => 'kids.destroy'],
         ['name' => 'Crianças Visualizar ', 'ability' => 'kids.show'],
@@ -46,6 +47,15 @@ abstract class Resources
         ['name' => 'Competência Itens Atualizar', 'ability' => 'competenceItems.update'],
         ['name' => 'Competência Itens Tela de cadastro', 'ability' => 'competenceItems.create'],
         ['name' => 'Competência Itens Tela de edição', 'ability' => 'competenceItems.edit'],
+
+        ['name' => 'Checklist Listar ', 'ability' => 'checklists.index'],
+        ['name' => 'Checklist Excluir', 'ability' => 'checklists.destroy'],
+        ['name' => 'Checklist Visualizar', 'ability' => 'checklists.show'],
+        ['name' => 'Checklist Registrar Atualizar', 'ability' => 'checklists.store'],
+        ['name' => 'Checklist Atualizar', 'ability' => 'checklists.update'],
+        //['name' => 'Checklist Tela de cadastro', 'ability' => 'checklists.create'],
+        ['name' => 'Checklist Tela de edição', 'ability' => 'checklists.edit'],
+        ['name' => 'Checklist Tela de cadastro', 'ability' => 'checklists.createChecklist'],
 
     ];
 }

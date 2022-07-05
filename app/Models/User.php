@@ -81,4 +81,9 @@ class User extends Authenticatable
             ['id', '!=', 2],
         ])->get()->toArray();
     }
+
+    public static function assocList()
+    {
+        return self::orderBy('name')->pluck('name', 'id')->toArray();
+    }
 }

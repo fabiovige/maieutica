@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\CompetenceController;
 use App\Http\Controllers\CompetenceItemController;
 use App\Http\Controllers\KidController;
@@ -38,6 +39,10 @@ Route::middleware(['auth', 'acl'])->group(function () {
 
     // competence_items
     Route::resource('competenceItems', CompetenceItemController::class);
+
+    // competence_items
+    Route::resource('checklists', ChecklistController::class);
+    Route::get('checklists/create/checklist/{kid}', [ChecklistController::class, 'createChecklist'])->name('checklists.createChecklist');
 
     // levels
     //Route::resource('competences', UserController::class);

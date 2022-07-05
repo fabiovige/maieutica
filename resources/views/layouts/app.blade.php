@@ -18,6 +18,7 @@
     <div id="app" class="pagewrap">
 
         @include('layouts.navbar')
+
         <main class="py-2">
             <div class="container">
                 @yield('breadcrumb')
@@ -32,7 +33,7 @@
                         {{ config('app.name') }} - {{ config('app.description') }}
                         <br>
                         &copy; 2021 - {{ now()->format('Y') }}
-                        <br> {{ config('app.version') }} 
+                        <br> {{ config('app.version') }}
                     </p>
             </div>
         </footer>

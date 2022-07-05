@@ -34,11 +34,5 @@ class CompetenceSeeder extends Seeder
         Competence::create(['id' => 17, 'initial' => 'JOI', 'name' => 'Jogo Independente']);
         Competence::create(['id' => 18, 'initial' => 'MFI', 'name' => 'Motricidade Fina']);
         Competence::create(['id' => 19, 'initial' => 'MGR', 'name' => 'Motricidade Grossa']);
-
-        // level
-        Level::create(['id'=>1, 'name' => 'Nível 1']);
-        Level::create(['id'=>2, 'name' => 'Nível 2']);
-        Level::create(['id'=>3, 'name' => 'Nível 3']);
-        Level::create(['id'=>4, 'name' => 'Nível 4']);
     }
 }

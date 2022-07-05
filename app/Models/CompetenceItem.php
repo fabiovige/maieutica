@@ -22,11 +22,6 @@ class CompetenceItem extends Model
         'deleted_by',
     ];
 
-    public function level()
-    {
-        return $this->belongsTo(Level::class);
-    }
-
     public function competence()
     {
         return $this->belongsTo(Competence::class);

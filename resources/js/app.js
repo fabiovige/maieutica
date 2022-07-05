@@ -1,11 +1,10 @@
 require('./bootstrap');
 
-$ = window.$ = window.jQuery = require('jquery');
+const Swal = require("sweetalert2");
+
+const Chart = require('chart.js');
 
 import 'jquery-ui/ui/widgets/datepicker.js';
-
-const Swal = require("sweetalert2");
-const Chart = require('chart.js');
 
 $.datepicker.regional['pt-BR'] = {
     closeText: 'Fechar',
@@ -50,4 +49,3 @@ $('.form-delete').click(function (e) {
         }
     });
 });
-

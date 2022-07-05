@@ -15,7 +15,7 @@ class CreateCompetenceItemsTable extends Migration
     {
         Schema::create('competence_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('level_id')->nullable();
+            $table->integer('level')->nullable();
             $table->unsignedBigInteger('competence_id')->nullable();
             $table->integer('code');
             $table->longText('description');
@@ -27,7 +27,6 @@ class CreateCompetenceItemsTable extends Migration
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->softDeletes();
 
-            $table->foreign('level_id')->references('id')->on('levels')->onDelete('cascade');
             $table->foreign('competence_id')->references('id')->on('competences')->onDelete('cascade');
         });
     }
