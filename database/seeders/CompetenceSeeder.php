@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Competence;
-use App\Models\Level;
 use Illuminate\Database\Seeder;
 
 class CompetenceSeeder extends Seeder

@@ -8,8 +8,12 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Auth::routes();
+
+
+Route::view('/dashboard','dashboard')->name('dashboard');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])
     ->middleware(['auth'])
@@ -40,7 +44,7 @@ Route::middleware(['auth', 'acl'])->group(function () {
     // competence_items
     Route::resource('competenceItems', CompetenceItemController::class);
 
-    // competence_items
+    // checklists
     Route::resource('checklists', ChecklistController::class);
     Route::get('checklists/create/checklist/{kid}', [ChecklistController::class, 'createChecklist'])->name('checklists.createChecklist');
 

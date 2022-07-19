@@ -12,11 +12,10 @@
 @endsection
 
 @section('content')
-
     <div class="row">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h3>{{ $kid->name }} - {{ $kid->months }} meses</h3>
-            <a href="{{route('kids.index')}}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Voltar
+            <a href="{{ route('kids.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Voltar
             </a>
         </div>
         <div class="col-12 mt-2">
@@ -42,11 +41,13 @@
                 <div class="col-md-12 mt-2">
                     <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Cadastrar</button>
                 </div>
-                <button-component></button-component>
+
             </form>
         </div>
     </div>
+</div>
 
 @endsection
 
-
+@push('scripts')
+@endpush

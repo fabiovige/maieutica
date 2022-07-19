@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Competence;
 use App\Models\Kid;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class ChecklistController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Inertia\Response
      */
     public function index()
     {
-        //
+
     }
 
     /**
@@ -27,7 +29,6 @@ class ChecklistController extends Controller
      */
     public function create()
     {
-
     }
 
     public function createChecklist($id)
