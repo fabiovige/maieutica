@@ -9,6 +9,6 @@ class KidSeeder extends Seeder
 {
     public function run()
     {
-        Kid::factory()->count(25)->create();
+        Kid::factory()->count(3)->create();
     }
 }

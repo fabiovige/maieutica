@@ -33,8 +33,8 @@ class KidsController extends Controller
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
-                if (request()->user()->can('kids.show')) {
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('kids.show', $data->id).'"><i class="bi bi-gear"></i> Gerenciar</a>';
+                if (request()->user()->can('kids.update') || request()->user()->can('kids.store')) {
+                    $html = '<a class="btn btn-sm btn-success" href="'.route('kids.show', $data->id).'"><i class="bi bi-gear"></i></a>';
 
                     return $html;
                 }
@@ -43,7 +43,9 @@ class KidsController extends Controller
                 return $data->name;
             })
             ->editColumn('birth_date', function ($data) {
-                return Carbon::createFromFormat('Y-m-d', $data->birth_date)->format('d/m/Y');
+                $now = Carbon::now();
+                $months = ($now->diffInMonths($data->birth_date) == 0) ? 1 : $now->diffInMonths($data->birth_date);
+                return Carbon::createFromFormat('Y-m-d', $data->birth_date)->format('d/m/Y') . ' - ' . $months . ' meses';
             })
             ->rawColumns(['name', 'action'])
             ->orderColumns(['id'], '-:column $1')

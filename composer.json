@@ -59,10 +59,10 @@
             "@php artisan key:generate --ansi"
         ],
         "sniff": [
-            "./vendor/bin/php-cs-fixer fix --show-progress=dots"
+            "./vendor/bin/php-cs-fixer fix --show-progress"
         ],
         "lint": [
-            "./vendor/bin/php-cs-fixer fix --show-progress=dots"
+            "./vendor/bin/php-cs-fixer fix --show-progress"
         ],
         "clear-all": [
             "composer dumpautoload -o",

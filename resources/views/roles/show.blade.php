@@ -10,6 +10,10 @@
     </nav>
 @endsection
 
+@section('button')
+    <x-button href="{{route('roles.index')}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
+@endsection
+
 @section('content')
 
     <div class="row">
@@ -19,39 +23,30 @@
                 @method('PUT')
 
                 <div class="card">
-                    <div class="card-header d-flex align-items-center justify-content-between">
-                        <div class="h5">{{ $role->name }} - {{ $role->role }}</div>
-                        <div><a href="{{route('roles.index')}}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Voltar </a></div>
+                    <div class="card-header">
+                        {{ __('visualizar') }}
                     </div>
                     <div class="card-body">
-
-                        <div class="h5 mt-2">Resursos adicionados: {{ $role->resources()->count()  }} @if( $role->resources()->count() == 0 ) nenhum @endif</div>
+                        Papél: {{$role->name}} <br>
+                        <div class="py-2"><strong>Permissões</strong>: {{ $role->resources()->count()  }} @if( $role->resources()->count() == 0 ) nenhum @endif</div>
 
                             @foreach($role->resources()->orderBy('name')->get() as $resource)
-
-                                    <i class="bi bi-check-circle"></i> {{ $resource->name }} ({{ $resource->ability }}) <br>
-
+                                <i class="bi bi-check-circle"></i> {{ $resource->name }} ({{ $resource->ability }}) <br>
                             @endforeach
 
                     </div>
                     <div class="card-footer">
 
                         <div class="form-group d-flex justify-content-between align-items-center">
-                            @can('roles.edit')
-                            <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-primary">
-                                <i class="bi bi-pencil-square"></i> Editar</a>
-                            @endcan
-                            @can('roles.resources')
-                            <a href="{{route('roles.resources', $role->id)}}" class="btn btn-dark">
-                                <i class="bi bi-gear"></i> Gerenciar Recursos</a>
+                            @can('roles.update')
+                                <x-button href="{{route('roles.edit', $role->id)}}" icon="pencil" name="Editar" type="link" class="dark"></x-button>
                             @endcan
 
                             @can('roles.destroy')
                                 <form action="{{ route('roles.destroy', $role->id) }}" name="form-delete" method="post">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-warning form-delete">
-                                        <i class="bi bi-trash3"></i> Enviar para lixeira</button>
+                                    <x-button icon="trash" name="Enviar para lixeira" type="submit" class="danger form-delete"></x-button>
                                 </form>
                             @endcan
 

@@ -20,7 +20,15 @@
         @include('layouts.navbar')
         <main class="py-2">
             <div class="container">
-                @yield('breadcrumb')
+                <div class="row mt-1">
+                    <div class="col-md-6 text-start">
+                        @yield('breadcrumb')
+                    </div>
+                    <div class="col-md-6 text-end">
+                        @yield('button')
+                    </div>
+                </div>
+
                 @include('flash::message')
                 @yield('content')
             </div>
@@ -32,7 +40,6 @@
                         {{ config('app.name') }} - {{ config('app.description') }}
                         <br>
                         &copy; 2021 - {{ now()->format('Y') }}
-                        <br> {{ config('app.version') }} 
                     </p>
             </div>
         </footer>

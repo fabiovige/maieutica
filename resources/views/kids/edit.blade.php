@@ -11,15 +11,14 @@
     </nav>
 @endsection
 
+@section('button')
+    <x-button href="{{route('kids.show', $kid->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
+@endsection
+
 @section('content')
 
     <div class="row">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h3>Editar</h3>
-            <a href="{{route('kids.show', $kid->id)}}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Voltar </a>
-        </div>
-
-        <div class="col-12 mt-2">
+        <div class="col-md-12">
             <form action="{{ route('kids.update', $kid->id) }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -48,8 +47,7 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-circle"></i> Atualizar</button>
+                        <x-button icon="save" name="Salvar" type="submit" class="dark"></x-button>
                     </div>
                 </div>
             </form>

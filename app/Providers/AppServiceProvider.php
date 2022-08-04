@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\View\Components\ModalDelete;
+use App\View\Components\Button;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
@@ -29,7 +29,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         Paginator::useBootstrap();
-
-        //Blade::component('modal-delete', ModalDelete::class);
+        Blade::component('button', Button::class);
     }
 }

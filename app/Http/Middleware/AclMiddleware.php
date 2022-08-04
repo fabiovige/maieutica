@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Resource;
 use Closure;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -21,8 +22,10 @@ class AclMiddleware
             return $next($request);
         }
 
-        $this->authorize($request->route()->getName());
-
+        $ability = Resource::where('ability', $request->route()->getName())->count();
+        if($ability) {
+            $this->authorize($request->route()->getName());
+        }
         return $next($request);
     }
 }

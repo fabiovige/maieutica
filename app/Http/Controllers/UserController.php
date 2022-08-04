@@ -41,8 +41,8 @@ class UserController extends Controller
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
-                if (request()->user()->can('users.show')) {
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('users.show', $data->id).'"><i class="bi bi-gear"></i> Gerenciar</a>';
+                if (request()->user()->can('users.update') || request()->user()->can('users.create')) {
+                    $html = '<a class="btn btn-sm btn-success" href="'.route('users.show', $data->id).'"><i class="bi bi-gear"></i> </a>';
 
                     return $html;
                 }
@@ -64,7 +64,12 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
-            $roles = Role::all();
+
+            if (auth()->user()->isSuperAdmin()) {
+                $roles = Role::all();
+            } else {
+                $roles = Role::where('id', '!=', 1)->get();
+            }
 
             $message = label_case('Edit User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
@@ -104,7 +109,11 @@ class UserController extends Controller
 
     public function create()
     {
-        $roles = Role::all();
+        if (auth()->user()->isSuperAdmin()) {
+            $roles = Role::all();
+        } else {
+            $roles = Role::where('id', '!=', 1)->get();
+        }
 
         $message = label_case('Create User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);

@@ -10,23 +10,21 @@
     </nav>
 @endsection
 
+@section('button')
+    <x-button href="{{route('users.index')}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
+@endsection
+
 @section('content')
-    <div class="row">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h3>Cadastrar</h3>
-            <a href="{{route('users.index')}}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Voltar
-            </a>
-        </div>
-    </div>
+
     <form action="{{route('users.store')}}" method="post">
         @csrf
         @method('POST')
-        <div class="row mt-2">
+        <div class="row">
             <div class="col-12">
 
                 <div class="card">
                     <div class="card-header">
-                        Id: #
+                        Cadastrar usuário
                     </div>
                     <div class="card-body">
 
@@ -51,66 +49,61 @@
                             </div>
                             @enderror
                         </div>
-                    </div>
 
-                </div>
+                        {{-- papeis --}}
+                        <div class="row mt-2">
+                            <label>Selecione o papél</label>
+                            @foreach($roles as $role)
+                                <div class="col-6">
 
-            </div>
-
-        </div>
-
-
-            <div class="row mt-4">
-                <div class="col-12 d-flex justify-content-between align-items-center">
-                    <h5>Selecione um papél pré-definido</h5>
-                </div>
-            </div>
-            <div class="row">
-
-                @foreach($roles as $role)
-                    <div class="col-12 mt-2">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="custom-control custom-checkbox">
-                                    <div class="form-check ">
-                                        <input class="form-check-input @error('role_id') is-invalid @enderror "
-                                               type="radio"
-                                               role="switch"
-                                               name="role_id"
-                                               id="customRadio{{$role->id}}"
-                                               value="{{$role->id}}"
-                                               @if( old('role_id') == $role->id ) checked @endif
-                                        >
-                                        <label class="form-check-label" for="customRadio{{$role->id}}">
-                                            {{ $role->name }}
-                                        </label>
-                                        @error('role_id')
-                                        <div class="invalid-feedback">
-                                            {{$message}}
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <div class="custom-control custom-checkbox">
+                                                <div class="form-check ">
+                                                    <input class="form-check-input @error('role_id') is-invalid @enderror "
+                                                           type="radio"
+                                                           role="switch"
+                                                           name="role_id"
+                                                           id="customRadio{{$role->id}}"
+                                                           value="{{$role->id}}"
+                                                           @if( old('role_id') == $role->id ) checked @endif
+                                                    >
+                                                    <label class="form-check-label" for="customRadio{{$role->id}}">
+                                                        {{ $role->name }}
+                                                    </label>
+                                                    @error('role_id')
+                                                    <div class="invalid-feedback">
+                                                        {{$message}}
+                                                    </div>
+                                                    @enderror
+                                                </div>
+                                            </div>
                                         </div>
-                                        @enderror
+                                        <div class="card-body">
+                                            <strong>Resursos adicionados:</strong><br>
+                                            @foreach($role->resources()->orderBy('name')->get() as $resource)
+                                                <i class="bi bi-check-circle"></i> {{ $resource->name }} ({{ $resource->ability }})
+                                                <br>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card-body">
-                                <strong>Resursos adicionados:</strong><br>
-                                @foreach($role->resources()->orderBy('name')->get() as $resource)
-                                    <i class="bi bi-check-circle"></i> {{ $resource->name }} ({{ $resource->ability }})
-                                    <br>
-                                @endforeach
-                            </div>
+                            @endforeach
                         </div>
                     </div>
-                @endforeach
+
+                    <div class="card-footer">
+                        <x-button icon="save" name="Salvar" type="submit" class="dark"></x-button>
+                    </div>
+                </div>
+
+
+
 
             </div>
 
-
-        <div class="row mt-2">
-            <div class="col-12 d-flex justify-content-center align-items-center">
-                <button class="btn btn-success"><i class="bi bi-check-circle"></i> Cadastrar usuário</button>
-            </div>
         </div>
+
 
     </form>
 

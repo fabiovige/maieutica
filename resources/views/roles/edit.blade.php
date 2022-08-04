@@ -11,15 +11,13 @@
     </nav>
 @endsection
 
-@section('content')
-    <div class="row">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h3>Editar</h3>
-            <a href="{{route('roles.show', $role->id)}}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Voltar </a>
-        </div>
-    </div>
+@section('button')
+    <x-button href="{{route('roles.show', $role->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
+@endsection
 
-    <div class="row mt-2">
+@section('content')
+
+    <div class="row">
         <div class="col-12">
 
             <form action="{{route('roles.update', $role->id)}}" method="post">
@@ -28,12 +26,12 @@
 
                 <div class="card">
                     <div class="card-header">
-                        Id: {{ $role->id }}
+                        Editar papél
                     </div>
                     <div class="card-body">
 
-                        <div class="form-group">
-                            <label>Nome do Papél</label>
+                        <div class="form-group mb-2">
+                            <label>Nome</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" placeholder="Ex.: Administrador" value="{{$role->name}}">
 
                             @error('name')
@@ -41,22 +39,49 @@
                             @enderror
                         </div>
 
-                        <div class="form-group mt-2">
-                            <label>Constante</label>
-                            <input type="text" class="form-control" name="role" value="{{$role->role}}" readonly>
+
+                        <div class="custom-control custom-checkbox">
+                            <label>Permissões</label>
+                            <div class="form-check">
+                                <input class="form-check-input permission-input"
+                                       type="checkbox"
+                                       id="checkAll"
+                                    {{ (count($resources) == count($role->resources()->pluck('id')->toArray())) ? 'checked' : '' }}
+                                >
+                                <label class="form-check-label" for="checkAll">
+                                    Todos
+                                </label>
+                            </div>
+
                         </div>
+                        @foreach($resources as $resource)
+
+                            <div class="custom-control custom-checkbox">
+
+                                <div class="form-check">
+                                    <input class="form-check-input permission-input"
+                                           type="checkbox"
+                                           name="abilities[]"
+                                           id="customCheck{{$resource->id}}"
+                                           value="{{$resource->id}}"
+                                           @if($role->resources->contains($resource)) checked @endif
+                                    >
+                                    <label class="form-check-label" for="customCheck{{$resource->id}}">
+                                        {{ $resource->name }} ({{ $resource->ability }})
+                                    </label>
+                                </div>
+
+                            </div>
+
+                        @endforeach
 
                     </div>
+
                     <div class="card-footer">
-
-                        <div class="form-group">
-                            <button class="btn btn-success">
-                                <i class="bi bi-check-circle"></i> Atualizar</button>
-                        </div>
+                        <x-button icon="save" name="Salvar" type="submit" class="dark"></x-button>
                     </div>
+
                 </div>
-
-
             </form>
         </div>
 

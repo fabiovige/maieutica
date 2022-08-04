@@ -10,32 +10,33 @@
     </nav>
 @endsection
 
+@section('button')
+    <x-button href="{{route('kids.index')}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
+@endsection
+
 @section('content')
 
     <div class="row">
 
-        <div class="col-12 ">
+        <div class="col-md-12 ">
             <div class="card">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="h5">{{ $kid->name }} </div>
-
-                    <div><a href="{{route('kids.index')}}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Voltar </a></div>
+                <div class="card-header ">
+                    {{ __('visualizar') }}
                 </div>
                 <div class="card-body">
-                    <div class="h6"> Data de nascimento: {{ $kid->birth_date }} - {{ $kid->months }} meses</div>
+                    Nome: {{ $kid->name }} <br>
+                    Data de nascimento: {{ $kid->birth_date }} - {{ $kid->months }} meses
                 </div>
                 <div class="card-footer  d-flex justify-content-between">
-                    @can('kids.edit')
-                    <a href="{{ route('kids.edit', $kid->id) }}" class="btn btn-primary">
-                        <i class="bi bi-pencil-square"></i> Editar</a>
+                    @can('kids.update')
+                        <x-button href="{{ route('kids.edit', $kid->id) }}" icon="pencil" name="Editar" type="link" class="dark"></x-button>
                     @endcan
 
                     @can('kids.destroy')
                         <form action="{{ route('kids.destroy', $kid->id) }}" name="form-delete" method="post">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-warning form-delete">
-                                <i class="bi bi-trash3"></i> Enviar para lixeira</button>
+                            <x-button icon="trash" name="Enviar para lixeira" type="submit" class="danger  form-delete"></x-button>
                         </form>
                     @endcan
                 </div>

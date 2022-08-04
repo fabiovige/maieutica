@@ -32,7 +32,7 @@ Route::middleware(['auth', 'acl'])->group(function () {
     Route::get('users/{id}/pdf', [UserController::class, 'pdf'])->name('users.pdf');
 });
 
-// Data Table
+// Data Table Ajax
 Route::get('kids/datatable/index', [KidsController::class, 'index_data'])->name('kids.index_data')->middleware(['auth']);
 Route::get('roles/datatable/index', [RoleController::class, 'index_data'])->name('roles.index_data')->middleware(['auth']);
 Route::get('users/datatable/index', [UserController::class, 'index_data'])->name('users.index_data')->middleware(['auth']);
