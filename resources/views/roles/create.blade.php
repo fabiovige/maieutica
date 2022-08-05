@@ -55,27 +55,52 @@
                             </div>
 
                         </div>
-                        @foreach($resources as $resource)
+                        <div class="row">
+                            @foreach($resources as $resource)
+                                <div class="col-md-4 py-2">
+                                    <div class="card">
+                                        <div class="card-header">{{ $resource->name }}</div>
+                                        <div class="card-body">
+                                            @foreach ( $resource->abilities as $ability )
+                                                
+                                                <div class="custom-control custom-checkbox">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permission-input"
+                                                            type="checkbox"
+                                                            name="abilities[]"
+                                                            id="customCheck{{$ability->id}}"
+                                                            value="{{$ability->id}}"
+                                                            @if($ability->id == old('abilities')) checked @endif
+                                                        >
+                                                        <label class="form-check-label" for="customCheck{{$ability->id}}">
+                                                            {{ $ability->name }} 
+                                                        </label>
+                                                    </div>
 
-                            <div class="custom-control custom-checkbox">
+                                                </div>                                    
+                                            @endforeach
+                                        </div>
+                                    </div>
 
-                                <div class="form-check">
-                                    <input class="form-check-input permission-input"
-                                           type="checkbox"
-                                           name="abilities[]"
-                                           id="customCheck{{$resource->id}}"
-                                           value="{{$resource->id}}"
-                                           @if($resource->id == old('abilities')) checked @endif
-                                    >
-                                    <label class="form-check-label" for="customCheck{{$resource->id}}">
-                                        {{ $resource->name }} ({{ $resource->ability }})
-                                    </label>
+                                    {{-- <div class="custom-control custom-checkbox">
+
+                                        <div class="form-check">
+                                            <input class="form-check-input permission-input"
+                                                type="checkbox"
+                                                name="abilities[]"
+                                                id="customCheck{{$resource->id}}"
+                                                value="{{$resource->id}}"
+                                                @if($resource->id == old('abilities')) checked @endif
+                                            >
+                                            <label class="form-check-label" for="customCheck{{$resource->id}}">
+                                                {{ $resource->name }} ({{ $resource->ability }})
+                                            </label>
+                                        </div>
+
+                                    </div> --}}
                                 </div>
-
-                            </div>
-
-                        @endforeach
-
+                            @endforeach
+                        </div>
                     </div>
 
                     <div class="card-footer">

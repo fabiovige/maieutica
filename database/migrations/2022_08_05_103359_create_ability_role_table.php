@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateResourceRoleTable extends Migration
+class CreateAbilityRoleTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateResourceRoleTable extends Migration
      */
     public function up()
     {
-        Schema::create('resource_role', function (Blueprint $table) {
+        Schema::create('ability_role', function (Blueprint $table) {
             $table->unsignedBigInteger('role_id');
-            $table->unsignedBigInteger('resource_id');
+            $table->unsignedBigInteger('ability_id');
 
             $table->timestamps();
 
             $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
-            $table->foreign('resource_id')->references('id')->on('resources')->onDelete('cascade');
+            $table->foreign('ability_id')->references('id')->on('abilities')->onDelete('cascade');
         });
     }
 

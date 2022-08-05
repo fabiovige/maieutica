@@ -46,34 +46,38 @@
                                 <input class="form-check-input permission-input"
                                        type="checkbox"
                                        id="checkAll"
-                                    {{ (count($resources) == count($role->resources()->pluck('id')->toArray())) ? 'checked' : '' }}
+                                    {{ (count($abilities) == count($role->abilities()->pluck('id')->toArray())) ? 'checked' : '' }}
                                 >
                                 <label class="form-check-label" for="checkAll">
                                     Todos
                                 </label>
                             </div>
-
                         </div>
-                        @foreach($resources as $resource)
-
-                            <div class="custom-control custom-checkbox">
-
-                                <div class="form-check">
-                                    <input class="form-check-input permission-input"
-                                           type="checkbox"
-                                           name="abilities[]"
-                                           id="customCheck{{$resource->id}}"
-                                           value="{{$resource->id}}"
-                                           @if($role->resources->contains($resource)) checked @endif
-                                    >
-                                    <label class="form-check-label" for="customCheck{{$resource->id}}">
-                                        {{ $resource->name }} ({{ $resource->ability }})
-                                    </label>
+                        <div class="row">
+                            @foreach($resources as $resource)
+                                <div class="col-md-4 py-2">
+                                    <div class="card">
+                                        <div class="card-header">{{ $resource->name }}</div>
+                                        <div class="card-body">
+                                            @foreach ( $resource->abilities as $ability )
+                                                <div class="form-check">
+                                                    <input class="form-check-input permission-input"
+                                                            type="checkbox"
+                                                            name="abilities[]"
+                                                            id="customCheck{{$ability->id}}"
+                                                            value="{{$ability->id}}"
+                                                            @if($role->abilities->contains($ability)) checked @endif
+                                                    >                                            
+                                                    <label class="form-check-label" for="customCheck{{$ability->id}}">
+                                                        {{ $ability->name }}
+                                                    </label>
+                                                </div>                                        
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
-
-                            </div>
-
-                        @endforeach
+                            @endforeach
+                        </div>
 
                     </div>
 
@@ -89,3 +93,12 @@
     </div>
 
 @endsection
+
+@push('scripts')
+    <script type="text/javascript" src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+    <script>
+        $("#checkAll").click(function () {
+            $('input:checkbox').not(this).prop('checked', this.checked);
+        });
+    </script>
+@endpush

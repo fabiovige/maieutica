@@ -20,8 +20,8 @@ class Role extends Model
         return $this->hasMany(User::class);
     }
 
-    public function resources()
+    public function abilities()
     {
-        return $this->belongsToMany(Resource::class);
+        return $this->belongsToMany(Ability::class);
     }
 }

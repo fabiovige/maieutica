@@ -26,10 +26,5 @@ class RoleSeeder extends Seeder
             'role' => 'ROLE_ADMIN',
             'created_by' => 1,
         ]);
-
-        foreach (Resources::RESOURCES as $resource) {
-            Resource::create($resource)->roles()->sync([2]);
-        }
-
     }
 }

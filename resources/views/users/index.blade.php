@@ -23,22 +23,20 @@
                     Lista de papéis
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-hover table-responsive dataTable">
+                    <table class="table table-bordered table-hover dt-responsive nowrap dataTable" style="width:100%">
                         <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Nome</th>
-                            <th>E-mail</th>
-                            <th style="width: 30px"></th>
-                        </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th style="width: 30px"></th>
+                            </tr>
                         </thead>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-
-
 @endsection
 
 @push ('styles')

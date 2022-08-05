@@ -23,6 +23,13 @@
     </li>
     @endcan
 
+    @can('checklists.index')
+        <li class="nav-item">
+            <a class="nav-link @if(request()->is('checklists*')) active @endif" aria-current="page"
+               href="{{ route('checklists.index') }}">Checklists</a>
+        </li>
+    @endcan
+
 {{--    <li class="nav-item {{ Route::is('log-viewer::dashboard') ? 'active' : '' }}">--}}
 {{--        <a href="{{ route('log-viewer::dashboard') }}" class="nav-link">--}}
 {{--            <i class="fa fa-dashboard"></i> @lang('Dashboard')--}}

@@ -23,21 +23,19 @@
                     Lista de papéis
                 </div>
                 <div class="card-body">
-                    <table class="table table-striped table-bordered table-hover table-responsive dataTable">
+                    <table class="table table-bordered table-hover dt-responsive nowrap dataTable" style="width:100%">
                         <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Nome</th>
-                            <th>Permissões</th>
-                            <th style="width: 30px"></th>
-                        </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th style="width: 30px"></th>
+                            </tr>
                         </thead>
                     </table>
                 </div>
             </div>
         </div>
-
-
+    </div>
 @endsection
 
 @push ('styles')
@@ -66,12 +64,6 @@
                         {
                             data: 'name',
                             name: 'name'
-                        },
-                        {
-                            data: 'abilities',
-                            name: 'abilities',
-                            orderable: false,
-                            searchable: false
                         },
                         {
                             data: 'action',

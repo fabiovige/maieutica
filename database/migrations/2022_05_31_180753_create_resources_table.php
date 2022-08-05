@@ -16,8 +16,6 @@ class CreateResourcesTable extends Migration
         Schema::create('resources', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
-            $table->string('ability', 100);
-            $table->boolean('is_menu')->default(false);
             $table->timestamps();
 
             $table->unsignedBigInteger('created_by')->nullable();

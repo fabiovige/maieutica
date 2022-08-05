@@ -2,32 +2,22 @@
 
 namespace App\Providers;
 
-use App\Models\Resource;
+use App\Models\Ability;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 
 class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * The policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
-     */
     protected $policies = [
         //
     ];
 
-    /**
-     * Register any authentication / authorization services.
-     *
-     * @return void
-     */
     public function boot()
     {
         $this->registerPolicies();
 
-        if (! Schema::hasTable('resources')) {
+        if (! Schema::hasTable('abilities')) {
             return null;
         }
 
@@ -37,11 +27,11 @@ class AuthServiceProvider extends ServiceProvider
             }
         });
 
-        $resources = Resource::all();
+        $abilities = Ability::all();
 
-        foreach ($resources as $resource) {
-            Gate::define($resource->ability, function ($user) use ($resource) {
-                return $resource->roles->contains($user->role);
+        foreach ($abilities as $ability) {
+            Gate::define($ability->ability, function ($user) use ($ability) {
+                return $ability->roles->contains($user->role);
             });
         }
     }

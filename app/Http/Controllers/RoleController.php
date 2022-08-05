@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
+use App\Models\Ability;
 use App\Models\Resource;
 use App\Models\Role;
 use Exception;
@@ -54,14 +55,7 @@ class RoleController extends Controller
             ->editColumn('name', function ($data) {
                 return $data->name;
             })
-            ->editColumn('abilities', function ($data) {
-                $html = '';
-                foreach($data->resources as $resource) {
-                    $html .= "<i class='bi bi-check-circle'></i> $resource->name ";
-                }
-                return $html;
-            })
-            ->rawColumns(['name', 'abilities', 'action'])
+            ->rawColumns(['name', 'action'])
             ->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
@@ -71,10 +65,10 @@ class RoleController extends Controller
         $message = label_case('Create Role ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
 
-        $resources = Resource::orderBy('name')->get();
+        $resources = Resource::with('abilities')->orderBy('created_at')->get();
 
         return view('roles.create', [
-            'resources' => $resources
+            'resources' => $resources,
         ]);
     }
 
@@ -87,7 +81,7 @@ class RoleController extends Controller
             $data['created_by'] = auth()->user()->id;
 
             $role = Role::create($data);
-            $role->resources()->sync($request->abilities);
+            $role->abilities()->sync($request->abilities);
 
             DB::commit();
             flash(self::MSG_CREATE_SUCCESS)->success();
@@ -112,11 +106,12 @@ class RoleController extends Controller
     {
         try {
             $role = $this->role->findOrFail($id);
-
+            $resources = Resource::with('abilities')->orderBy('created_at')->get();
+            $abilities =  Ability::assocAbilities($role, $resources);
             $message = label_case('Show Role ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
-            return view('roles.show', compact('role'));
+            return view('roles.show', compact('role', 'abilities'));
         } catch (\Exception $e) {
             flash(self::MSG_NOT_FOUND)->error();
 
@@ -134,9 +129,10 @@ class RoleController extends Controller
             $message = label_case('Edit Role '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
-            $resources = Resource::orderBy('name')->get();
+            $resources = Resource::with('abilities')->orderBy('created_at')->get();
+            $abilities =  Ability::all();
 
-            return view('roles.edit', compact('role', 'resources'));
+            return view('roles.edit', compact('role', 'abilities', 'resources'));
         } catch (\Exception $e) {
             flash(self::MSG_UPDATE_ERROR)->error();
 
@@ -158,7 +154,7 @@ class RoleController extends Controller
             $data['role'] = $this->defineRole($data['name']);
 
             $role->update($data);
-            $role->resources()->sync($request->abilities);
+            $role->abilities()->sync($request->abilities);
 
             DB::commit();
             flash(self::MSG_UPDATE_SUCCESS)->success();

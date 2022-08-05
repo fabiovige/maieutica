@@ -17,7 +17,6 @@ class KidFactory extends Factory
     public function definition()
     {
         $date = $this->faker->dateTimeBetween('2020-01-01', '2021-12-31');
-        //$birth_date = $date->format('d/m/Y');
 
         return [
             'name' => $this->faker->name,

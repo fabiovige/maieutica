@@ -46,8 +46,7 @@
                 <p class="small text-center mb-0 mt-4">
                     {{ config('app.name') }} - {{ config('app.description') }}
                     <br>
-                    &copy; 2021 - {{ now()->format('Y') }} 
-                    <br> {{ config('app.version') }} 
+                    &copy; 2021 - {{ now()->format('Y') }}
                 </p>
             </div>
 

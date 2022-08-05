@@ -25,14 +25,14 @@
                     Lista de crianças
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-hover table-responsive dataTable">
+                    <table class="table table-bordered table-hover dt-responsive nowrap dataTable" style="width:100%">
                         <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Nome</th>
-                            <th>Data de nascimento</th>
-                            <th style="width: 30px"></th>
-                        </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th>Data de nascimento</th>
+                                <th style="width: 30px"></th>
+                            </tr>
                         </thead>
                     </table>
                 </div>
@@ -45,11 +45,14 @@
 
 @push ('styles')
     <link rel="stylesheet" href="{{ asset('vendor/datatable/datatables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/datatable/responsive.bootstrap5.min.css') }}">
 @endpush
 
 @push ('scripts')
     <script type="text/javascript" src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('vendor/datatable/datatables.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendor/datatable/dataTables.responsive.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendor/datatable/responsive.bootstrap5.js') }}"></script>
 
     <script type="text/javascript">
         $('.dataTable').DataTable({

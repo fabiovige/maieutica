@@ -8,20 +8,16 @@ use Illuminate\Database\Seeder;
 
 class ResourceSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
+    const RESOURCES = [
+        ['name' => 'Usuários'],
+        ['name' => 'Crianças'],
+        ['name' => 'Papéis'],
+        ['name' => 'Checklists'],
+    ];
+
     public function run()
     {
-        $role1 = Role::create([
-            'name' => 'Super Admin',
-            'role' => 'ROLE_SUPER_ADMIN',
-            'created_by' => 1,
-        ]);
-
-        foreach (Resources::RESOURCES as $resource) {
+        foreach (self::RESOURCES as $resource) {
             Resource::create($resource);
         }
     }

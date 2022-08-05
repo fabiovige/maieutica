@@ -22,7 +22,6 @@
     "require-dev": {
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
-        "friendsofphp/php-cs-fixer": "^3.8",
         "laravel/sail": "^1.14",
         "lucascudo/laravel-pt-br-localization": "^1.2",
         "mockery/mockery": "^1.4.4",
@@ -58,13 +57,7 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ],
-        "sniff": [
-            "./vendor/bin/php-cs-fixer fix --show-progress"
-        ],
-        "lint": [
-            "./vendor/bin/php-cs-fixer fix --show-progress"
-        ],
-        "clear-all": [
+        "clear": [
             "composer dumpautoload -o",
             "@php artisan clear-compiled",
             "@php artisan cache:clear",
@@ -72,7 +65,7 @@
             "@php artisan view:clear",
             "@php artisan config:clear"
         ],
-        "fresh-db": ["@php artisan migrate:fresh --seed"]
+        "fresh": ["@php artisan migrate:fresh --seed"]
     },
     "extra": {
         "laravel": {

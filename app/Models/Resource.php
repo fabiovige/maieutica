@@ -9,10 +9,10 @@ class Resource extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'ability', 'is_menu', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['name', 'created_by', 'updated_by', 'deleted_by'];
 
-    public function roles()
+    public function abilities()
     {
-        return $this->belongsToMany(Role::class);
+        return $this->hasMany(Ability::class);
     }
 }

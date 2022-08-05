@@ -28,11 +28,22 @@
                     </div>
                     <div class="card-body">
                         Papél: {{$role->name}} <br>
-                        <div class="py-2"><strong>Permissões</strong>: {{ $role->resources()->count()  }} @if( $role->resources()->count() == 0 ) nenhum @endif</div>
+                        <div class="py-2">Permissões:</div>
 
-                            @foreach($role->resources()->orderBy('name')->get() as $resource)
-                                <i class="bi bi-check-circle"></i> {{ $resource->name }} ({{ $resource->ability }}) <br>
+                        <div class="row">
+                            @foreach($abilities as $resource => $ability)
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">{{ $resource }}</div>
+                                    <div class="card-body">
+                                        @foreach($ability as $item)
+                                            <i class="bi bi-check-circle"></i> {{ $item }} <br>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
                             @endforeach
+                        </div>
 
                     </div>
                     <div class="card-footer">
