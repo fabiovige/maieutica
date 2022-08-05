@@ -59,9 +59,9 @@
 
                             @can('roles.update')
                                 <div class="row mt-2">
-                                    <label>Papéis</label>
+                                    <label>Papél</label>
                                     @foreach($roles as $role)
-                                        <div class="col-6">
+                                        <div class="col-6 py-2">
                                             <div class="card @if($user->role_id == $role->id) bg-warning bg-opacity-25 @endif ">
                                                 <div class="card-header">
                                                     <div class="custom-control custom-checkbox">
@@ -82,8 +82,8 @@
                                                 </div>
                                                 <div class="card-body">
                                                     <strong>Resursos adicionados:</strong><br>
-                                                    @foreach($role->resources()->orderBy('name')->get() as $resource)
-                                                        <i class="bi bi-check-circle"></i> {{ $resource->name }} ({{ $resource->ability }}) <br>
+                                                    @foreach($role->abilities()->orderBy('name')->get() as $ability)
+                                                        <i class="bi bi-check-circle"></i> {{ $ability->name }} ({{ $ability->ability }}) <br>
                                                     @endforeach
                                                 </div>
                                             </div>

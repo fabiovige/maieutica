@@ -16,12 +16,6 @@ class UserController extends Controller
 {
     public function index()
     {
-//        if (! auth()->user()->isSuperAdmin()) {
-//            $users = User::paginate($this->paginate);
-//        } else {
-//            $users = User::where('created_by', '=', auth()->user()->id)->paginate($this->paginate);
-//        }
-
         $message = label_case('Index User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
 

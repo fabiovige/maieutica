@@ -18,15 +18,13 @@ class CreateChecklistsTable extends Migration
             $table->enum('level', [1,2,3,4])->default(1);
             $table->char('situation')->default('a');
             $table->text('description')->nullable();
-            $table->unsignedBigInteger('kid_id');
+            $table->unsignedBigInteger('kid_id')->nullable();
             $table->timestamps();
 
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->softDeletes();
-
-            $table->foreign('kid_id')->on('kid')->references('id')->onDelete('cascade');
         });
     }
 

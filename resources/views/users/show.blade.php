@@ -27,10 +27,10 @@
                     Usuário: {{ $user->name }} <br>
                     E-mail: {{ $user->email }} <br>
                     Papél: {{ $user->role->name }} <br>
-                    <div class="mt-2">Resursos adicionados:</div>
+                    <div class="mt-2">Permissões:</div>
                     @if($user->role)
-                        @foreach($user->role->resources()->orderBy('name')->get() as $resource)
-                            <i class="bi bi-check-circle"></i> {{$resource->name}} ({{$resource->ability}}) <br>
+                        @foreach($user->role->abilities()->orderBy('name')->get() as $ability)
+                            <i class="bi bi-check-circle"></i> {{$ability->name}} ({{$ability->ability}}) <br>
                         @endforeach
                     @endif
                 </div>
