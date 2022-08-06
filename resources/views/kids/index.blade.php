@@ -31,6 +31,8 @@
                                 <th>#</th>
                                 <th>Nome</th>
                                 <th>Data de nascimento</th>
+                                <th>Checklists</th>
+                                <th>Usuário Resp.</th>
                                 <th style="width: 30px"></th>
                             </tr>
                         </thead>
@@ -76,6 +78,16 @@
                     data: 'birth_date',
                     name: 'birth_date',
                     orderable: false,
+                },
+                {
+                    data: 'checklists',
+                    name: 'checklists',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'user_id',
+                    name: 'user_id',
                 },
                 {
                     data: 'action',

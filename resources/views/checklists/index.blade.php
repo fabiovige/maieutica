@@ -29,6 +29,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th>Criança</th>
                                 <th>Nível</th>
                                 <th>Situação</th>
                                 <th>Data de criação</th>
@@ -63,6 +64,10 @@
             columns: [{
                 data: 'id',
                 name: 'id',
+                },
+                {
+                    data: 'kid_id',
+                    name: 'kid_id'
                 },
                 {
                     data: 'level',

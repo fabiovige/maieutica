@@ -20,7 +20,7 @@
         <div class="col-md-12 ">
             <div class="card">
                 <div class="card-header">
-                    Lista de papéis
+                    Lista de usuários
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered table-hover dt-responsive nowrap dataTable" style="width:100%">

@@ -27,6 +27,7 @@ class AclMiddleware
         if($ability) {
             $this->authorize($request->route()->getName());
         }
+
         return $next($request);
     }
 }

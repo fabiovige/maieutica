@@ -23,27 +23,47 @@
                 <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                 <div class="card">
                     <div class="card-header">
-                        Cadastrar uma nova criança
+                        Cadastrar criança
                     </div>
                     <div class="card-body">
 
                         <div class="form-group">
-                            <label for="name">Nome</label> <br>
-                            <input class="form-control @error('name') is-invalid @enderror" type="text" name="name" value="{{ old('name') }}">
-                            @error('name')
-                            <div class="invalid-feedback">
-                                {{ $message }}
+
+                            <div class="row">
+                                <div class="col">
+                                    <label for="name">Nome completo</label> <br>
+                                    <input class="form-control @error('name') is-invalid @enderror" type="text" name="name" value="{{ old('name') }}">
+                                    @error('name')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+                                <div class="col">
+                                    <label for="birth_date">Data de nascimento</label> <br>
+                                    <input class="form-control datepicker @error('birth_date') is-invalid @enderror" type="text" name="birth_date" value="{{ old('birth_date') }}">
+                                    @error('birth_date')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+                                <div class="col">
+                                    <label for="user_id">Usuário responsável</label> <br>
+                                    <select class="form-select @error('user_id') is-invalid @enderror" aria-label="user_id" name="user_id">
+                                        <option value="">-- selecione --</option>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}" @if(old('user_id') == $user->id  ) selected @endif> {{  $user->name }}  </option>
+                                        @endforeach
+                                    </select>
+                                    @error('user_id')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
                             </div>
-                            @enderror
-                        </div>
-                        <div class="form-group mt-2">
-                            <label for="birth_date">Data de nascimento</label> <br>
-                            <input class="form-control datepicker @error('birth_date') is-invalid @enderror" type="text" name="birth_date" value="{{ old('birth_date') }}">
-                            @error('birth_date')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                            @enderror
+
                         </div>
 
                     </div>

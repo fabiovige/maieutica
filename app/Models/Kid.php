@@ -24,11 +24,23 @@ class Kid extends Model
         return $this->hasMany(Checklist::class);
     }
 
-    public function getMonthsAttribute()
+    public function getBirthDateAttribute($value)
     {
-        $birth_date = Carbon::createFromFormat('d/m/Y', $this->attributes['birth_date'])->format('Y-m-d');
-        $now = Carbon::now();
-
-        return ($now->diffInMonths($birth_date) == 0) ? 1 : $now->diffInMonths($birth_date);
+        return Carbon::createFromFormat('Y-m-d', $value)->format('d/m/Y');
     }
+
+    public function setBirthDateAttribute($value)
+    {
+        $this->attributes['birth_date'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+    }
+
+    public static function boot() {
+        parent::boot();
+        self::deleting(function($kid) {
+            $kid->checklists()->each(function($checklist) {
+                $checklist->delete();
+            });
+        });
+    }
+
 }

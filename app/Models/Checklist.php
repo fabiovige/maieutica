@@ -12,6 +12,18 @@ class Checklist extends Model
 
     use SoftDeletes;
 
+    const LEVEL = [
+        '1' => 'Nível 1',
+        '2' => 'Nível 2',
+        '3' => 'Nível 3',
+        '4' => 'Nível 4',
+    ];
+
+    const SITUATION = [
+        'a' => 'Aberto',
+        'f' => 'Fechado'
+    ];
+
     protected $fillable = ['level', 'kid_id', 'situation', 'description', 'created_by', 'updated_by', 'deleted_by'];
 
     public function kid()

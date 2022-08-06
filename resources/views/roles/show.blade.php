@@ -53,6 +53,10 @@
                                 <x-button href="{{route('roles.edit', $role->id)}}" icon="pencil" name="Editar" type="link" class="dark"></x-button>
                             @endcan
 
+                            @can('roles.store')
+                                <x-button href="{{route('roles.create')}}" icon="plus" name="Cadastrar" type="link" class="dark"></x-button>
+                            @endcan
+
                             @can('roles.destroy')
                                 <form action="{{ route('roles.destroy', $role->id) }}" name="form-delete" method="post">
                                     @csrf

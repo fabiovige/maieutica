@@ -32,7 +32,7 @@ class KidRequest extends FormRequest
             }
             case 'POST': {
                 return [
-                    'name' => 'required|min:4|max:60',
+                    'name' => 'required|min:3|max:100',
                     'birth_date' => 'required|date_format:"d/m/Y"',
                     'user_id' => 'required|exists:users,id',
                 ];
@@ -51,9 +51,9 @@ class KidRequest extends FormRequest
     public function attributes()
     {
         return [
-            'name' => 'Nome',
-            'birth_date' => 'Data de nascimento',
-            'responsible_id' => 'Responsável',
+            'name' => 'nome completo',
+            'birth_date' => 'data de nascimento',
+            'user_id' => 'usuário responsável'
         ];
     }
 

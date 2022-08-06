@@ -16,7 +16,7 @@ class KidFactory extends Factory
      */
     public function definition()
     {
-        $date = $this->faker->dateTimeBetween('2020-01-01', '2021-12-31');
+        $date = $this->faker->randomElement(['01/01/2020', '31/12/2021']);
 
         return [
             'name' => $this->faker->name,

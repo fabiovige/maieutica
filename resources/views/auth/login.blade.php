@@ -39,14 +39,14 @@
                             <div class="row">
                                 <div class="d-flex align-items-center">
                                     <button type="submit" class="w-100 btn btn-primary ">
-                                        {{ __('Login') }}
+                                        <i class="bi bi-arrow-right-short"></i> {{ __('Login') }}
                                     </button>
                                 </div>
                             </div>
                         </form>
 
                         </div>
-                        <div class="card-footer">
+                        <div class="card-footer text-center">
                             @if (Route::has('password.request'))
                                 <a class="btn btn-link" href="{{ route('password.request') }}">
                                     {{ __('Forgot Your Password?') }}

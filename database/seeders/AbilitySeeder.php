@@ -32,7 +32,7 @@ class AbilitySeeder extends Seeder
     public function run()
     {
         foreach (self::ABILITIES as $ability) {
-            Ability::create($ability)->roles()->sync([2]);
+            Ability::create($ability)->roles()->sync([1,2]);
         }
     }
 }

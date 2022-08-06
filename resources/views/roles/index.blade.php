@@ -11,7 +11,7 @@
 
 @section('button')
     @can('roles.store')
-        <x-button href="{{route('roles.create')}}" icon="plus" name="cadastrar" type="link" class="dark"></x-button>
+        <x-button href="{{route('roles.create')}}" icon="plus" name="Cadastrar" type="link" class="dark"></x-button>
     @endcan
 @endsection
 

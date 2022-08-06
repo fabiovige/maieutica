@@ -4,8 +4,9 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserRequest extends FormRequest
+class ChecklistRequest extends FormRequest
 {
+
     public function authorize()
     {
         return true;
@@ -17,21 +18,21 @@ class UserRequest extends FormRequest
             case 'GET':
             case 'DELETE': {
                 return [
-                    'id' => 'required|exists:users,id',
+                    'id' => 'required|exists:checklist,id',
                 ];
             }
             case 'POST': {
                 return [
-                    'name' => 'required|string|max:150',
-                    'email' => 'required|string|email|max:150|unique:users,email',
-                    'role_id' => 'required',
+                    'kid_id' => 'required',
+                    'level' => 'required',
+                    'situation' => 'nullable',
+                    'description' => 'nullable',
                 ];
             }
             case 'PUT': {
                 return [
-                    'name' => 'required|string|max:150',
-                    'email' => 'required|string|email|max:150|unique:users,email,'.$this->route('user'),
-                    'role_id' => 'required',
+                    'situation' => 'required',
+                    'description' => 'required|min:6',
                 ];
             }
             default:
@@ -42,8 +43,10 @@ class UserRequest extends FormRequest
     public function attributes()
     {
         return [
-            'role_id' => 'papél',
-            'responsible' => 'responsável',
+            'kid_id' => 'criança',
+            'level' => 'nível',
+            'situation' => 'situação',
         ];
     }
+
 }

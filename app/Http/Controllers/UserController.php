@@ -26,11 +26,10 @@ class UserController extends Controller
     {
         $data = User::select('id', 'name', 'email', 'role_id');
 
-        if (auth()->user()->isSuperAdmin()) {
+        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = User::select('id', 'name', 'email', 'role_id');
         } else {
-            $data = User::select('id', 'name', 'email', 'role_id')
-                ->where('created_by', '=', auth()->user()->id);
+            $data = User::select('id', 'name', 'email', 'role_id')->where('created_by', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)
@@ -142,10 +141,10 @@ class UserController extends Controller
 
             flash(self::MSG_CREATE_ERROR)->warning();
 
-            $message = label_case('Create User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            echo $message = label_case('Create User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
-            return redirect()->back();
+            //return redirect()->back();
         }
     }
 

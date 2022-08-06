@@ -18,39 +18,26 @@
 
 <div id="app" class="pagewrap">
 
-    <main class="py-2 d-flex align-items-center justify-content-center">
-        <div class="div">
-
-            @section('content')
-                @error('email')
-                <div class="alert alert-warning text-center" style="width:400px;">
-                    {{ $message }}
-                </div>
-                @enderror
-                <div class="card " style="width:400px;">
-                    <div class="card-header text-center">
-                        <img src="{{ asset('images/logo_login.png') }} "
-                             class="elevation-0"
-                             alt="{{ config('app.name') }}"
-                             width="180px"
-                        />
-                    </div>
-                    <div class="card-body">
-                        @yield('content')
-
-                    </div>
-    </main>
-    <footer>
-        <div class="container">
-            <div class="row  py-4 d-flex justify-content-center">
-                <p class="small text-center mb-0 mt-4">
-                    {{ config('app.name') }} - {{ config('app.description') }}
-                    <br>
-                    &copy; 2021 - {{ now()->format('Y') }}
-                </p>
+    <main class="d-flex align-items-center justify-content-center ">
+        @error('email')
+        <div class="alert alert-warning text-center" style="width:400px;">
+            {{ $message }}
+        </div>
+        @enderror
+        <div class="card shadow" style="width:400px;" >
+            <div class="card-header text-center">
+                <img src="{{ asset('images/logo_login.png') }} "
+                     class="elevation-0"
+                     alt="{{ config('app.name') }}"
+                     width="120px"
+                />
             </div>
+            <div class="card-body">
+                @yield('content')
+            </div>
+        </div>
+    </main>
 
-    </footer>
 </div>
 
 

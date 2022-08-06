@@ -23,12 +23,6 @@ class RoleController extends Controller
 
     public function index()
     {
-//        if (auth()->user()->isSuperAdmin()) {
-//            $roles = Role::paginate($this->paginate);
-//        } else {
-//            $roles = Role::where('created_by', '=', auth()->user()->id)->paginate($this->paginate);
-//        }
-
         $message = label_case('Index Role ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
 
@@ -37,11 +31,10 @@ class RoleController extends Controller
 
     public function index_data()
     {
-        if (auth()->user()->isSuperAdmin()) {
+        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Role::select('id', 'name');
         } else {
-            $data = Role::select('id', 'name')
-                ->where('created_by', '=', auth()->user()->id);
+            $data = Role::select('id', 'name')->where('created_by', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)

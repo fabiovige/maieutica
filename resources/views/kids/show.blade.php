@@ -15,9 +15,7 @@
 @endsection
 
 @section('content')
-
     <div class="row">
-
         <div class="col-md-12 ">
             <div class="card">
                 <div class="card-header ">
@@ -25,7 +23,9 @@
                 </div>
                 <div class="card-body">
                     Nome: {{ $kid->name }} <br>
-                    Data de nascimento: {{ $kid->birth_date }} - {{ $kid->months }} meses
+                    Data de nascimento: {{ $kid->birth_date }} <br>
+                    Checklists: {{ $kid->checklists->count() }} <br>
+                    Usuário Responsável: {{ $kid->user->name }}
                 </div>
                 <div class="card-footer  d-flex justify-content-between">
                     @can('kids.update')
@@ -42,6 +42,45 @@
                 </div>
             </div>
         </div>
+
+        @if($kid->checklists->count() > 0)
+            <div class="col-md-12 mt-2">
+                <div class="card">
+                    <div class="card-header ">
+                        Histórico de checklists
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-hover nowrap dataTable" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Nível</th>
+                                <th>Situação</th>
+                                <th>Data de criação</th>
+                                <th>Data de atualização</th>
+                                <th style="width: 30px"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($kid->checklists as $checklist)
+                                <tr>
+                                    <td>{{ $checklist->id }}</td>
+                                    <td>{{ $checklist->level }}</td>
+                                    <td>{{ \App\Models\Checklist::SITUATION[$checklist->situation] }}</td>
+                                    <td>{{ $checklist->created_at->format('d/m/Y H:i') }}</td>
+                                    <td>{{ $checklist->updated_at->format('d/m/Y H:i') }}</td>
+                                    <td>
+                                        <x-button href="{{ route('checklists.show', $checklist->id) }}" icon="gear" type="link" class="success"></x-button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
         @include('includes.information-register', ['data' => $kid])
     </div>
 @endsection
+
