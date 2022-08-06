@@ -19,7 +19,9 @@ class DatabaseSeeder extends Seeder
             KidSeeder::class,
             ChecklistSeeder::class,
             ResourceSeeder::class,
-            AbilitySeeder::class
+            AbilitySeeder::class,
+            CompetenceSeeder::class,
+            CompetenceDescriptionSeeder::class
         ]);
     }
 }
