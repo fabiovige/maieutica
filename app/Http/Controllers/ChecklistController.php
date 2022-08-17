@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ChecklistRequest;
 use App\Models\Checklist;
+use App\Models\Competence;
+use App\Models\CompetenceDescription;
 use App\Models\Kid;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -165,6 +167,28 @@ class ChecklistController extends Controller
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Destroy Checkilist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            Log::error($message);
+
+            return redirect()->back();
+        }
+    }
+
+    public function fill(Request $request)
+    {
+        try {
+            $message = label_case('Fill Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            Log::info($message);
+
+            $levels = Checklist::LEVEL;
+            $kids = Kid::all('id', 'name');
+            $competences = Competence::competencesByLevel();
+            $competenceDescriptions = Competence::competenceDescriptionsByLevel();
+
+            return view('checklists.fill', compact('kids', 'levels', 'competences', 'competenceDescriptions'));
+
+        } catch (Exception $e) {
+            flash(self::MSG_NOT_FOUND)->warning();
+            $message = label_case('Fill Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             return redirect()->back();

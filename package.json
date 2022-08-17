@@ -23,9 +23,12 @@
         "resolve-url-loader": "^5.0.0",
         "sass": "^1.32.11",
         "sass-loader": "^11.0.1",
-        "sweetalert2": "^11.4.17"
+        "sweetalert2": "^11.4.17",
+        "vue-loader": "^16.8.3"
     },
     "dependencies": {
-        "chart.js": "^3.8.0"
+        "chart.js": "^3.8.0",
+        "vue": "^3.2.37",
+        "vue3-select2-component": "^0.1.7"
     }
 }

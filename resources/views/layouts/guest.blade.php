@@ -16,7 +16,7 @@
 </head>
 <body>
 
-<div id="app" class="pagewrap">
+<div class="pagewrap">
 
     <main class="d-flex align-items-center justify-content-center ">
         @error('email')

@@ -20,6 +20,7 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])
 Route::middleware(['auth', 'acl'])->group(function () {
 
     // checklists
+    Route::get('checklists/fill', [ChecklistController::class, 'fill'])->name('checklists.fill');
     Route::resource('checklists', ChecklistController::class);
 
     // kids
@@ -27,13 +28,10 @@ Route::middleware(['auth', 'acl'])->group(function () {
 
     // roles
     Route::resource('roles', RoleController::class);
-    Route::get('roles/{role}/resources', [RoleController::class, 'syncResources'])->name('roles.resources');
-    Route::put('roles/{role}/resources', [RoleController::class, 'updateSyncResources'])->name('roles.resources.update');
-    Route::get('roles/delete/{id}', [RoleController::class, 'delete'])->name('delete');
 
     // users
-    Route::resource('users', UserController::class);
     Route::get('users/{id}/pdf', [UserController::class, 'pdf'])->name('users.pdf');
+    Route::resource('users', UserController::class);
 });
 
 // Data Table Ajax

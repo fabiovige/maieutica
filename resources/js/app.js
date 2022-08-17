@@ -51,3 +51,17 @@ $('.form-delete').click(function (e) {
     });
 });
 
+import { createApp, onMounted } from 'vue'
+import Competences from './components/Competences'
+import Dropdown from './components/Dropdown'
+import Select2 from 'vue3-select2-component';
+
+const app = createApp({
+    setup() {
+        //onMounted(getUser)
+    }
+});
+app.component('Competences', Competences)
+app.component('Dropdown', Dropdown)
+app.component('Select2', Select2)
+app.mount('#app')

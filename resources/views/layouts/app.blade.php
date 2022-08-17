@@ -13,9 +13,10 @@
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
 
     @stack('styles')
+
 </head>
 <body>
-    <div id="app" class="pagewrap">
+    <div class="pagewrap">
 
         @include('layouts.navbar')
         <main class="py-2">

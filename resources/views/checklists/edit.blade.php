@@ -88,5 +88,3 @@
         @include('includes.information-register', ['data' => $checklist])
     </div>
 @endsection
-
-
