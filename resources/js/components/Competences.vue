@@ -39,10 +39,49 @@
                         <tr v-for="competence in competenceDescriptions" :key="competence.id">
                             <td>{{ competence.code }}</td>
                             <td>{{ competence.description }}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                       type="radio"
+                                       value="0" v-bind:name="`N${competence.id}`"
+                                       @click="selectNote($event)"
+                                    >
+                                    {{ competence.id }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           value="1" v-bind:name="`${competence.id}`"
+                                           @click="selectNote($event)"
+                                    >
+                                    {{ competence.id }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           value="2" v-bind:name="`${competence.id}`"
+                                           @click="selectNote($event)"
+                                    >
+                                    {{ competence.id }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           value="" v-bind:name="`${competence.id}`" checked
+                                           @click="selectNote($event)"
+                                    >
+                                    {{ competence.id }}
+                                </div>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -61,6 +100,7 @@ import useCompetences from "../composables/competences";
 export default {
     name: 'Components',
     setup() {
+        const note = ref('')
         const level = ref(1)
         const competence = ref(1)
 
@@ -81,16 +121,22 @@ export default {
             getLevels,
             competenceDescriptions,
             getCompetenceDescriptions,
-            competence
+            competence,
+            note
         }
     },
     methods: {
         selectLevel(event) {
+            this.competence = 1
             this.getCompetences(event.target.value)
-            this.getCompetenceDescriptions(this.level, 1)
+            this.getCompetenceDescriptions(event.target.value)
         },
         selectCompetence(event) {
             this.getCompetenceDescriptions(this.level, event.target.value)
+            this.competence = event.target.value
+        },
+        selectNote(event) {
+            console.log(event.target.value);
         }
     }
 }
