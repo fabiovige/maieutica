@@ -3,16 +3,26 @@ import { ref } from 'vue'
 export default function useCompetences() {
 
     const competences = ref({})
+    const competenceDescriptions = ref({})
 
-    const getCompetences = async () => {
-        axios.get('/api/competences?page='
+    const getCompetences = async (level = 1) => {
+        await axios.get('/api/competences?level=' + level )
             .then(response => {
-                competences.value = response.data;
-            })
-        );
+                competences.value = response.data.data;
+            });
+    }
+
+    const getCompetenceDescriptions = async (level = 1, competence = 1) => {
+        await axios.get('/api/competence/descriptions?level=' + level + '&competence=' + competence )
+            .then(response => {
+                competenceDescriptions.value = response.data.data;
+            });
     }
 
     return {
-        competences
+        competences,
+        getCompetences,
+        competenceDescriptions,
+        getCompetenceDescriptions
     }
 }

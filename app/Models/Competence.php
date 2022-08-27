@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class Competence extends Model
 {
@@ -17,7 +20,7 @@ class Competence extends Model
         return $this->hasMany(CompetenceDescription::class);
     }
 
-    public static function competencesByLevel($level = 1)
+    public static function competencesByLevel($level = 1): Collection
     {
         return DB::table('competence_descriptions as cd')
             ->join('competences as c', 'cd.competence_id', '=', 'c.id')
@@ -28,7 +31,7 @@ class Competence extends Model
             ->get();
     }
 
-    public static function competenceDescriptionsByLevel($level = 1, $competence_id = 2)
+    public static function competenceDescriptionsByLevel($level = 1, $competence_id = 2): Collection
     {
         return DB::table('competence_descriptions as cd')
             ->join('competences as c', 'cd.competence_id', '=', 'c.id')

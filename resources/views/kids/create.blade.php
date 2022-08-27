@@ -26,11 +26,9 @@
                         Cadastrar criança
                     </div>
                     <div class="card-body">
-
                         <div class="form-group">
-
                             <div class="row">
-                                <div class="col">
+                                <div class="mb-2 col-md-4">
                                     <label for="name">Nome completo</label> <br>
                                     <input class="form-control @error('name') is-invalid @enderror" type="text" name="name" value="{{ old('name') }}">
                                     @error('name')
@@ -39,7 +37,7 @@
                                     </div>
                                     @enderror
                                 </div>
-                                <div class="col">
+                                <div class="mb-2 col-md-4">
                                     <label for="birth_date">Data de nascimento</label> <br>
                                     <input class="form-control datepicker @error('birth_date') is-invalid @enderror" type="text" name="birth_date" value="{{ old('birth_date') }}">
                                     @error('birth_date')
@@ -48,7 +46,7 @@
                                     </div>
                                     @enderror
                                 </div>
-                                <div class="col">
+                                <div class="col-md-4">
                                     <label for="user_id">Usuário responsável</label> <br>
                                     <select class="form-select @error('user_id') is-invalid @enderror" aria-label="user_id" name="user_id">
                                         <option value="">-- selecione --</option>
@@ -63,9 +61,7 @@
                                     @enderror
                                 </div>
                             </div>
-
                         </div>
-
                     </div>
                     <div class="card-footer">
                         <x-button icon="save" name="Salvar" type="submit" class="dark"></x-button>

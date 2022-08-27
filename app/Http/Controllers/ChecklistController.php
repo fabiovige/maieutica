@@ -178,13 +178,8 @@ class ChecklistController extends Controller
         try {
             $message = label_case('Fill Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
-
-            $levels = Checklist::LEVEL;
             $kids = Kid::all('id', 'name');
-            $competences = Competence::competencesByLevel();
-            $competenceDescriptions = Competence::competenceDescriptionsByLevel();
-
-            return view('checklists.fill', compact('kids', 'levels', 'competences', 'competenceDescriptions'));
+            return view('checklists.fill', compact('kids'));
 
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
