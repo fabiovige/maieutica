@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ChecklistRequest;
 use App\Models\Checklist;
+use App\Models\ChecklistRegister;
 use App\Models\Competence;
 use App\Models\CompetenceDescription;
 use App\Models\Kid;
@@ -173,13 +174,16 @@ class ChecklistController extends Controller
         }
     }
 
-    public function fill(Request $request)
+    public function fill(Request $request, $id)
     {
         try {
             $message = label_case('Fill Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
             $kids = Kid::all('id', 'name');
-            return view('checklists.fill', compact('kids'));
+            return view('checklists.fill', [
+                'kids' => $kids,
+                'checklist_id' => $id
+            ]);
 
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
@@ -188,5 +192,31 @@ class ChecklistController extends Controller
 
             return redirect()->back();
         }
+    }
+
+    public function register(Request $request)
+    {
+        $data = $request->all();
+        $checklistRegister = ChecklistRegister::where('checklist_id', $request->checklist_id)->where('competence_description_id', $request->competence_description_id);
+        if($checklistRegister->count()) {
+           $id = $checklistRegister->first()->id;
+           $cr = ChecklistRegister::findOrFail($id);
+           $cr->update($data);
+        } else {
+            $checklistRegister->create($data);
+        }
+    }
+
+    public function progressbar()
+    {
+        $total = CompetenceDescription::where('level', 1)->count();
+        $porcentagem = $this->descobrir_porcentagem($total, 98);
+
+        dd($porcentagem);
+    }
+
+    protected function descobrir_porcentagem(float $valor_base, float $valor): float
+    {
+        return round( ($valor / $valor_base * 100), 1 );
     }
 }

@@ -41,4 +41,5 @@ class Competence extends Model
             ->orderBy('cd.code')
             ->get();
     }
+
 }

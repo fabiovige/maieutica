@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Checklist extends Model
 {
@@ -26,8 +30,13 @@ class Checklist extends Model
 
     protected $fillable = ['level', 'kid_id', 'situation', 'description', 'created_by', 'updated_by', 'deleted_by'];
 
-    public function kid()
+    public function kid(): BelongsTo
     {
         return $this->belongsTo(Kid::class);
+    }
+
+    public function competenceDescriptions(): BelongsToMany
+    {
+        return $this->belongsToMany(CompetenceDescription::class);
     }
 }

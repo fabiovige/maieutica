@@ -24,7 +24,7 @@
 
             <div class="row mt-2">
                 <div class="col-md-12">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered table-striped table-hover">
                         <thead>
                         <tr>
                             <th>Cod.</th>
@@ -37,51 +37,53 @@
                         </thead>
                         <tbody>
                         <tr v-for="competence in competenceDescriptions" :key="competence.id">
-                            <td>{{ competence.code }}</td>
-                            <td>{{ competence.description }}</td>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input"
-                                       type="radio"
-                                       value="0" v-bind:name="`N${competence.id}`"
-                                       @click="selectNote($event)"
-                                    >
-                                    {{ competence.id }}
-                                </div>
-                            </td>
 
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input"
+                                <td>{{ competence.code }}</td>
+                                <td>{{ competence.description }}</td>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
                                            type="radio"
-                                           value="1" v-bind:name="`${competence.id}`"
+                                           :value="`${competence.id}_1`" v-bind:name="`${competence.id}`"
                                            @click="selectNote($event)"
-                                    >
-                                    {{ competence.id }}
-                                </div>
-                            </td>
+                                        >
+                                        {{ competence.id }}
+                                    </div>
+                                </td>
 
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input"
-                                           type="radio"
-                                           value="2" v-bind:name="`${competence.id}`"
-                                           @click="selectNote($event)"
-                                    >
-                                    {{ competence.id }}
-                                </div>
-                            </td>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               :value="`${competence.id}_2`" v-bind:name="`${competence.id}`"
+                                               @click="selectNote($event)"
+                                        >
+                                        {{ competence.id }}
+                                    </div>
+                                </td>
 
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input"
-                                           type="radio"
-                                           value="" v-bind:name="`${competence.id}`" checked
-                                           @click="selectNote($event)"
-                                    >
-                                    {{ competence.id }}
-                                </div>
-                            </td>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               :value="`${competence.id}_3`" v-bind:name="`${competence.id}`"
+                                               @click="selectNote($event)"
+                                        >
+                                        {{ competence.id }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               :value="`${competence.id}_0`" v-bind:name="`${competence.id}`"
+                                               @click="selectNote($event)"
+                                        >
+                                        {{ competence.id }}
+                                    </div>
+                                </td>
+
                         </tr>
                         </tbody>
                     </table>
@@ -93,25 +95,57 @@
 
 <script>
 
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, reactive  } from "vue";
 import useLevels from "../composables/levels";
 import useCompetences from "../composables/competences";
+import useChecklistRegisters from "../composables/checklistregisters";
+
+import { useForm, useField, defineRule } from "vee-validate";
 
 export default {
     name: 'Components',
-    setup() {
+    props: ['checklist'],
+
+    setup(props) {
         const note = ref('')
         const level = ref(1)
         const competence = ref(1)
+        const checklist = ref(props.checklist)
 
         const { levels, getLevels } = useLevels()
         const { competences, getCompetences, competenceDescriptions, getCompetenceDescriptions } = useCompetences()
+        const { checklistRegister, getChecklistRegister, storeChecklistRegister } = useChecklistRegisters()
+
+        const checklistregister = reactive({
+            checklist_id: checklist,
+            competence_description_id: '',
+            note: '',
+        })
 
         onMounted(() => {
             getLevels()
             getCompetences()
             getCompetenceDescriptions()
         })
+
+        function selectLevel(event) {
+            competence.value = 1
+            getCompetences(event.target.value)
+            getCompetenceDescriptions(event.target.value)
+        }
+
+        function selectCompetence(event) {
+            getCompetenceDescriptions(this.level, event.target.value)
+            competence.value = event.target.value
+        }
+
+        function selectNote(event) {
+            let data = event.target.value.split('_');
+            checklistregister.note = data[1]
+            checklistregister.competence_description_id = data[0]
+            checklistregister.checklist_id = checklist.value
+            storeChecklistRegister(checklistregister)
+        }
 
         return {
             competences,
@@ -122,21 +156,13 @@ export default {
             competenceDescriptions,
             getCompetenceDescriptions,
             competence,
-            note
-        }
-    },
-    methods: {
-        selectLevel(event) {
-            this.competence = 1
-            this.getCompetences(event.target.value)
-            this.getCompetenceDescriptions(event.target.value)
-        },
-        selectCompetence(event) {
-            this.getCompetenceDescriptions(this.level, event.target.value)
-            this.competence = event.target.value
-        },
-        selectNote(event) {
-            console.log(event.target.value);
+            checklist,
+            note,
+            selectLevel,
+            selectNote,
+            selectCompetence,
+            getChecklistRegister,
+            checklistRegister
         }
     }
 }

@@ -41,6 +41,8 @@
                         <x-button href="{{ route('checklists.edit', $checklist->id) }}" icon="pencil" name="Editar" type="link" class="dark"></x-button>
                     @endcan
 
+                        <x-button href="{{route('checklists.fill', $checklist->id)}}" icon="check-circle" name="Registrar avaliação" type="link" class="dark"></x-button>
+
                     @can('checklists.destroy')
                         <form action="{{ route('checklists.destroy', $checklist->id) }}" name="form-delete" method="post">
                             @csrf

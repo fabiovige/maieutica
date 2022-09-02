@@ -20,7 +20,8 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])
 Route::middleware(['auth', 'acl'])->group(function () {
 
     // checklists
-    Route::get('checklists/fill', [ChecklistController::class, 'fill'])->name('checklists.fill');
+    Route::get('checklists/{id}/fill', [ChecklistController::class, 'fill'])->name('checklists.fill');
+    Route::get('checklists/register', [ChecklistController::class, 'register'])->name('checklists.register');
     Route::resource('checklists', ChecklistController::class);
 
     // kids

@@ -14,7 +14,6 @@
 @section('button')
     @can('kids.store')
         <x-button href="{{route('checklists.create')}}" icon="plus" name="Cadastrar" type="link" class="dark"></x-button>
-        <x-button href="{{route('checklists.fill')}}" icon="plus" name="Teste" type="link" class="success"></x-button>
     @endcan
 @endsection
 

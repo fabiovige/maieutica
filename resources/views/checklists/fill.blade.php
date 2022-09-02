@@ -22,34 +22,9 @@
                     {{ __('visualizar') }}
                 </div>
                 <div class="card-body">
-
                     <div id="app">
-                        <Competences></Competences>
+                        <Competences checklist="{{ $checklist_id }}"></Competences>
                     </div>
-
-
-{{--                    <div class="form-group">--}}
-{{--                        <div class="row">--}}
-
-{{--                            <div class="col-md-2">--}}
-{{--                                <label for="level">Nível</label> <br>--}}
-{{--                                <select class="form-select" aria-label="level" name="level">--}}
-{{--                                    @foreach($levels as $key => $value)--}}
-{{--                                        <option value="{{ $key }}" > {{ $value }} </option>--}}
-{{--                                    @endforeach--}}
-{{--                                </select>--}}
-{{--                            </div>--}}
-
-{{--                            <div class="col-md-4">--}}
-{{--                                <label for="competence_id">Competências</label> <br>--}}
-{{--                                <select class="form-select" aria-label="competence_id" name="competence_id">--}}
-{{--                                    @foreach($competences as $competence)--}}
-{{--                                        <option value="{{ $competence->id }}" > {{ $competence->name }} </option>--}}
-{{--                                    @endforeach--}}
-{{--                                </select>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
 
                 </div>
 
