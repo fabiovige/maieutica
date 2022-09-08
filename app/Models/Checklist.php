@@ -6,15 +6,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Checklist extends Model
 {
-    use HasFactory;
-
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     const LEVEL = [
         '1' => 'Nível 1',
@@ -35,8 +33,8 @@ class Checklist extends Model
         return $this->belongsTo(Kid::class);
     }
 
-    public function competenceDescriptions(): BelongsToMany
+    public function competences(): BelongsToMany
     {
-        return $this->belongsToMany(CompetenceDescription::class);
+        return $this->belongsToMany(Competence::class)->withPivot('note');
     }
 }

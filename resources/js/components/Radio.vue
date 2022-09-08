@@ -2,7 +2,7 @@
     <div class="form-check">
         <input class="form-check-input"
                type="radio"
-               :value="`${competence.id}_0`" v-bind:name="`${competence.id}`"
+               :value="`${competence.id}_${note}`" v-bind:name="`${competence.id}`"
                @click="selectNote($event)"
         >
     </div>
@@ -10,10 +10,11 @@
 
 <script>
 
-import { ref, onMounted, watch } from "vue";
-import useChecklistRegisters from "../composables/checklist_registers";
+import {ref, onMounted, watch, reactive} from "vue";
+import useChecklistRegisters from "../composables/checklistregisters";
 
 export default {
+
     props: [
         'checklist_id',
         'competence_description_id',
@@ -30,18 +31,15 @@ export default {
             checklistGet(props.checklist_id, props.competence_description_id)
         })
 
+        function selectNote(){
+
+        }
+
         return {
             note,
             checklistRegister,
             checklistGet,
             checklistNote
-        }
-    },
-    methods: {
-        selectLevel(event) {
-            this.competence = 1
-            // this.getCompetences(event.target.value)
-            // this.getCompetenceDescriptions(event.target.value)
         }
     }
 }

@@ -9,17 +9,10 @@ export default function useChecklistRegisters() {
         note: '',
     })
 
-    const getChecklistRegister = async (id) => {
-        axios.get('/api/checklistregisters/' + id)
+    const getChecklistRegister = async (checklist_id, competence_description_id) => {
+        axios.get('/api/checklistregisters?checklist_id=' + checklist_id + '&competence_description_id=' + competence_description_id)
             .then(response => {
-                checklistregister.value = response.data.data;
-            })
-    }
-
-    const getChecklistRegisters = async (id) => {
-        axios.get('/api/checklistregisters/' + id)
-            .then(response => {
-                checklistregister.value = response.data.data;
+                checklistregisters.value = response.data.data;
             })
     }
 

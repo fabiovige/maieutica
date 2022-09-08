@@ -41,6 +41,7 @@
                                 <td>{{ competence.code }}</td>
                                 <td>{{ competence.description }}</td>
                                 <td>
+
                                     <div class="form-check">
                                         <input class="form-check-input"
                                            type="radio"
@@ -49,6 +50,8 @@
                                         >
                                         {{ competence.id }}
                                     </div>
+
+
                                 </td>
 
                                 <td>
@@ -101,9 +104,11 @@ import useCompetences from "../composables/competences";
 import useChecklistRegisters from "../composables/checklistregisters";
 
 import { useForm, useField, defineRule } from "vee-validate";
+import Radio from "./Radio";
 
 export default {
     name: 'Components',
+    components: {Radio},
     props: ['checklist'],
 
     setup(props) {
@@ -130,8 +135,9 @@ export default {
 
         function selectLevel(event) {
             competence.value = 1
-            getCompetences(event.target.value)
-            getCompetenceDescriptions(event.target.value)
+            let leve = event.target.value;
+            getCompetences(level)
+            getCompetenceDescriptions(leve)
         }
 
         function selectCompetence(event) {

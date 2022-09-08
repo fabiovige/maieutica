@@ -9,8 +9,9 @@ use App\Http\Controllers\Api\ChecklistRegisterController;
 
 // });
 
-Route::get('competences', [CompetenceController::class, 'index'])->name('api.competences');
-Route::get('competence/descriptions', [CompetenceController::class, 'competenceDescriptions'])->name('api.competence.descriptions');
-Route::get('competence/checklistRegister', [CompetenceController::class, 'checklistRegister'])->name('api.competence.checklistRegister');
+// Route::get('competences', [CompetenceController::class, 'index'])->name('api.competences');
+// Route::get('competence/descriptions', [CompetenceController::class, 'competenceDescriptions'])->name('api.competence.descriptions');
+// Route::get('competence/checklistRegister', [CompetenceController::class, 'checklistRegister'])->name('api.competence.checklistRegister');
 
+Route::apiResource('competences', CompetenceController::class);
 Route::apiResource('checklistregisters', ChecklistRegisterController::class);

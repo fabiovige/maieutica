@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateAbilityRoleTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('ability_role', function (Blueprint $table) {
@@ -22,11 +17,6 @@ class CreateAbilityRoleTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('resource_role');

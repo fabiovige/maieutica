@@ -9,8 +9,7 @@ use Illuminate\Support\Carbon;
 
 class Kid extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['name', 'birth_date', 'user_id', 'created_by', 'updated_by', 'deleted_by'];
 
