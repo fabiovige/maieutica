@@ -30,32 +30,36 @@ class ChecklistRegisterController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->all();
-        var_dump($data);
-        $arrNote = explode(',', $data['note']);
-        $arr = [];
-        foreach($arrNote as $c => $v) {
+        $arrNotes = explode(',', $request->note);
+        $notes = [];
+        foreach($arrNotes as $c => $v) {
             if(!empty($v)){
-                $arr[$c] = $v;
+                $notes[$c] = ['note' => $v];
             }
         }
-        dd($arr);
+
+        $checklist = Checklist::findOrFail($request->checklist_id);
+
+        dd($checklist->competences()->sync($notes));
+
+        dd($notes);
     }
 
-    public function store_old(StoreChecklistRegisterRequest $request)
+    protected function register($checklist_id, $competence_id, $note)
     {
-        $getChecklistRegister = ChecklistRegister::where('checklist_id', $request->checklist_id)
-            ->where('competence_description_id', $request->competence_description_id);
+        $data = [
+            'checklist_id' => $checklist_id,
+            'competence_id' => $competence_id,
+            'note' => $note
+        ];
 
-        if($getChecklistRegister->count()) {
-            $id = $getChecklistRegister->first()->id;
-            $checklistRegister = ChecklistRegister::findOrFail($id);
-            $checklistRegister->update($request->all());
+        $checklist = Checklist::where('checklist_id', $checklist_id)->where('competence_id', $competence_id);
+        if($checklist->count()) {
+            $checklist->update($data);
         } else {
-            $checklistRegister = ChecklistRegister::create($request->all());
+            ChecklistCompetence::create($data);
         }
-
-        return new ChecklistRegisterResource($checklistRegister);
+        return true;
     }
 
 //    public function checklistRegister(Request $request)

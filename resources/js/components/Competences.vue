@@ -117,10 +117,10 @@ export default {
         const { storeChecklistRegister } = useChecklistRegisters()
 
         const checklist = reactive({
-            checklist_id: checklist_id.value,
-            level_id: level_id.value,
-            domain_id: domain_id.value,
-            note: note.value,
+            checklist_id,
+            level_id,
+            domain_id,
+            note,
         })
 
         function submitForm() {
@@ -136,11 +136,13 @@ export default {
 
         function selectLevel(event) {
             domain_id.value = 1
+            note.value = [];
             getCompetences(level_id.value, domain_id.value)
             getDomains(level_id.value)
         }
 
         function selectDomain(event) {
+            note.value = [];
             getCompetences(level_id.value, event.target.value)
             getDomain(event.target.value)
         }
