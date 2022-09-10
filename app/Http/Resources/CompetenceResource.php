@@ -9,7 +9,7 @@ class CompetenceResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'level' => $this->level,
+            'level_id' => $this->level_id,
             'domain_id' => $this->domain_id,
             'domain_name' => $this->domain->name,
             'code' => $this->code,

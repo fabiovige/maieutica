@@ -15,11 +15,17 @@
                 <div class="col-md-6">
                     <label for="competence_id">Selecione a competência</label>
                     <select v-model="domain_id" class="form-select" @change="selectCompetence($event)">
-                        <option v-for="domain in levels[level_id-1]" :key="domain.id" :value="domain.id">
+                        <option v-for="domain in domains" :key="domain.id" :value="domain.id">
                             {{ domain.id }} - {{ domain.name }}
                         </option>
                     </select>
-                    {{ level_id }}
+                    level {{ level_id }} domain {{ domain_id}}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mt-2">
+                    <h4>{{ domain.name }}</h4>
                 </div>
             </div>
 
@@ -29,7 +35,7 @@
                         <thead>
                         <tr>
                             <th>Cod.</th>
-                            <th></th>
+                            <th>Descrição</th>
                             <th>N</th>
                             <th>P</th>
                             <th>A</th>
@@ -37,7 +43,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="competence in competenceDescriptions" :key="competence.id">
+                        <tr v-for="competence in competences" :key="competence.id">
 
                                 <td>{{ competence.code }}</td>
                                 <td>{{ competence.description }}</td>
@@ -117,11 +123,12 @@ export default {
         const note = ref('')
         const level_id = ref(1)
         const domain_id = ref(1)
+        const domain_name = ref('')
         const checklist = ref(props.checklist)
 
-        const { levels, getLevels, level, getLevel } = useLevels()
-        const { domains, getDomains } = useDomains()
-        //const { competences, getCompetences, competenceDescriptions, getCompetenceDescriptions } = useCompetences()
+        const { levels, getLevels } = useLevels()
+        const { domain, getDomain, domains, getDomains } = useDomains()
+        const { competences, getCompetences } = useCompetences()
         //const { checklistRegister, getChecklistRegister, storeChecklistRegister } = useChecklistRegisters()
 
         // const checklistregister = reactive({
@@ -132,24 +139,21 @@ export default {
 
         onMounted(() => {
             getLevels()
-            console.log(this.levels);
             getDomains()
-            // getCompetences()
-            // getCompetenceDescriptions()
+            getCompetences()
+            getDomain()
+            domain_name.value = domain.name
         })
 
         function selectLevel(event) {
-            // domain_id.value = 1
-            let level = event.target.value;
-            console.log(levels.value)
-            // getCompetences(level)
-            // getCompetenceDescriptions(leve)
+            domain_id.value = 1
+            getDomains(level_id.value)
+            getCompetences(level_id.value, domain_id.value)
         }
 
-        // function selectCompetence(event) {
-        //     getCompetenceDescriptions(this.level, event.target.value)
-        //     competence.value = event.target.value
-        // }
+        function selectCompetence(event) {
+            getCompetences(level_id.value, event.target.value)
+        }
         //
         // function selectNote(event) {
         //     let data = event.target.value.split('_');
@@ -161,13 +165,21 @@ export default {
 
         return {
             level_id,
-            level,
-            levels,
-            getLevels,
             domain_id,
+
+            levels,
+
+            domain,
+            domains,
+
             checklist,
             note,
             selectLevel,
+
+            competences,
+            selectCompetence,
+
+            domain_name,
         }
     }
 }

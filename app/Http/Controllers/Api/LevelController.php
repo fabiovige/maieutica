@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\DomainResource;
 use App\Http\Resources\LevelResource;
 use App\Models\Level;
-use Illuminate\Http\Request;
 
 class LevelController
 {
@@ -16,7 +16,8 @@ class LevelController
 
     public function show($id)
     {
-        $level = Level::where('id', $id)->get();
-        return LevelResource::collection($level);
+        $level = Level::where('id', $id)->first();
+        $domains = $level->domains()->orderBy('name')->get();
+        return DomainResource::collection($domains);
     }
 }

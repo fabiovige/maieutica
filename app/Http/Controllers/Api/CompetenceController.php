@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -13,7 +11,9 @@ class CompetenceController extends Controller
 {
     public function index(Request $request)
     {
-        $c = Competence::where('level',  $request->level)->where('domain_id', $request->domain)->get();
-        return CompetenceResource::collection($c);
+        $competences = Competence::where('level_id',  $request->level)
+            ->where('domain_id', $request->domain)->get();
+
+        return CompetenceResource::collection($competences);
     }
 }

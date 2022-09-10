@@ -15,7 +15,7 @@ class DomainController
 
     public function show($id)
     {
-        $domain = Domain::where('id',$id)->get();
-        return DomainResource::collection($domain);
+        $domain = Domain::find($id);
+        return new DomainResource($domain);
     }
 }
