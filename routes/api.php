@@ -18,4 +18,4 @@ use App\Http\Controllers\Api\ChecklistRegisterController;
 Route::apiResource('levels', LevelController::class);
 Route::apiResource('domains', DomainController::class);
 Route::apiResource('competences', CompetenceController::class);
-//Route::apiResource('checklistregisters', ChecklistRegisterController::class);
+Route::apiResource('checklistregisters', ChecklistRegisterController::class);

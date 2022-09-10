@@ -28,7 +28,21 @@ class ChecklistRegisterController extends Controller
         //return ChecklistCompetenceResource::collection($checklist->get());
     }
 
-    public function store(StoreChecklistRegisterRequest $request)
+    public function store(Request $request)
+    {
+        $data = $request->all();
+        var_dump($data);
+        $arrNote = explode(',', $data['note']);
+        $arr = [];
+        foreach($arrNote as $c => $v) {
+            if(!empty($v)){
+                $arr[$c] = $v;
+            }
+        }
+        dd($arr);
+    }
+
+    public function store_old(StoreChecklistRegisterRequest $request)
     {
         $getChecklistRegister = ChecklistRegister::where('checklist_id', $request->checklist_id)
             ->where('competence_description_id', $request->competence_description_id);

@@ -3,10 +3,12 @@ import { ref } from 'vue'
 export default function useChecklistRegisters() {
 
     const checklistregisters = ref({})
-    const checklistregister = ref({
-        checklist_id: '',
-        competence_description_id: '',
-        note: '',
+
+    const checklist = ref({
+        checklist_id: 0,
+        level_id: 0,
+        domain_id: 0,
+        note: [],
     })
 
     const getChecklistRegister = async (checklist_id, competence_description_id) => {
@@ -18,14 +20,15 @@ export default function useChecklistRegisters() {
 
     const storeChecklistRegister = async (data) => {
 
-        let serializedChecklistRegister = new FormData()
+        let serialized = new FormData()
+
         for (let item in data) {
             if (data.hasOwnProperty(item)) {
-                serializedChecklistRegister.append(item, data[item])
+                serialized.append(item, data[item])
             }
         }
 
-        axios.post('/api/checklistregisters', serializedChecklistRegister)
+        axios.post('/api/checklistregisters', serialized)
             .then(response => {
 
             })
