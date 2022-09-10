@@ -5,20 +5,21 @@
 
                 <div class="col-md-6">
                     <label for="level">Selecione o nível</label>
-                    <select v-model="level" class="form-select" id="level" @change="selectLevel($event)">
-                        <option v-for="(level) in levels" :key="level.id" :value="level.id">
-                            {{ level.name }}
+                    <select v-model="level_id" class="form-select" @change="selectLevel($event)">
+                        <option v-for="level in levels" :key="level.id" :value="level.level">
+                            {{ level.level }} - {{ level.name }}
                         </option>
                     </select>
                 </div>
 
                 <div class="col-md-6">
                     <label for="competence_id">Selecione a competência</label>
-                    <select v-model="competence" id="select_competence" class="form-select" @change="selectCompetence($event)">
-                        <option v-for="competence in competences" :key="competence.id" :value="competence.id">
-                            {{ competence.id }} - {{ competence.name }}
+                    <select v-model="domain_id" class="form-select" @change="selectCompetence($event)">
+                        <option v-for="domain in levels[level_id-1]" :key="domain.id" :value="domain.id">
+                            {{ domain.id }} - {{ domain.name }}
                         </option>
                     </select>
+                    {{ level_id }}
                 </div>
             </div>
 
@@ -100,6 +101,7 @@
 
 import { ref, onMounted, reactive  } from "vue";
 import useLevels from "../composables/levels";
+import useDomains from "../composables/domains";
 import useCompetences from "../composables/competences";
 import useChecklistRegisters from "../composables/checklistregisters";
 
@@ -113,62 +115,59 @@ export default {
 
     setup(props) {
         const note = ref('')
-        const level = ref(1)
-        const competence = ref(1)
+        const level_id = ref(1)
+        const domain_id = ref(1)
         const checklist = ref(props.checklist)
 
-        const { levels, getLevels } = useLevels()
-        const { competences, getCompetences, competenceDescriptions, getCompetenceDescriptions } = useCompetences()
-        const { checklistRegister, getChecklistRegister, storeChecklistRegister } = useChecklistRegisters()
+        const { levels, getLevels, level, getLevel } = useLevels()
+        const { domains, getDomains } = useDomains()
+        //const { competences, getCompetences, competenceDescriptions, getCompetenceDescriptions } = useCompetences()
+        //const { checklistRegister, getChecklistRegister, storeChecklistRegister } = useChecklistRegisters()
 
-        const checklistregister = reactive({
-            checklist_id: checklist,
-            competence_description_id: '',
-            note: '',
-        })
+        // const checklistregister = reactive({
+        //     checklist_id: checklist,
+        //     competence_description_id: '',
+        //     note: '',
+        // })
 
         onMounted(() => {
             getLevels()
-            getCompetences()
-            getCompetenceDescriptions()
+            console.log(this.levels);
+            getDomains()
+            // getCompetences()
+            // getCompetenceDescriptions()
         })
 
         function selectLevel(event) {
-            competence.value = 1
-            let leve = event.target.value;
-            getCompetences(level)
-            getCompetenceDescriptions(leve)
+            // domain_id.value = 1
+            let level = event.target.value;
+            console.log(levels.value)
+            // getCompetences(level)
+            // getCompetenceDescriptions(leve)
         }
 
-        function selectCompetence(event) {
-            getCompetenceDescriptions(this.level, event.target.value)
-            competence.value = event.target.value
-        }
-
-        function selectNote(event) {
-            let data = event.target.value.split('_');
-            checklistregister.note = data[1]
-            checklistregister.competence_description_id = data[0]
-            checklistregister.checklist_id = checklist.value
-            storeChecklistRegister(checklistregister)
-        }
+        // function selectCompetence(event) {
+        //     getCompetenceDescriptions(this.level, event.target.value)
+        //     competence.value = event.target.value
+        // }
+        //
+        // function selectNote(event) {
+        //     let data = event.target.value.split('_');
+        //     checklistregister.note = data[1]
+        //     checklistregister.competence_description_id = data[0]
+        //     checklistregister.checklist_id = checklist.value
+        //     storeChecklistRegister(checklistregister)
+        // }
 
         return {
-            competences,
-            getCompetences,
+            level_id,
             level,
             levels,
             getLevels,
-            competenceDescriptions,
-            getCompetenceDescriptions,
-            competence,
+            domain_id,
             checklist,
             note,
             selectLevel,
-            selectNote,
-            selectCompetence,
-            getChecklistRegister,
-            checklistRegister
         }
     }
 }

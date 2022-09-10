@@ -2,19 +2,30 @@ import { ref } from 'vue'
 
 export default function useLevels() {
 
-    const levels = ref([])
+    const level = ref({})
+    const levels = ref({})
 
     const getLevels = async () => {
-       levels.value = [
-            {id: '1', name: 'Nível 1'},
-            {id: '2', name: 'Nível 2'},
-            {id: '3', name: 'Nível 3'},
-            {id: '4', name: 'Nível 4'}
-        ];
+        await axios.get('/api/levels' )
+            .then(response => {
+                    levels.value = response.data.data;
+                }
+            );
+    }
+
+    const getLevel = async (level = 1) => {
+        await axios.get('/api/levels/' + level )
+            .then(response => {
+                console.log(response.data.data);
+                level.value = response.data.data;
+            }
+        );
     }
 
     return {
         levels,
-        getLevels
+        getLevels,
+        level,
+        getLevel,
     }
 }
