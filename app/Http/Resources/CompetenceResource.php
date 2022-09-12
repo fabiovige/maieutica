@@ -7,6 +7,9 @@ class CompetenceResource extends JsonResource
 {
     public function toArray($request)
     {
+
+        $pivot = ($this->checklists()->first() ? $this->checklists()->first()->pivot : false);
+
         return [
             'id' => $this->id,
             'level_id' => $this->level_id,
@@ -15,6 +18,9 @@ class CompetenceResource extends JsonResource
             'code' => $this->code,
             'description' => $this->description,
             'description_detail' => $this->description_detail,
+            'note' => ($pivot) ? $pivot->note : null,
+            'competence_id' => ($pivot) ? $pivot->competence_id : null,
+            'checked' => (bool)($pivot)
         ];
     }
 }

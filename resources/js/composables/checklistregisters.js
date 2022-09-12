@@ -1,8 +1,9 @@
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 
 export default function useChecklistRegisters() {
 
     const checklistregisters = ref({})
+    const swal = inject('$swal')
 
     const checklist = ref({
         checklist_id: 0,
@@ -21,7 +22,6 @@ export default function useChecklistRegisters() {
     const storeChecklistRegister = async (data) => {
 
         let serialized = new FormData()
-
         for (let item in data) {
             if (data.hasOwnProperty(item)) {
                 serialized.append(item, data[item])
@@ -30,7 +30,10 @@ export default function useChecklistRegisters() {
 
         axios.post('/api/checklistregisters', serialized)
             .then(response => {
-
+                swal({
+                    icon: 'success',
+                    title: 'Avaliação registrado com sucesso!'
+                })
             })
             .catch(error => {
                 if (error.response?.data) {

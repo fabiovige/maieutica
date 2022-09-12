@@ -49,36 +49,71 @@
                                 <td>{{ competence.code }}</td>
                                 <td>{{ competence.description }}</td>
                                 <td>
-
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" :name="`${competence.id}_note`"
-                                               v-model="note[competence.id]" :value="2">
+                                        <input class="form-check-input" type="radio"
+                                           :name="`${competence.id}_note`"
+                                           v-model="note[competence.id]" :value="2"
+                                           v-if="competence.note === 2"
+                                               :checked="competence.checked"
+                                        >
+                                        <input class="form-check-input" type="radio"
+                                               :name="`${competence.id}_note`"
+                                               v-model="note[competence.id]"
+                                               :value="2"
+                                               v-if="competence.note !== 2"
+                                        >
                                     </div>
-
                                 </td>
-
                                 <td>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" :name="`${competence.id}_note`"
-                                               v-model="note[competence.id]" :value="3">
+                                        <input class="form-check-input" type="radio"
+                                           :name="`${competence.id}_note`"
+                                           v-model="note[competence.id]" :value="3"
+                                           v-if="competence.note === 3"
+                                                :checked="competence.checked"
+                                        >
+                                        <input class="form-check-input" type="radio"
+                                               :name="`${competence.id}_note`"
+                                               v-model="note[competence.id]"
+                                               :value="3"
+                                               v-if="competence.note !== 3"
+                                        >
                                     </div>
                                 </td>
-
                                 <td>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" :name="`${competence.id}_note`"
-                                               v-model="note[competence.id]" :value="4">
+                                        <input class="form-check-input" type="radio"
+                                           :name="`${competence.id}_note`"
+                                           v-model="note[competence.id]" :value="4"
+                                           v-if="competence.note === 4"
+                                               :checked="competence.checked"
+                                        >
+                                        <input class="form-check-input" type="radio"
+                                               :name="`${competence.id}_note`"
+                                               v-model="note[competence.id]"
+                                               :value="4"
+                                               v-if="competence.note !== 4"
+                                        >
                                     </div>
                                 </td>
-
                                 <td>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" :name="`${competence.id}_note`"
-                                               v-model="note[competence.id]" :value="1">
+
+                                        <input class="form-check-input" type="radio"
+                                           :name="`${competence.id}_note`"
+                                           v-model="note[competence.id]" :value="1"
+                                           v-if="competence.note === 1"
+                                               :checked="competence.checked"
+                                        >
+                                        <input class="form-check-input" type="radio"
+                                               :name="`${competence.id}_note`"
+                                               v-model="note[competence.id]"
+                                               :value="1"
+                                               v-if="competence.note !== 1"
+                                        >
                                     </div>
                                 </td>
-
-                        </tr>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -90,19 +125,14 @@
 </template>
 
 <script>
-
-import {ref, onMounted, reactive, onUnmounted} from "vue";
+import {ref, onMounted, reactive} from "vue";
 import useLevels from "../composables/levels";
 import useDomains from "../composables/domains";
 import useCompetences from "../composables/competences";
 import useChecklistRegisters from "../composables/checklistregisters";
 
-import { useForm, useField, defineRule } from "vee-validate";
-import Radio from "./Radio";
-
 export default {
     name: 'Components',
-    components: {Radio},
     props: ['checklist'],
 
     setup(props) {
@@ -134,7 +164,7 @@ export default {
             getDomain()
         })
 
-        function selectLevel(event) {
+        function selectLevel() {
             domain_id.value = 1
             note.value = [];
             getCompetences(level_id.value, domain_id.value)
@@ -145,15 +175,6 @@ export default {
             note.value = [];
             getCompetences(level_id.value, event.target.value)
             getDomain(event.target.value)
-        }
-
-        function selectNote(event) {
-            let data = event.target.value.split('_');
-            console.log(data)
-            // checklistregister.note = data[1]
-            // checklistregister.competence_description_id = data[0]
-            // checklistregister.checklist_id = checklist.value
-            // storeChecklistRegister(checklistregister)
         }
 
         return {
@@ -171,10 +192,7 @@ export default {
 
             competences,
             selectDomain,
-
-            selectNote,
             submitForm
-
         }
     }
 }
