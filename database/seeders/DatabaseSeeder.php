@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
             ResourceSeeder::class,
             AbilitySeeder::class,
             DomainSeeder::class,
+            LevelSeeder::class,
             CompetenceSeeder::class,
-            LevelSeeder::class
         ]);
     }
 }
