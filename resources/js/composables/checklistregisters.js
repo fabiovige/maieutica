@@ -3,6 +3,7 @@ import { ref, inject } from 'vue'
 export default function useChecklistRegisters() {
 
     const checklistregisters = ref({})
+    const progressbar = ref(0)
     const swal = inject('$swal')
 
     const checklist = ref({
@@ -19,6 +20,14 @@ export default function useChecklistRegisters() {
             })
     }
 
+    const getProgressBar = async (level_id = 0) => {
+        axios.get('/api/checklistregisters/progressbar/' + level_id)
+            .then(response => {
+                console.log(response.data);
+                progressbar.value = response.data;
+            })
+    }
+
     const storeChecklistRegister = async (data) => {
 
         let serialized = new FormData()
@@ -30,10 +39,11 @@ export default function useChecklistRegisters() {
 
         axios.post('/api/checklistregisters', serialized)
             .then(response => {
-                swal({
-                    icon: 'success',
-                    title: 'Avaliação registrado com sucesso!'
-                })
+                // swal({
+                //     icon: 'success',
+                //     title: 'Checklist atualizado com sucesso!'
+                // })
+                getProgressBar(data.level_id)
             })
             .catch(error => {
                 if (error.response?.data) {
@@ -48,5 +58,7 @@ export default function useChecklistRegisters() {
     return {
         getChecklistRegister,
         storeChecklistRegister,
+        getProgressBar,
+        progressbar,
     }
 }

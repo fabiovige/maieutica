@@ -17,19 +17,12 @@
 @section('content')
     <div class="row">
         <div class="col-md-12 ">
+            <h3>{{ $kid->name }}</h3>
             <div class="card">
-                <div class="card-header ">
-                    {{ __('visualizar') }}
-                </div>
                 <div class="card-body">
                     <div id="app">
-                        <Competences checklist="{{ $checklist_id }}"></Competences>
+                        <Competences kid="{{ $kid }}" checklist="{{ $checklist_id }}" level="{{ $level_id }}" created_at="{{ $created_at }}"></Competences>
                     </div>
-
-                </div>
-
-                <div class="card-footer  d-flex justify-content-between">
-
                 </div>
             </div>
         </div>

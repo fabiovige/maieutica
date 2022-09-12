@@ -5,7 +5,12 @@
             <div class="form-group">
             <div class="row">
 
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <label for="level">Data de cadastro</label>
+                    <span class="form-control">{{ created_at }}</span>
+                </div>
+
+                <div class="col-md-4">
                     <label for="level">Selecione o nível</label>
                     <select v-model="level_id" class="form-select" @change="selectLevel($event)">
                         <option v-for="level in levels" :key="level.id" :value="level.level">
@@ -14,7 +19,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="domain_id">Selecione a competência</label>
                     <select v-model="domain_id" class="form-select" @change="selectDomain($event)">
                         <option v-for="domain in domains" :key="domain.id" :value="domain.id">
@@ -27,6 +32,9 @@
             <div class="row">
                 <div class="col-md-12 mt-4">
                     <h4>{{ domain.name }}</h4>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" :style="`width: ${progressbar}%`" aria-valuenow="{{ progressbar }}" aria-valuemin="0" :aria-valuemax="100">{{ progressbar }}%</div>
+                    </div>
                 </div>
             </div>
 
@@ -37,10 +45,10 @@
                         <tr>
                             <th>Cod.</th>
                             <th>Descrição</th>
-                            <th>N</th>
-                            <th>P</th>
-                            <th>A</th>
-                            <th>X</th>
+                            <th class="text-center">N</th>
+                            <th class="text-center">P</th>
+                            <th class="text-center">A</th>
+                            <th class="text-center">X</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -48,7 +56,7 @@
 
                                 <td>{{ competence.code }}</td>
                                 <td>{{ competence.description }}</td>
-                                <td>
+                                <td style="width: 30px; alignment: center" nowrap="nowrap">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio"
                                            :name="`${competence.id}_note`"
@@ -64,7 +72,7 @@
                                         >
                                     </div>
                                 </td>
-                                <td>
+                                <td style="width: 30px; alignment: center" nowrap="nowrap">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio"
                                            :name="`${competence.id}_note`"
@@ -80,7 +88,7 @@
                                         >
                                     </div>
                                 </td>
-                                <td>
+                                <td style="width: 30px; alignment: center" nowrap="nowrap">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio"
                                            :name="`${competence.id}_note`"
@@ -96,7 +104,7 @@
                                         >
                                     </div>
                                 </td>
-                                <td>
+                                <td style="width: 30px; alignment: center" nowrap="nowrap" >
                                     <div class="form-check">
 
                                         <input class="form-check-input" type="radio"
@@ -119,7 +127,7 @@
                 </div>
             </div>
         </div>
-            <button>Salvar</button>
+            <button class="btn btn-dark"><i class="bi bi-save"></i> Salvar</button>
         </form>
     </div>
 </template>
@@ -133,18 +141,21 @@ import useChecklistRegisters from "../composables/checklistregisters";
 
 export default {
     name: 'Components',
-    props: ['checklist'],
+    props: ['kid', 'checklist', 'level', 'created_at'],
 
     setup(props) {
         const note = ref([])
         const level_id = ref(1)
         const domain_id = ref(1)
         const checklist_id = ref(props.checklist)
+        const level = ref(props.level)
+        const created_at = ref(props.created_at)
+        const kid = ref(props.kid)
 
         const { levels, getLevels } = useLevels()
         const { domain, getDomain, domains, getDomains } = useDomains()
         const { competences, getCompetences } = useCompetences()
-        const { storeChecklistRegister } = useChecklistRegisters()
+        const { storeChecklistRegister, getProgressBar, progressbar } = useChecklistRegisters()
 
         const checklist = reactive({
             checklist_id,
@@ -162,6 +173,7 @@ export default {
             getDomains()
             getCompetences()
             getDomain()
+            getProgressBar(level.value)
         })
 
         function selectLevel() {
@@ -180,6 +192,7 @@ export default {
         return {
             level_id,
             levels,
+            level,
             selectLevel,
 
             domain_id,
@@ -192,10 +205,19 @@ export default {
 
             competences,
             selectDomain,
-            submitForm
+            submitForm,
+
+            getProgressBar,
+            progressbar,
+
+            created_at,
+            kid
         }
     }
 }
-
 </script>
+
+<style scoped>
+
+</style>
 

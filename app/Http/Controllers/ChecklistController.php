@@ -179,10 +179,12 @@ class ChecklistController extends Controller
         try {
             $message = label_case('Fill Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
-            $kids = Kid::all('id', 'name');
+            $checklist = Checklist::findOrFail($id);
             return view('checklists.fill', [
-                'kids' => $kids,
-                'checklist_id' => $id
+                'checklist_id' => $id,
+                'level_id' => $checklist->level,
+                'created_at' => $checklist->created_at->format('d/m/Y') . ' Cod. ' . $id,
+                'kid' => $checklist->kid
             ]);
 
         } catch (Exception $e) {
@@ -205,18 +207,5 @@ class ChecklistController extends Controller
         } else {
             $checklistRegister->create($data);
         }
-    }
-
-    public function progressbar()
-    {
-        $total = CompetenceDescription::where('level', 1)->count();
-        $porcentagem = $this->descobrir_porcentagem($total, 98);
-
-        dd($porcentagem);
-    }
-
-    protected function descobrir_porcentagem(float $valor_base, float $valor): float
-    {
-        return round( ($valor / $valor_base * 100), 1 );
     }
 }

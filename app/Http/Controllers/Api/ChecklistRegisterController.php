@@ -26,4 +26,12 @@ class ChecklistRegisterController extends Controller
         $checklist = Checklist::findOrFail($request->checklist_id);
         $checklist->competences()->syncWithoutDetaching($notes);
     }
+
+    public function progressbar($level_id): float
+    {
+        $total = Competence::total($level_id);
+        $partial = Competence::partial($level_id);
+        $perc =  ( $partial[0]->partial * 100 ) / $total[0]->total;
+        return ceil($perc);
+    }
 }
