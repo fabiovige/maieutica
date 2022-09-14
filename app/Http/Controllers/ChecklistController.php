@@ -128,8 +128,6 @@ class ChecklistController extends Controller
     {
         try {
             $checklist = Checklist::findOrFail($id);
-            $checklist->created_at = Carbon::createFromFormat('Y-m-d H:i:s', $checklist->created_at)->format('d/m/Y H:i');
-
             $message = label_case('Edit Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 

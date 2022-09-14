@@ -24,7 +24,7 @@
             {{ $message }}
         </div>
         @enderror
-        <div class="card shadow" style="width:400px;" >
+        <div class="card" style="width:350px;" >
             <div class="card-header text-center">
                 <img src="{{ asset('images/logo_login.png') }} "
                      class="elevation-0"

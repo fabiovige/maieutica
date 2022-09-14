@@ -34,14 +34,15 @@
                 @yield('content')
             </div>
         </main>
-        <footer >
+        <footer>
             <div class="container">
                 <div class="row  py-4 d-flex justify-content-center">
                     <p class="small text-center mb-0 mt-4">
-                        {{ config('app.name') }} - {{ config('app.description') }}
+                        &copy; {{ now()->format('Y') }} {{ config('app.name') }} {{ config('app.description') }}
                         <br>
-                        &copy; 2021 - {{ now()->format('Y') }}
+                        v{{ config('app.version') }}
                     </p>
+                </div>
             </div>
         </footer>
     </div>
