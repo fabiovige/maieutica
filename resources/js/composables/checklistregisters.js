@@ -20,10 +20,9 @@ export default function useChecklistRegisters() {
             })
     }
 
-    const getProgressBar = async (level_id = 0) => {
-        axios.get('/api/checklistregisters/progressbar/' + level_id)
+    const getProgressBar = async (checklist_id = 0, totalLevel = 0) => {
+        axios.get('/api/checklistregisters/progressbar/' + checklist_id + '/' + totalLevel)
             .then(response => {
-                console.log(response.data);
                 progressbar.value = response.data;
             })
     }
@@ -43,7 +42,7 @@ export default function useChecklistRegisters() {
                 //     icon: 'success',
                 //     title: 'Checklist atualizado com sucesso!'
                 // })
-                getProgressBar(data.level_id)
+                getProgressBar(data.checklist_id, data.totalLevel)
             })
             .catch(error => {
                 if (error.response?.data) {

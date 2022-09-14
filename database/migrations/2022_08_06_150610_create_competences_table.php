@@ -15,8 +15,8 @@ class CreateCompetencesTable extends Migration
     {
         Schema::create('competences', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('level_id');
-            $table->unsignedBigInteger('domain_id');
+            $table->unsignedBigInteger('level_id')->nullable();
+            $table->unsignedBigInteger('domain_id')->nullable();
             $table->integer('code');
             $table->text('description');
             $table->text('description_detail');

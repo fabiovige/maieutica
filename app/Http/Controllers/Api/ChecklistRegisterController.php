@@ -27,11 +27,14 @@ class ChecklistRegisterController extends Controller
         $checklist->competences()->syncWithoutDetaching($notes);
     }
 
-    public function progressbar($level_id): float
+    public function progressbar($checklist_id, $totalLevel): float
     {
-        $total = Competence::total($level_id);
-        $partial = Competence::partial($level_id);
-        $perc =  ( $partial[0]->partial * 100 ) / $total[0]->total;
-        return ceil($perc);
+        for($i=1; $i <= $totalLevel; $i++){
+            $arr[$i] = $i;
+        }
+        $levelIn = implode(',', $arr);
+        $t = Competence::total($levelIn);
+        $p = Competence::partial($checklist_id, $levelIn);
+        return ceil( ( $p[0]->partial * 100 ) / $t[0]->total );
     }
 }

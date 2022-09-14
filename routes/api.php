@@ -19,5 +19,5 @@ Route::apiResource('levels', LevelController::class);
 Route::apiResource('domains', DomainController::class);
 Route::apiResource('competences', CompetenceController::class);
 
-Route::get('checklistregisters/progressbar/{id}', [ChecklistRegisterController::class, 'progressbar'])->name('api.checklistregisters.progressbar');
+Route::get('checklistregisters/progressbar/{checklist_id}/{level_id}', [ChecklistRegisterController::class, 'progressbar'])->name('api.checklistregisters.progressbar');
 Route::apiResource('checklistregisters', ChecklistRegisterController::class);

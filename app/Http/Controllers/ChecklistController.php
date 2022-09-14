@@ -76,7 +76,23 @@ class ChecklistController extends Controller
             $data = $request->all();
             $data['created_by'] = Auth::id();
 
-            Checklist::create($data);
+            // checklist
+            $checklist = Checklist::create($data);
+
+            // levels
+            $arrLevel = [];
+            for($i=1; $i <= $data['level']; $i++) {
+                $arrLevel[] = $i;
+            }
+            foreach($arrLevel as $c => $level) {
+                $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();
+                $notes = [];
+                // competences
+                foreach($components as $c => $v) {
+                    $notes[$v] = ['note' => 1];
+                }
+                $checklist->competences()->syncWithoutDetaching($notes);
+            }
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
             return redirect()->route('checklists.index');
@@ -180,12 +196,13 @@ class ChecklistController extends Controller
             $message = label_case('Fill Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
             $checklist = Checklist::findOrFail($id);
-            return view('checklists.fill', [
+            $data = [
                 'checklist_id' => $id,
                 'level_id' => $checklist->level,
                 'created_at' => $checklist->created_at->format('d/m/Y') . ' Cod. ' . $id,
                 'kid' => $checklist->kid
-            ]);
+            ];
+            return view('checklists.fill', $data);
 
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();

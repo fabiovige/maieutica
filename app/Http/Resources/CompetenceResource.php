@@ -8,19 +8,20 @@ class CompetenceResource extends JsonResource
     public function toArray($request)
     {
 
-        $pivot = ($this->checklists()->first() ? $this->checklists()->first()->pivot : false);
+        //$pivot = ($this->checklists()->first() ? $this->checklists()->first()->pivot : false);
 
         return [
             'id' => $this->id,
+            'checklist_id' => $this->checklist_id,
             'level_id' => $this->level_id,
             'domain_id' => $this->domain_id,
-            'domain_name' => $this->domain->name,
+            'domain_name' => $this->domain_name,
             'code' => $this->code,
             'description' => $this->description,
             'description_detail' => $this->description_detail,
-            'note' => ($pivot) ? $pivot->note : null,
-            'competence_id' => ($pivot) ? $pivot->competence_id : null,
-            'checked' => (bool)($pivot)
+            'note' => $this->note,
+            'competence_id' => $this->id,
+            'checked' => true
         ];
     }
 }

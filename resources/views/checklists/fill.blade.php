@@ -21,7 +21,7 @@
             <div class="card">
                 <div class="card-body">
                     <div id="app">
-                        <Competences kid="{{ $kid }}" checklist="{{ $checklist_id }}" level="{{ $level_id }}" created_at="{{ $created_at }}"></Competences>
+                        <Competences checklist="{{ $checklist_id }}" level="{{ $level_id }}" created_at="{{ $created_at }}"></Competences>
                     </div>
                 </div>
             </div>

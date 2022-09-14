@@ -13,8 +13,8 @@
                 <div class="col-md-4">
                     <label for="level">Selecione o nível</label>
                     <select v-model="level_id" class="form-select" @change="selectLevel($event)">
-                        <option v-for="level in levels" :key="level.id" :value="level.level">
-                            {{ level.name }}
+                        <option v-for="(index, level) in arrLevel" :key="index" :value="index">
+                            Nível {{ index }}
                         </option>
                     </select>
                 </div>
@@ -27,14 +27,15 @@
                         </option>
                     </select>
                 </div>
+
             </div>
 
             <div class="row">
-                <div class="col-md-12 mt-4">
-                    <h4>{{ domain.name }}</h4>
-                    <div class="progress">
+                <div class="col-md-12">
+                    <div class="progress mt-2 mb-3">
                         <div class="progress-bar" role="progressbar" :style="`width: ${progressbar}%`" aria-valuenow="{{ progressbar }}" aria-valuemin="0" :aria-valuemax="100">{{ progressbar }}%</div>
                     </div>
+                    <h4>{{ domain.name }}</h4>
                 </div>
             </div>
 
@@ -141,14 +142,15 @@ import useChecklistRegisters from "../composables/checklistregisters";
 
 export default {
     name: 'Components',
-    props: ['kid', 'checklist', 'level', 'created_at'],
+    props: ['kid', 'checklist', 'level', 'arrLevel', 'created_at'],
 
     setup(props) {
         const note = ref([])
         const level_id = ref(1)
         const domain_id = ref(1)
         const checklist_id = ref(props.checklist)
-        const level = ref(props.level)
+        const totalLevel = ref(props.level)
+        const arrLevel = ref([])
         const created_at = ref(props.created_at)
         const kid = ref(props.kid)
 
@@ -162,38 +164,50 @@ export default {
             level_id,
             domain_id,
             note,
+            totalLevel
         })
 
         function submitForm() {
             storeChecklistRegister(checklist)
+            checklist.totalLevel = totalLevel.value
         }
 
         onMounted(() => {
             getLevels()
             getDomains()
-            getCompetences()
+            getCompetences(checklist_id.value)
             getDomain()
-            getProgressBar(level.value)
+            getProgressBar(checklist_id.value, totalLevel.value)
+            assocLevel()
         })
 
         function selectLevel() {
             domain_id.value = 1
             note.value = [];
-            getCompetences(level_id.value, domain_id.value)
+            getCompetences(checklist_id.value, level_id.value, domain_id.value)
             getDomains(level_id.value)
         }
 
         function selectDomain(event) {
             note.value = [];
-            getCompetences(level_id.value, event.target.value)
+            getCompetences(checklist_id.value, level_id.value, event.target.value)
             getDomain(event.target.value)
+        }
+
+        function assocLevel() {
+            const arr = []
+            for(let i=1; i <= totalLevel.value; i++){
+                arr.push(i)
+            }
+            arrLevel.value = arr
         }
 
         return {
             level_id,
             levels,
-            level,
+            totalLevel,
             selectLevel,
+            arrLevel,
 
             domain_id,
             domain,

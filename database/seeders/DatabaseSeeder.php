@@ -17,12 +17,12 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             KidSeeder::class,
-            ChecklistSeeder::class,
             ResourceSeeder::class,
             AbilitySeeder::class,
             DomainSeeder::class,
             LevelSeeder::class,
             CompetenceSeeder::class,
+            ChecklistSeeder::class,
         ]);
     }
 }
