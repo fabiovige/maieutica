@@ -52,6 +52,15 @@
                     @endcan
                 </div>
             </div>
+
+            <div class="card mt-2">
+                <div class="card-body">
+                    <div id="app">
+                        <Checklists checklist_id="{{ $checklist->id }}" level="{{ $checklist->level }}"></Checklists>
+                    </div>
+                </div>
+            </div>
+
         </div>
         @include('includes.information-register', ['data' => $checklist])
     </div>

@@ -16,6 +16,8 @@ use App\Http\Controllers\Api\ChecklistRegisterController;
 // Route::get('competence/checklistRegister', [CompetenceController::class, 'checklistRegister'])->name('api.competence.checklistRegister');
 
 Route::apiResource('levels', LevelController::class);
+
+Route::get('domains/initials/{level_id}', [DomainController::class, 'getInitials'])->name('api.domains.initials');
 Route::apiResource('domains', DomainController::class);
 Route::apiResource('competences', CompetenceController::class);
 

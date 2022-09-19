@@ -53,7 +53,7 @@ $('.form-delete').click(function (e) {
 
 import { createApp, onMounted } from 'vue'
 import Competences from './components/Competences'
-import Dropdown from './components/Dropdown'
+import Checklists from './components/Checklists'
 import Select2 from 'vue3-select2-component';
 import VueSweetalert2 from "vue-sweetalert2";
 
@@ -64,6 +64,6 @@ const app = createApp({
 });
 app.use(VueSweetalert2)
 app.component('Competences', Competences)
-app.component('Dropdown', Dropdown)
+app.component('Checklists', Checklists)
 app.component('Select2', Select2)
 app.mount('#app')
