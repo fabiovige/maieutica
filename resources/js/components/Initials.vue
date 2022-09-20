@@ -43,7 +43,13 @@
                      :id="`${ domain.initial }${ level_id }`"
                      role="tabpanel"
                      :aria-labelledby="`${ domain.initial }-tab${ level_id }`">
-                    {{ checklist_id }} {{ level_id }} {{ domain.initial }} {{ domain.id }}
+
+                    <TableDescriptions
+                        :checklist_id="checklist_id"
+                        :level_id="level_id"
+                        :domain_id="domain.id"
+                    ></TableDescriptions>
+
                 </div>
             </div>
         </div>
@@ -53,9 +59,11 @@
 <script>
 import {onMounted, ref} from "vue";
 import useDomains from "../composables/domains";
+import TableDescriptions from "./TableDescriptions";
 
 export default {
     name: "Initials",
+    components: {TableDescriptions},
     props: ['checklist_id', 'level_id'],
     setup(props) {
         const checklist_id = ref(props.checklist_id)
