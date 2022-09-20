@@ -22,21 +22,30 @@
 <!--            </div>-->
 
 
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <ul class="nav nav-tabs" :id="`myTab${ level_id }`" :role="`tablist${ level_id }`">
                 <li v-for="domain in initials.domains" :key="domain.id" class="nav-item" role="presentation">
                     <button :class="['nav-link', { 'active' : domain.id === 1 }]"
-                            :id="`${ domain.initial }-tab`" data-bs-toggle="tab"
-                            :data-bs-target="`#${ domain.initial }`" type="button" role="tab" :aria-controls="`${ domain.initial }`"
-                            aria-selected="false"
+                            :id="`${ domain.initial }-tab${ level_id }`"
+                            data-bs-toggle="tab"
+                            :data-bs-target="`#${ domain.initial }${ level_id }`"
+                            type="button"
+                            role="tab"
+                            :aria-controls="`${ domain.initial }${ level_id }`"
+                            aria-selected="true"
                             >
-                        {{ domain.initial }} {{ domain.id }}
+                        {{ domain.initial }}
                     </button>
                 </li>
             </ul>
-            <div class="tab-content" id="myTabContent">
-                <h3 v-for="domain in initials.domains" :key="domain.id"> {{ domain.name }} </h3>
+            <div class="tab-content" :id="`myTabContent${ level_id }`">
+                <div v-for="domain in initials.domains" :key="domain.id"
+                     :class="['tab-pane', 'fade', { 'active show' : domain.id === 1 } ]"
+                     :id="`${ domain.initial }${ level_id }`"
+                     role="tabpanel"
+                     :aria-labelledby="`${ domain.initial }-tab${ level_id }`">
+                    {{ checklist_id }} {{ level_id }} {{ domain.initial }} {{ domain.id }}
+                </div>
             </div>
-
         </div>
 
 </template>
@@ -56,7 +65,6 @@ export default {
 
         onMounted(() => {
             getInitials(level_id.value)
-            console.log(level_id.value)
         })
 
         return {
