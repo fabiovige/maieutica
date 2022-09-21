@@ -35,7 +35,19 @@ class ChecklistController extends Controller
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('checklists.update') || request()->user()->can('checklists.store')) {
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('checklists.show', $data->id).'"><i class="bi bi-gear"></i></a>';
+
+                    //$html = '<a class="btn btn-sm btn-success" href="'.route('checklists.show', $data->id).'"><i class="bi bi-gear"></i></a>';
+
+
+                    $html = '<div class="dropdown">
+                      <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-gear"></i>
+                                        </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item" href="'.route('checklists.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a></li>
+                        <li><a class="dropdown-item" href="'.route('checklists.show', $data->id).'"><i class="bi bi-check2-square"></i> Avaliação</a></li>
+                      </ul>
+                    </div>';
 
                     return $html;
                 }
@@ -155,7 +167,7 @@ class ChecklistController extends Controller
             $checklist->update($data);
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
-            return redirect()->route('checklists.show', $id);
+            return redirect()->route('checklists.index');
 
         } catch (Exception $e) {
 

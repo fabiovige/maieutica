@@ -31,6 +31,7 @@
         "chart.js": "^3.8.0",
         "vee-validate": "^4.6.7",
         "vue": "^3.2.37",
+        "vue3-loading-overlay": "^0.0.0",
         "vue3-select2-component": "^0.1.7"
     }
 }

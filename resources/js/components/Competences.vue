@@ -1,5 +1,6 @@
 <template>
     <div>
+        <loading :active="isLoading" :is-full-page="fullPage"></loading>
         <form @submit.prevent="submitForm" >
 
             <div class="form-group">
@@ -139,11 +140,15 @@ import useLevels from "../composables/levels";
 import useDomains from "../composables/domains";
 import useCompetences from "../composables/competences";
 import useChecklistRegisters from "../composables/checklistregisters";
+import Loading from "vue3-loading-overlay";
+import 'vue3-loading-overlay/dist/vue3-loading-overlay.css';
 
 export default {
     name: 'Components',
     props: ['kid', 'checklist', 'level', 'arrLevel', 'created_at'],
-
+    components: {
+        Loading
+    },
     setup(props) {
         const note = ref([])
         const level_id = ref(1)
@@ -153,11 +158,12 @@ export default {
         const arrLevel = ref([])
         const created_at = ref(props.created_at)
         const kid = ref(props.kid)
+        const fullPage = ref(true)
 
         const { levels, getLevels } = useLevels()
         const { domain, getDomain, domains, getDomains } = useDomains()
         const { competences, getCompetences } = useCompetences()
-        const { storeChecklistRegister, getProgressBar, progressbar } = useChecklistRegisters()
+        const { storeChecklistRegister, getProgressBar, progressbar, isLoading } = useChecklistRegisters()
 
         const checklist = reactive({
             checklist_id,
@@ -225,7 +231,10 @@ export default {
             progressbar,
 
             created_at,
-            kid
+            kid,
+
+            isLoading,
+            fullPage,
         }
     }
 }

@@ -5,6 +5,7 @@ export default function useChecklistRegisters() {
     const checklistregisters = ref({})
     const progressbar = ref(0)
     const swal = inject('$swal')
+    const isLoading = ref(false)
 
     const checklist = ref({
         checklist_id: 0,
@@ -16,7 +17,11 @@ export default function useChecklistRegisters() {
     const getChecklistRegister = async (checklist_id, competence_description_id) => {
         axios.get('/api/checklistregisters?checklist_id=' + checklist_id + '&competence_description_id=' + competence_description_id)
             .then(response => {
+                isLoading.value = true
                 checklistregisters.value = response.data.data;
+            })
+            .finally(() => {
+                isLoading.value = false
             })
     }
 
@@ -38,19 +43,20 @@ export default function useChecklistRegisters() {
 
         axios.post('/api/checklistregisters', serialized)
             .then(response => {
-                // swal({
-                //     icon: 'success',
-                //     title: 'Checklist atualizado com sucesso!'
-                // })
+                isLoading.value = true
+                swal({
+                    icon: 'success',
+                    title: 'Checklist atualizado com sucesso!'
+                })
                 getProgressBar(data.checklist_id, data.totalLevel)
             })
             .catch(error => {
                 if (error.response?.data) {
-                    console.log(error.response.data.errors)
+
                 }
             })
             .finally(() => {
-                console.log('finally')
+                isLoading.value = false
             })
     }
 
@@ -59,5 +65,6 @@ export default function useChecklistRegisters() {
         storeChecklistRegister,
         getProgressBar,
         progressbar,
+        isLoading
     }
 }
