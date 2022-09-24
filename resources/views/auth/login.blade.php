@@ -9,7 +9,7 @@
 
                                 <div class="">
 
-                                    <input id="email" type="email" maxlength="150"  class="form-control" name="email" value="{{ old('email') }}" required autocomplete="email"
+                                    <input id="email" type="email" maxlength="150"  class="form-control" name="email" value="{{ old('email') ?? 'ricardo@gmail.com' }}" required autocomplete="email"
                                     autofocus>
                                 </div>
                             </div>
@@ -19,7 +19,7 @@
 
                                 <div class="">
                                     <input id="password" maxlength="32" type="password"
-                                           class="form-control"
+                                           class="form-control" value="password"
                                            name="password" required autocomplete="current-password">
                                 </div>
                             </div>

@@ -39,7 +39,16 @@ class KidsController extends Controller
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('kids.update') || request()->user()->can('kids.store')) {
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('kids.show', $data->id).'"><i class="bi bi-gear"></i></a>';
+
+                    $html = '<div class="dropdown">
+                      <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-gear"></i>
+                                        </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item" href="'.route('kids.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a></li>
+                        <li><a class="dropdown-item" href="'.route('kids.show', $data->id).'"><i class="bi bi-check2-square"></i> Checklists</a></li>
+                      </ul>
+                    </div>';
 
                     return $html;
                 }

@@ -2,9 +2,6 @@
 
 if (! function_exists('label_case')) {
 
-    /**
-     * Prepare the Column Name for Lables.
-     */
     function label_case($text)
     {
         $order = ['_', '-'];

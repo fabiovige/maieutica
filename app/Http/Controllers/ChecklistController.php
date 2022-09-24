@@ -200,7 +200,7 @@ class ChecklistController extends Controller
         }
     }
 
-    public function fill(Request $request, $id)
+    public function fill($id)
     {
         try {
             $message = label_case('Fill Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
@@ -233,6 +233,30 @@ class ChecklistController extends Controller
            $cr->update($data);
         } else {
             $checklistRegister->create($data);
+        }
+    }
+
+    public function chart($id)
+    {
+        try {
+            $message = label_case('Esfera Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            Log::info($message);
+            $checklist = Checklist::findOrFail($id);
+
+            $data = [
+                'checklists' => $checklist->kid->checklists()->get(),
+                'checklist' => $checklist,
+                'level_id' => $checklist->level,
+                'kid' => $checklist->kid
+            ];
+            return view('checklists.chart', $data);
+
+        } catch (Exception $e) {
+            flash(self::MSG_NOT_FOUND)->warning();
+            $message = label_case('Fill Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            Log::error($message);
+
+            return redirect()->back();
         }
     }
 }

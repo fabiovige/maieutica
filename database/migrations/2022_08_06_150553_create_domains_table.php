@@ -17,6 +17,7 @@ class CreateDomainsTable extends Migration
             $table->id();
             $table->string('name')->unique()->index();
             $table->string('initial')->unique()->index();
+            $table->char('color', 7);
             $table->timestamps();
         });
     }

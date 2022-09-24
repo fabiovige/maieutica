@@ -10,7 +10,7 @@ class Domain extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'initial'];
+    protected $fillable = ['name', 'initial', 'color'];
 
     public function levels()
     {

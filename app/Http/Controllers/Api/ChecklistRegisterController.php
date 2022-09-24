@@ -19,10 +19,11 @@ class ChecklistRegisterController extends Controller
         $arrNotes = explode(',', $request->note);
         $notes = [];
         foreach($arrNotes as $c => $v) {
-            if(!empty($v)){
+            if($v!=""){
                 $notes[$c] = ['note' => $v];
             }
         }
+
         $checklist = Checklist::findOrFail($request->checklist_id);
         $checklist->competences()->syncWithoutDetaching($notes);
     }

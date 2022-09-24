@@ -62,55 +62,6 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio"
                                            :name="`${competence.id}_note`"
-                                           v-model="note[competence.id]" :value="2"
-                                           v-if="competence.note === 2"
-                                               :checked="competence.checked"
-                                        >
-                                        <input class="form-check-input" type="radio"
-                                               :name="`${competence.id}_note`"
-                                               v-model="note[competence.id]"
-                                               :value="2"
-                                               v-if="competence.note !== 2"
-                                        >
-                                    </div>
-                                </td>
-                                <td style="width: 30px; alignment: center" nowrap="nowrap">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio"
-                                           :name="`${competence.id}_note`"
-                                           v-model="note[competence.id]" :value="3"
-                                           v-if="competence.note === 3"
-                                                :checked="competence.checked"
-                                        >
-                                        <input class="form-check-input" type="radio"
-                                               :name="`${competence.id}_note`"
-                                               v-model="note[competence.id]"
-                                               :value="3"
-                                               v-if="competence.note !== 3"
-                                        >
-                                    </div>
-                                </td>
-                                <td style="width: 30px; alignment: center" nowrap="nowrap">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio"
-                                           :name="`${competence.id}_note`"
-                                           v-model="note[competence.id]" :value="4"
-                                           v-if="competence.note === 4"
-                                               :checked="competence.checked"
-                                        >
-                                        <input class="form-check-input" type="radio"
-                                               :name="`${competence.id}_note`"
-                                               v-model="note[competence.id]"
-                                               :value="4"
-                                               v-if="competence.note !== 4"
-                                        >
-                                    </div>
-                                </td>
-                                <td style="width: 30px; alignment: center" nowrap="nowrap" >
-                                    <div class="form-check">
-
-                                        <input class="form-check-input" type="radio"
-                                           :name="`${competence.id}_note`"
                                            v-model="note[competence.id]" :value="1"
                                            v-if="competence.note === 1"
                                                :checked="competence.checked"
@@ -121,6 +72,61 @@
                                                :value="1"
                                                v-if="competence.note !== 1"
                                         >
+                                        {{ competence.note }}
+                                    </div>
+                                </td>
+                                <td style="width: 30px; alignment: center" nowrap="nowrap">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio"
+                                           :name="`${competence.id}_note`"
+                                           v-model="note[competence.id]" :value="2"
+                                           v-if="competence.note === 2"
+                                                :checked="competence.checked"
+                                        >
+                                        <input class="form-check-input" type="radio"
+                                               :name="`${competence.id}_note`"
+                                               v-model="note[competence.id]"
+                                               :value="2"
+                                               v-if="competence.note !== 2"
+                                        >
+                                        {{ competence.note }}
+                                    </div>
+                                </td>
+                                <td style="width: 30px; alignment: center" nowrap="nowrap">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio"
+                                           :name="`${competence.id}_note`"
+                                           v-model="note[competence.id]" :value="3"
+                                           v-if="competence.note === 3"
+                                               :checked="competence.checked"
+                                        >
+                                        <input class="form-check-input" type="radio"
+                                               :name="`${competence.id}_note`"
+                                               v-model="note[competence.id]"
+                                               :value="3"
+                                               v-if="competence.note !== 3"
+                                        >
+                                        {{ competence.note }}
+                                    </div>
+                                </td>
+                                <td style="width: 30px; alignment: center" nowrap="nowrap" >
+                                    <div class="form-check">
+
+                                        <input class="form-check-input" type="radio"
+                                           :name="`${competence.id}_note`"
+                                           v-model="note[competence.id]" :value="0"
+                                           v-if="competence.note === 0"
+                                               :checked="competence.checked"
+                                        >
+                                        <input class="form-check-input" type="radio"
+                                               :name="`${competence.id}_note`"
+                                               v-model="note[competence.id]"
+                                               :value="0"
+                                               v-if="competence.note !== 0 "
+                                        >
+
+                                        {{ competence.note }}
+
                                     </div>
                                 </td>
                             </tr>

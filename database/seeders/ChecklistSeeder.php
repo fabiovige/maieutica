@@ -34,7 +34,7 @@ class ChecklistSeeder extends Seeder
                 $notes = [];
                 // competences
                 foreach($components as $c => $v) {
-                    $notes[$v] = ['note' => rand(1, 4)];
+                    $notes[$v] = ['note' => rand(0, 3)];
                 }
 
                 $checklist->competences()->syncWithoutDetaching($notes);

@@ -5,7 +5,6 @@ $ = window.$ = window.jQuery = require('jquery');
 import 'jquery-ui/ui/widgets/datepicker.js';
 
 const Swal = require("sweetalert2");
-const Chart = require('chart.js');
 
 $.datepicker.regional['pt-BR'] = {
     closeText: 'Fechar',
@@ -54,6 +53,7 @@ $('.form-delete').click(function (e) {
 import { createApp, onMounted } from 'vue'
 import Competences from './components/Competences'
 import Checklists from './components/Checklists'
+import Charts from './components/Charts'
 import Select2 from 'vue3-select2-component';
 import VueSweetalert2 from "vue-sweetalert2";
 
@@ -65,5 +65,6 @@ const app = createApp({
 app.use(VueSweetalert2)
 app.component('Competences', Competences)
 app.component('Checklists', Checklists)
+app.component('Charts', Charts)
 app.component('Select2', Select2)
 app.mount('#app')

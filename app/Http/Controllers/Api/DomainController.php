@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Resources\DomainResource;
 use App\Models\Domain;
 use App\Models\Level;
-use Illuminate\Support\Facades\DB;
 
 class DomainController
 {

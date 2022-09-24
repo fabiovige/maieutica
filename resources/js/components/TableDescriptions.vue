@@ -2,11 +2,11 @@
     <div>
         <loading :active="isLoading" :is-full-page="fullPage"></loading>
 
-        <table class="table table-bordered table-striped">
+        <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Cod.</th>
-                    <th>{{ domain.name }}</th>
+                    <th scope="col">Cod.</th>
+                    <th scope="col">{{ domain.name }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,10 +35,10 @@
 
                     </td>
                     <td class="customColumn">
-                        <h5 v-if="component.note === 1"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
-                        <h5 v-if="component.note === 3"><span class="badge bg-warning text-dark customColumn">Mais ou menos</span></h5>
-                        <h5 v-if="component.note === 2"><span class="badge bg-danger customColumn">Difícil de obter</span></h5>
-                        <h5 v-if="component.note === 4"><span class="badge bg-primary customColumn">Consistente</span></h5>
+                        <h5 v-if="component.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
+                        <h5 v-if="component.note === 2"><span class="badge bg-warning text-dark customColumn">Mais ou menos</span></h5>
+                        <h5 v-if="component.note === 1"><span class="badge bg-danger customColumn">Difícil de obter</span></h5>
+                        <h5 v-if="component.note === 3"><span class="badge bg-primary customColumn">Consistente</span></h5>
                     </td>
                 </tr>
             </tbody>
