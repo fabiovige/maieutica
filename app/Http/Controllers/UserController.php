@@ -26,7 +26,7 @@ class UserController extends Controller
     {
         $data = User::select('id', 'name', 'email', 'role_id');
 
-        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
+        if (auth()->user()->isSuperAdmin()) {
             $data = User::select('id', 'name', 'email', 'role_id');
         } else {
             $data = User::select('id', 'name', 'email', 'role_id')->where('created_by', '=', auth()->user()->id);
@@ -35,7 +35,7 @@ class UserController extends Controller
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('users.update') || request()->user()->can('users.create')) {
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('users.show', $data->id).'"><i class="bi bi-gear"></i> </a>';
+                    $html = '<a class="btn btn-sm btn-success" href="'.route('users.edit', $data->id).'"><i class="bi bi-gear"></i> </a>';
 
                     return $html;
                 }
@@ -169,7 +169,7 @@ class UserController extends Controller
             $message = label_case('Update User '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::notice($message);
 
-            return redirect()->route('users.show', $id);
+            return redirect()->route('users.edit', $id);
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_UPDATE_ERROR)->warning();
@@ -185,6 +185,9 @@ class UserController extends Controller
     {
         DB::beginTransaction();
         try {
+
+
+            dd('teste');
             if (auth()->user()->role_id == $user->id) {
                 $message = label_case('Destroy Self Users '.self::MSG_DELETE_USER_SELF).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
                 Log::alert($message);

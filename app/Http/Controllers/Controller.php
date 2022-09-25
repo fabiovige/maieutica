@@ -32,6 +32,8 @@ class Controller extends BaseController
 
     public const MSG_DELETE_USER_SELF = 'Não é permitido remover seu próprio usuário!';
 
+    public const MSG_NOT_FOUND_CHECKLIST_USER = 'Nenhum checklist encontrado!';
+
     public const ID_SUPER_ADMIN = 1;
 
     public const ID_ADMIN = 2;

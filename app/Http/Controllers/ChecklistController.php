@@ -45,7 +45,7 @@ class ChecklistController extends Controller
                                         </button>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                         <li><a class="dropdown-item" href="'.route('checklists.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a></li>
-                        <li><a class="dropdown-item" href="'.route('checklists.show', $data->id).'"><i class="bi bi-check2-square"></i> Avaliação</a></li>
+                        <li><a class="dropdown-item" href="'.route('checklists.fill', $data->id).'"><i class="bi bi-check2-square"></i> Avaliação</a></li>
                       </ul>
                     </div>';
 
@@ -167,7 +167,7 @@ class ChecklistController extends Controller
             $checklist->update($data);
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
-            return redirect()->route('checklists.index');
+            return redirect()->route('checklists.edit', $id);
 
         } catch (Exception $e) {
 

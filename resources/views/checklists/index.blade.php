@@ -12,7 +12,7 @@
 @endsection
 
 @section('button')
-    @can('kids.store')
+    @can('checklists.store')
         <x-button href="{{route('checklists.create')}}" icon="plus" name="Cadastrar" type="link" class="dark"></x-button>
     @endcan
 @endsection

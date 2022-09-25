@@ -38,19 +38,11 @@
                     @can('users.update')
                         <x-button href="{{route('users.edit', $user->id)}}" icon="pencil" name="Editar" type="link" class="dark"></x-button>
                     @endcan
-
-                    @can('users.destroy')
-                        <form action="{{ route('users.destroy', $user->id) }}" name="form-delete" method="post">
-                            @csrf
-                            @method('DELETE')
-                            <x-button icon="trash" name="Enviar para lixeira" type="submit" class="danger form-delete"></x-button>
-                        </form>
-                    @endcan
                 </div>
             </div>
         </div>
 
-        @include('includes.information-register', ['data' => $user])
+        @include('includes.information-register', ['data' => $user, 'action' => 'users.destroy'])
 
     </div>
 

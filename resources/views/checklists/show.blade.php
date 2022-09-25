@@ -26,51 +26,21 @@
 
     <div class="row">
         <div class="col-md-12 ">
+
+
             <div class="card">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-
-                            <label for="level">Checklists</label>
-                            <select name="checklist_id" id="checklist_id" class="form-select" >
-                                @foreach($checklist->kid->checklists()->get() as $c => $v)
-                                    <option value="{{ $v->id }}" @if($checklist->id == $v->id) selected @endif > {{ $v->created_at->format('d/m/Y') }} Cod. {{ $v->id }} </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-9">
-                            Nível: {{ $checklist->level }} <br>
-                            Situação: {{ \App\Models\Checklist::SITUATION[$checklist->situation] }} <br>
-                            Descrição: {{ $checklist->description }} <br>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer  d-flex justify-content-between">
-                    @can('checklists.update')
-                        <x-button href="{{route('checklists.fill', $checklist->id)}}" icon="check-circle" name="Editar" type="link" class="dark"></x-button>
-                    @endcan
-
-                    @can('checklists.destroy')
-                        <form action="{{ route('checklists.destroy', $checklist->id) }}" name="form-delete" method="post">
-                            @csrf
-                            @method('DELETE')
-                            <x-button icon="trash" name="Enviar para lixeira" type="submit" class="danger  form-delete"></x-button>
-                        </form>
-                    @endcan
-                </div>
-            </div>
-
-            <div class="card mt-2">
                 <div class="card-body">
                     <div id="app">
                         <Checklists checklist_id="{{ $checklist->id }}" level="{{ $checklist->level }}"></Checklists>
                     </div>
                 </div>
             </div>
-
         </div>
-        @include('includes.information-register', ['data' => $checklist])
     </div>
+
+
+    @include('includes.information-register', ['data' => $checklist, 'action'=>'checklists.destroy'])
+
 @endsection
 
 

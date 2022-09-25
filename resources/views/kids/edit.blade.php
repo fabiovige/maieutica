@@ -5,14 +5,13 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('kids.index') }}">Crianças</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('kids.show', $kid->id) }}">Gerenciar</a></li>
             <li class="breadcrumb-item active" aria-current="page">Editar</li>
         </ol>
     </nav>
 @endsection
 
 @section('button')
-    <x-button href="{{route('kids.show', $kid->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
+    <x-button href="{{route('kids.index', $kid->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
 @endsection
 
 @section('content')
@@ -28,7 +27,6 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-
                             <div class="row">
                                 <div class="col">
                                     <label for="name">Nome completo</label> <br>
@@ -64,15 +62,18 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer d-flex justify-content-between">
+                        @can('kids.store')
                         <x-button icon="save" name="Salvar" type="submit" class="dark"></x-button>
+                        @endcan
                     </div>
                 </div>
             </form>
         </div>
-        @include('includes.information-register', ['data' => $kid])
     </div>
+
+    @include('includes.information-register', ['data' => $kid, 'action' => 'kids.destroy'])
+
 @endsection
 

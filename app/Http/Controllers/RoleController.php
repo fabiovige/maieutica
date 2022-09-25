@@ -31,7 +31,7 @@ class RoleController extends Controller
 
     public function index_data()
     {
-        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
+        if (auth()->user()->isSuperAdmin()) {
             $data = Role::select('id', 'name');
         } else {
             $data = Role::select('id', 'name')->where('created_by', '=', auth()->user()->id);
@@ -40,7 +40,7 @@ class RoleController extends Controller
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('roles.update') || request()->user()->can('roles.store') ) {
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('roles.show', $data->id).'"><i class="bi bi-gear"></i></a>';
+                    $html = '<a class="btn btn-sm btn-success" href="'.route('roles.edit', $data->id).'"><i class="bi bi-gear"></i></a>';
 
                     return $html;
                 }
@@ -155,7 +155,7 @@ class RoleController extends Controller
             $message = label_case('Update Role '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::notice($message);
 
-            return redirect()->route('roles.show', $id);
+            return redirect()->route('roles.edit', $id);
         } catch (\Exception $e) {
             DB::rollBack();
 

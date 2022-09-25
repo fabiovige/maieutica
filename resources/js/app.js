@@ -43,8 +43,7 @@ $('.form-delete').click(function (e) {
         confirmButtonText: 'Sim, confirmar!'
     }).then((result) => {
         if (result.isConfirmed) {
-            let formDelete = document.querySelectorAll('form')[1];
-            console.log(formDelete);
+            let formDelete = document.querySelectorAll('form')[2];
             formDelete.submit();
         }
     });

@@ -33,7 +33,6 @@ export default function useChecklistRegisters() {
     }
 
     const storeChecklistRegister = async (data) => {
-
         let serialized = new FormData()
         for (let item in data) {
             if (data.hasOwnProperty(item)) {

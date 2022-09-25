@@ -5,20 +5,26 @@
         <loading :active="isLoading" :is-full-page="fullPage"></loading>
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-3">
+                <label class="mt-2">Checklist</label>
                 <select v-model="search_checklist" class="form-select" @change="getChecklists">
                     <option v-for="checklist in checklists" :value="checklist.id">
                         {{ checklist.created_at }} Cod. {{ checklist.id }}
                     </option>
                 </select>
-            </div>
-            <div class="col-md-6">
+
+                <label class="mt-2">Nível</label>
                 <select v-model="search_level" class="form-select" @change="getLevels">
-                    <option v-for="level in levels" :value="level.id">
-                        Nível {{ level.id }}
+                    <option v-for="level_id in levels" :value="level_id">
+                        Nível {{ level_id }}
                     </option>
                 </select>
             </div>
+
+            <div class="col-md-7">
+                <RadarChart :chartData="testRadar" style="width: 100%"/>
+            </div>
+
         </div>
 
         <div class="row">
@@ -27,14 +33,11 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <DoughnutChart :chartData="testData" />
-            </div>
-            <div class="col-md-6">
-                <RadarChart :chartData="testRadar" style="width: 100%"/>
-            </div>
-        </div>
+<!--        <div class="row">-->
+<!--            <div class="col-md-12">-->
+<!--                <DoughnutChart :chartData="testData" />-->
+<!--            </div>-->
+<!--        </div>-->
 
     </div>
 </template>
@@ -55,7 +58,7 @@ export default {
     components: {
         Loading, DoughnutChart, RadarChart, BarChart
     },
-    props: ['checklists', 'checklist_id'],
+    props: ['checklists'],
     setup(props) {
         const fullPage = ref(true)
         const { note, initial, color, age, isLoading, getPercentageConsolidate, getPercentageLevel } = useCharts()
@@ -81,10 +84,13 @@ export default {
         }
 
         function selectLevel() {
-            levels.value = [
-                { id: ''}, { id: 1}, { id: 2}, { id: 3}, { id: 4}
-            ]
-            search_level.value = level_id.value
+            const arr = []
+            let level = checklists.value[0].level
+            for(let i=1; i <= level; i++){
+                arr.push(i)
+            }
+            levels.value = arr
+            search_level.value = ''
         }
 
         function dataTest() {
@@ -106,20 +112,19 @@ export default {
                     label: 'Checklist',
                     data: note,
                     fill: true,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
                     pointBorderColor: '#fff',
                     pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)'
+                    pointHoverBorderColor: 'rgb(54, 162, 235)'
                 },
                 {
                     label: 'Idade real',
                     data: age,
-                    fill: false,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgb(54, 162, 235)',
-                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                    fill: true,
+                    backgroundColor: 'rgba(255, 119, 243, 0.1)',
+                    borderColor: 'rgba(255, 119, 243, 0.1)',
                     pointBorderColor: '#fff',
                     pointHoverBackgroundColor: '#fff',
                     pointHoverBorderColor: 'rgb(54, 162, 235)'

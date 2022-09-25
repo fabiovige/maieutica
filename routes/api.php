@@ -18,11 +18,13 @@ Route::apiResource('levels', LevelController::class);
 
 Route::get('domains/initials/{level_id}', [DomainController::class, 'getInitials'])->name('api.domains.initials');
 Route::apiResource('domains', DomainController::class);
+
 Route::apiResource('competences', CompetenceController::class);
+Route::apiResource('checklists', ChecklistController::class);
 
 Route::get('checklistregisters/progressbar/{checklist_id}/{level_id}', [ChecklistRegisterController::class, 'progressbar'])->name('api.checklistregisters.progressbar');
 Route::apiResource('checklistregisters', ChecklistRegisterController::class);
 
 Route::get('charts/percentage', [ChartController::class, 'percentage'])->name('api.charts.percentage');
 
-Route::apiResource('checklists', ChecklistController::class);
+

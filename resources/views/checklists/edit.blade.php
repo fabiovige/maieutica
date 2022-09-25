@@ -85,6 +85,7 @@
                 </div>
             </form>
         </div>
-        @include('includes.information-register', ['data' => $checklist])
     </div>
+
+    @include('includes.information-register', ['data' => $checklist, 'action'=>'checklists.destroy'])
 @endsection

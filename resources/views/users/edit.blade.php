@@ -5,14 +5,13 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('home.index')}}">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('users.index')}}">Usuários</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('users.show', $user->id) }}">Gerenciar</a></li>
             <li class="breadcrumb-item active" aria-current="page">Editar</li>
         </ol>
     </nav>
 @endsection
 
 @section('button')
-    <x-button href="{{route('users.show', $user->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
+    <x-button href="{{route('users.index', $user->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
 @endsection
 
 @section('content')
@@ -107,6 +106,6 @@
 
 
     </form>
-    @include('includes.information-register', ['data' => $user])
+    @include('includes.information-register', ['data' => $user, 'action' => 'users.destroy'])
 
 @endsection

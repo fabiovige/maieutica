@@ -5,14 +5,13 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('roles.index') }}">Papéis</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('roles.show', $role->id) }}">Gerenciar</a></li>
             <li class="breadcrumb-item active" aria-current="page">Editar</li>
         </ol>
     </nav>
 @endsection
 
 @section('button')
-    <x-button href="{{route('roles.show', $role->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
+    <x-button href="{{route('roles.index', $role->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
 @endsection
 
 @section('content')
@@ -67,11 +66,11 @@
                                                             id="customCheck{{$ability->id}}"
                                                             value="{{$ability->id}}"
                                                             @if($role->abilities->contains($ability)) checked @endif
-                                                    >                                            
+                                                    >
                                                     <label class="form-check-label" for="customCheck{{$ability->id}}">
                                                         {{ $ability->name }}
                                                     </label>
-                                                </div>                                        
+                                                </div>
                                             @endforeach
                                         </div>
                                     </div>
@@ -88,9 +87,9 @@
                 </div>
             </form>
         </div>
-
-        @include('includes.information-register', ['data' => $role])
     </div>
+
+    @include('includes.information-register', ['data' => $role, 'action'=> 'roles.destroy'])
 
 @endsection
 

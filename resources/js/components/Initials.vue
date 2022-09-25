@@ -1,5 +1,6 @@
 <template>
     <div>
+        {{ checklist_id }}
         <ul class="nav nav-tabs" :id="`myTab${ level_id }`" :role="`tablist${ level_id }`">
             <li v-for="domain in initials.domains" :key="domain.id" class="nav-item" role="presentation">
                 <button :class="['nav-link', { 'active' : domain.id === 1 }]"

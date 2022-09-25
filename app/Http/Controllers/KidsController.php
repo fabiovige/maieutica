@@ -40,15 +40,15 @@ class KidsController extends Controller
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('kids.update') || request()->user()->can('kids.store')) {
 
-                    $html = '<div class="dropdown">
-                      <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-gear"></i>
-                                        </button>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                        <li><a class="dropdown-item" href="'.route('kids.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a></li>
-                        <li><a class="dropdown-item" href="'.route('kids.show', $data->id).'"><i class="bi bi-check2-square"></i> Checklists</a></li>
-                      </ul>
-                    </div>';
+                    $html = '<div class="dropdown">';
+                    $html.='<button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">';
+                    $html.='<li><a class="dropdown-item" href="'.route('kids.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a></li>';
+
+                    if($data->checklists()->count() > 0) {
+                        $html.= '<li><a class="dropdown-item" href="' . route('kids.show', $data->id) . '"><i class="bi bi-check2-square"></i> Checklist</a></li>';
+                    }
+
+                    $html.='</ul></div>';
 
                     return $html;
                 }
@@ -57,8 +57,6 @@ class KidsController extends Controller
                 return $data->name;
             })
             ->editColumn('birth_date', function ($data) {
-//                $now = Carbon::now();
-//                $months = ($now->diffInMonths($data->birth_date) == 0) ? 1 : $now->diffInMonths($data->birth_date);
                 return $data->birth_date;
             })
             ->editColumn('checklists', function ($data) {
@@ -108,14 +106,24 @@ class KidsController extends Controller
             Log::info($message);
 
             $kid = Kid::findOrFail($id);
+
+            if($kid->checklists()->count() === 0) {
+                flash(self::MSG_NOT_FOUND_CHECKLIST_USER)->warning();
+                return redirect()->back();
+            }
+
+            $checklists = $kid->checklists()->get();
+
             return view('kids.show', [
                 'kid' => $kid,
+                'checklists' => $checklists,
+                'checklist_id' => $checklists[0]->id,
+                'level' => $checklists[0]->level
             ]);
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Show Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
-
             return redirect()->back();
         }
     }
@@ -140,6 +148,7 @@ class KidsController extends Controller
 
     public function update(KidRequest $request, $id)
     {
+
         try {
             $message = label_case('Update Kids '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
@@ -149,8 +158,7 @@ class KidsController extends Controller
             $kid = Kid::findOrFail($id);
             $kid->update($data);
             flash(self::MSG_UPDATE_SUCCESS)->success();
-
-            return redirect()->route('kids.show', $id);
+            return redirect()->route('kids.edit', $id);
         } catch (Exception $e) {
             flash(self::MSG_UPDATE_ERROR)->warning();
             $message = label_case('Update Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
@@ -162,6 +170,7 @@ class KidsController extends Controller
 
     public function destroy($id)
     {
+        dd('aqui');
         try {
             $message = label_case('Destroy Kids '.self::MSG_DELETE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);

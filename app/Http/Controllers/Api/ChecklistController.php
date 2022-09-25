@@ -10,14 +10,14 @@ class ChecklistController
 
     public function index()
     {
-        $domains = Checklist::all();
-        return ChecklistResource::collection($domains);
+        $checklists = Checklist::all();
+        return ChecklistResource::collection($checklists);
     }
 
     public function show($id)
     {
-        $domain = Checklist::find($id);
-        return new ChecklistResource($domain);
+        $checklist = Checklist::find($id);
+        return new ChecklistResource($checklist);
     }
 
 }

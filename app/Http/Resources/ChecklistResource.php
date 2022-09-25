@@ -11,8 +11,8 @@ class ChecklistResource extends JsonResource
         return [
             'id' => $this->id,
             'level' => $this->level,
-            'kid' => $this->kid()->get(),
-            'checklists' => $this->kid->checklists()->get(),
+//            'kid' => $this->kid()->get(),
+//            'checklists' => $this->kid->checklists()->get(),
         ];
     }
 }
