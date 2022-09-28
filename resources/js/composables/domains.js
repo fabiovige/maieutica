@@ -6,8 +6,8 @@ export default function useDomains() {
     const domains = ref({})
     const initials = ref({})
 
-    const getDomain = async (id = 1) => {
-        await axios.get('/api/domains/' + id )
+    const getDomain = async (domain_id = 1) => {
+        await axios.get('/api/domains/' + domain_id )
             .then(response => {
                 domain.value = response.data.data;
             });

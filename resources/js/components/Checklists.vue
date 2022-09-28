@@ -1,113 +1,95 @@
 <template>
+    <div>
+        <ul class="nav nav-tabs nav-fill mb-3" id="nav-tab-level" role="tablist">
+            <li v-for="(data, level_id) in checklist.levels" :key="level_id" class="nav-item" role="presentation">
+                <button :class="['nav-link', { 'active' : level_id == 1 }]"
+                        :id="`level-tab${ level_id }`"
+                        data-bs-toggle="tab"
+                        :data-bs-target="`#level${ level_id }`"
+                        type="button"
+                        role="tab"
+                        :aria-controls="`#level${ level_id }`"
+                        :aria-selected="{ 'true' : level_id == 1 }"
+                >
+                    Nível {{ level_id }}
+                </button>
+            </li>
+        </ul>
 
-    <div class="row">
-        <div class="col-md-3 py-4">
-            <label class="mt-2">Checklist</label>
-            <select v-model="search_checklist" class="form-select" >
-                <option v-for="checklist in checklists" :value="checklist.id">
-                    {{ checklist.created_at }} Cod. {{ checklist.id }}
-                </option>
-            </select>
-        </div>
-    </div>
 
-    <ul class="nav nav-tabs nav-fill mb-3" id="nav-tab" role="tablist">
-        <li v-for="(index,level) in arrLevel" :key="index" class="nav-item" role="presentation">
-            <button :class="['nav-link', { 'active' : level === 0 }]"
-                    :id="`level-tab${level}`"
-                    data-bs-toggle="pill"
-                    :data-bs-target="`#level${ level }`"
-                    type="button"
-                    role="tab"
-                    aria-controls="level"
-                    aria-selected="true"
+        <div class="tab-content" id="tabContentInitial">
+            <div v-for="(data, level_id) in checklist.levels" :key="level_id"
+                 :class="['tab-pane fade', { 'show active' : level_id == 1 } ]"
+                 :id="`level${level_id}`" role="tabpanel"
+                 :aria-labelledby="`level-tab${level_id}`"
             >
-                Nível {{ index }}
-            </button>
-        </li>
-    </ul>
-    <div class="tab-content " id="tabContent">
-        <div v-for="(index,level) in arrLevel"
-             :key="index"
-             :class="['tab-pane', 'fade', 'show', { 'active' : level === 0 } ]"
-             :id="`pills-level${level}`" role="tabpanel"
-             :aria-labelledby="`pills-level-tab${level}`">
-            <p>conteudo</p>
+                {{ level_id }}
 
-<!--            <Initials :checklist_id="checklist_id" :level_id="index"></Initials>-->
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li v-for="(competences, initial) in data.domains" :key="initial" class="nav-item" role="presentation">
+                        <button
+                            :class="['nav-link', { 'active' : initial == 'COG' }]"
+                            :id="`${initial}-tab-${level_id}`"
+                            data-bs-toggle="tab"
+                            :data-bs-target="`#${initial}${level_id}`"
+                            type="button"
+                            role="tab"
+                            :aria-controls="`${initial}${level_id}`"
+                            :aria-selected="{ 'true' : initial == 'COG' }"
+                        >{{ initial }}</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div >
+                        a
+                    </div>
+                </div>
 
-        </div>
+
+<!--            </div>-->
+<!--        </div>-->
+
+
+<!--        <ul>-->
+<!--            <li v-for="(data, level_id) in checklist.levels" :key="level_id">-->
+<!--                {{ level_id }}-->
+<!--                <ul>-->
+<!--                    <li v-for="(competences, initial) in data.domains.initials" :key="initial">-->
+<!--                        {{ initial }}-->
+<!--                        <ul>-->
+<!--                            <li v-for="competence in competences">-->
+<!--                                {{ competence.id }} <br>-->
+<!--                                {{ competence.description }}<br>-->
+<!--                                {{ competence.description_detail }}<br>-->
+<!--                                {{ competence.note }}-->
+<!--                            </li>-->
+<!--                        </ul>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </li>-->
+<!--        </ul>-->
     </div>
 </template>
 
 <script>
 import {onMounted, watch, ref} from "vue";
-import Initials from "./Initials";
-import useDomains from "../composables/domains";
 import useChecklists from "../composables/checklists";
-import TableDescriptions from "./TableDescriptions";
-
 
 export default {
     name: "Checklists",
-    components: {Initials, TableDescriptions},
-    props: ['checklists'],
+    props: ['checklists', 'checklist_id'],
     setup(props) {
-
-        const search_checklist = ref('')
-        const level = ref('')
+        const checklist_id = ref(props.checklist_id)
         const checklists = ref(props.checklists)
-        const { checklist, getChecklist, arrLevel } = useChecklists()
-
-        // const level = ref(props.level)
-        //
-        //
-        //
-        // const search_checklist = ref('')
-        // const level_id = ref(1)
-        // const search_level = ref('')
-        // const levels = ref([])
-        // let domain_id = ref(1)
-        // const { initials, getInitials } = useDomains()
+        const { checklist, getChecklist } = useChecklists()
 
         onMounted(() => {
-            getChecklist(checklists.value[0].id)
-            search_checklist.value = checklists.value[0].id
-            level.value = checklists.value[0].level
+            getChecklist(checklist_id.value)
         })
-
-        function getTableDescriptions(domain_id, event) {
-            // console.log(domain_id)
-            // console.log(event)
-            // this.domain_id = domain_id
-        }
-
-        watch(search_checklist, (current, previous) => {
-            getChecklist(current)
-        })
-
-        function selectLevel() {
-            // const arr = []
-            // let level = checklists.value[0].level
-            // for(let i=1; i <= level; i++){
-            //     arr.push(i)
-            // }
-            // levels.value = arr
-            // search_level.value = ''
-        }
 
         return {
-            search_checklist, arrLevel, checklist, level
-            // ,
-            // selectLevel,getChecklists,
-            // checklist_id, search_checklist, checklists,
-            // level_id, search_level, levels,
-            // initials, getInitials, getTableDescriptions, domain_id
+            checklist_id, checklists, checklist, getChecklist
         }
     }
 }
 </script>
-
-<style scoped>
-
-</style>

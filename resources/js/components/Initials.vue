@@ -1,6 +1,8 @@
 <template>
     <div>
-        {{ checklist_id }}
+        checklist {{ checklist_id }}
+        nivel {{level_id}}
+
         <ul class="nav nav-tabs" :id="`myTab${ level_id }`" :role="`tablist${ level_id }`">
             <li v-for="domain in initials.domains" :key="domain.id" class="nav-item" role="presentation">
                 <button :class="['nav-link', { 'active' : domain.id === 1 }]"
@@ -45,20 +47,21 @@ export default {
     name: "Initials",
     components: {TableDescriptions},
     props: ['checklist_id', 'level_id'],
-    setup(props) {
+    emits: ['checklist_id', 'level_id'],
+    setup(props, { emit }) {
         const checklist_id = ref(props.checklist_id)
         const level_id = ref(props.level_id)
-        let domain_id = ref(1)
+        const domain_id = ref(1)
+
+        const getTableDescriptions = (domain_id, event) => {
+            this.domain_id = domain_id
+        };
 
         const { initials, getInitials } = useDomains()
 
         onMounted(() => {
             getInitials(level_id.value)
         })
-
-        function getTableDescriptions(domain_id, event) {
-            this.domain_id = domain_id
-        }
 
         return {
             initials,

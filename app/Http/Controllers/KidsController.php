@@ -112,7 +112,7 @@ class KidsController extends Controller
                 return redirect()->back();
             }
 
-            $checklists = $kid->checklists()->get();
+            $checklists = $kid->checklists()->orderBy('created_at', 'DESC')->get();
 
             return view('kids.show', [
                 'kid' => $kid,
@@ -148,7 +148,6 @@ class KidsController extends Controller
 
     public function update(KidRequest $request, $id)
     {
-
         try {
             $message = label_case('Update Kids '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
@@ -170,7 +169,6 @@ class KidsController extends Controller
 
     public function destroy($id)
     {
-        dd('aqui');
         try {
             $message = label_case('Destroy Kids '.self::MSG_DELETE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);

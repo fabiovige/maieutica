@@ -53,6 +53,8 @@ import { createApp, onMounted } from 'vue'
 import Competences from './components/Competences'
 import Checklists from './components/Checklists'
 import Charts from './components/Charts'
+import Tabs from './components/Tabs'
+import Tab from './components/Tab'
 import Select2 from 'vue3-select2-component';
 import VueSweetalert2 from "vue-sweetalert2";
 
@@ -65,5 +67,7 @@ app.use(VueSweetalert2)
 app.component('Competences', Competences)
 app.component('Checklists', Checklists)
 app.component('Charts', Charts)
+app.component('Tabs', Tabs)
+app.component('Tab', Tab)
 app.component('Select2', Select2)
 app.mount('#app')

@@ -15,7 +15,7 @@ export default function useChecklistRegisters() {
     })
 
     const getChecklistRegister = async (checklist_id, competence_description_id) => {
-        axios.get('/api/checklistregisters?checklist_id=' + checklist_id + '&competence_description_id=' + competence_description_id)
+        await axios.get('/api/checklistregisters?checklist_id=' + checklist_id + '&competence_description_id=' + competence_description_id)
             .then(response => {
                 isLoading.value = true
                 checklistregisters.value = response.data.data;
@@ -26,7 +26,7 @@ export default function useChecklistRegisters() {
     }
 
     const getProgressBar = async (checklist_id = 0, totalLevel = 0) => {
-        axios.get('/api/checklistregisters/progressbar/' + checklist_id + '/' + totalLevel)
+        await axios.get('/api/checklistregisters/progressbar/' + checklist_id + '/' + totalLevel)
             .then(response => {
                 progressbar.value = response.data;
             })
@@ -40,7 +40,7 @@ export default function useChecklistRegisters() {
             }
         }
 
-        axios.post('/api/checklistregisters', serialized)
+        await axios.post('/api/checklistregisters', serialized)
             .then(response => {
                 isLoading.value = true
                 swal({
