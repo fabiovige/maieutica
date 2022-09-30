@@ -72,7 +72,6 @@
                                                :value="1"
                                                v-if="competence.note !== 1"
                                         >
-                                        {{ competence.note }}
                                     </div>
                                 </td>
                                 <td style="width: 30px; alignment: center" nowrap="nowrap">
@@ -89,7 +88,6 @@
                                                :value="2"
                                                v-if="competence.note !== 2"
                                         >
-                                        {{ competence.note }}
                                     </div>
                                 </td>
                                 <td style="width: 30px; alignment: center" nowrap="nowrap">
@@ -106,7 +104,6 @@
                                                :value="3"
                                                v-if="competence.note !== 3"
                                         >
-                                        {{ competence.note }}
                                     </div>
                                 </td>
                                 <td style="width: 30px; alignment: center" nowrap="nowrap" >
@@ -124,9 +121,6 @@
                                                :value="0"
                                                v-if="competence.note !== 0 "
                                         >
-
-                                        {{ competence.note }}
-
                                     </div>
                                 </td>
                             </tr>

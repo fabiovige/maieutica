@@ -40,9 +40,6 @@
                         </div>
                         <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
                             @if($checklists->count())
-
-
-                                <label class="mt-2">Checklist</label>
                                 <Checklists :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"></Checklists>
                             @endif
                         </div>

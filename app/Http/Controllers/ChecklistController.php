@@ -36,8 +36,6 @@ class ChecklistController extends Controller
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('checklists.update') || request()->user()->can('checklists.store')) {
 
-                    //$html = '<a class="btn btn-sm btn-success" href="'.route('checklists.show', $data->id).'"><i class="bi bi-gear"></i></a>';
-
 
                     $html = '<div class="dropdown">
                       <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -58,13 +56,10 @@ class ChecklistController extends Controller
             ->editColumn('level', function ($data) {
                 return $data->level;
             })
-            ->editColumn('situation', function ($data) {
-                return Checklist::SITUATION[$data->situation];
-            })
             ->editColumn('created_at', function ($data) {
                 return Carbon::createFromFormat('Y-m-d H:i:s', $data->created_at)->format('d/m/Y') ;
             })
-            ->rawColumns(['kid_id','level','situation','created_at','action'])
+            ->rawColumns(['kid_id','level','created_at','action'])
             ->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
@@ -121,19 +116,20 @@ class ChecklistController extends Controller
 
     public function show($id)
     {
-        try {
-            $message = label_case('Show Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-            Log::info($message);
-
-            $checklist = Checklist::findOrFail($id);
-            return view('checklists.show', compact('checklist'));
-        } catch (Exception $e) {
-            flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Show Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-            Log::error($message);
-
-            return redirect()->back();
-        }
+        dd('show');
+//        try {
+//            $message = label_case('Show Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+//            Log::info($message);
+//
+//            $checklist = Checklist::findOrFail($id);
+//            return view('checklists.show', compact('checklist'));
+//        } catch (Exception $e) {
+//            flash(self::MSG_NOT_FOUND)->warning();
+//            $message = label_case('Show Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+//            Log::error($message);
+//
+//            return redirect()->back();
+//        }
     }
 
     public function edit($id)

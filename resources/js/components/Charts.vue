@@ -33,12 +33,6 @@
             </div>
         </div>
 
-<!--        <div class="row">-->
-<!--            <div class="col-md-12">-->
-<!--                <DoughnutChart :chartData="testData" />-->
-<!--            </div>-->
-<!--        </div>-->
-
     </div>
 </template>
 

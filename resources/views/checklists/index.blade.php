@@ -31,7 +31,6 @@
                                 <th>#</th>
                                 <th>Criança</th>
                                 <th>Nível</th>
-                                <th>Situação</th>
                                 <th>Data de criação</th>
                                 <th style="width: 30px"></th>
                             </tr>
@@ -72,10 +71,6 @@
                 {
                     data: 'level',
                     name: 'level'
-                },
-                {
-                    data: 'situation',
-                    name: 'situation'
                 },
                 {
                     data: 'created_at',
