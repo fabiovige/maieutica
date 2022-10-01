@@ -2,6 +2,8 @@ require('./bootstrap');
 
 $ = window.$ = window.jQuery = require('jquery');
 
+window.bootstrap = require('bootstrap');
+
 import 'jquery-ui/ui/widgets/datepicker.js';
 
 const Swal = require("sweetalert2");
@@ -11,10 +13,8 @@ $.datepicker.regional['pt-BR'] = {
     prevText: '&#x3c;Anterior',
     nextText: 'Pr&oacute;ximo&#x3e;',
     currentText: 'Hoje',
-    monthNames: ['Janeiro','Fevereiro','Mar&ccedil;o','Abril','Maio','Junho',
-        'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
-    monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun',
-        'Jul','Ago','Set','Out','Nov','Dez'],
+    monthNames: ['Janeiro','Fevereiro','Mar&ccedil;o','Abril','Maio','Junho', 'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+    monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun', 'Jul','Ago','Set','Out','Nov','Dez'],
     dayNames: ['Domingo','Segunda-feira','Ter&ccedil;a-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sabado'],
     dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'],
     dayNamesMin: ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'],
@@ -63,6 +63,7 @@ const app = createApp({
     }
 });
 app.use(VueSweetalert2)
+app.use(bootstrap)
 app.component('Competences', Competences)
 app.component('Checklists', Checklists)
 app.component('Charts', Charts)

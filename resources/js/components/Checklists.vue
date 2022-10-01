@@ -12,7 +12,7 @@
 
         <ul class="nav nav-tabs nav-fill mt-2" id="navTablevel" role="tablist">
             <li v-for="(data, level_id) in checklist.levels" :key="level_id" class="nav-item" role="presentation">
-                {{ level_id }}
+                
                 <button :class="['nav-link', { 'active' : level_id == 1 }]"
                         :id="`level-tab${ level_id }`"
                         data-bs-toggle="tab"
@@ -34,7 +34,7 @@
                  :aria-labelledby="`level-tab${level_id}`"
             >
 
-                <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+                <ul class="nav nav-tabs mt-2" id="myTab2" role="tablist">
                     <li v-for="(domain, index) in data.domains" :key="domain" class="nav-item" role="presentation">
                         <button
                             :class="['nav-link', { 'active' : domain == 'COG' }]"
@@ -55,7 +55,6 @@
                          :id="`${domain}${level_id}`" role="tabpanel"
                          :aria-labelledby="`${domain}${level_id}-tab`"
                     >
-
 
                         <table class="table table-sm table-striped mt-2">
                             <thead>
@@ -108,7 +107,7 @@
 </template>
 
 <script>
-import {onMounted, watch, ref} from "vue";
+import {onMounted, watch, ref, inject} from "vue";
 import useChecklists from "../composables/checklists";
 import Loading from "vue3-loading-overlay";
 import 'vue3-loading-overlay/dist/vue3-loading-overlay.css';
@@ -116,9 +115,7 @@ import 'vue3-loading-overlay/dist/vue3-loading-overlay.css';
 export default {
     name: "Checklists",
     props: ['checklists', 'checklist_id'],
-    components: {
-        Loading
-    },
+    components: { Loading },
     setup(props) {
         const checklist_id = ref(props.checklist_id)
         const checklists = ref(props.checklists)
