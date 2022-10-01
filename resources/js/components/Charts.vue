@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-md-3">
                 <label class="mt-2">Checklist</label>
-                <select v-model="search_checklist" class="form-select" @change="getChecklists">
+                <select v-model="search_checklist" class="form-select" >
                     <option v-for="checklist in checklists" :value="checklist.id">
                         {{ checklist.created_at }} Cod. {{ checklist.id }}
                     </option>
@@ -22,7 +22,7 @@
             </div>
 
             <div class="col-md-7">
-                <RadarChart :chartData="testRadar" style="width: 100%"/>
+                <RadarChart :chartData="testRadar" />
             </div>
 
         </div>
@@ -37,13 +37,14 @@
 </template>
 
 <script>
-import {ref, onMounted} from "vue";
+import {ref, onMounted, watch} from "vue";
 import useCompetences from "../composables/competences";
 import Loading from 'vue3-loading-overlay';
 import 'vue3-loading-overlay/dist/vue3-loading-overlay.css';
 import { Chart, registerables } from "chart.js";
 import {BarChart, DoughnutChart, RadarChart} from "vue-chart-3";
 import useCharts from "../composables/charts";
+import useChecklists from "../composables/checklists";
 
 Chart.register(...registerables);
 
@@ -56,35 +57,33 @@ export default {
     setup(props) {
         const fullPage = ref(true)
         const { note, initial, color, age, isLoading, getPercentageConsolidate, getPercentageLevel } = useCharts()
+        const { checklist, getChecklist, levels } = useChecklists()
         const checklist_id = ref('')
         const search_checklist = ref('')
         const level_id = ref('')
         const search_level = ref('')
         const checklists = ref(props.checklists)
-        const levels = ref([])
         const testData = ref({});
         const testRadar = ref({});
 
         onMounted(() => {
             selectChecklist()
-            selectLevel()
             getPercentageConsolidate(checklists.value[0].id)
+            getChecklist(checklists.value[0].id)
             dataTest()
             dataRadar()
         })
 
+        watch(search_checklist, (checklist_id, previous) => {
+            getChecklist(checklist_id)
+            getPercentageConsolidate(checklist_id)
+            dataTest()
+            dataRadar()
+            search_level.value = ''
+        })
+
         function selectChecklist() {
             search_checklist.value = checklists.value[0].id
-        }
-
-        function selectLevel() {
-            const arr = []
-            let level = checklists.value[0].level
-            for(let i=1; i <= level; i++){
-                arr.push(i)
-            }
-            levels.value = arr
-            search_level.value = ''
         }
 
         function dataTest() {
@@ -126,12 +125,14 @@ export default {
             }
         }
 
-        function getChecklists(event) {
-            getPercentageConsolidate(event.target.value)
-            dataTest()
-            dataRadar()
-            search_level.value = ''
-        }
+        // function getChecklists(event) {
+        //     getPercentageConsolidate(event.target.value)
+        //     dataTest()
+        //     dataRadar()
+        //     search_level.value = ''
+        // }
+
+
 
         function getLevels(event) {
             getPercentageLevel(search_checklist.value, event.target.value)
@@ -146,9 +147,9 @@ export default {
             testRadar,
             checklist_id, search_checklist, checklists,
             level_id, search_level, levels,
-            getChecklists, getLevels,
+            getLevels,
             getPercentageConsolidate, getPercentageLevel,
-            note, initial, color
+            note, initial, color, checklist
         }
     }
 }

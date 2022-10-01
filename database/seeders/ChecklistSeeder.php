@@ -19,16 +19,22 @@ class ChecklistSeeder extends Seeder
         $kid = Kid::pluck('id');
 
         // checklists
-        foreach([1,2,3,4] as $c => $v) {
+        foreach([1,2,3,4,5,6,7,8,9,10] as $c => $v) {
+
+            // levels
+            $indice = rand(1,4);
+            $arrLevel = [];
+            for($i=1;$i<=$indice;$i++){
+                $arrLevel[] = $i;
+            }
 
             $checklist = Checklist::create([
                 'kid_id' => $kid->random(),
-                'level' => 4,
+                'level' => $indice,
                 'created_by' => 1
             ]);
 
-            // levels
-            foreach([1,2,3,4] as $c => $level) {
+            foreach($arrLevel as $c => $level) {
                 $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();
 
                 $notes = [];

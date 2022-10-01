@@ -21,6 +21,7 @@ class ChecklistController
         $checklist = Checklist::findOrFail($id);
         $checklist->created_at->format('d/m/Y');
         $arrCompetences = [];
+        $arrCompetences['checklist']['level'] = $checklist->level;
         $arrCompetences['checklist']['created_at'] = $checklist->created_at->format('d/m/Y');
         for($level_id=1; $level_id<=$checklist->level;$level_id++) {
             $level = Level::findOrFail($level_id);

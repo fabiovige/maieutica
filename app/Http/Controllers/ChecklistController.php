@@ -96,7 +96,7 @@ class ChecklistController extends Controller
                 $notes = [];
                 // competences
                 foreach($components as $c => $v) {
-                    $notes[$v] = ['note' => 1];
+                    $notes[$v] = ['note' => 0];
                 }
                 $checklist->competences()->syncWithoutDetaching($notes);
             }

@@ -25,6 +25,8 @@
         <div class="col-md-12 ">
             <div class="card">
                 <div class="card-body">
+
+                    @if($checklists->count())
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab-checklist" role="tablist">
                             <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Gráficos</button>
@@ -34,19 +36,17 @@
                     </nav>
                     <div class="tab-content" id="nav-tabContent-checklist">
                         <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                            @if($checklists->count())
-                                <Charts :checklists="{{ $checklists }}"></Charts>
-                            @endif
+                            <Charts :checklists="{{ $checklists }}"></Charts>
                         </div>
                         <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                            @if($checklists->count())
-                                <Checklists :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"></Checklists>
-                            @endif
+                            <Checklists :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"></Checklists>
                         </div>
                         <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-                            plano
+                            <Planes :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"></Planes>
                         </div>
                     </div>
+
+                    @endif
                 </div>
 
             </div>

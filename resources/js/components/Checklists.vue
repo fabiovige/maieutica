@@ -12,6 +12,7 @@
 
         <ul class="nav nav-tabs nav-fill mt-2" id="navTablevel" role="tablist">
             <li v-for="(data, level_id) in checklist.levels" :key="level_id" class="nav-item" role="presentation">
+                {{ level_id }}
                 <button :class="['nav-link', { 'active' : level_id == 1 }]"
                         :id="`level-tab${ level_id }`"
                         data-bs-toggle="tab"
@@ -44,7 +45,7 @@
                             role="tab"
                             :aria-controls="`${domain}${level_id}`"
                             :aria-selected="{ 'true' : domain == 'COG' }"
-                        >{{ domain }} {{ index }}</button>
+                        >{{ domain }}</button>
                     </li>
                 </ul>
 
@@ -66,7 +67,9 @@
                             </thead>
                             <tbody>
                                 <tr v-for="component in data.competences[domain]">
-                                    <td class="customColumnCode">{{ component.id }}</td>
+                                    <td class="customColumnCode">
+                                        {{level_id}}{{domain}}{{ component.id }}
+                                    </td>
                                     <td>
                                         <a data-bs-toggle="collapse"
                                            :href="`#collapse${component.id}`"

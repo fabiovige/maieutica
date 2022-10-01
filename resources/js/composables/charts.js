@@ -45,6 +45,6 @@ export default function useCharts() {
     return {
         note, initial, color, age,
         getPercentageConsolidate,
-        getPercentageLevel
+        getPercentageLevel, isLoading
     }
 }
