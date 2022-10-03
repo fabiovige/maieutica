@@ -125,15 +125,6 @@ export default {
             }
         }
 
-        // function getChecklists(event) {
-        //     getPercentageConsolidate(event.target.value)
-        //     dataTest()
-        //     dataRadar()
-        //     search_level.value = ''
-        // }
-
-
-
         function getLevels(event) {
             getPercentageLevel(search_checklist.value, event.target.value)
             dataTest()
@@ -141,14 +132,10 @@ export default {
         }
 
         return {
-            isLoading,
-            fullPage,
-            testData,
-            testRadar,
+            isLoading, fullPage, testData, testRadar,
             checklist_id, search_checklist, checklists,
             level_id, search_level, levels,
-            getLevels,
-            getPercentageConsolidate, getPercentageLevel,
+            getLevels, getPercentageConsolidate, getPercentageLevel,
             note, initial, color, checklist
         }
     }

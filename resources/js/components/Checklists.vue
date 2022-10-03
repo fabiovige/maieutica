@@ -12,7 +12,7 @@
 
         <ul class="nav nav-tabs nav-fill mt-2" id="navTablevel" role="tablist">
             <li v-for="(data, level_id) in checklist.levels" :key="level_id" class="nav-item" role="presentation">
-                
+
                 <button :class="['nav-link', { 'active' : level_id == 1 }]"
                         :id="`level-tab${ level_id }`"
                         data-bs-toggle="tab"
@@ -67,7 +67,7 @@
                             <tbody>
                                 <tr v-for="component in data.competences[domain]">
                                     <td class="customColumnCode">
-                                        {{level_id}}{{domain}}{{ component.id }}
+                                        {{level_id}}{{domain}}{{ component.code }}
                                     </td>
                                     <td>
                                         <a data-bs-toggle="collapse"

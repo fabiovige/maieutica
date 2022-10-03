@@ -1,6 +1,8 @@
 <template>
     <div>
         <loading :active="isLoading" :is-full-page="fullPage"></loading>
+        <loading :active="checkIsLoadingsLoading" :is-full-page="fullPage"></loading>
+
         <form @submit.prevent="submitForm" >
 
             <div class="form-group">
@@ -162,8 +164,8 @@ export default {
 
         const { levels, getLevels } = useLevels()
         const { domain, getDomain, domains, getDomains } = useDomains()
-        const { competences, getCompetences } = useCompetences()
-        const { storeChecklistRegister, getProgressBar, progressbar, isLoading } = useChecklistRegisters()
+        const { competences, getCompetences, isLoading } = useCompetences()
+        const { storeChecklistRegister, getProgressBar, checkIsLoading, progressbar } = useChecklistRegisters()
 
         const checklist = reactive({
             checklist_id,
@@ -233,7 +235,7 @@ export default {
             created_at,
             kid,
 
-            isLoading,
+            isLoading, checkIsLoading,
             fullPage,
         }
     }

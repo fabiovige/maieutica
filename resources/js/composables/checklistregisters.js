@@ -5,7 +5,7 @@ export default function useChecklistRegisters() {
     const checklistregisters = ref({})
     const progressbar = ref(0)
     const swal = inject('$swal')
-    const isLoading = ref(false)
+    const checkIsLoading = ref(false)
 
     const checklist = ref({
         checklist_id: 0,
@@ -15,24 +15,31 @@ export default function useChecklistRegisters() {
     })
 
     const getChecklistRegister = async (checklist_id, competence_description_id) => {
+        checkIsLoading.value = true
         await axios.get('/api/checklistregisters?checklist_id=' + checklist_id + '&competence_description_id=' + competence_description_id)
             .then(response => {
-                isLoading.value = true
                 checklistregisters.value = response.data.data;
             })
             .finally(() => {
-                isLoading.value = false
+                checkIsLoading.value = false
             })
     }
 
     const getProgressBar = async (checklist_id = 0, totalLevel = 0) => {
+        checkIsLoading.value = true
         await axios.get('/api/checklistregisters/progressbar/' + checklist_id + '/' + totalLevel)
             .then(response => {
                 progressbar.value = response.data;
             })
+            .finally(() => {
+                checkIsLoading.value = false
+            })
     }
 
     const storeChecklistRegister = async (data) => {
+
+        checkIsLoading.value = true
+
         let serialized = new FormData()
         for (let item in data) {
             if (data.hasOwnProperty(item)) {
@@ -42,11 +49,10 @@ export default function useChecklistRegisters() {
 
         await axios.post('/api/checklistregisters', serialized)
             .then(response => {
-                isLoading.value = true
-                swal({
-                    icon: 'success',
-                    title: 'Checklist atualizado com sucesso!'
-                })
+                // swal({
+                //     icon: 'success',
+                //     title: 'Checklist atualizado com sucesso!'
+                // })
                 getProgressBar(data.checklist_id, data.totalLevel)
             })
             .catch(error => {
@@ -55,7 +61,7 @@ export default function useChecklistRegisters() {
                 }
             })
             .finally(() => {
-                isLoading.value = false
+                checkIsLoading.value = false
             })
     }
 
@@ -64,6 +70,6 @@ export default function useChecklistRegisters() {
         storeChecklistRegister,
         getProgressBar,
         progressbar,
-        isLoading
+        checkIsLoading
     }
 }
