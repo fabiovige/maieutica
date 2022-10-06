@@ -49,10 +49,10 @@ export default function useChecklistRegisters() {
 
         await axios.post('/api/checklistregisters', serialized)
             .then(response => {
-                // swal({
-                //     icon: 'success',
-                //     title: 'Checklist atualizado com sucesso!'
-                // })
+                swal({
+                    icon: 'success',
+                    title: 'Checklist atualizado com sucesso!'
+                })
                 getProgressBar(data.checklist_id, data.totalLevel)
             })
             .catch(error => {

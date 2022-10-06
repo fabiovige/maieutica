@@ -26,6 +26,11 @@ class Competence extends Model
         return $this->belongsToMany(Checklist::class)->withPivot('note');
     }
 
+    public function planes(): BelongsToMany
+    {
+        return $this->belongsToMany(Plane::class);
+    }
+
     public static function total($level_id)
     {
         $query = "SELECT COUNT(1) AS total FROM competences AS c WHERE c.level_id in($level_id)";

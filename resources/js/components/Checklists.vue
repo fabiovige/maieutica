@@ -3,12 +3,16 @@
 
         <loading :active="isLoading" :is-full-page="fullPage"></loading>
 
-        <label class="mt-2">Checklists</label>
-        <select v-model="search_checklist" class="form-select">
-            <option v-for="checklist in checklists" :value="checklist.id">
-                {{ checklist.created_at }} - Cod. {{ checklist.id }}
-            </option>
-        </select>
+        <div class="row">
+            <div class="col-md-3">
+                <label class="mt-2">Checklists</label>
+                <select v-model="search_checklist" class="form-select">
+                    <option v-for="checklist in checklists" :value="checklist.id">
+                        {{ checklist.created_at }} - Cod. {{ checklist.id }}
+                    </option>
+                </select>
+            </div>
+        </div>
 
         <ul class="nav nav-tabs nav-fill mt-2" id="navTablevel" role="tablist">
             <li v-for="(data, level_id) in checklist.levels" :key="level_id" class="nav-item" role="presentation">
@@ -57,15 +61,8 @@
                     >
 
                         <table class="table table-sm table-striped mt-2">
-                            <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Descrição</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
                             <tbody>
-                                <tr v-for="component in data.competences[domain]">
+                                <tr v-for="component in data.competences[domain]" :key="component.id">
                                     <td class="customColumnCode">
                                         {{level_id}}{{domain}}{{ component.code }}
                                     </td>

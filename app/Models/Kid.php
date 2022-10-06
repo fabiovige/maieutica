@@ -23,6 +23,11 @@ class Kid extends Model
         return $this->hasMany(Checklist::class);
     }
 
+    public function planes()
+    {
+        return $this->hasMany(Plane::class);
+    }
+
     public function getBirthDateAttribute($value)
     {
         return Carbon::createFromFormat('Y-m-d', $value)->format('d/m/Y');

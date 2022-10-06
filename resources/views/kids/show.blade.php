@@ -42,7 +42,7 @@
                             <Checklists :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"></Checklists>
                         </div>
                         <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-                            <Planes :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"></Planes>
+                            <Planes :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}" :kid_id="{{ $kid->id }}"></Planes>
                         </div>
                     </div>
 

@@ -145,7 +145,7 @@ class KidsController extends Controller
             return redirect()->back();
         }
     }
-
+    
     public function update(KidRequest $request, $id)
     {
         try {
