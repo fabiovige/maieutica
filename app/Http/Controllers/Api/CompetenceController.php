@@ -4,11 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CompetenceResource;
-use App\Models\Checklist;
-use App\Models\ChecklistCompetence;
 use App\Models\Competence;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CompetenceController extends Controller
 {

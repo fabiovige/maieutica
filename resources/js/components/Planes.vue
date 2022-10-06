@@ -28,7 +28,7 @@
                     <tbody>
                     <tr v-for="competence in plane.competences" :key="competence.id">
                         <td class="customColumnCode">
-                            {{ competence.code }}
+                            {{competence.code}}
                         </td>
                         <td>
                             <a data-bs-toggle="collapse"

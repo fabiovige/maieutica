@@ -3,8 +3,6 @@
 use App\Http\Controllers\Api\ChecklistController;
 use App\Http\Controllers\Api\DomainController;
 use App\Http\Controllers\Api\LevelController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CompetenceController;
 use App\Http\Controllers\Api\ChecklistRegisterController;
@@ -29,9 +27,9 @@ Route::apiResource('competences', CompetenceController::class);
 Route::apiResource('checklists', ChecklistController::class);
 
 // planes
-Route::get('planes/storeplane', [PlaneController::class, 'storePlane'])->name('api.planes.storePlane');
+Route::get('planes/storeplane', [PlaneController::class, 'storePlane'])->name('api.planes.storeplane');
 Route::get('planes/showcompetences/{plane_id}', [PlaneController::class, 'showCompetences'])->name('api.planes.showcompetences');
-Route::get('planes/showbykids/{kid_id}', [PlaneController::class, 'showByKids'])->name('api.planes.showByKids');
+Route::get('planes/showbykids/{kid_id}', [PlaneController::class, 'showByKids'])->name('api.planes.showbykids');
 Route::apiResource('planes', PlaneController::class);
 
 // checklistregisters

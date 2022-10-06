@@ -35,6 +35,7 @@ export default function usePlanes() {
         await axios.get('/api/planes/showcompetences/' + plane_id )
             .then(response => {
                 plane.value = response.data.data
+                console.log(response.data.data)
             })
             .finally(() => {
                 isLoadingPlane.value = false
@@ -49,10 +50,11 @@ export default function usePlanes() {
             + '&competence_id=' + competence_id
         )
             .then(response => {
-                swal({
-                    icon: 'success',
-                    title: 'Competência adicionado com sucesso!'
-                })
+                // swal({
+                //     icon: 'success',
+                //     title: 'Competência adicionado com sucesso!'
+                // })
+                getCompetences(plane_id)
             })
             .finally(() => {
                 isLoadingPlane.value = false

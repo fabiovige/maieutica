@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\PlaneResource;
 use App\Models\Plane;
+use Illuminate\Http\Request;
 
 class PlaneController
 {
@@ -16,8 +17,10 @@ class PlaneController
 
     public function show($id)
     {
-        $plane = Plane::where('kid_id', $id)->orderBy('id', 'DESC')->first();
-        return new PlaneResource($plane);
+        $plane = Plane::where('kid_id','=', $id)->orderBy('id', 'DESC')->first();
+
+            return new PlaneResource($plane);
+
     }
 
     public function showByKids($id)
@@ -34,6 +37,10 @@ class PlaneController
 
     public function storePlane(Request $request)
     {
-        dd($request);
+        $plane = Plane::where('id', $request->plane_id)->first();
+        $arrCompetences = $plane->competences()->pluck('id')->toArray();
+        $arrCompetences[] = (int)$request->competence_id;
+        $plane->competences()->sync($arrCompetences);
+        return new PlaneResource($plane);
     }
 }
