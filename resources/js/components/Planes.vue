@@ -26,30 +26,16 @@
 
                 <table class="table table-sm table-striped mt-2">
                     <tbody>
-                    <tr v-for="competence in plane.competences" :key="competence.id">
+                    <tr v-for="competence in plane.competences"
+                    :key="competence.id"
+                    class="mousePointer"
+                    @click.prevent="deletePlanes(competence.id)"
+                    >
                         <td class="customColumnCode">
                             {{competence.code}}
                         </td>
-                        <td>
-                            <a data-bs-toggle="collapse"
-                               :href="`#collapse${competence.id}`"
-                               role="button"
-                               aria-expanded="false"
-                               :aria-controls="`collapse${competence.id}`"
-                               class="customLink"
-                            >
-                                {{ competence.description }}
-                            </a>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="collapse multi-collapse" :id="`collapse${competence.id}`">
-                                        <div class="card card-body">
-                                            {{ competence.description_detail }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <td >
+                            {{ competence.description }}
                         </td>
                         <td class="customColumn">
                             <h5 v-if="competence.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
@@ -111,18 +97,18 @@
                     >
                             <table class="table table-sm table-striped mt-2" :id="`${checklist_id}${level_id}${domain}-table`">
                             <tbody>
-                                <tr class="mousePointer" v-for="component in data.competences[domain]" :key="component.id" @click.prevent="storePanel(component.id)">
+                                <tr class="mousePointer" v-for="competence in data.competences[domain]" :key="competence.id" @click.prevent="storePlanes(competence.id)">
                                     <td class="customColumnCode">
-                                        {{ level_id }}{{ domain }}{{ component.code }}
+                                        {{ level_id }}{{ domain }}{{ competence.code }}
                                     </td>
                                     <td>
-                                        {{ component.description }}
+                                        {{ competence.description }}
                                     </td>
                                     <td class="customColumn">
-                                        <h5 v-if="component.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
-                                        <h5 v-if="component.note === 1"><span class="badge bg-warning text-dark customColumn">Mais ou menos</span></h5>
-                                        <h5 v-if="component.note === 2"><span class="badge bg-danger customColumn">Difícil de obter</span></h5>
-                                        <h5 v-if="component.note === 3"><span class="badge bg-primary customColumn">Consistente</span></h5>
+                                        <h5 v-if="competence.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
+                                        <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Mais ou menos</span></h5>
+                                        <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Difícil de obter</span></h5>
+                                        <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Consistente</span></h5>
                                     </td>
                                 </tr>
                             </tbody>
@@ -150,12 +136,10 @@ export default {
         const checklist_id = ref(props.checklist_id)
         const checklists = ref(props.checklists)
         const kid_id = ref(props.kid_id)
-        const plane_id = ref('')
-        const competence_id = ref('')
         const search_plane = ref('')
         const fullPagePlane = ref(true)
         const { checklist, getChecklist  } = useChecklists()
-        const { planes, getPlanes, plane, getPlane, isLoadingPlane, getCompetences, storePlanes } = usePlanes()
+        const { planes, getPlanes, plane, getPlane, isLoadingPlane, getCompetences, createPlanes, destroyCompetencePlane } = usePlanes()
 
         onMounted(() => {
             getChecklist(checklist_id.value)
@@ -171,14 +155,29 @@ export default {
             getCompetences(event.target.value)
         }
 
-        function storePanel(component_id) {
-            storePlanes(kid_id.value, search_plane.value, component_id)
+        function storePlanes(competence_id) {
+            createPlanes(kid_id.value, search_plane.value, competence_id)
+        }
+
+        function deletePlanes(competence_id) {
+            destroyCompetencePlane(search_plane.value, competence_id)
         }
 
         return {
-            checklist_id, checklists, checklist, getChecklist, search_plane,
-            isLoadingPlane, fullPagePlane,
-            planes, getPlanes, plane, getPlane, search_competences, storePanel
+            checklist_id,
+            checklists,
+            checklist,
+            search_plane,
+            isLoadingPlane,
+            fullPagePlane,
+            planes,
+            plane,
+            getPlanes,
+            getChecklist,
+            getPlane,
+            search_competences,
+            storePlanes,
+            deletePlanes
         }
     }
 }

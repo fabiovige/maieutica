@@ -35,14 +35,13 @@ export default function usePlanes() {
         await axios.get('/api/planes/showcompetences/' + plane_id )
             .then(response => {
                 plane.value = response.data.data
-                console.log(response.data.data)
             })
             .finally(() => {
                 isLoadingPlane.value = false
             });
     }
 
-    const storePlanes = async (kid_id, plane_id, competence_id) => {
+    const createPlanes = async (kid_id, plane_id, competence_id) => {
         isLoadingPlane.value = true
 
         await axios.get('/api/planes/storeplane?kid_id=' + kid_id
@@ -61,9 +60,26 @@ export default function usePlanes() {
             });
     }
 
+    const destroyCompetencePlane = async (plane_id, competence_id) => {
+        isLoadingPlane.value = true
+
+        await axios.get('/api/planes/deleteplane?plane_id=' + plane_id + '&competence_id=' + competence_id )
+            .then(response => {
+                // swal({
+                //     icon: 'success',
+                //     title: 'Competência adicionado com sucesso!'
+                // })
+                getCompetences(plane_id)
+            })
+            .finally(() => {
+                isLoadingPlane.value = false
+            });
+    }
+
     return {
-        planes, getPlanes,
-        plane, getPlane, plane_id,
-        isLoadingPlane, getCompetences, storePlanes
+        planes, plane, plane_id, isLoadingPlane,
+        getPlanes, getPlane,
+        getCompetences, createPlanes,
+        destroyCompetencePlane
     }
 }

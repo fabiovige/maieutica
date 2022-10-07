@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\PlaneResource;
 use App\Models\Plane;
+use App\Models\CompetencePlane;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PlaneController
 {
-
     public function index()
     {
         $planes = Plane::all();
@@ -42,5 +43,10 @@ class PlaneController
         $arrCompetences[] = (int)$request->competence_id;
         $plane->competences()->sync($arrCompetences);
         return new PlaneResource($plane);
+    }
+
+    public function deletePlane(Request $request)
+    {
+        return CompetencePlane::deleteCompetencePlane($request);
     }
 }

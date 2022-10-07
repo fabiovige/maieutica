@@ -27,6 +27,7 @@ Route::apiResource('competences', CompetenceController::class);
 Route::apiResource('checklists', ChecklistController::class);
 
 // planes
+Route::get('planes/deleteplane', [PlaneController::class, 'deletePlane'])->name('api.planes.deleteplane');
 Route::get('planes/storeplane', [PlaneController::class, 'storePlane'])->name('api.planes.storeplane');
 Route::get('planes/showcompetences/{plane_id}', [PlaneController::class, 'showCompetences'])->name('api.planes.showcompetences');
 Route::get('planes/showbykids/{kid_id}', [PlaneController::class, 'showByKids'])->name('api.planes.showbykids');
