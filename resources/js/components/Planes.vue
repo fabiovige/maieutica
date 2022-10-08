@@ -6,16 +6,22 @@
         <div class="row">
             <div class="col-md-12 d-flex justify-content-between">
 
-                <div v-if="Object.keys(plane).length > 0" class="mt-3">
-                    <select v-model="search_plane" class="form-select " @change="search_competences">
-                        <option v-for="plane in planes" :key="plane.id" :value="plane.id">
-                            {{ plane.created_at }} - Cod. {{ plane.id }}
-                        </option>
-                    </select>
+                <div class="">
+                    <div v-if="Object.keys(plane).length > 0" class="mt-3">
+                        <select v-model="search_plane" class="form-select " @change="search_competences">
+                            <option v-for="plane in planes" :key="plane.id" :value="plane.id">
+                                {{ plane.created_at }} - Cod. {{ plane.id }}
+                            </option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="">
-                    <button class="btn btn-dark mt-3 "><i class="bi bi-plus"></i> Novo plano</button>
+                    <button class="btn btn-outline-info mt-3 "><i class="bi bi-file-pdf"></i> Visualizar plano</button>
+                </div>
+
+                <div class="">
+                    <button class="btn btn-dark mt-3 " @click.prevent="createPlane"><i class="bi bi-plus"></i> Novo plano</button>
                 </div>
 
             </div>
@@ -32,7 +38,7 @@
                     @click.prevent="deletePlanes(competence.id)"
                     >
                         <td class="customColumnCode">
-                            {{competence.code}}
+                            {{competence.level_id}}{{competence.domain.initial}}{{competence.code}}
                         </td>
                         <td >
                             {{ competence.description }}
@@ -95,7 +101,7 @@
                          :id="`${domain}${level_id}P`" role="tabpanelP"
                          :aria-labelledby="`${domain}${level_id}-tabP`"
                     >
-                            <table class="table table-sm table-striped mt-2" :id="`${checklist_id}${level_id}${domain}-table`">
+                        <table class="table table-sm table-striped mt-2" :id="`${checklist_id}${level_id}${domain}-table`">
                             <tbody>
                                 <tr class="mousePointer" v-for="competence in data.competences[domain]" :key="competence.id" @click.prevent="storePlanes(competence.id)">
                                     <td class="customColumnCode">
@@ -139,7 +145,9 @@ export default {
         const search_plane = ref('')
         const fullPagePlane = ref(true)
         const { checklist, getChecklist  } = useChecklists()
-        const { planes, getPlanes, plane, getPlane, isLoadingPlane, getCompetences, createPlanes, destroyCompetencePlane } = usePlanes()
+        const { planes, getPlanes, plane, plane_id, getPlane, isLoadingPlane,
+            getCompetences, createPlanes, destroyCompetencePlane, newPlane
+        } = usePlanes()
 
         onMounted(() => {
             getChecklist(checklist_id.value)
@@ -157,6 +165,10 @@ export default {
 
         function storePlanes(competence_id) {
             createPlanes(kid_id.value, search_plane.value, competence_id)
+        }
+
+        function createPlane() {
+            newPlane(kid_id.value)
         }
 
         function deletePlanes(competence_id) {
@@ -177,7 +189,8 @@ export default {
             getPlane,
             search_competences,
             storePlanes,
-            deletePlanes
+            deletePlanes,
+            createPlane
         }
     }
 }

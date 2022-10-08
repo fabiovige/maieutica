@@ -76,10 +76,26 @@ export default function usePlanes() {
             });
     }
 
+    const newPlane = async (kid_id) => {
+        isLoadingPlane.value = true
+
+        await axios.get('/api/planes/newplane?kid_id=' + kid_id )
+            .then(response => {
+                let plane_id = response.data.data.id;
+                let kid_id = response.data.data.kid_id;
+                getCompetences(plane_id)
+                getPlanes(kid_id)
+                getPlane(kid_id)
+            })
+            .finally(() => {
+                isLoadingPlane.value = false
+            });
+    }
+
     return {
         planes, plane, plane_id, isLoadingPlane,
         getPlanes, getPlane,
         getCompetences, createPlanes,
-        destroyCompetencePlane
+        destroyCompetencePlane, newPlane
     }
 }

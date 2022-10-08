@@ -6,6 +6,7 @@ use App\Http\Resources\PlaneResource;
 use App\Models\Plane;
 use App\Models\CompetencePlane;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PlaneController
@@ -48,5 +49,13 @@ class PlaneController
     public function deletePlane(Request $request)
     {
         return CompetencePlane::deleteCompetencePlane($request);
+    }
+
+    public function newPlane(Request $request)
+    {
+        $data = $request->all();
+        $data['created_by'] = Auth::id();
+        $plane = Plane::create($data);
+        return new PlaneResource($plane);
     }
 }

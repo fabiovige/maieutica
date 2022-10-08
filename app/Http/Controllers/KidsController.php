@@ -145,7 +145,7 @@ class KidsController extends Controller
             return redirect()->back();
         }
     }
-    
+
     public function update(KidRequest $request, $id)
     {
         try {
@@ -157,7 +157,7 @@ class KidsController extends Controller
             $kid = Kid::findOrFail($id);
             $kid->update($data);
             flash(self::MSG_UPDATE_SUCCESS)->success();
-            return redirect()->route('kids.edit', $id);
+            return redirect()->route('kids.index');
         } catch (Exception $e) {
             flash(self::MSG_UPDATE_ERROR)->warning();
             $message = label_case('Update Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
