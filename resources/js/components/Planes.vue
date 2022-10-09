@@ -17,7 +17,9 @@
                 </div>
 
                 <div class="">
-                    <button class="btn btn-outline-info mt-3 "><i class="bi bi-file-pdf"></i> Visualizar plano</button>
+                    <div v-if="Object.keys(plane).length > 0" >
+                        <button class="btn btn-success mt-3 "><i class="bi bi-file-pdf"></i> Visualizar plano</button>
+                    </div>
                 </div>
 
                 <div class="">

@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\KidRequest;
 use App\Models\Kid;
+use App\Models\Plane;
 use App\Models\User;
-use Carbon\Carbon;
+use App\Util\MyPdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Yajra\DataTables\DataTables;
+
+use Elibyy\TCPDF\Facades\TCPDF;
 
 class KidsController extends Controller
 {
@@ -186,5 +190,68 @@ class KidsController extends Controller
 
             return redirect()->back();
         }
+    }
+
+    public function pdfPlane($id)
+    {
+        $plane = Plane::findOrFail($id);
+        $kid_id = $plane->kid()->first()->id;
+        $kid = Kid::findOrFail($kid_id);
+        $name = $plane->kid()->first()->name;
+        $profession = $kid->user()->first()->name;
+        $date = $plane->first()->created_at;
+        $arr = [];
+        foreach($plane->competences()->get() as $c=>$competence){
+            $initial = $competence->domain()->first()->initial;
+            $arr[$initial]['domain'] = $competence->domain()->first();
+            $arr[$initial]['competences'][] = $competence;
+        }
+
+        $image_file = '/var/www/public/images/logo_login.png';
+        $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        // add a page
+        $pdf->AddPage();
+        // Set font
+        $pdf->SetFont('helvetica', '', 14);
+
+        $html = '';
+        $html.= '
+<div >
+<h1>Plano de intervenção</h1>
+Criança: ' . $name . '. Terapeuta: ' . $profession . '. Data: ' .  $date->format('d/m/Y') . '
+';
+        foreach($arr as $c=>$v){
+
+            $html.= '<h3>' . $v['domain']->initial .' - '.$v['domain']->name  . '</h3>';
+            $pdf->SetFont('helvetica', '', 12);
+            $html.='</div><table style="width: auto;" class="table table-bordered table-striped"><tbody>';
+            foreach($v['competences'] as $k=>$competence) {
+                $html .= '<tr class="padding:15px; !important" >
+                  <td style="width: 60px" nowrap="nowrap">'.$competence->level_id.$v['domain']->initial.$competence->code.'</td>
+                  <td>'.$competence->description.'</td>
+                </tr>';
+            }
+            $pdf->lastPage();
+            $html.='</tbody></table>';
+        }
+$html.= '</div>
+</body>
+</html>
+';
+
+        // set certificate file
+//        $certificate = 'file://var/www/data/cert/tcpdf.crt';
+//        $info = array('Name' => 'TCPDF', 'Location' => 'Office', 'Reason' => 'Testing TCPDF', 'ContactInfo' => 'http://www.tcpdf.org');
+//        $pdf->setSignature($certificate, $certificate, 'tcpdfdemo', '', 2, $info);
+//        $pdf->setSignatureAppearance(180, 60, 15, 15);
+
+        // output the HTML content
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        //Close and output PDF document
+        //$pdf->Output(null, 'S');
+        $pdf->Output( $name.'_'.$date->format('dmY').'_' .$plane->id. '.pdf', 'I');
     }
 }

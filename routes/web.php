@@ -26,6 +26,7 @@ Route::middleware(['auth', 'acl'])->group(function () {
     Route::resource('checklists', ChecklistController::class);
 
     // kids
+    Route::get('kids/{id}/pdfplane', [KidsController::class, 'pdfPlane'])->name('kids.pdfplane');
     Route::resource('kids', KidsController::class);
 
     // roles
