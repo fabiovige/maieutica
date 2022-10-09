@@ -8,6 +8,7 @@ class MyPdf extends TCPDF {
 
 
     protected $image_file = '';
+    protected $col = 0;
 
     public function __construct($orientation = 'P', $unit = 'mm', $format = 'A4', $unicode = true, $encoding = 'UTF-8', $diskcache = false, $pdfa = false)
     {
@@ -39,12 +40,8 @@ class MyPdf extends TCPDF {
         // set auto page breaks
         $this->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
 
-        // set image scale factor
-        $this->setImageScale(PDF_IMAGE_SCALE_RATIO);
-
-        // quality image
-        $this->setJPEGQuality(72);
     }
+
 
     //Page header
     public function Header($data = '') {
@@ -61,7 +58,7 @@ class MyPdf extends TCPDF {
     // Page footer
     public function Footer() {
         // Position at 15 mm from bottom
-        $this->SetY(-20);
+        $this->SetY(-22);
 
         // Set font
         $this->SetFont('helvetica', '', 9);
@@ -76,12 +73,15 @@ class MyPdf extends TCPDF {
         // Page number
         $this->Cell(0, 5, $name , 0, false, 'C', 0, '', 0, false, 'T', 'M');
         $this->SetFont('helvetica', '', 6);
-        $this->ln(7);
-        $this->Cell(0, 5, $txt1 , 0, false, 'C', 0, '', 0, false, 'T', 'M');
-        $this->ln(4);
-        $this->Cell(0, 5, $txt2 , 0, false, 'C', 0, '', 0, false, 'T', 'M');
-        $this->ln(4);
-        $this->Cell(0, 5, $txt3 , 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        $this->ln(5);
+        $this->Cell(0, 4, $txt1 , 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        $this->ln(3);
+        $this->Cell(0, 4, $txt2 , 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        $this->ln(3);
+        $this->Cell(0, 4, $txt3 , 0, false, 'C', 0, '', 0, false, 'T', 'M');
+
+        $this->ln(2);
+        $this->Cell(0, 10, 'Página.: '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C',);
     }
 
 }

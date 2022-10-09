@@ -209,32 +209,35 @@ class KidsController extends Controller
         }
 
         $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->AddPage();
         $this->preferences($pdf, $nameKid, $therapist, $plane->id, $date->format('d/m/Y H:i:s'));
-
-        $pageStart = false;
+        $startPage = false;
         foreach($arr as $c=>$v){
 
-            if($pageStart){
-                $pdf->lastPage();
-            }
+            // Start First Page Group
+            $pdf->startPageGroup();
+
             $pdf->Ln(5);
             $pdf->SetFont('helvetica', 'B', 14);
 
+            if ($startPage) {
+                $pdf->AddPage();
+            }
+
             // Domain
-            $title = strtoupper( $v['domain']->name );
-            $pdf->Cell(0, 0, $title, 1, 1, 'L', 0, '', 0);
+            $domain = $v['domain']->name;
+            $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
 
             foreach($v['competences'] as $k=>$competence) {
 
+                //$pdf->Ln(5);
                 $pdf->SetFont('helvetica', 'B', 10);
                 $txt = $competence->level_id.$v['domain']->initial.$competence->code . ' - '. $competence->description;
                 $pdf->Ln(5);
                 $pdf->Write(0, $txt , '', 0, 'L', true);
 
-                $pdf->Ln(2);
-                $pdf->SetFont('helvetica', 'I', 9);
-                $pdf->Write(0, $competence->description_detail , '', 0, 'L', true);
+                $pdf->Ln(1);
+                $pdf->SetFont('helvetica', 'I', 8);
+                $pdf->Write(0, '"' . $competence->description_detail . '"' , '', 0, 'L', true);
 
 
                 $pdf->Ln(4);
@@ -243,13 +246,10 @@ class KidsController extends Controller
                 $pdf->Write(0, $etapas , '', 0, 'L', true);
             }
 
-            if($pageStart == false){
-                $pageStart = true;
-            }
-
+            $startPage = true;
+            $pdf->lastPage();
 
         }
-
        $pdf->Output( $nameKid.'_'.$date->format('dmY').'_' .$plane->id. '.pdf', 'I');
     }
 
@@ -275,6 +275,7 @@ class KidsController extends Controller
         );
 
         $pdf->setViewerPreferences($preferences);
+        $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 16);
         $pdf->Cell(0, 15, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 10);
@@ -285,5 +286,7 @@ class KidsController extends Controller
         $pdf->Write(0, $nameKid , '', 0, 'L', true, 0, false, false, 0);
         $pdf->Ln(3);
         $pdf->SetFont('helvetica', '', 14);
+
+
     }
 }
