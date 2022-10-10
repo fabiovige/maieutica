@@ -210,18 +210,18 @@ class KidsController extends Controller
 
         $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $this->preferences($pdf, $nameKid, $therapist, $plane->id, $date->format('d/m/Y H:i:s'));
-        $startPage = false;
+        $startPage = 1;
         foreach ($arr as $c => $v) {
 
+            //$pdf->AddPage();
+
+
             // Start First Page Group
-            $pdf->startPageGroup();
+            //$pdf->startPageGroup();
+
 
             $pdf->Ln(5);
             $pdf->SetFont('helvetica', 'B', 14);
-
-            if ($startPage) {
-                $pdf->AddPage();
-            }
 
             // Domain
             $domain = $v['domain']->name;
@@ -229,7 +229,12 @@ class KidsController extends Controller
 
             foreach ($v['competences'] as $k => $competence) {
 
-                //$pdf->Ln(5);
+                if ($startPage == 8) {
+                    $pdf->AddPage();
+                    $startPage = 1;
+                }
+                $startPage++;
+                $pdf->Ln(5);
                 $pdf->SetFont('helvetica', 'B', 10);
                 $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
                 $pdf->Ln(5);
@@ -245,10 +250,10 @@ class KidsController extends Controller
                 $etapas = "Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____";
                 $pdf->Write(0, $etapas, '', 0, 'L', true);
             }
-
-            $startPage = true;
-            $pdf->lastPage();
+            $startPage = 1;
+            $pdf->AddPage();
         }
+
         $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
     }
 
