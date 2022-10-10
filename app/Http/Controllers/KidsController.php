@@ -20,14 +20,14 @@ class KidsController extends Controller
 {
     public function index(Request $request)
     {
-        $message = label_case('Index Kids ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+        $message = label_case('Index Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::debug($message);
 
-//        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
-//            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id');
-//        } else {
-//            $data = Kid::with('user')->select('id', 'name', 'birth_date')->where('created_by', '=', auth()->user()->id);
-//        }
+        //        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
+        //            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id');
+        //        } else {
+        //            $data = Kid::with('user')->select('id', 'name', 'birth_date')->where('created_by', '=', auth()->user()->id);
+        //        }
 
         return view('kids.index');
     }
@@ -45,14 +45,14 @@ class KidsController extends Controller
                 if (request()->user()->can('kids.update') || request()->user()->can('kids.store')) {
 
                     $html = '<div class="dropdown">';
-                    $html.='<button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">';
-                    $html.='<li><a class="dropdown-item" href="'.route('kids.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a></li>';
+                    $html .= '<button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">';
+                    $html .= '<li><a class="dropdown-item" href="' . route('kids.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a></li>';
 
-                    if($data->checklists()->count() > 0) {
-                        $html.= '<li><a class="dropdown-item" href="' . route('kids.show', $data->id) . '"><i class="bi bi-check2-square"></i> Checklist</a></li>';
+                    if ($data->checklists()->count() > 0) {
+                        $html .= '<li><a class="dropdown-item" href="' . route('kids.show', $data->id) . '"><i class="bi bi-check2-square"></i> Checklist</a></li>';
                     }
 
-                    $html.='</ul></div>';
+                    $html .= '</ul></div>';
 
                     return $html;
                 }
@@ -69,14 +69,14 @@ class KidsController extends Controller
             ->editColumn('user_id', function ($data) {
                 return $data->user->name;
             })
-            ->rawColumns(['name', 'checklists', 'user_id','action'])
+            ->rawColumns(['name', 'checklists', 'user_id', 'action'])
             ->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
 
     public function create()
     {
-        $message = label_case('Create Kids').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+        $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
         $users = User::all('id', 'name');
@@ -86,7 +86,7 @@ class KidsController extends Controller
     public function store(KidRequest $request)
     {
         try {
-            $message = label_case('Store Kids '.self::MSG_CREATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             $data = $request->all();
@@ -96,7 +96,7 @@ class KidsController extends Controller
             return redirect()->route('kids.index');
         } catch (Exception $e) {
             flash(self::MSG_CREATE_ERROR)->warning();
-            $message = label_case('Store Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->route('kids.index');
@@ -106,12 +106,12 @@ class KidsController extends Controller
     public function show($id)
     {
         try {
-            $message = label_case('Show Kids ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Show Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             $kid = Kid::findOrFail($id);
 
-            if($kid->checklists()->count() === 0) {
+            if ($kid->checklists()->count() === 0) {
                 flash(self::MSG_NOT_FOUND_CHECKLIST_USER)->warning();
                 return redirect()->back();
             }
@@ -126,7 +126,7 @@ class KidsController extends Controller
             ]);
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Show Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Show Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
             return redirect()->back();
         }
@@ -135,7 +135,7 @@ class KidsController extends Controller
     public function edit($id)
     {
         try {
-            $message = label_case('Edit Kids ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             $kid = Kid::findOrFail($id);
@@ -143,7 +143,7 @@ class KidsController extends Controller
             return view('kids.edit', compact('kid', 'users'));
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Update Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -153,7 +153,7 @@ class KidsController extends Controller
     public function update(KidRequest $request, $id)
     {
         try {
-            $message = label_case('Update Kids '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Kids ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             $data = $request->all();
@@ -164,7 +164,7 @@ class KidsController extends Controller
             return redirect()->route('kids.index');
         } catch (Exception $e) {
             flash(self::MSG_UPDATE_ERROR)->warning();
-            $message = label_case('Update Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -174,7 +174,7 @@ class KidsController extends Controller
     public function destroy($id)
     {
         try {
-            $message = label_case('Destroy Kids '.self::MSG_DELETE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Destroy Kids ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             $kid = Kid::findOrFail($id);
@@ -185,7 +185,7 @@ class KidsController extends Controller
             return redirect()->route('kids.index');
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Destroy Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Destroy Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -202,7 +202,7 @@ class KidsController extends Controller
         $date = $plane->first()->created_at;
         $arr = [];
 
-        foreach($plane->competences()->get() as $c=>$competence){
+        foreach ($plane->competences()->get() as $c => $competence) {
             $initial = $competence->domain()->first()->initial;
             $arr[$initial]['domain'] = $competence->domain()->first();
             $arr[$initial]['competences'][] = $competence;
@@ -211,7 +211,7 @@ class KidsController extends Controller
         $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $this->preferences($pdf, $nameKid, $therapist, $plane->id, $date->format('d/m/Y H:i:s'));
         $startPage = false;
-        foreach($arr as $c=>$v){
+        foreach ($arr as $c => $v) {
 
             // Start First Page Group
             $pdf->startPageGroup();
@@ -227,30 +227,29 @@ class KidsController extends Controller
             $domain = $v['domain']->name;
             $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
 
-            foreach($v['competences'] as $k=>$competence) {
+            foreach ($v['competences'] as $k => $competence) {
 
                 //$pdf->Ln(5);
                 $pdf->SetFont('helvetica', 'B', 10);
-                $txt = $competence->level_id.$v['domain']->initial.$competence->code . ' - '. $competence->description;
+                $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
                 $pdf->Ln(5);
-                $pdf->Write(0, $txt , '', 0, 'L', true);
+                $pdf->Write(0, $txt, '', 0, 'L', true);
 
                 $pdf->Ln(1);
                 $pdf->SetFont('helvetica', 'I', 8);
-                $pdf->Write(0, '"' . $competence->description_detail . '"' , '', 0, 'L', true);
+                $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
 
 
                 $pdf->Ln(4);
                 $pdf->SetFont('helvetica', '', 9);
                 $etapas = "Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____";
-                $pdf->Write(0, $etapas , '', 0, 'L', true);
+                $pdf->Write(0, $etapas, '', 0, 'L', true);
             }
 
             $startPage = true;
             $pdf->lastPage();
-
         }
-       $pdf->Output( $nameKid.'_'.$date->format('dmY').'_' .$plane->id. '.pdf', 'I');
+        $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
     }
 
     private function preferences(&$pdf, $nameKid, $therapist, $plane_id, $date)
@@ -270,7 +269,7 @@ class KidsController extends Controller
             'PrintScaling' => 'AppDefault', // None, AppDefault
             'Duplex' => 'DuplexFlipLongEdge', // Simplex, DuplexFlipShortEdge, DuplexFlipLongEdge
             'PickTrayByPDFSize' => true,
-            'PrintPageRange' => array(1,1,2,3),
+            'PrintPageRange' => array(1, 1, 2, 3),
             'NumCopies' => 2
         );
 
@@ -283,10 +282,8 @@ class KidsController extends Controller
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(10);
         $pdf->SetFont('helvetica', '', 16);
-        $pdf->Write(0, $nameKid , '', 0, 'L', true, 0, false, false, 0);
+        $pdf->Write(0, $nameKid, '', 0, 'L', true, 0, false, false, 0);
         $pdf->Ln(3);
         $pdf->SetFont('helvetica', '', 14);
-
-
     }
 }

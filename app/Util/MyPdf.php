@@ -4,7 +4,8 @@ namespace App\Util;
 
 use TCPDF;
 
-class MyPdf extends TCPDF {
+class MyPdf extends TCPDF
+{
 
 
     protected $image_file = '';
@@ -23,11 +24,11 @@ class MyPdf extends TCPDF {
         $this->SetSubject(config('app.description'));
 
         // set default header data
-        $this->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 009', PDF_HEADER_STRING);
+        $this->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE . ' 009', PDF_HEADER_STRING);
 
         // set header and footer fonts
-        $this->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-        $this->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+        $this->setHeaderFont(array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+        $this->setFooterFont(array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 
         // set default monospaced font
         $this->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
@@ -39,24 +40,23 @@ class MyPdf extends TCPDF {
 
         // set auto page breaks
         $this->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-
     }
 
 
     //Page header
-    public function Header($data = '') {
-
+    public function Header($data = '')
+    {
         // Set font
         $this->SetY(5);
         $this->SetFont('helvetica', '', 10);
 
         // Title
-        $this->Cell(0, -10, config('app.name') . ' - '. config('app.description') . '.' , 0, false, 'C', 0, '', 0, false, 'M', 'M');
-
+        $this->Cell(0, -10, config('app.name') . ' - ' . config('app.description') . '.', 0, false, 'C', 0, '', 0, false, 'M', 'M');
     }
 
     // Page footer
-    public function Footer() {
+    public function Footer()
+    {
         // Position at 15 mm from bottom
         $this->SetY(-22);
 
@@ -71,17 +71,16 @@ class MyPdf extends TCPDF {
 
 
         // Page number
-        $this->Cell(0, 5, $name , 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        $this->Cell(0, 5, $name, 0, false, 'C', 0, '', 0, false, 'T', 'M');
         $this->SetFont('helvetica', '', 6);
         $this->ln(5);
-        $this->Cell(0, 4, $txt1 , 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        $this->Cell(0, 4, $txt1, 0, false, 'C', 0, '', 0, false, 'T', 'M');
         $this->ln(3);
-        $this->Cell(0, 4, $txt2 , 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        $this->Cell(0, 4, $txt2, 0, false, 'C', 0, '', 0, false, 'T', 'M');
         $this->ln(3);
-        $this->Cell(0, 4, $txt3 , 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        $this->Cell(0, 4, $txt3, 0, false, 'C', 0, '', 0, false, 'T', 'M');
 
         $this->ln(2);
-        $this->Cell(0, 10, 'Página.: '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C',);
+        $this->Cell(0, 10, 'Página.: ' . $this->getAliasNumPage() . '/' . $this->getAliasNbPages(), 0, false, 'C',);
     }
-
 }
