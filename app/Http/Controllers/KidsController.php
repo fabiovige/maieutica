@@ -208,32 +208,32 @@ class KidsController extends Controller
             $arr[$initial]['competences'][] = $competence;
         }
 
+
+
         $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
         $this->preferences($pdf, $nameKid, $therapist, $plane->id, $date->format('d/m/Y H:i:s'));
-        $startPage = 1;
-        foreach ($arr as $c => $v) {
 
-            //$pdf->AddPage();
+        $totalDomain = count($arr);
+        $countDomain = 1;
+        $countCompetences = 1;
 
-
-            // Start First Page Group
-            //$pdf->startPageGroup();
-
+        foreach ($arr as $initial => $v) {
 
             $pdf->Ln(5);
             $pdf->SetFont('helvetica', 'B', 14);
 
             // Domain
-            $domain = $v['domain']->name;
+            $domain = $v['domain']->name . ' ' . $countDomain;
             $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
 
             foreach ($v['competences'] as $k => $competence) {
 
-                if ($startPage == 8) {
+                if ($countCompetences == 8) {
                     $pdf->AddPage();
-                    $startPage = 1;
                 }
-                $startPage++;
+                $countCompetences++;
+
                 $pdf->Ln(5);
                 $pdf->SetFont('helvetica', 'B', 10);
                 $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
@@ -250,8 +250,10 @@ class KidsController extends Controller
                 $etapas = "Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____";
                 $pdf->Write(0, $etapas, '', 0, 'L', true);
             }
-            $startPage = 1;
-            $pdf->AddPage();
+            ++$countDomain;
+            if ($countDomain <= $totalDomain) {
+                $pdf->AddPage();
+            }
         }
 
         $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
