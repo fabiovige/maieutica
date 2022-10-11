@@ -79,8 +79,10 @@ class KidsController extends Controller
         $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
-        $users = User::all('id', 'name');
-        return view('kids.create', compact('users'));
+        $usersI = User::listAssocUser(User::TYPE_I);
+        $usersE = User::listAssocUser(User::TYPE_E);
+
+        return view('kids.create', compact('usersI', 'usersE'));
     }
 
     public function store(KidRequest $request)

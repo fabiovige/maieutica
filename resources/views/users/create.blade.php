@@ -11,12 +11,11 @@
 @endsection
 
 @section('button')
-    <x-button href="{{route('users.index')}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
+    <x-button href="{{ route('users.index') }}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
 @endsection
 
 @section('content')
-
-    <form action="{{route('users.store')}}" method="post">
+    <form action="{{ route('users.store') }}" method="post">
         @csrf
         @method('POST')
         <div class="row">
@@ -29,59 +28,69 @@
                     <div class="card-body">
 
                         <div class="form-group">
-                            <label>Nome</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                                   value="{{ old('name') }}">
-                            @error('name')
-                            <div class="invalid-feedback">
-                                {{$message}}
-                            </div>
-                            @enderror
-                        </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label>Nome</label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        name="name" value="{{ old('name') }}">
+                                    @error('name')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-5">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                        name="email" value="{{ old('email') }}">
+                                    @error('email')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
 
-                        <div class="form-group mt-2">
-                            <label>Email</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" name="email"
-                                   value="{{ old('email') }}">
-                            @error('email')
-                            <div class="invalid-feedback">
-                                {{$message}}
+                                <div class="col-md-2">
+                                    <label>Usuário externo</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                        type="checkbox" role="switch" id="type" value='e'
+                                            name="type">
+                                    </div>
+                                </div>
+
                             </div>
-                            @enderror
                         </div>
 
                         {{-- papeis --}}
                         <div class="row mt-2">
                             <label>Papél</label>
-                            @foreach($roles as $role)
+                            @foreach ($roles as $role)
                                 <div class="col-6 py-2">
                                     <div class="card">
                                         <div class="card-header">
                                             <div class="custom-control custom-checkbox">
                                                 <div class="form-check ">
                                                     <input class="form-check-input @error('role_id') is-invalid @enderror "
-                                                           type="radio"
-                                                           role="switch"
-                                                           name="role_id"
-                                                           id="customRadio{{$role->id}}"
-                                                           value="{{$role->id}}"
-                                                           @if( old('role_id') == $role->id ) checked @endif
-                                                    >
-                                                    <label class="form-check-label" for="customRadio{{$role->id}}">
+                                                        type="radio" role="switch" name="role_id"
+                                                        id="customRadio{{ $role->id }}" value="{{ $role->id }}"
+                                                        @if (old('role_id') == $role->id) checked @endif>
+                                                    <label class="form-check-label" for="customRadio{{ $role->id }}">
                                                         {{ $role->name }}
                                                     </label>
                                                     @error('role_id')
-                                                    <div class="invalid-feedback">
-                                                        {{$message}}
-                                                    </div>
+                                                        <div class="invalid-feedback">
+                                                            {{ $message }}
+                                                        </div>
                                                     @enderror
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="card-body">
                                             <strong>Resursos adicionados:</strong><br>
-                                            @foreach($role->abilities()->orderBy('name')->get() as $ability)
-                                                <i class="bi bi-check-circle"></i> {{ $ability->name }} ({{ $ability->ability }})
+                                            @foreach ($role->abilities()->orderBy('name')->get() as $ability)
+                                                <i class="bi bi-check-circle"></i> {{ $ability->name }}
+                                                ({{ $ability->ability }})
                                                 <br>
                                             @endforeach
                                         </div>
@@ -105,5 +114,4 @@
 
 
     </form>
-
 @endsection

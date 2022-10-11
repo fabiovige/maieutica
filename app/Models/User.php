@@ -16,7 +16,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'created_by', 'updated_by', 'deleted_by',
+        'type',
+        'created_by',
+        'updated_by',
+        'deleted_by',
         'responsible_id',
     ];
 
@@ -27,6 +30,14 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+    ];
+
+    const TYPE_E = 'e';
+    const TYPE_I = 'i';
+
+    const TYPE = [
+        'i' => 'Interno',
+        'e' => 'Externo'
     ];
 
     public function kids(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -80,4 +91,21 @@ class User extends Authenticatable
             ['id', '!=', 2],
         ])->get()->toArray();
     }
+
+    public static function listAssocUser($type) {
+
+        if (auth()->user()->isSuperAdmin()) {
+            return self::where('type', '=', $type)
+            ->get();
+        } else if (auth()->user()->isAdmin()) {
+            return self::where('type', '=', $type)
+            ->where('created_by', '!=', 1)
+            ->get();
+        } else {
+            return self::where('type', '=', $type)
+            ->where('created_by', '=', auth()->user()->id)
+            ->get();
+        }
+    }
+
 }

@@ -28,7 +28,9 @@
                             <tr>
                                 <th>#</th>
                                 <th>Nome</th>
+                                <th>Papel</th>
                                 <th>E-mail</th>
+                                <th>Tipo de acesso</th>
                                 <th style="width: 30px"></th>
                             </tr>
                         </thead>
@@ -66,8 +68,16 @@
                     name: 'name',
                 },
                 {
+                    data: 'role',
+                    name: 'role',
+                },
+                {
                     data: 'email',
                     name: 'email',
+                },
+                {
+                    data: 'type',
+                    name: 'type',
                 },
                 {
                     data: 'action',

@@ -35,12 +35,15 @@ class KidRequest extends FormRequest
                     'name' => 'required|min:3|max:100',
                     'birth_date' => 'required|date_format:"d/m/Y"',
                     'user_id' => 'required|exists:users,id',
+                    'responsability_user_id' => 'required|exists:users,id',
                 ];
             }
             case 'PUT': {
                 return [
                     'name' => 'required|min:4|max:50',
                     'birth_date' => 'required|date_format:"d/m/Y"',
+                    'user_id' => 'required|exists:users,id',
+                    'responsability_user_id' => 'required|exists:users,id',
                 ];
             }
             default:
@@ -51,9 +54,10 @@ class KidRequest extends FormRequest
     public function attributes()
     {
         return [
-            'name' => 'nome completo',
-            'birth_date' => 'data de nascimento',
-            'user_id' => 'usuário responsável'
+            'name' => 'Nome completo',
+            'birth_date' => 'Data de nascimento',
+            'user_id' => 'Profissional responsável',
+            'responsability_user_id' => 'Responsável pela criança'
         ];
     }
 

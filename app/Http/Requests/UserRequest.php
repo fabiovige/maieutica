@@ -44,6 +44,7 @@ class UserRequest extends FormRequest
         return [
             'role_id' => 'papél',
             'responsible' => 'responsável',
+            'type' => 'Tipo de acesso',
         ];
     }
 }

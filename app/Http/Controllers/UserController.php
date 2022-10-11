@@ -24,15 +24,16 @@ class UserController extends Controller
 
     public function index_data()
     {
-        $data = User::select('id', 'name', 'email', 'role_id');
+        $data = User::select('id', 'name', 'email', 'type', 'role_id');
 
         if (auth()->user()->isSuperAdmin()) {
-            $data = User::select('id', 'name', 'email', 'role_id');
+            $data = User::select('id', 'name', 'email', 'type', 'role_id');
         } else {
-            $data = User::select('id', 'name', 'email', 'role_id')->where('created_by', '=', auth()->user()->id);
+            $data = User::select('id', 'name', 'email', 'type', 'role_id')->where('created_by', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)
+
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('users.update') || request()->user()->can('users.create')) {
                     $html = '<a class="btn btn-sm btn-success" href="'.route('users.edit', $data->id).'"><i class="bi bi-gear"></i> </a>';
@@ -40,15 +41,35 @@ class UserController extends Controller
                     return $html;
                 }
             })
-            ->editColumn('name', function ($data) {
-                $role = '<span class="badge rounded-pill bg-primary">'.$data->role->name.'</span>';
 
-                return $data->name.' '.$role;
+            ->editColumn('name', function ($data) {
+                return $data->name;
             })
+
+            ->editColumn('role', function ($data) {
+                $role = '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> '. $data->role->name . ' </span>';
+
+                return $role;
+            })
+
             ->editColumn('email', function ($data) {
                 return $data->email;
             })
-            ->rawColumns(['name', 'action'])
+
+            ->editColumn('type', function ($data) {
+                $type =  \App\Models\User::TYPE[$data->type];
+
+                if($data->type == \App\Models\User::TYPE_E) {
+                    $html = '<span class="badge bg-warning text-dark"><i class="bi bi-exclamation-diamond"></i> '. $type.'</span>';
+                }
+
+                if($data->type == \App\Models\User::TYPE_I) {
+                    $html = '<span class="badge bg-success"><i class="bi bi-check2-circle"></i> '. $type.'</span>';
+                }
+
+                return $html;
+            })
+            ->rawColumns(['name', 'role', 'type', 'action'])
             ->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
