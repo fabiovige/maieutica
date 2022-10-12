@@ -47,10 +47,10 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="user_id">Profissional responsável</label> <br>
+                                    <label for="user_id">Terapeuta responsável</label> <br>
                                     <select class="form-select @error('user_id') is-invalid @enderror" aria-label="user_id" name="user_id">
                                         <option value="">-- selecione --</option>
-                                        @foreach($usersI as $user)
+                                        @foreach($users as $user)
                                             <option value="{{ $user->id }}" @if(old('user_id') == $user->id  ) selected @endif> {{  $user->name }}  </option>
                                         @endforeach
                                     </select>
@@ -61,14 +61,20 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="responsability_user_id">Responsável pela criança</label> <br>
-                                    <select class="form-select @error('responsability_user_id') is-invalid @enderror" aria-label="responsability_user_id" name="responsability_user_id">
+                                    <label for="responsible_id">Pais ou responsável</label> <br>
+
+                                    <select class="form-select @error('responsible_id') is-invalid @enderror"
+                                    aria-label="responsible_id" name="responsible_id">
                                         <option value="">-- selecione --</option>
-                                        @foreach($usersE as $user)
-                                            <option value="{{ $user->id }}" @if(old('responsability_user_id') == $user->id  ) selected @endif> {{  $user->name }}  </option>
+                                        @foreach($responsibles as $responsible)
+                                            <option value="{{ $responsible->id }}"
+                                                @if(old('responsible_id') == $responsible->id ) selected @endif
+                                                >
+                                                {{ $responsible->name }}
+                                            </option>
                                         @endforeach
                                     </select>
-                                    @error('responsability_user_id')
+                                    @error('responsible_id')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>

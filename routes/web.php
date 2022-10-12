@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\KidsController;
+use App\Http\Controllers\ResponsibleController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +27,7 @@ Route::middleware(['auth', 'acl'])->group(function () {
     Route::resource('checklists', ChecklistController::class);
 
     // kids
-    Route::get('kids/{id?}/pdfplane', [KidsController::class, 'pdfPlane'])->name('kids.pdfplane');
+    Route::get('kids/{id}/pdfplane', [KidsController::class, 'pdfPlane'])->name('kids.pdfplane');
     Route::resource('kids', KidsController::class);
 
     // roles
@@ -35,6 +36,9 @@ Route::middleware(['auth', 'acl'])->group(function () {
     // users
     Route::get('users/{id}/pdf', [UserController::class, 'pdf'])->name('users.pdf');
     Route::resource('users', UserController::class);
+
+    // responsibles
+    Route::resource('responsibles', ResponsibleController::class);
 });
 
 // Data Table Ajax
@@ -42,6 +46,7 @@ Route::get('checklists/datatable/index', [checklistController::class, 'index_dat
 Route::get('kids/datatable/index', [KidsController::class, 'index_data'])->name('kids.index_data')->middleware(['auth']);
 Route::get('roles/datatable/index', [RoleController::class, 'index_data'])->name('roles.index_data')->middleware(['auth']);
 Route::get('users/datatable/index', [UserController::class, 'index_data'])->name('users.index_data')->middleware(['auth']);
+Route::get('responsibles/datatable/index', [ResponsibleController::class, 'index_data'])->name('responsibles.index_data')->middleware(['auth']);
 
 Route::get('logs', function () {
     $message = 'This is a sample message for Test.';

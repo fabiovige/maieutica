@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Yajra\DataTables\DataTables;
-
 use Elibyy\TCPDF\Facades\TCPDF;
 
 class KidsController extends Controller
@@ -83,10 +82,10 @@ class KidsController extends Controller
         $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
-        $usersI = User::listAssocUser(User::TYPE_I);
-        $usersE = User::listAssocUser(User::TYPE_E);
+        $users = User::all();
+        $responsibles = Responsible::all();
 
-        return view('kids.create', compact('usersI', 'usersE'));
+        return view('kids.create', compact('users', 'responsibles'));
     }
 
     public function store(KidRequest $request)
@@ -217,8 +216,6 @@ class KidsController extends Controller
             $arr[$initial]['domain'] = $competence->domain()->first();
             $arr[$initial]['competences'][] = $competence;
         }
-
-
 
         $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 

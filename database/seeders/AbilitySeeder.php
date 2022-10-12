@@ -28,6 +28,11 @@ class AbilitySeeder extends Seeder
         ['resource_id' => 4, 'ability' => 'checklists.store', 'name' => 'Cadastrar'],
         ['resource_id' => 4, 'ability' => 'checklists.update', 'name' => 'Atualizar'],
         ['resource_id' => 4, 'ability' => 'checklists.fill', 'name' => 'Preencher'],
+
+        ['resource_id' => 5, 'ability' => 'responsibles.index', 'name' => 'Listar'],
+        ['resource_id' => 5, 'ability' => 'responsibles.destroy', 'name' => 'Remover'],
+        ['resource_id' => 5, 'ability' => 'responsibles.store', 'name' => 'Cadastrar'],
+        ['resource_id' => 5, 'ability' => 'responsibles.update', 'name' => 'Atualizar'],
     ];
 
     public function run()

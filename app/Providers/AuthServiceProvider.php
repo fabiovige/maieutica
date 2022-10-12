@@ -22,12 +22,19 @@ class AuthServiceProvider extends ServiceProvider
             return null;
         }
 
-        Gate::before(function (User $user) {
-            if ($user->isSuperAdmin()) {
+        // Gate::before(function (User $user) {
+        //     if ($user->isSuperAdmin()) {
+        //         return true;
+        //     }
+        // });
+
+        Gate::before(function ($user, $ability) {
+            if($user->isSuperAdmin() || $user->isAdmin()){
                 return true;
+            } else {
+                return null;
             }
         });
-
         $abilities = Ability::all();
 
         foreach ($abilities as $ability) {

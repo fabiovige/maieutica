@@ -29,9 +29,12 @@
     },
     "dependencies": {
         "chart.js": "^3.9.1",
+        "jquery-mask-plugin": "^1.14.16",
         "vee-validate": "^4.6.7",
         "vue": "^3.2.37",
         "vue-chart-3": "^3.1.8",
+        "vue-jquery": "^1.0.6",
+        "vue-jquery-mask": "^2.0.0",
         "vue3-loading-overlay": "^0.0.0",
         "vue3-select2-component": "^0.1.7"
     }

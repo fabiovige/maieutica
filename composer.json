@@ -19,6 +19,7 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
+        "laravellegends/pt-br-validator": "^9.1",
         "yajra/laravel-datatables-oracle": "*"
     },
     "require-dev": {

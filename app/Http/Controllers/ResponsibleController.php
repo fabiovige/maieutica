@@ -2,19 +2,54 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ResponsibleRequest;
 use App\Models\Responsible;
 use Illuminate\Http\Request;
 
+use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\DataTables;
+
 class ResponsibleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //
+        $message = label_case('Index Responsibles ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+        Log::debug($message);
+
+        return view('responsibles.index');
+    }
+
+    public function index_data()
+    {
+        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
+            $data = Responsible::select('id', 'name', 'email', 'cell');
+        } else {
+            $data = Responsible::select('id', 'name', 'email', 'cell')->where('created_by', '=', auth()->user()->id);
+        }
+
+        return Datatables::of($data)
+            ->addColumn('action', function ($data) {
+                if (request()->user()->can('responsibles.update') || request()->user()->can('responsibles.store')) {
+
+                    $html = '<a class="btn btn-sm btn-success" href="'.route('responsibles.edit', $data->id).'"><i class="bi bi-gear"></i> </a>';
+
+                    return $html;
+                }
+            })
+            ->editColumn('name', function ($data) {
+                return $data->name;
+            })
+            ->editColumn('email', function ($data) {
+                return $data->email;
+            })
+            ->editColumn('cell', function ($data) {
+                return $data->cell;
+            })
+            ->rawColumns(['action'])
+            ->orderColumns(['id'], '-:column $1')
+            ->make(true);
     }
 
     /**
@@ -24,7 +59,7 @@ class ResponsibleController extends Controller
      */
     public function create()
     {
-        //
+        return view('responsibles.create');
     }
 
     /**
@@ -33,9 +68,13 @@ class ResponsibleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ResponsibleRequest $request)
     {
-        //
+        $responsible = new Responsible();
+        $responsible->create($request->all());
+
+        flash(self::MSG_CREATE_SUCCESS)->success();
+        return redirect()->route('responsibles.index');
     }
 
     /**
@@ -57,7 +96,16 @@ class ResponsibleController extends Controller
      */
     public function edit(Responsible $responsible)
     {
-        //
+        try {
+            return view('responsibles.edit', compact('responsible'));
+
+        } catch (Exception $e) {
+            flash(self::MSG_NOT_FOUND)->warning();
+            echo $message = label_case('Update Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
+
+            //return redirect()->back();
+        }
     }
 
     /**
@@ -67,9 +115,12 @@ class ResponsibleController extends Controller
      * @param  \App\Models\Responsible  $responsible
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Responsible $responsible)
+    public function update(ResponsibleRequest $request, Responsible $responsible)
     {
-        //
+        $responsible->update($request->all());
+
+        flash(self::MSG_UPDATE_SUCCESS)->success();
+        return redirect()->route('responsibles.index');
     }
 
     /**
@@ -80,6 +131,8 @@ class ResponsibleController extends Controller
      */
     public function destroy(Responsible $responsible)
     {
-        //
+        $responsible->delete();
+        flash(self::MSG_DELETE_SUCCESS)->success();
+        return redirect()->route('responsibles.index');
     }
 }

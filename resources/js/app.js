@@ -6,6 +6,8 @@ window.bootstrap = require('bootstrap');
 
 import 'jquery-ui/ui/widgets/datepicker.js';
 
+const mask = require("jquery-mask-plugin");
+
 const Swal = require("sweetalert2");
 
 $.datepicker.regional['pt-BR'] = {
@@ -27,7 +29,6 @@ $.datepicker.regional['pt-BR'] = {
 $.datepicker.setDefaults($.datepicker.regional['pt-BR']);
 
 $('.datepicker').datepicker();
-
 $('div.alert').delay(4000).fadeOut(500);
 
 $('.form-delete').click(function (e) {
@@ -48,6 +49,10 @@ $('.form-delete').click(function (e) {
         }
     });
 });
+
+$(".cell").mask("(99)99999-9999");
+$(".cpf").mask("999.999.999-02");
+$(".cnpj").mask("99.999.999/9999-99");
 
 import { createApp, onMounted } from 'vue'
 import Competences from './components/Competences'
