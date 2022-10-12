@@ -11,11 +11,16 @@ class Kid extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'birth_date', 'user_id', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['name', 'birth_date', 'user_id', 'responsible_id', 'created_by', 'updated_by', 'deleted_by'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function responsible()
+    {
+        return $this->belongsTo(Responsible::class);
     }
 
     public function checklists()

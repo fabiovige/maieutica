@@ -32,7 +32,8 @@
                                 <th>Nome</th>
                                 <th>Data de nascimento</th>
                                 <th>Checklists</th>
-                                <th>Usuário Resp.</th>
+                                <th>Terapeuta</th>
+                                <th>Pais ou responsável</th>
                                 <th style="width: 30px"></th>
                             </tr>
                         </thead>
@@ -88,6 +89,10 @@
                 {
                     data: 'user_id',
                     name: 'user_id',
+                },
+                {
+                    data: 'responsible_id',
+                    name: 'responsible_id',
                 },
                 {
                     data: 'action',

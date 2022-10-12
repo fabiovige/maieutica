@@ -157,6 +157,7 @@ class UserController extends Controller
             Log::notice($message);
 
             return redirect()->route('users.index');
+
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -190,7 +191,8 @@ class UserController extends Controller
             $message = label_case('Update User '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::notice($message);
 
-            return redirect()->route('users.edit', $id);
+            return redirect()->route('users.index');
+
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_UPDATE_ERROR)->warning();

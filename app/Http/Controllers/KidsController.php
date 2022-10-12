@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\KidRequest;
 use App\Models\Kid;
 use App\Models\Plane;
+use App\Models\Responsible;
 use App\Models\User;
 use App\Util\MyPdf;
 use Exception;
@@ -35,9 +36,9 @@ class KidsController extends Controller
     public function index_data()
     {
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
-            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id');
+            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id', 'responsible_id');
         } else {
-            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id')->where('created_by', '=', auth()->user()->id);
+            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id', 'responsible_id')->where('created_by', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)
@@ -64,10 +65,13 @@ class KidsController extends Controller
                 return $data->birth_date;
             })
             ->editColumn('checklists', function ($data) {
-                return $data->checklists->count();
+                return '<span class="badge bg-success"><i class="bi bi-check"></i> '. $data->checklists->count() . ' Checklist(s) </span>';
             })
             ->editColumn('user_id', function ($data) {
                 return $data->user->name;
+            })
+            ->editColumn('responsible_id', function ($data) {
+                return $data->responsible->name;
             })
             ->rawColumns(['name', 'checklists', 'user_id', 'action'])
             ->orderColumns(['id'], '-:column $1')
@@ -126,6 +130,7 @@ class KidsController extends Controller
                 'checklist_id' => $checklists[0]->id,
                 'level' => $checklists[0]->level
             ]);
+
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Show Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -141,8 +146,11 @@ class KidsController extends Controller
             Log::info($message);
 
             $kid = Kid::findOrFail($id);
-            $users = User::all('id', 'name');
-            return view('kids.edit', compact('kid', 'users'));
+            $users = User::all();
+            $responsibles = Responsible::all();
+
+            return view('kids.edit', compact('kid', 'users', 'responsibles'));
+
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateKidTable extends Migration
+class CreateResponsiblesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateKidTable extends Migration
      */
     public function up()
     {
-        Schema::create('kids', function (Blueprint $table) {
+        Schema::create('responsibles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('responsible_id')->nullable();
             $table->string('name');
-            $table->date('birth_date');
+            $table->string('email', 200)->nullable();
+            $table->string('cell')->nullable();
+
             $table->timestamps();
 
             $table->unsignedBigInteger('created_by')->nullable();
@@ -27,8 +27,6 @@ class CreateKidTable extends Migration
 
             $table->softDeletes();
 
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('responsible_id')->references('id')->on('responsibles');
         });
     }
 
@@ -39,6 +37,6 @@ class CreateKidTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kid_models');
+        Schema::dropIfExists('responsibles');
     }
 }

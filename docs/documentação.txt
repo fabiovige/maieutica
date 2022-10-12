@@ -1,0 +1,23 @@
+PRONTUÁRIO DIGITAL PADRONIZADO E TRATAMENTO DE DADOS
+
+A contratada, como parte integrante dos serviços, deverá disponibilizar sistema único de
+Prontuário Digital Padronizado, acessível a quem é de competência.
+Sendo previsto o acesso de usuários administradores,
+como Gestores Municipais e Diretores de Área;
+
+Principais Funcionalidades Do Prontuário Digital Padronizado
+
+- Cadastro de alunos;
+- Cadastro de responsáveis;
+- Cadastro de atendimentos;
+
+Visão Geral em tela dos status de atendimentos;
+
+- Agendamento de consultas;
+- Gestão de agenda;
+- Cadastro das instituições e endereços;
+
+Gestão dos resultados de avaliações psicopedagógicas;
+
+- Permitir a anexação de arquivos PDF, DOCS e Imagens no Prontuário Digital de cada aluno;
+- Cadastrar, editar, organizar, pesquisar e visualizar completamente os registros em tela;

@@ -35,7 +35,7 @@ class KidRequest extends FormRequest
                     'name' => 'required|min:3|max:100',
                     'birth_date' => 'required|date_format:"d/m/Y"',
                     'user_id' => 'required|exists:users,id',
-                    'responsability_user_id' => 'required|exists:users,id',
+                    'responsible_id' => 'required|exists:responsibles,id',
                 ];
             }
             case 'PUT': {
@@ -43,7 +43,7 @@ class KidRequest extends FormRequest
                     'name' => 'required|min:4|max:50',
                     'birth_date' => 'required|date_format:"d/m/Y"',
                     'user_id' => 'required|exists:users,id',
-                    'responsability_user_id' => 'required|exists:users,id',
+                    'responsible_id' => 'required|exists:responsibles,id',
                 ];
             }
             default:
@@ -57,7 +57,7 @@ class KidRequest extends FormRequest
             'name' => 'Nome completo',
             'birth_date' => 'Data de nascimento',
             'user_id' => 'Profissional responsável',
-            'responsability_user_id' => 'Responsável pela criança'
+            'responsible_id' => 'Responsável pela criança'
         ];
     }
 

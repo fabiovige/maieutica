@@ -95,16 +95,13 @@ class User extends Authenticatable
     public static function listAssocUser($type) {
 
         if (auth()->user()->isSuperAdmin()) {
-            return self::where('type', '=', $type)
-            ->get();
+            return self::where('type', '=', $type)->get();
         } else if (auth()->user()->isAdmin()) {
             return self::where('type', '=', $type)
-            ->where('created_by', '!=', 1)
-            ->get();
+            ->where('created_by', '!=', 1)->get();
         } else {
             return self::where('type', '=', $type)
-            ->where('created_by', '=', auth()->user()->id)
-            ->get();
+            ->where('created_by', '=', auth()->user()->id)->get();
         }
     }
 

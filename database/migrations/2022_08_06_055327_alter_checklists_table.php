@@ -16,10 +16,7 @@ class AlterChecklistsTable extends Migration
         Schema::table('checklists', function (Blueprint $table) {
             $table->unsignedBigInteger('kid_id')->nullable();
 
-            $table->foreign('kid_id')
-                ->references('id')
-                ->on('kids')
-                ->onDelete('SET NULL');
+            $table->foreign('kid_id')->references('id')->on('kids');
         });
     }
 

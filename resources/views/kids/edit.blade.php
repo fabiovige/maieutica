@@ -28,8 +28,8 @@
                     <div class="card-body">
                         <div class="form-group">
                             <div class="row">
-                                <div class="col">
-                                    <label for="name">Nome completo</label> <br>
+                                <div class="col-md-6">
+                                    <label for="name">Nome completo da criança</label> <br>
                                     <input class="form-control @error('name') is-invalid @enderror" type="text" name="name" value="{{ old('name') ?? $kid->name }}">
                                     @error('name')
                                     <div class="invalid-feedback">
@@ -37,7 +37,7 @@
                                     </div>
                                     @enderror
                                 </div>
-                                <div class="col">
+                                <div class="col-md-6">
                                     <label for="birth_date">Data de nascimento</label> <br>
                                     <input class="form-control datepicker @error('birth_date') is-invalid @enderror" type="text" name="birth_date" value="{{ old('birth_date') ?? $kid->birth_date }}">
                                     @error('birth_date')
@@ -46,8 +46,10 @@
                                     </div>
                                     @enderror
                                 </div>
-                                <div class="col">
-                                    <label for="user_id">Usuário responsável</label> <br>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mt-3">
+                                    <label for="user_id">Terapeuta responsável</label> <br>
                                     <select class="form-select @error('user_id') is-invalid @enderror" aria-label="user_id" name="user_id">
                                         <option value="">-- selecione --</option>
                                         @foreach($users as $user)
@@ -55,6 +57,26 @@
                                         @endforeach
                                     </select>
                                     @error('user_id')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <label for="responsability_user_id">Pais ou responsável</label> <br>
+
+                                    <select class="form-select @error('responsability_user_id') is-invalid @enderror"
+                                    aria-label="responsible_id" name="responsible_id">
+                                        <option value="">-- selecione --</option>
+                                        @foreach($responsibles as $responsible)
+                                            <option value="{{ $responsible->id }}"
+                                                @if(old('responsible_id') == $responsible->id || $responsible->id == $kid->responsible_id  ) selected @endif
+                                                >
+                                                {{ $responsible->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('responsability_user_id')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
