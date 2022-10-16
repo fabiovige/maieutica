@@ -59,6 +59,8 @@ import Competences from './components/Competences'
 import Checklists from './components/Checklists'
 import Charts from './components/Charts'
 import Planes from './components/Planes'
+import Dashboard from './components/Dashboard'
+import ProfileKid from './components/ProfileKid'
 import Select2 from 'vue3-select2-component';
 import VueSweetalert2 from "vue-sweetalert2";
 
@@ -73,5 +75,7 @@ app.component('Competences', Competences)
 app.component('Checklists', Checklists)
 app.component('Charts', Charts)
 app.component('Planes', Planes)
+app.component('Dashboard', Dashboard)
+app.component('ProfileKid', ProfileKid)
 app.component('Select2', Select2)
 app.mount('#app')

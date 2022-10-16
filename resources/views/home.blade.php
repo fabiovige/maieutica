@@ -21,10 +21,12 @@
                         </div>
                     @endif
 
-                    @TODO DASHBOARD
+                    <div id="app">
+                        <Dashboard user="{{ auth()->user()->id }}" ></Dashboard>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-
 @endsection

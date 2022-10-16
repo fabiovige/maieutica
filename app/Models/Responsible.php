@@ -10,8 +10,7 @@ class Responsible extends Model
 {
     use HasFactory, SoftDeletes;
 
-
-    protected $fillable = ['name', 'email', 'cell', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['id', 'name', 'email', 'cell', 'created_by', 'updated_by', 'deleted_by'];
 
     public function kids()
     {

@@ -23,12 +23,6 @@ class KidsController extends Controller
         $message = label_case('Index Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::debug($message);
 
-        //        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
-        //            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id');
-        //        } else {
-        //            $data = Kid::with('user')->select('id', 'name', 'birth_date')->where('created_by', '=', auth()->user()->id);
-        //        }
-
         return view('kids.index');
     }
 
@@ -37,11 +31,20 @@ class KidsController extends Controller
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id', 'responsible_id');
         } else {
-            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id', 'responsible_id')->where('created_by', '=', auth()->user()->id);
+            if(auth()->user()->type == User::TYPE_E) {
+                $data = Kid::select('id', 'name', 'birth_date', 'user_id', 'responsible_id')
+                ->where('responsible_id', '=', auth()->user()->id);
+            }
+            if(auth()->user()->type == User::TYPE_I) {
+                $data = Kid::select('id', 'name', 'birth_date', 'user_id', 'responsible_id')
+                ->where('created_by', '=', auth()->user()->id);
+            }
+
         }
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
+
                 if (request()->user()->can('kids.update') || request()->user()->can('kids.store')) {
 
                     $html = '<div class="dropdown">';
@@ -70,9 +73,9 @@ class KidsController extends Controller
                 return $data->user->name;
             })
             ->editColumn('responsible_id', function ($data) {
-                return $data->responsible->name;
+                return '?';
             })
-            ->rawColumns(['name', 'checklists', 'user_id', 'action'])
+            ->rawColumns(['name', 'checklists', 'user_id', 'responsible_id', 'action'])
             ->orderColumns(['id'], '-:column $1')
             ->make(true);
     }

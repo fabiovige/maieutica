@@ -73,26 +73,26 @@
                 },
                 {
                     data: 'name',
-                    name: 'name'
+                    name: 'Nome'
                 },
                 {
                     data: 'birth_date',
-                    name: 'birth_date',
+                    name: 'Data de nascimento',
                     orderable: false,
                 },
                 {
                     data: 'checklists',
-                    name: 'checklists',
+                    name: 'Checklists',
                     orderable: false,
                     searchable: false
                 },
                 {
                     data: 'user_id',
-                    name: 'user_id',
+                    name: 'Terapeuta',
                 },
                 {
                     data: 'responsible_id',
-                    name: 'responsible_id',
+                    name: 'Pais ou responsável',
                 },
                 {
                     data: 'action',

@@ -30,7 +30,8 @@ class ChecklistController extends Controller
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at');
         } else {
-            $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at')->where('created_by', '=', auth()->user()->id);
+            $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at')
+            ->where('created_by', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)
