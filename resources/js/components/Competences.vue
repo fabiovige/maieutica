@@ -1,7 +1,7 @@
 <template>
     <div>
         <loading :active="isLoading" :is-full-page="fullPage"></loading>
-        <loading :active="checkIsLoadingsLoading" :is-full-page="fullPage"></loading>
+        <loading :active="checkIsLoading" :is-full-page="fullPage"></loading>
 
         <form @submit.prevent="submitForm" >
 

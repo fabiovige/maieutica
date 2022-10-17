@@ -1,6 +1,6 @@
 <template>
     <div>
-        {{ data.user }}
+
         <div class="row py-2">
             <div class="col-lg-4">
                 <div class="card mb-4">
@@ -12,8 +12,8 @@
                         <p class="text-muted mb-1">CCC</p>
                         <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
                         <div class="d-flex justify-content-center mb-2">
-                            <button type="button" class="btn btn-primary">Follow</button>
-                            <button type="button" class="btn btn-outline-primary ms-1">Message</button>
+                            <button type="button" class="btn btn-sm btn-success">Checklists</button>
+                            <button type="button" class="btn btn-sm btn-secondary ms-2">Planos</button>
                         </div>
                     </div>
                 </div>
@@ -168,23 +168,9 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
 
 export default {
     name: "ProfileKid",
-    props: ['data'],
-    setup(props) {
-
-        const data = ref(props.data)
-
-        onMounted(() => {
-            console.log(data.value)
-        })
-
-        return {
-            data
-        }
-    }
 }
 </script>
 

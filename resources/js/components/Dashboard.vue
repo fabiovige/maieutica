@@ -1,25 +1,32 @@
 <template>
     <div>
-        <Profile-kid :data="{ user }"></Profile-kid>
+        <loading :active="isLoading" :is-full-page="fullPage"></loading>
+
+        <ProfileKid></ProfileKid>
     </div>
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import {onMounted, watch, ref, inject} from "vue";
+import useChecklists from "../composables/checklists";
+import Loading from "vue3-loading-overlay";
+import 'vue3-loading-overlay/dist/vue3-loading-overlay.css';
+import ProfileKid from "./ProfileKid";
 
 export default {
     name: "Dashboard",
     props: ['user'],
-
+    components: { Loading, ProfileKid },
     setup(props) {
-
-        const user = ref(props.user)
+        const fullPage = ref(true)
+        const user_id = ref(props.user)
 
         onMounted(() => {
         })
 
         return {
-            user
+            user_id,
+            fullPage
         }
     }
 }

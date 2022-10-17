@@ -39,7 +39,7 @@ class Competence extends Model
 
     public static function partial($checklist_id, $level_id)
     {
-        $query = "SELECT COUNT(1) AS partial FROM competences AS c inner JOIN checklist_competence AS cc ON cc.competence_id = c.id WHERE cc.checklist_id = $checklist_id AND c.level_id in($level_id) AND cc.note != 1";
+        $query = "SELECT COUNT(1) AS partial FROM competences AS c inner JOIN checklist_competence AS cc ON cc.competence_id = c.id WHERE cc.checklist_id = $checklist_id AND c.level_id in($level_id) AND cc.note != 0";
         return DB::select($query);
     }
 

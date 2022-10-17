@@ -140,7 +140,6 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $data = $request->all();
-
             $data['password'] = bcrypt('password');
             $data['created_by'] = Auth::id();
             $user = User::create($data);

@@ -38,21 +38,16 @@ export default function useChecklistRegisters() {
 
     const storeChecklistRegister = async (data) => {
 
-        checkIsLoading.value = true
-
         let serialized = new FormData()
         for (let item in data) {
             if (data.hasOwnProperty(item)) {
                 serialized.append(item, data[item])
             }
         }
-
+        checkIsLoading.value = true
         await axios.post('/api/checklistregisters', serialized)
+
             .then(response => {
-                swal({
-                    icon: 'success',
-                    title: 'Checklist atualizado com sucesso!'
-                })
                 getProgressBar(data.checklist_id, data.totalLevel)
             })
             .catch(error => {

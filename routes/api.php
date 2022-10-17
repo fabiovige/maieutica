@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ChecklistController;
 use App\Http\Controllers\Api\DomainController;
+use App\Http\Controllers\Api\KidController;
 use App\Http\Controllers\Api\LevelController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CompetenceController;
@@ -25,6 +26,10 @@ Route::apiResource('competences', CompetenceController::class);
 
 // checklists
 Route::apiResource('checklists', ChecklistController::class);
+
+// checklists
+Route::get('kids/byuser/{user_id}', [KidController::class, 'byuser'])->name('api.byuser');
+Route::apiResource('kids', KidController::class);
 
 // planes
 Route::get('planes/newplane', [PlaneController::class, 'newPlane'])->name('api.planes.newplane');
