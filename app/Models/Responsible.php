@@ -16,4 +16,10 @@ class Responsible extends Model
     {
         return $this->hasMany(Kid::class);
     }
+
+    public function user()
+    {
+        return $this->hasOne(User::class);
+    }
+
 }

@@ -35,10 +35,23 @@ class AbilitySeeder extends Seeder
         ['resource_id' => 5, 'ability' => 'responsibles.update', 'name' => 'Atualizar'],
     ];
 
+
+    const ABILITIES_PAIS = [
+
+        ['resource_id' => 2, 'ability' => 'kids.index', 'name' => 'Listar'],
+        ['resource_id' => 2, 'ability' => 'kids.update', 'name' => 'Atualizar'],
+        ['resource_id' => 4, 'ability' => 'checklists.index', 'name' => 'Listar'],
+        ['resource_id' => 4, 'ability' => 'checklists.update', 'name' => 'Atualizar']
+    ];
+
     public function run()
     {
         foreach (self::ABILITIES as $ability) {
             Ability::create($ability)->roles()->sync([1,2]);
+        }
+
+        foreach (self::ABILITIES_PAIS as $ability) {
+            Ability::create($ability)->roles()->sync(3);
         }
     }
 }

@@ -26,5 +26,11 @@ class RoleSeeder extends Seeder
             'role' => 'ROLE_ADMIN',
             'created_by' => 1,
         ]);
+
+        $role2 = Role::create([
+            'name' => 'Pais',
+            'role' => 'ROLE_PAIS',
+            'created_by' => 1,
+        ]);
     }
 }

@@ -162,10 +162,10 @@ class UserController extends Controller
 
             flash(self::MSG_CREATE_ERROR)->warning();
 
-            echo $message = label_case('Create User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Create User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
-            //return redirect()->back();
+            return redirect()->back();
         }
     }
 
@@ -174,6 +174,7 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $data = $request->all();
+            $data['type'] = (!isset($data['type'])) ? User::TYPE_I : $data['type'];
 
             $user = User::findOrFail($id);
             $data['updated_by'] = Auth::id();
@@ -208,8 +209,6 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
 
-
-            dd('teste');
             if (auth()->user()->role_id == $user->id) {
                 $message = label_case('Destroy Self Users '.self::MSG_DELETE_USER_SELF).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
                 Log::alert($message);

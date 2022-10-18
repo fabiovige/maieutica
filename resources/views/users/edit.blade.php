@@ -30,30 +30,41 @@
                         </div>
                         <div class="card-body">
 
+
                             <div class="form-group">
-                                <label>Nome</label>
-                                <input type="text" class="form-control
-                                @error('name') is-invalid @enderror" name="name"
-                                       value="{{$user->name}}">
-                                @error('name')
-                                <div class="invalid-feedback">
-                                    {{$message}}
-                                </div>
-                                @enderror
-                            </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <label>Nome</label>
+                                        <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                               name="name" value="{{ $user->name }}">
+                                        @error('name')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label>Email</label>
+                                        <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                               name="email" value="{{ $user->email }}">
+                                        @error('email')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                    </div>
 
-                            <div class="form-group mt-2">
-                                <label>Email</label>
-                                <input type="email" class="form-control
-                                @error('email') is-invalid @enderror" name="email"
-                                       value="{{$user->email}}">
-                                @error('email')
-                                <div class="invalid-feedback">
-                                    {{$message}}
-                                </div>
-                                @enderror
-                            </div>
+                                    <div class="col-md-2">
+                                        <label>Usuário externo</label>{{ $user->type }}
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input"
+                                                   type="checkbox" role="switch" id="type" value='e'
+                                                   name="type" @if($user->type === 'e' ) ' checked ' @endif>
+                                        </div>
+                                    </div>
 
+                                </div>
+                            </div>
 
 
                             @can('roles.update')

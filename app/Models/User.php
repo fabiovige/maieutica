@@ -40,19 +40,19 @@ class User extends Authenticatable
         'e' => 'Externo'
     ];
 
-    public function kids(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function kids()
     {
         return $this->hasMany(Kid::class);
     }
 
-    public function role(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Role::class);
-    }
-
-    public function responsible(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function responsible()
     {
         return $this->hasOne(Responsible::class);
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 
     public function isSuperAdmin(): bool

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ResponsibleRequest;
 use App\Models\Responsible;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 use Exception;
@@ -71,9 +73,35 @@ class ResponsibleController extends Controller
     public function store(ResponsibleRequest $request)
     {
         $responsible = new Responsible();
-        $responsible->create($request->all());
+        $data = $request->all();
 
+        // libera acesso ao pai
+        if(isset($data['type'])) {
+
+            $findUser = User::where('email', '=', $data['email'])->first();
+            if(!$findUser) {
+                $dataUser['name'] = $data['name'];
+                $dataUser['password'] = bcrypt('password');
+                $dataUser['email'] = $data['email'];
+                $dataUser['created_by'] = Auth::id();
+                $dataUser['type'] = User::TYPE_E;
+                $user = User::create($dataUser);
+                $role = Role::find(3);
+                $user = $user->role()->associate($role);
+                $user->save();
+                $data['user_id'] = $user->id;
+            }
+        } else {
+            $findUser = User::where('email', '=', $data['email'])->first();
+            if($findUser) {
+                $newPassword = bcrypt(hash(date('dmyhis')));
+                $findUser->update(['password' => $newPassword]);
+            }
+        }
+
+        $responsible->create($data);
         flash(self::MSG_CREATE_SUCCESS)->success();
+
         return redirect()->route('responsibles.index');
     }
 
@@ -97,6 +125,8 @@ class ResponsibleController extends Controller
     public function edit(Responsible $responsible)
     {
         try {
+            dd($responsible->user());
+            dd('teste');
             return view('responsibles.edit', compact('responsible'));
 
         } catch (Exception $e) {
@@ -117,7 +147,33 @@ class ResponsibleController extends Controller
      */
     public function update(ResponsibleRequest $request, Responsible $responsible)
     {
-        $responsible->update($request->all());
+        $data = $request->all();
+
+        // libera acesso ao pai
+        if(isset($data['type'])) {
+            $findUser = User::where('email', '=', $data['email'])->first();
+            if(!$findUser) {
+                $dataUser['name'] = $data['name'];
+                $dataUser['password'] = bcrypt('password');
+                $dataUser['email'] = $data['email'];
+                $dataUser['created_by'] = Auth::id();
+                $dataUser['type'] = User::TYPE_E;
+                $user = User::create($dataUser);
+                $role = Role::find(3);
+                $user = $user->role()->associate($role);
+                $user->save();
+
+                $data['user_id'] = $user->id;
+            }
+        } else {
+            $findUser = User::where('email', '=', $data['email'])->first();
+            if($findUser) {
+                $newPassword = bcrypt(hash(date('dmyhis')));
+                $findUser->update(['password' => $newPassword]);
+            }
+        }
+
+        $responsible->update($data);
 
         flash(self::MSG_UPDATE_SUCCESS)->success();
         return redirect()->route('responsibles.index');

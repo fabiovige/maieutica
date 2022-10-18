@@ -15,6 +15,7 @@ class CreateResponsiblesTable extends Migration
     {
         Schema::create('responsibles', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('name');
             $table->string('email', 200)->nullable();
             $table->string('cell')->nullable();
@@ -26,6 +27,8 @@ class CreateResponsiblesTable extends Migration
             $table->unsignedBigInteger('deleted_by')->nullable();
 
             $table->softDeletes();
+
+            $table->foreign('user_id')->references('id')->on('users');
 
         });
     }

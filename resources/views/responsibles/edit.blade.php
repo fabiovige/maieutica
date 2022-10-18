@@ -59,6 +59,46 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <label class="text red">Liberar acesso</label>
+
+
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                        type="checkbox" role="switch" id="type" value='e'
+                                            name="type">
+                                        <span class="text-muted">Uma senha provisória será enviado ao e-mail cadastrado e um novo usuário será adicionado com perfil de "Pais"</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="mt-4">Filhos(as)</h4>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Nome</th>
+                                            <th>Data de nascimento</th>
+                                            <th>Cadastro</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                @foreach($responsible->kids()->get() as $kid)
+                                    <tr>
+                                        <td>{{ $kid->id }}</td>
+                                        <td>{{ $kid->name }}</td>
+                                        <td>{{ $kid->birth_date }}</td>
+                                        <td>{{ $kid->created_at->format('d/m/Y H:i') }}</td>
+                                    </tr>
+                                @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     <div class="card-footer d-flex justify-content-between">
