@@ -10,7 +10,7 @@ class Responsible extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['id', 'name', 'email', 'cell', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['id', 'user_id', 'name', 'email', 'cell', 'created_by', 'updated_by', 'deleted_by'];
 
     public function kids()
     {
@@ -19,7 +19,7 @@ class Responsible extends Model
 
     public function user()
     {
-        return $this->hasOne(User::class);
+        return $this->belongsTo(User::class);
     }
 
 }

@@ -12,7 +12,9 @@ class Role extends Model
 
     protected $fillable = ['name', 'role', 'created_by', 'updated_by', 'deleted_by'];
 
-    public const ID_SUPER_ADMIN = 1;
+    public const ROLE_SUPER_ADMIN = 1;
+    public const ROLE_ADMIN = 2;
+    public const ROLE_PAIS = 3;
 
     public function users()
     {

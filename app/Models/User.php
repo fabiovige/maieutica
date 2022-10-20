@@ -17,6 +17,7 @@ class User extends Authenticatable
         'email',
         'password',
         'type',
+        'allow',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -30,6 +31,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'allow' => 'boolean'
     ];
 
     const TYPE_E = 'e';
@@ -47,7 +49,7 @@ class User extends Authenticatable
 
     public function responsible()
     {
-        return $this->hasOne(Responsible::class);
+        return $this->hasMany(Responsible::class);
     }
 
     public function role()

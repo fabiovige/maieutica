@@ -31,6 +31,7 @@
                                 <th>Papel</th>
                                 <th>E-mail</th>
                                 <th>Tipo de acesso</th>
+                                <th>Acesso liberado</th>
                                 <th style="width: 30px"></th>
                             </tr>
                         </thead>
@@ -78,6 +79,10 @@
                 {
                     data: 'type',
                     name: 'type',
+                },
+                {
+                    data: 'allow',
+                    name: 'allow',
                 },
                 {
                     data: 'action',

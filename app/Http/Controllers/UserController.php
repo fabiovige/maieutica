@@ -24,12 +24,11 @@ class UserController extends Controller
 
     public function index_data()
     {
-        $data = User::select('id', 'name', 'email', 'type', 'role_id');
 
         if (auth()->user()->isSuperAdmin()) {
-            $data = User::select('id', 'name', 'email', 'type', 'role_id');
+            $data = User::select('id', 'name', 'email', 'type', 'allow',  'role_id');
         } else {
-            $data = User::select('id', 'name', 'email', 'type', 'role_id')->where('created_by', '=', auth()->user()->id);
+            $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id')->where('created_by', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)
@@ -60,7 +59,7 @@ class UserController extends Controller
                 $type =  \App\Models\User::TYPE[$data->type];
 
                 if($data->type == \App\Models\User::TYPE_E) {
-                    $html = '<span class="badge bg-warning text-dark"><i class="bi bi-exclamation-diamond"></i> '. $type.'</span>';
+                    $html = '<span class="badge bg-warning text"><i class="bi bi-exclamation-diamond"></i> '. $type.'</span>';
                 }
 
                 if($data->type == \App\Models\User::TYPE_I) {
@@ -69,7 +68,17 @@ class UserController extends Controller
 
                 return $html;
             })
-            ->rawColumns(['name', 'role', 'type', 'action'])
+            ->editColumn('allow', function ($data) {
+
+                if($data->allow) {
+                    $html = '<span class="badge bg-primary"><i class="bi bi-emoji-smile"></i> Sim </span>';
+                } else {
+                    $html = '<span class="badge bg-info"><i class="bi bi-emoji-frown"></i> Não </span>';
+                }
+
+                return $html;
+            })
+            ->rawColumns(['name', 'role', 'type', 'allow', 'action'])
             ->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
@@ -174,7 +183,9 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $data = $request->all();
+
             $data['type'] = (!isset($data['type'])) ? User::TYPE_I : $data['type'];
+            $data['allow'] = !!isset($data['allow']);
 
             $user = User::findOrFail($id);
             $data['updated_by'] = Auth::id();

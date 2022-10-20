@@ -29,7 +29,7 @@
 
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-5">
+                                <div class="col-md-6">
                                     <label>Nome</label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
                                         name="name" value="{{ old('name') }}">
@@ -39,7 +39,7 @@
                                         </div>
                                     @enderror
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-6">
                                     <label>Email</label>
                                     <input type="email" class="form-control @error('email') is-invalid @enderror"
                                         name="email" value="{{ old('email') }}">
@@ -50,12 +50,24 @@
                                     @enderror
                                 </div>
 
-                                <div class="col-md-2">
+
+
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-6">
                                     <label>Usuário externo</label>
                                     <div class="form-check form-switch">
                                         <input class="form-check-input"
-                                        type="checkbox" role="switch" id="type" value='e'
-                                            name="type">
+                                               type="checkbox" role="switch" id="type" value='e' name="type">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Acesso liberado</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox" role="switch" id="allow" value='1' checked name="allow">
                                     </div>
                                 </div>
 

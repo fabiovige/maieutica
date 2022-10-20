@@ -37,7 +37,6 @@ class AbilitySeeder extends Seeder
 
 
     const ABILITIES_PAIS = [
-
         ['resource_id' => 2, 'ability' => 'kids.index', 'name' => 'Listar'],
         ['resource_id' => 2, 'ability' => 'kids.update', 'name' => 'Atualizar'],
         ['resource_id' => 4, 'ability' => 'checklists.index', 'name' => 'Listar'],

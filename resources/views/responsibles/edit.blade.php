@@ -62,14 +62,14 @@
 
                             <div class="row mt-3">
                                 <div class="col-md-12">
-                                    <label class="text red">Liberar acesso</label>
-
-
+                                    <label class="text red">
+                                        @if(isset($responsible->user->allow) && $responsible->user->allow) Acesso liberado @else Liberar acesso @endif
+                                    </label>
                                     <div class="form-check form-switch">
                                         <input class="form-check-input"
                                         type="checkbox" role="switch" id="type" value='e'
-                                            name="type">
-                                        <span class="text-muted">Uma senha provisória será enviado ao e-mail cadastrado e um novo usuário será adicionado com perfil de "Pais"</span>
+                                            name="type" @if(isset($responsible->user->allow) && $responsible->user->allow) checked @else '' @endif >
+
                                     </div>
                                 </div>
                             </div>

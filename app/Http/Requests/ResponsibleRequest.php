@@ -27,21 +27,23 @@ class ResponsibleRequest extends FormRequest
             case 'GET':
             case 'DELETE': {
                 return [
-                    'id' => 'required|exists:kids,id',
+                    'id' => 'required|exists:responsible,id',
                 ];
             }
             case 'POST': {
                 return [
                     'name' => 'required|min:3|max:100',
                     'email' => 'required|email|min:3|max:200',
-                    'cell' => 'required|celular_com_ddd'
+                    'cell' => 'required|celular_com_ddd',
+                    'user_id' => 'nullable'
                 ];
             }
             case 'PUT': {
                 return [
                     'name' => 'required|min:3|max:100',
                     'email' => 'required|email|min:3|max:200',
-                    'cell' => 'required|celular_com_ddd'
+                    'cell' => 'required|celular_com_ddd',
+                    'user_id' => 'nullable|exists:users,id',
                 ];
             }
             default:
@@ -54,7 +56,8 @@ class ResponsibleRequest extends FormRequest
         return [
             'name' => 'Nome',
             'email' => 'E-mail',
-            'cell' => 'Celular'
+            'cell' => 'Celular',
+            'user_id' => 'Usuário'
         ];
     }
 
