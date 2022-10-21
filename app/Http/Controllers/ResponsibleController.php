@@ -36,7 +36,7 @@ class ResponsibleController extends Controller
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('responsibles.update') || request()->user()->can('responsibles.store')) {
 
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('responsibles.edit', $data->id).'"><i class="bi bi-gear"></i> </a>';
+                    $html = '<a class="btn btn-sm btn-success" href="' . route('responsibles.edit', $data->id) . '"><i class="bi bi-gear"></i> </a>';
 
                     return $html;
                 }
@@ -64,28 +64,20 @@ class ResponsibleController extends Controller
     {
         $responsible = new Responsible();
         $data = $request->all();
+        $findUser = User::where('email', '=', $data['email']);
+        if ($data['allow']) {
 
-        // libera acesso ao pai
-        if(isset($data['type'])) {
-
-            $findUser = User::where('email', '=', $data['email'])->first();
-            if(!$findUser) {
+            if ($findUser->count() == 0) {
                 $dataUser['name'] = $data['name'];
                 $dataUser['password'] = bcrypt('password');
                 $dataUser['email'] = $data['email'];
                 $dataUser['created_by'] = Auth::id();
-                $dataUser['type'] = User::TYPE_E;
+                $dataUser['allow'] = false;
                 $user = User::create($dataUser);
                 $role = Role::find(3);
                 $user = $user->role()->associate($role);
                 $user->save();
                 $data['user_id'] = $user->id;
-            }
-        } else {
-            $findUser = User::where('email', '=', $data['email'])->first();
-            if($findUser) {
-                $newPassword = bcrypt(hash(date('dmyhis')));
-                $findUser->update(['password' => $newPassword]);
             }
         }
 
@@ -95,15 +87,15 @@ class ResponsibleController extends Controller
         return redirect()->route('responsibles.index');
     }
 
-    public function show(Responsible $responsible)
-    {
-        //
-    }
-
     public function edit(Responsible $responsible)
     {
         try {
-            return view('responsibles.edit', compact('responsible'));
+            $allow = ($responsible->user()->count() == 0 ? false : $responsible->user->allow);
+
+            return view('responsibles.edit', [
+                'responsible' => $responsible,
+                'allow' => $allow
+            ]);
 
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
@@ -120,57 +112,61 @@ class ResponsibleController extends Controller
         try {
             $data = $request->all();
             $responsible = Responsible::findOrFail($id);
+            $user = User::where('email', '=', $data['email']);
 
-            if(isset($data['type'])) {
-                $findUser = User::where('email', '=', $data['email'])->first();
-                if(!$findUser) {
+            if (isset($data['allow'])) {
+                if ($user->count() > 0) {
+                    $dataUser['allow'] = true;
+                    $user->first()->update($dataUser);
+                } else {
                     $dataUser['name'] = $data['name'];
                     $dataUser['password'] = bcrypt('password');
                     $dataUser['email'] = $data['email'];
                     $dataUser['created_by'] = Auth::id();
-                    $dataUser['type'] = $data['type'];
+                    $dataUser['allow'] = true;
                     $user = User::create($dataUser);
                     $role = Role::find(Role::ROLE_PAIS);
                     $user = $user->role()->associate($role);
                     $user->save();
                     $data['user_id'] = $user->id;
-                    $responsible->update($data);
                 }
-                if($findUser) {
-                    $user = User::findOrFail($findUser->id);
-                    $user->update(['allow' => true]);
-                }
-                $responsible->update($data);
             } else {
-                if($responsible->user) {
-                    $user = User::findOrFail($responsible->user->id);
-                    $user->update(['allow' => false]);
+                if ($user->count() > 0) {
+                    $dataUser['allow'] = false;
+                    $user->first()->update($dataUser);
                 }
             }
-
-
             $responsible->update($data);
             DB::commit();
-
             flash(self::MSG_UPDATE_SUCCESS)->success();
             return redirect()->route('responsibles.index');
 
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_UPDATE_ERROR)->warning();
-
-            echo $message = label_case('Update Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
-
-            //return redirect()->back();
+            return redirect()->back();
         }
 
     }
 
     public function destroy(Responsible $responsible)
     {
-        $responsible->delete();
-        flash(self::MSG_DELETE_SUCCESS)->success();
-        return redirect()->route('responsibles.index');
+        try {
+            DB::beginTransaction();
+            $user = User::findOrFail($responsible->user_id);
+            $responsible->delete();
+            $user->delete();
+            DB::commit();
+            flash(self::MSG_DELETE_SUCCESS)->success();
+            return redirect()->route('responsibles.index');
+        } catch (Exception $e) {
+            DB::rollBack();
+            flash(self::MSG_DELETE_SUCCESS)->warning();
+            $message = label_case('Delete Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
+            return redirect()->back();
+        }
     }
 }

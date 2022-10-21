@@ -59,16 +59,7 @@
 
                                 <div class="row">
 
-                                    <div class="col-md-6">
-                                        <label>Usuário externo</label>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input"
-                                                   type="checkbox" role="switch" id="type" value='e'
-                                                   name="type" @if($user->type === 'e' ) checked @endif>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
+                                    <div class="col-md-12 mt-3">
                                         <label>Acesso liberado</label>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input"

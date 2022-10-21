@@ -53,25 +53,6 @@
 
 
                             </div>
-                            <div class="row">
-
-                                <div class="col-md-6">
-                                    <label>Usuário externo</label>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input"
-                                               type="checkbox" role="switch" id="type" value='e' name="type">
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label>Acesso liberado</label>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input"
-                                               type="checkbox" role="switch" id="allow" value='1' checked name="allow">
-                                    </div>
-                                </div>
-
-                            </div>
                         </div>
 
                         {{-- papeis --}}

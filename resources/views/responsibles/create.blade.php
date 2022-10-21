@@ -20,7 +20,7 @@
         <div class="col-md-12">
             <form action="{{ route('responsibles.store') }}" method="POST">
                 @csrf
-                <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+                <input type="hidden" name="allow" value="0">
                 <div class="card">
                     <div class="card-header">
                         Cadastrar

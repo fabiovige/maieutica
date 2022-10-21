@@ -63,12 +63,12 @@
                             <div class="row mt-3">
                                 <div class="col-md-12">
                                     <label class="text red">
-                                        @if(isset($responsible->user->allow) && $responsible->user->allow) Acesso liberado @else Liberar acesso @endif
+                                        @if($allow) Acesso liberado @else Liberar acesso @endif
                                     </label>
                                     <div class="form-check form-switch">
                                         <input class="form-check-input"
-                                        type="checkbox" role="switch" id="type" value='e'
-                                            name="type" @if(isset($responsible->user->allow) && $responsible->user->allow) checked @else '' @endif >
+                                        type="checkbox" role="switch" id="allow" value='1' name="allow"
+                                               @if($allow) checked @else '' @endif >
 
                                     </div>
                                 </div>

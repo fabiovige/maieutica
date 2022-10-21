@@ -27,10 +27,11 @@ class RoleSeeder extends Seeder
             'created_by' => 1,
         ]);
 
-        $role2 = Role::create([
+        $role3 = Role::create([
             'name' => 'Pais',
             'role' => 'ROLE_PAIS',
-            'created_by' => 1,
+            'created_by' => 2,
         ]);
+
     }
 }

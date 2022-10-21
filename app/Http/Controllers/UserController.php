@@ -55,19 +55,6 @@ class UserController extends Controller
                 return $data->email;
             })
 
-            ->editColumn('type', function ($data) {
-                $type =  \App\Models\User::TYPE[$data->type];
-
-                if($data->type == \App\Models\User::TYPE_E) {
-                    $html = '<span class="badge bg-warning text"><i class="bi bi-exclamation-diamond"></i> '. $type.'</span>';
-                }
-
-                if($data->type == \App\Models\User::TYPE_I) {
-                    $html = '<span class="badge bg-success"><i class="bi bi-check2-circle"></i> '. $type.'</span>';
-                }
-
-                return $html;
-            })
             ->editColumn('allow', function ($data) {
 
                 if($data->allow) {
@@ -90,8 +77,10 @@ class UserController extends Controller
 
             if (auth()->user()->isSuperAdmin()) {
                 $roles = Role::all();
-            } else {
-                $roles = Role::where('id', '!=', 1)->get();
+            } else if(auth()->user()->isAdmin()) {
+                $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
+            }else {
+                $roles = Role::where('created_by', '=', Auth::id())->get();
             }
 
             $message = label_case('Edit User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
@@ -134,8 +123,10 @@ class UserController extends Controller
     {
         if (auth()->user()->isSuperAdmin()) {
             $roles = Role::all();
-        } else {
-            $roles = Role::where('id', '!=', 1)->get();
+        } else if(auth()->user()->isAdmin()) {
+            $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
+        }else {
+            $roles = Role::where('created_by', '=', Auth::id())->get();
         }
 
         $message = label_case('Create User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
