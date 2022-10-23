@@ -32,6 +32,11 @@ class ChecklistController extends Controller
         } else {
             $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at')
             ->where('created_by', '=', auth()->user()->id);
+
+            $responsible = Responsible::where("user_id",'=',auth()->user()->id)->first();
+            if($responsible){
+                $data->orWhere('responsible_id',  '=', $responsible->id);
+            }
         }
 
         return Datatables::of($data)

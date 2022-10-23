@@ -34,13 +34,14 @@ class KidsController extends Controller
             $data = Kid::select('id', 'name', 'birth_date', 'user_id', 'responsible_id');
             $data->where('created_by', '=', auth()->user()->id);
             $data->orWhere('user_id', '=', auth()->user()->id);
+
             $responsible = Responsible::where("user_id",'=',auth()->user()->id)->first();
             if($responsible){
-                $data->where('responsible_id', '=', $responsible->id);
+                $data->orWhere('responsible_id',  '=', $responsible->id);
             }
         }
 
-        return Datatables::of($data)
+            return Datatables::of($data)
             ->addColumn('action', function ($data) {
 
                 if (request()->user()->can('kids.update') || request()->user()->can('kids.store')) {
