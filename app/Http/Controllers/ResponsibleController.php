@@ -119,16 +119,23 @@ class ResponsibleController extends Controller
                     $dataUser['allow'] = true;
                     $user->first()->update($dataUser);
                 } else {
-                    $dataUser['name'] = $data['name'];
-                    $dataUser['password'] = bcrypt('password');
-                    $dataUser['email'] = $data['email'];
-                    $dataUser['created_by'] = Auth::id();
-                    $dataUser['allow'] = true;
-                    $user = User::create($dataUser);
-                    $role = Role::find(Role::ROLE_PAIS);
-                    $user = $user->role()->associate($role);
-                    $user->save();
-                    $data['user_id'] = $user->id;
+
+                    // busca na lixeira e restaura
+                    $userTrash = User::where('email', '=', $data['email'])->withTrashed();
+                    if($userTrash->count()){
+                        $userTrash->history()->restore();
+                    } else {
+                        $dataUser['name'] = $data['name'];
+                        $dataUser['password'] = bcrypt('password');
+                        $dataUser['email'] = $data['email'];
+                        $dataUser['created_by'] = Auth::id();
+                        $dataUser['allow'] = true;
+                        $user = User::create($dataUser);
+                        $role = Role::find(Role::ROLE_PAIS);
+                        $user = $user->role()->associate($role);
+                        $user->save();
+                        $data['user_id'] = $user->id;
+                    }
                 }
             } else {
                 if ($user->count() > 0) {
