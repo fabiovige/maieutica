@@ -31,15 +31,13 @@ class KidsController extends Controller
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id', 'responsible_id');
         } else {
-            if(auth()->user()->type == User::TYPE_E) {
-                $data = Kid::select('id', 'name', 'birth_date', 'user_id', 'responsible_id')
-                ->where('responsible_id', '=', auth()->user()->id);
+            $data = Kid::select('id', 'name', 'birth_date', 'user_id', 'responsible_id');
+            $data->where('created_by', '=', auth()->user()->id);
+            $data->orWhere('user_id', '=', auth()->user()->id);
+            $responsible = Responsible::where("user_id",'=',auth()->user()->id)->first();
+            if($responsible){
+                $data->where('responsible_id', '=', $responsible->id);
             }
-            if(auth()->user()->type == User::TYPE_I) {
-                $data = Kid::select('id', 'name', 'birth_date', 'user_id', 'responsible_id')
-                ->where('created_by', '=', auth()->user()->id);
-            }
-
         }
 
         return Datatables::of($data)
