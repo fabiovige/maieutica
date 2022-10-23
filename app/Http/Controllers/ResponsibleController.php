@@ -123,7 +123,7 @@ class ResponsibleController extends Controller
                     // busca na lixeira e restaura
                     $userTrash = User::where('email', '=', $data['email'])->withTrashed();
                     if($userTrash->count()){
-                        $userTrash->history()->restore();
+                        $userTrash->restore();
                     } else {
                         $dataUser['name'] = $data['name'];
                         $dataUser['password'] = bcrypt('password');
