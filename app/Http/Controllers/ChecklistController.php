@@ -9,6 +9,7 @@ use App\Models\Competence;
 use App\Models\CompetenceDescription;
 use App\Models\Kid;
 use App\Models\Plane;
+use App\Models\Responsible;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,13 +31,8 @@ class ChecklistController extends Controller
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at');
         } else {
-            $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at')
-            ->where('created_by', '=', auth()->user()->id);
-
-            $responsible = Responsible::where("user_id",'=',auth()->user()->id)->first();
-            if($responsible){
-                $data->orWhere('responsible_id',  '=', $responsible->id);
-            }
+            $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at');
+            $data->where('created_by', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)

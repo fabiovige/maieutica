@@ -29,7 +29,9 @@ class ResponsibleController extends Controller
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Responsible::select('id', 'name', 'email', 'cell');
         } else {
-            $data = Responsible::select('id', 'name', 'email', 'cell')->where('created_by', '=', auth()->user()->id);
+            $data = Responsible::select('id', 'name', 'email', 'cell');
+            $data->where('created_by', '=', auth()->user()->id);
+            $data->orWhere('user_id', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)
@@ -64,6 +66,7 @@ class ResponsibleController extends Controller
     {
         $responsible = new Responsible();
         $data = $request->all();
+        $data['created_by'] = Auth::id();
         $findUser = User::where('email', '=', $data['email']);
         if ($data['allow']) {
 
@@ -111,6 +114,7 @@ class ResponsibleController extends Controller
         DB::beginTransaction();
         try {
             $data = $request->all();
+            $data['updated_by'] = Auth::id();
             $responsible = Responsible::findOrFail($id);
             $user = User::where('email', '=', $data['email']);
 
@@ -163,6 +167,8 @@ class ResponsibleController extends Controller
         try {
             DB::beginTransaction();
             $user = User::findOrFail($responsible->user_id);
+            $user->deleted_by = Auth::id();
+            $responsible->deleted_by = Auth::id();
             $responsible->delete();
             $user->delete();
             DB::commit();

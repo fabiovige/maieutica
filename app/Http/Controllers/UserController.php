@@ -28,8 +28,8 @@ class UserController extends Controller
         if (auth()->user()->isSuperAdmin()) {
             $data = User::select('id', 'name', 'email', 'type', 'allow',  'role_id');
         } else {
-            $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id')
-            ->where('created_by', '=', auth()->user()->id);
+            $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
+            $data->where('created_by', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)
