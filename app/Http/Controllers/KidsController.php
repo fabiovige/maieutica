@@ -18,7 +18,7 @@ use Elibyy\TCPDF\Facades\TCPDF;
 
 class KidsController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $message = label_case('Index Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::debug($message);
@@ -96,9 +96,7 @@ class KidsController extends Controller
             $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            $data = $request->all();
-            $data['created_by'] = Auth::id();
-            Kid::create($data);
+            Kid::create($request->all());
             flash(self::MSG_CREATE_SUCCESS)->success();
             return redirect()->route('kids.index');
         } catch (Exception $e) {
@@ -110,13 +108,11 @@ class KidsController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Kid $kid)
     {
         try {
             $message = label_case('Show Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
-
-            $kid = Kid::findOrFail($id);
 
             if ($kid->checklists()->count() === 0) {
                 flash(self::MSG_NOT_FOUND_CHECKLIST_USER)->warning();
@@ -140,13 +136,12 @@ class KidsController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit(Kid $kid)
     {
         try {
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            $kid = Kid::findOrFail($id);
             $users = User::all();
             $responsibles = Responsible::all();
 
@@ -161,15 +156,13 @@ class KidsController extends Controller
         }
     }
 
-    public function update(KidRequest $request, $id)
+    public function update(KidRequest $request, Kid $kid)
     {
         try {
             $message = label_case('Update Kids ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             $data = $request->all();
-            $data['updated_by'] = Auth::id();
-            $kid = Kid::findOrFail($id);
             $kid->update($data);
             flash(self::MSG_UPDATE_SUCCESS)->success();
             return redirect()->route('kids.index');
@@ -182,15 +175,11 @@ class KidsController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(Kid $kid)
     {
         try {
             $message = label_case('Destroy Kids ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
-
-            $kid = Kid::findOrFail($id);
-            $kid->deleted_by = Auth::id();
-            $kid->update();
             $kid->delete();
             flash(self::MSG_DELETE_SUCCESS)->success();
             return redirect()->route('kids.index');

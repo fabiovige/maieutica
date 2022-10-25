@@ -51,7 +51,7 @@
                                     <select class="form-select @error('user_id') is-invalid @enderror" aria-label="user_id" name="user_id">
                                         <option value="">-- selecione --</option>
                                         @foreach($users as $user)
-                                            <option value="{{ $user->id }}" @if(old('user_id') == $user->id  ) selected @endif> {{  $user->name }}  </option>
+                                            <option value="{{ $user->id }}" @if(old('user_id') == $user->id  ) selected @endif> {{  $user->name }} - {{ $user->role->name }}   </option>
                                         @endforeach
                                     </select>
                                     @error('user_id')
