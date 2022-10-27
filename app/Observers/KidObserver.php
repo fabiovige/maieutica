@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Auth;
 
 class KidObserver
 {
-    public $afterCommit = true;
 
     /**
      * Handle the Kid "created" event.
@@ -17,8 +16,7 @@ class KidObserver
      */
     public function created(Kid $kid)
     {
-        $data['created_by'] = Auth::id();
-        $kid->update($data);
+
     }
 
     /**
@@ -29,8 +27,7 @@ class KidObserver
      */
     public function updated(Kid $kid)
     {
-        $data['updated_by'] = Auth::id();
-        $kid->update($data);
+
     }
 
     /**
@@ -41,8 +38,7 @@ class KidObserver
      */
     public function deleted(Kid $kid)
     {
-        $data['deleted_by'] = Auth::id();
-        $kid->update($data);
+
     }
 
     /**

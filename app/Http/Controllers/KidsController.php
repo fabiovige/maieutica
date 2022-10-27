@@ -35,13 +35,13 @@ class KidsController extends Controller
             $data->where('created_by', '=', auth()->user()->id);
             $data->orWhere('user_id', '=', auth()->user()->id);
 
-            $responsible = Responsible::where("user_id",'=',auth()->user()->id)->first();
-            if($responsible){
+            $responsible = Responsible::where("user_id", '=', auth()->user()->id)->first();
+            if ($responsible) {
                 $data->orWhere('responsible_id',  '=', $responsible->id);
             }
         }
 
-            return Datatables::of($data)
+        return Datatables::of($data)
             ->addColumn('action', function ($data) {
 
                 if (request()->user()->can('kids.update') || request()->user()->can('kids.store')) {
@@ -66,7 +66,7 @@ class KidsController extends Controller
                 return $data->birth_date;
             })
             ->editColumn('checklists', function ($data) {
-                return '<span class="badge bg-success"><i class="bi bi-check"></i> '. $data->checklists->count() . ' Checklist(s) </span>';
+                return '<span class="badge bg-success"><i class="bi bi-check"></i> ' . $data->checklists->count() . ' Checklist(s) </span>';
             })
             ->editColumn('user_id', function ($data) {
                 return $data->user->name;
@@ -127,7 +127,6 @@ class KidsController extends Controller
                 'checklist_id' => $checklists[0]->id,
                 'level' => $checklists[0]->level
             ]);
-
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Show Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -146,7 +145,6 @@ class KidsController extends Controller
             $responsibles = Responsible::all();
 
             return view('kids.edit', compact('kid', 'users', 'responsibles'));
-
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -168,10 +166,10 @@ class KidsController extends Controller
             return redirect()->route('kids.index');
         } catch (Exception $e) {
             flash(self::MSG_UPDATE_ERROR)->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            echo $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
-            return redirect()->back();
+            //return redirect()->back();
         }
     }
 

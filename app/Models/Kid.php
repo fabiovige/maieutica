@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasEvents;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
-class Kid extends Model
+class Kid extends BaseModel
 {
-    use HasFactory, HasEvents, SoftDeletes;
-
-    protected $fillable = ['name', 'birth_date', 'user_id', 'responsible_id', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = [
+        'name',
+        'birth_date',
+        'user_id',
+        'responsible_id',
+        'created_by',
+        'updated_by',
+        'deleted_by'
+    ];
 
     public function user()
     {

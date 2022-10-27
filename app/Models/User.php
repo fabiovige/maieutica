@@ -33,6 +33,8 @@ class User extends Authenticatable
         'allow' => 'boolean'
     ];
 
+    const SUPERADMIN = 1;
+
     const TYPE_E = 'e';
     const TYPE_I = 'i';
 
@@ -59,7 +61,7 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool
     {
         if ($this->role) {
-            return $this->role->id === 1;
+            return $this->role->id == 1;
         }
 
         return false;
@@ -68,7 +70,7 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         if ($this->role) {
-            return $this->role->id === 2;
+            return $this->role->id == 2;
         }
 
         return false;
