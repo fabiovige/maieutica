@@ -84,7 +84,7 @@ class KidsController extends Controller
         $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
-        $users = User::all();
+        $users = User::scopeListUsers();
         $responsibles = Responsible::all();
 
         return view('kids.create', compact('users', 'responsibles'));
@@ -141,7 +141,7 @@ class KidsController extends Controller
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            $users = User::all();
+            $users = User::scopeListUsers();
             $responsibles = Responsible::all();
 
             return view('kids.edit', compact('kid', 'users', 'responsibles'));
@@ -166,10 +166,10 @@ class KidsController extends Controller
             return redirect()->route('kids.index');
         } catch (Exception $e) {
             flash(self::MSG_UPDATE_ERROR)->warning();
-            echo $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
-            //return redirect()->back();
+            return redirect()->back();
         }
     }
 

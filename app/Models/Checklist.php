@@ -59,4 +59,5 @@ class Checklist extends Model
 
         return $queryBuilder->get();
     }
+
 }

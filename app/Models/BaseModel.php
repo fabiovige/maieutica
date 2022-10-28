@@ -6,16 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Log as LogModel;
-use App\Models\User;
+use app\Models\Log as LogModel;
+use app\Models\User;
 
 class BaseModel extends Model
 {
     use HasFactory, SoftDeletes;
 
     public $log = true;
-
-
 
     public static function boot()
     {
@@ -60,6 +58,7 @@ class BaseModel extends Model
             if (!\App::runningInConsole()) {
                 $userId = Auth::id();
             }
+
             $model->created_by = $userId;
         });
 

@@ -62,7 +62,7 @@ class ChecklistController extends Controller
             ->editColumn('created_at', function ($data) {
                 return Carbon::createFromFormat('Y-m-d H:i:s', $data->created_at)->format('d/m/Y');
             })
-            ->rawColumns(['kid_id', 'level', 'created_at', 'action'])
+            ->rawColumns(['kid_id', 'level', 'created_at', 'situation','action'])
             ->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
@@ -124,19 +124,6 @@ class ChecklistController extends Controller
     public function show($id)
     {
         dd('show');
-        //        try {
-        //            $message = label_case('Show Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-        //            Log::info($message);
-        //
-        //            $checklist = Checklist::findOrFail($id);
-        //            return view('checklists.show', compact('checklist'));
-        //        } catch (Exception $e) {
-        //            flash(self::MSG_NOT_FOUND)->warning();
-        //            $message = label_case('Show Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-        //            Log::error($message);
-        //
-        //            return redirect()->back();
-        //        }
     }
 
     public function edit($id)
@@ -170,7 +157,7 @@ class ChecklistController extends Controller
             $checklist->update($data);
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
-            return redirect()->route('checklists.edit', $id);
+            return redirect()->route('checklists.index');
         } catch (Exception $e) {
 
             $message = label_case('Update Checklists ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';

@@ -34,6 +34,7 @@ class User extends Authenticatable
     ];
 
     const SUPERADMIN = 1;
+    const ADMIN = 2;
 
     const TYPE_E = 'e';
     const TYPE_I = 'i';
@@ -87,12 +88,13 @@ class User extends Authenticatable
         }
     }
 
-    public function scopeListUsers()
+    public static function scopeListUsers()
     {
-        return self::select('id', 'name')->where([
-            ['id', '!=', 1],
-            ['id', '!=', 2],
-        ])->get()->toArray();
+        return self::where([
+            ['role_id', '!=', 1],
+            ['role_id', '!=', 2],
+            ['role_id', '!=', 3],
+        ])->get();
     }
 
     public static function listAssocUser($type) {

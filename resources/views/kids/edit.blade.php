@@ -70,8 +70,7 @@
                                         <option value="">-- selecione --</option>
                                         @foreach($responsibles as $responsible)
                                             <option value="{{ $responsible->id }}"
-                                                @if(old('responsible_id') == $responsible->id || $responsible->id == $kid->responsible_id  ) selected @endif
-                                                >
+                                                @if(old('responsible_id') == $responsible->id || $responsible->id == $kid->responsible_id  ) selected @endif>
                                                 {{ $responsible->name }}
                                             </option>
                                         @endforeach

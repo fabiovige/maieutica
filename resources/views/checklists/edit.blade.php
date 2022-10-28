@@ -42,26 +42,12 @@
                             <div class="row">
                                 <div class="col">
                                     <label for="created_at">Data de criação</label> <br>
-                                    <input class="form-control" type="text" name="created_at" value="{{ $checklist->created_at->format('d/m/Y') }}" readonly>
+                                    <input class="form-control bg-ligth" type="text" name="created_at" value="{{ $checklist->created_at->format('d/m/Y') }}" readonly>
                                 </div>
                                 <div class="col">
                                     <label for="level">Nível</label> <br>
                                     <input type="hidden" name="level" value="{{ $checklist->level }}" >
                                     <input class="form-control" type="text" value="{{ \App\Models\Checklist::LEVEL[$checklist->level] }}" readonly>
-                                </div>
-                                <div class="col">
-                                    <label for="situation">Situação</label> <br>
-                                    <select class="form-select @error('situation') is-invalid @enderror" aria-label="situation" name="situation">
-                                        <option value="">-- selecione --</option>
-                                        @foreach(\App\Models\Checklist::SITUATION as $key => $value)
-                                            <option value="{{ $key }}" @if(old('situation') == $key || $checklist->situation == $key ) selected @endif> {{ $value }} </option>
-                                        @endforeach
-                                    </select>
-                                    @error('situation')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
                                 </div>
                             </div>
                         </div>

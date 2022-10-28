@@ -25,13 +25,11 @@ class ChecklistRequest extends FormRequest
                 return [
                     'kid_id' => 'required',
                     'level' => 'required',
-                    'situation' => 'nullable',
                     'description' => 'nullable',
                 ];
             }
             case 'PUT': {
                 return [
-                    'situation' => 'required',
                     'description' => 'required|min:6',
                 ];
             }
@@ -45,7 +43,6 @@ class ChecklistRequest extends FormRequest
         return [
             'kid_id' => 'criança',
             'level' => 'nível',
-            'situation' => 'situação',
         ];
     }
 

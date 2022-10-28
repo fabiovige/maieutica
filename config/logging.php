@@ -4,6 +4,10 @@ use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 
+use app\Services\Log\DatabaseLogger;
+use app\Services\Log\LogModel;
+use app\Models\Log;
+
 return [
 
     /*
@@ -48,6 +52,22 @@ return [
     */
 
     'channels' => [
+
+        'database' => [
+            'driver' => 'custom',
+            'via' => DatabaseLogger::class,
+            'level' => 'info',
+            'with' => [
+                'logModel' => Log::class
+            ]
+        ],
+
+        'maillog' => [
+            'mail' => env('LOG_MAIL', false),
+            'driver' => 'custom',
+            'via' => EmailErrorLogger::class
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],
