@@ -22,7 +22,7 @@
                     @endif
 
                     <div id="app">
-                        <Dashboard user="{{ auth()->user()->id }}" ></Dashboard>
+                        @HOME
                     </div>
 
                 </div>

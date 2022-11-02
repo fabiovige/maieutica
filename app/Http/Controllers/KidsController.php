@@ -121,12 +121,14 @@ class KidsController extends Controller
 
             $checklists = $kid->checklists()->orderBy('created_at', 'DESC')->get();
 
-            return view('kids.show', [
+            $data = [
                 'kid' => $kid,
                 'checklists' => $checklists,
                 'checklist_id' => $checklists[0]->id,
                 'level' => $checklists[0]->level
-            ]);
+            ];
+
+            return view('kids.show', $data);
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Show Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -192,67 +194,75 @@ class KidsController extends Controller
 
     public function pdfPlane($id)
     {
-        $plane = Plane::findOrFail($id);
-        $kid_id = $plane->kid()->first()->id;
-        $kid = Kid::findOrFail($kid_id);
-        $nameKid = $plane->kid()->first()->name;
-        $therapist = $kid->user()->first()->name;
-        $date = $plane->first()->created_at;
-        $arr = [];
+        try {
+            $plane = Plane::findOrFail($id);
+            $kid_id = $plane->kid()->first()->id;
+            $kid = Kid::findOrFail($kid_id);
+            $nameKid = $plane->kid()->first()->name;
+            $therapist = $kid->user()->first()->name;
+            $date = $plane->first()->created_at;
+            $arr = [];
 
-        foreach ($plane->competences()->get() as $c => $competence) {
-            $initial = $competence->domain()->first()->initial;
-            $arr[$initial]['domain'] = $competence->domain()->first();
-            $arr[$initial]['competences'][] = $competence;
-        }
+            foreach ($plane->competences()->get() as $c => $competence) {
+                $initial = $competence->domain()->first()->initial;
+                $arr[$initial]['domain'] = $competence->domain()->first();
+                $arr[$initial]['competences'][] = $competence;
+            }
 
-        $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+            $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-        $this->preferences($pdf, $nameKid, $therapist, $plane->id, $date->format('d/m/Y H:i:s'));
+            $this->preferences($pdf, $nameKid, $therapist, $plane->id, $date->format('d/m/Y H:i:s'));
 
-        $totalDomain = count($arr);
-        $countDomain = 1;
-        $countCompetences = 1;
+            $totalDomain = count($arr);
+            $countDomain = 1;
+            $countCompetences = 1;
 
-        foreach ($arr as $initial => $v) {
+            foreach ($arr as $initial => $v) {
 
-            $pdf->Ln(5);
-            $pdf->SetFont('helvetica', 'B', 14);
+                $pdf->Ln(5);
+                $pdf->SetFont('helvetica', 'B', 14);
 
-            // Domain
-            $domain = $v['domain']->name . ' ' . $countDomain;
-            $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
+                // Domain
+                $domain = $v['domain']->name;
+                $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
 
-            foreach ($v['competences'] as $k => $competence) {
+                foreach ($v['competences'] as $k => $competence) {
 
-                if ($countCompetences == 8) {
+                    if ($countCompetences == 7) {
+                        $pdf->AddPage();
+                    }
+                    $countCompetences++;
+
+                    $pdf->Ln(5);
+                    $pdf->SetFont('helvetica', 'B', 10);
+                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
+                    $pdf->Ln(5);
+                    $pdf->Write(0, $txt, '', 0, 'L', true);
+
+                    $pdf->Ln(1);
+                    $pdf->SetFont('helvetica', 'I', 8);
+                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
+
+
+                    $pdf->Ln(4);
+                    $pdf->SetFont('helvetica', '', 9);
+                    $etapas = "Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____";
+                    $pdf->Write(0, $etapas, '', 0, 'L', true);
+                }
+                ++$countDomain;
+                if ($countDomain <= $totalDomain) {
                     $pdf->AddPage();
                 }
-                $countCompetences++;
-
-                $pdf->Ln(5);
-                $pdf->SetFont('helvetica', 'B', 10);
-                $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
-                $pdf->Ln(5);
-                $pdf->Write(0, $txt, '', 0, 'L', true);
-
-                $pdf->Ln(1);
-                $pdf->SetFont('helvetica', 'I', 8);
-                $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
-
-
-                $pdf->Ln(4);
-                $pdf->SetFont('helvetica', '', 9);
-                $etapas = "Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____";
-                $pdf->Write(0, $etapas, '', 0, 'L', true);
             }
-            ++$countDomain;
-            if ($countDomain <= $totalDomain) {
-                $pdf->AddPage();
-            }
+
+            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
+        } catch (Exception $e) {
+            flash(self::MSG_NOT_FOUND)->warning();
+            $message = label_case('Plane Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
+
+            return redirect()->route('kids.index');
         }
-
-        $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
     }
 
     private function preferences(&$pdf, $nameKid, $therapist, $plane_id, $date)

@@ -16,7 +16,7 @@
         </a>
     </li> --}}
 
-    @can('kids.index', 'users.index', 'checklists.index', 'responsible.index', 'roles.index')
+    @can('kids.index', 'checklists.index', 'responsible.index')
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false">
@@ -24,44 +24,61 @@
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 
-                @can('users.index')
-                <li>
-<a class="dropdown-item @if (request()->is('users*')) active @endif" aria-current="page"
-                        href="{{ route('users.index') }}">Usuários</a>
-                </li>
-                @endcan
-
-                @can('roles.index')
-                <li>
-
-                    <a class="dropdown-item @if (request()->is('roles*')) active @endif" aria-current="page"
-                        href="{{ route('roles.index') }}">Permissões</a>
-
-                </li>
-                @endcan
-
                 @can('responsibles.index')
-                <li>
-                    <a class="dropdown-item @if (request()->is('responsibles*')) active @endif" aria-current="page"
-                        href="{{ route('responsibles.index') }}">Pais ou responsável</a>
-                </li>
+                    <li>
+                        <a class="dropdown-item @if (request()->is('responsibles*')) active @endif" aria-current="page"
+                            href="{{ route('responsibles.index') }}">Responsáveis</a>
+                    </li>
                 @endcan
 
                 @can('kids.index')
-                <li>
-                    <a class="dropdown-item @if (request()->is('kids*')) active @endif" aria-current="page"
-                        href="{{ route('kids.index') }}">Crianças</a>
-                <li>
-                @endcan
+                    <li>
+                        <a class="dropdown-item @if (request()->is('kids*')) active @endif" aria-current="page"
+                            href="{{ route('kids.index') }}">Crianças</a>
+                    <li>
+                    @endcan
 
-                @can('checklists.index')
-                <li>
-                    <a class="dropdown-item @if (request()->is('kids*')) checklists @endif" aria-current="page"
-                        href="{{ route('checklists.index') }}">Checklists</a>
-                <li>
-                @endcan
+                    @can('checklists.index')
+                    <li>
+                        <a class="dropdown-item @if (request()->is('kids*')) checklists @endif" aria-current="page"
+                            href="{{ route('checklists.index') }}">Checklists</a>
+                    <li>
+                    @endcan
             </ul>
         </li>
     @endcan
+
+
+
+
+    @can('users.index', 'roles.index')
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Configurações
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                @can('users.index')
+                    <li>
+                        <a class="dropdown-item @if (request()->is('users*')) active @endif" aria-current="page"
+                            href="{{ route('users.index') }}">Usuários</a>
+                    </li>
+                @endcan
+
+                @can('roles.index')
+                    <li>
+
+                        <a class="dropdown-item @if (request()->is('roles*')) active @endif" aria-current="page"
+                            href="{{ route('roles.index') }}">Papéis</a>
+
+                    </li>
+                @endcan
+
+            </ul>
+        </li>
+    @endcan
+
+
 
 </ul>

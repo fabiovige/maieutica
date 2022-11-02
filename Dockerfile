@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.1.0-fpm
 
 ARG user
 ARG uid
@@ -29,7 +29,7 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get install nodejs -y
 
 # Create system user to run Composer and Artisan Commands
