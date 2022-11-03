@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +16,7 @@
     @stack('styles')
 
 </head>
+
 <body>
     <div class="pagewrap">
 
@@ -38,9 +40,9 @@
             <div class="container">
                 <div class="row  py-4 d-flex justify-content-center">
                     <p class="small text-center mb-0 mt-4">
-                        &copy; {{ now()->format('Y') }} {{ config('app.name') }} {{ config('app.description') }}
+                        &copy; {{ now()->format('Y') }} {{ config('app.name') }} - {{ config('app.description') }}
                         <br>
-                        v{{ config('app.version') }}
+                        {{ config('app.version') }}
                     </p>
                 </div>
             </div>
@@ -53,4 +55,5 @@
     @stack('scripts')
 
 </body>
+
 </html>

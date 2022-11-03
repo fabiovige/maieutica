@@ -22,7 +22,16 @@
                     @endif
 
                     <div id="app">
-                        @HOME
+                        <div class="row">
+
+                            @foreach ($kids as $kid)
+                                <div class="col">
+                                    <Resumekid :responsible="{{ $kid->responsible()->first() }}" :kid="{{ $kid }}">
+                                    </Resumekid>
+                                </div>
+                            @endforeach
+
+                        </div>
                     </div>
 
                 </div>

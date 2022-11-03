@@ -61,10 +61,10 @@ import Checklists from './components/Checklists'
 import Charts from './components/Charts'
 import Planes from './components/Planes'
 import Dashboard from './components/Dashboard'
-// import KidProfile from './components/KidProfile'
 import Select2 from 'vue3-select2-component'
 import VueSweetalert2 from "vue-sweetalert2"
 import Resume from "./components/Resume"
+import Resumekid from "./components/Resumekid"
 
 const app = createApp({
     setup() {
@@ -79,5 +79,6 @@ app.component('Charts', Charts)
 app.component('Planes', Planes)
 app.component('Dashboard', Dashboard)
 app.component('Resume', Resume)
+app.component('Resumekid', Resumekid)
 app.component('Select2', Select2)
 app.mount('#app')

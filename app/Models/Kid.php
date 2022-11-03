@@ -55,4 +55,22 @@ class Kid extends BaseModel
         });
     }
 
+    public static function getKids()
+    {
+        $data = null;
+        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
+            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id', 'responsible_id');
+        } else {
+            $data = Kid::select('id', 'name', 'birth_date', 'user_id', 'responsible_id');
+            $data->where('created_by', '=', auth()->user()->id);
+            $data->orWhere('user_id', '=', auth()->user()->id);
+
+            $responsible = Responsible::where("user_id", '=', auth()->user()->id)->first();
+            if ($responsible) {
+                $data->orWhere('responsible_id',  '=', $responsible->id);
+            }
+        }
+        return $data;
+    }
+
 }

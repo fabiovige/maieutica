@@ -1,6 +1,7 @@
 ssh -p 22 fabiov88@162.241.203.7
+pass: T91j67fuRi
 
-APP_NAME="Maiêutica"
+APP_NAME="Maiêutica"exit
 APP_DESCRIPTION="clínica psicológica e terapias associadas "
 APP_ENV=production
 APP_KEY=base64:OEFUba8Sh/nwSmBUSocfaVq8fqFPmGn7hfzMdg19Ovc=
