@@ -18,16 +18,6 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        if (! Schema::hasTable('abilities')) {
-            return null;
-        }
-
-        // Gate::before(function (User $user) {
-        //     if ($user->isSuperAdmin()) {
-        //         return true;
-        //     }
-        // });
-
         Gate::before(function ($user, $ability) {
             if($user->isSuperAdmin() || $user->isAdmin()){
                 return true;
@@ -35,8 +25,8 @@ class AuthServiceProvider extends ServiceProvider
                 return null;
             }
         });
-        $abilities = Ability::all();
 
+        $abilities = Ability::all();
         foreach ($abilities as $ability) {
             Gate::define($ability->ability, function (User $user) use ($ability) {
                 return $ability->roles->contains($user->role);
