@@ -5,26 +5,34 @@
             <h5 class="my-3">{{ kid.name }}</h5>
             <div class="text-muted mb-1">Data de Nasc.: {{ kid.birth_date }}</div>
             <div class="d-flex justify-content-center mb-2">
-                <span class="badge bg-success ms-2"><i class="bi bi-check"></i> Checklist</span>
-                <span class="badge bg-danger ms-2"><i class="bi bi-check"></i> Plano</span>
-                <span class="badge bg-warning ms-2 text-dark"><i class="bi bi-check"></i> Warning</span>
-                <span class="badge bg-info ms-2 text-dark"><i class="bi bi-check"></i> Info</span>
+                <span class="badge bg-success ms-2"><i class="bi bi-check"></i> Checklist - {{ countChecklists }}</span>
+                <span class="badge bg-danger ms-2"><i class="bi bi-check"></i> Plano - {{ countPlanes }}</span>
             </div>
+            {{ countChecklists }}
         </div>
     </div>
 </template>
 
 <script>
-import { onMounted, watch, ref, inject } from "vue";
+import { onMounted, ref } from "vue";
 
 export default {
     name: "Resumekid",
-    props: ["kid", "responsible"],
+    props: {
+        kid: Object,
+        responsible: Object,
+        countChecklists: Number,
+        countPlanes: Number,
+    },
     setup(props) {
         const kid = ref(props.kid);
         const responsible = ref(props.responsible);
+        const checklist = ref(props.countChecklists);
+        const plane = ref(props.countPlanes);
 
-        onMounted(() => { });
+        onMounted(() => {
+            console.log(checklist)
+        });
 
         function selectKid() {
             alert("teste");
@@ -32,7 +40,7 @@ export default {
 
         return {
             kid,
-            responsible,
+            responsible, checklist, plane,
             selectKid,
         };
     },

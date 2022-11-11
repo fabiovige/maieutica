@@ -14,9 +14,12 @@ class HomeController extends Controller
     public function index()
     {
         $kids = Kid::getKids();
-        $data = [
-            'kids' => $kids->get()
-        ];
+        $data = [];
+        foreach($kids->get() as $kid) {
+            $data['countChecklists'][$kid->id] = $kid->checklists()->count();
+            $data['countPlanes'][$kid->id] = $kid->planes()->count();
+        }
+        $data['kids'] = $kids->get();
         return view('home', $data);
     }
 }
