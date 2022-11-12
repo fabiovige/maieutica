@@ -137,10 +137,10 @@ import 'vue3-loading-overlay/dist/vue3-loading-overlay.css';
 
 export default {
     name: "Planes",
-    props: ['checklists', 'checklist_id', 'kid_id'],
+    props: ['checklists', 'checklist_id', 'kid_id', "app_url"],
     components: { Loading },
     setup(props) {
-
+        const app_url = ref(props.app_url)
         const checklist_id = ref(props.checklist_id)
         const checklists = ref(props.checklists)
         const kid_id = ref(props.kid_id)
@@ -150,21 +150,6 @@ export default {
         const { planes, getPlanes, plane, plane_id, getPlane, isLoadingPlane,
             getCompetences, createPlanes, destroyCompetencePlane, newPlane
         } = usePlanes()
-
-        // const cyrb53 = (str, seed = 0) => {
-        //     let h1 = 0xdeadbeef ^ seed,
-        //         h2 = 0x41c6ce57 ^ seed;
-        //     for (let i = 0, ch; i < str.length; i++) {
-        //         ch = str.charCodeAt(i);
-        //         h1 = Math.imul(h1 ^ ch, 2654435761);
-        //         h2 = Math.imul(h2 ^ ch, 1597334677);
-        //     }
-
-        //     h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-        //     h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-
-        //     return 4294967296 * (2097151 & h2) + (h1 >>> 0);
-        // };
 
         onMounted(() => {
             getChecklist(checklist_id.value)
@@ -193,7 +178,8 @@ export default {
         }
 
         function viewPdfPlane() {
-            window.open("http://maieutica.test/kids/"+plane.value.id+"/pdfplane", '_blank');
+            //alert(this.app_url)
+            //window.open(this.APP_URL + "/kids/" + plane.value.id + "/pdfplane", '_blank');
         }
 
         return {

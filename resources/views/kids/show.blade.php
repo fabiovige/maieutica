@@ -61,7 +61,7 @@
                                 </Checklists>
                             </div>
                             <div class="tab-pane fade" id="nav-plane" role="tabpanel" aria-labelledby="nav-plane-tab">
-                                <Planes :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"
+                                <Planes :app_url={{ config('app.url') }} :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"
                                     :kid_id="{{ $kid->id }}"></Planes>
                             </div>
                         </div>

@@ -35,7 +35,8 @@ export default {
         });
 
         function selectKid() {
-            alert("teste");
+            alert('teste2')
+            //window.open(APP_URL + "/kids/" + this.kid.id);
         }
 
         return {
