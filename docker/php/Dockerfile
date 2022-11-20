@@ -16,11 +16,6 @@ RUN docker-php-ext-configure gd --with-gd --with-freetype-dir=/usr/include/ --wi
 RUN docker-php-ext-install gd
 RUN docker-php-ext-install -j$(nproc) xmlrpc
 
-# SSH
-RUN mkdir ~/.ssh
-RUN echo 'IdentityFile ~/.ssh/id_rsa' > ~/.ssh/config
-RUN ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
-
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
