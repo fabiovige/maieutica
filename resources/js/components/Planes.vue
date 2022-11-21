@@ -140,7 +140,6 @@ export default {
     props: ['checklists', 'checklist_id', 'kid_id', "app_url"],
     components: { Loading },
     setup(props) {
-        const app_url = ref(props.app_url)
         const checklist_id = ref(props.checklist_id)
         const checklists = ref(props.checklists)
         const kid_id = ref(props.kid_id)
@@ -179,7 +178,7 @@ export default {
 
         function viewPdfPlane() {
             //alert(this.app_url)
-            //window.open(this.APP_URL + "/kids/" + plane.value.id + "/pdfplane", '_blank');
+            window.open("/kids/" + plane.value.id + "/pdfplane", '_blank');
         }
 
         return {
