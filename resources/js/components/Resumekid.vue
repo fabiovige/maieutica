@@ -31,12 +31,10 @@ export default {
         const plane = ref(props.countPlanes);
 
         onMounted(() => {
-            console.log(checklist)
         });
 
         function selectKid() {
-            alert('teste2')
-            //window.open(APP_URL + "/kids/" + this.kid.id);
+            window.location.href = "/kids/" + this.kid.id;
         }
 
         return {
