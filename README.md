@@ -2,9 +2,11 @@
 
 ### Sistema de avaliação cognitiva
 
+#### INSTALAÇÃO
+
 Colocar no etc/hosts de sua máquina:
 ```
-127.0.0.1 project.test
+127.0.0.1 maieutica.test
 ```
 
 Copiar o .env.example e alterar as variáveis de ambiente:
@@ -12,41 +14,64 @@ Copiar o .env.example e alterar as variáveis de ambiente:
 cp .env.example .env
 ```
 
-Criar as imagens e containers do docker:
+Habilitando permissões
 ```
-docker-compose up -d --build
-```
-
-Entrar no container para rodar composer e etc do projeto:
-```
-docker-compose exec app bash
+sudo chown -R $USER:$USER && maieutica.test
+sudo chmod 777 -R storage && chmod 777 bootstrap && chmod 777 resources
 ```
 
-Rodar o composer, dentro do container:
+Abilitando reescrita de url no apache2
 ```
-rm -rf vendor && composer install
-```
-
-Gerar a chave do laravel, dentro do container:
-```
-php artisan key:generate
+sudo a2enmod rewrite
 ```
 
-Rodar as migrations e os seeders, dentro do container:
+Em seguida, edite o arquivo /etc/apache2/apache2.conf e procure pelo seguinte trecho:
 ```
-php artisan migrate --seed
+<Directory /var/www/>
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
+```
+
+VHOSTS
+######################################
+
+Clonando o projeto
+```
+cd /var/www
+git clone git@github.com:fabiovige/maieutica.git maieutica.test
+```
+
+Adicionando mais as permissões
+```
+sudo chown -R $USER:$USER /var/www/maieutica.test
+sudo chmod -R 755 /var/www
+```
+
+Criando virtualhost
+```
+sudo nano /etc/apache2/sites-available/maieutica.test.conf
+
+<VirtualHost *:80>
+    ServerName maieutica.test
+    DocumentRoot /var/www/maieutica.test/public
+</VirtualHost>
+```
+
+Habilitando virtualhost
+```
+sudo a2ensite maieutica.test.conf
+sudo systemctl restart apache2
 ```
 
 ```
-Ajustar as permissões, dentro do container:
-```
-chmod -R 777 storage && chmod -R 777 bootstrap/cache
-```
-
-Instalar o npm, dentro do container:
-```
-rm -rf node_modules && npm install && npm run dev
+Desabilitando virtualhost
+sudo a2dissite maieutica.test.conf
+sudo systemctl restart apache2
 ```
 
-Acessar a aplicação via browser:
-http://project.test
+Acesse:
+http://maieutica.test
+
+
