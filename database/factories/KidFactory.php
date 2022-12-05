@@ -18,9 +18,9 @@ class KidFactory extends Factory
      */
     public function definition()
     {
-        $date = $this->faker->randomElement(['01/01/2020', '31/12/2021']);
+        $date = $this->faker->randomElement(['01/01/2019', '31/12/2021']);
 
-        $user = User::pluck('id');
+        $user = User::whereNotIn('id',[1,2])->pluck('id');
         $responsible = Responsible::pluck('id');
 
         return [
@@ -28,7 +28,7 @@ class KidFactory extends Factory
             'birth_date' => $date,
             'user_id' => $user->random(),
             'responsible_id' => $responsible->random(),
-            'created_by' => 1,
+            'created_by' => 2,
         ];
     }
 }

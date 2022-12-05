@@ -4,18 +4,17 @@
       <div class="col-lg-4">
         <div class="card mb-4">
           <div class="card-body text-center">
-            <img
-              src=""
-              alt="{{ kid.name }}"
-              class="rounded-circle img-fluid"
-              style="width: 150px"
-            />
             <h5 class="my-3">{{ kid.name }}</h5>
-            <p class="text-muted mb-1">Data de Nasc.: {{ kid.birth_date }}</p>
-            <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
-            <div class="d-flex justify-content-center mb-2">
-              <button type="button" class="btn btn-sm btn-success">Checklists</button>
-              <button type="button" class="btn btn-sm btn-secondary ms-2">Planos</button>
+            <p class="text-muted mb-1"> {{ kid.months }} meses {{ kid.birth_date }} - Cod. {{ kid.id }}</p>
+            <div class="d-flex justify-content-center mt-3">
+                <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Checklist
+                    <span class="badge rounded-pill bg-dark">{{ checklist }}</span>
+                </span>
+                <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Plano
+                    <span class="badge rounded-pill bg-dark">{{ plane }}</span>
+                </span>
+
+
             </div>
           </div>
         </div>
@@ -52,10 +51,12 @@
             <hr />
             <div class="row">
               <div class="col-sm-3">
-                <p class="mb-0">Endereço</p>
+                <p class="mb-0">Terapeuta</p>
               </div>
               <div class="col-sm-9">
-                <p class="text-muted mb-0">?</p>
+                <p class="text-muted mb-0">
+                    {{ kid.profession }}
+                </p>
               </div>
             </div>
           </div>
@@ -72,14 +73,23 @@ import "vue3-loading-overlay/dist/vue3-loading-overlay.css";
 
 export default {
   name: "Resume",
-  props: ["kid", "responsible"],
+  props: {
+        kid: Object,
+        responsible: Object,
+        checklist: Number,
+        plane: Number,
+    },
   setup(props) {
     const fullPage = ref(true);
     const kid = ref(props.kid);
     const responsible = ref(props.responsible);
+    const checklist = ref(props.checklist);
+    const plane = ref(props.plane);
+
     onMounted(() => {});
+
     return {
-      kid,
+      kid,checklist, plane,
       responsible,
       fullPage,
     };

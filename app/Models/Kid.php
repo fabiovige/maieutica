@@ -13,7 +13,8 @@ class Kid extends BaseModel
         'responsible_id',
         'created_by',
         'updated_by',
-        'deleted_by'
+        'deleted_by',
+        'months'
     ];
 
     public function user()
@@ -72,5 +73,15 @@ class Kid extends BaseModel
         }
         return $data;
     }
+
+    public function getMonthsAttribute()
+    {
+        $now = Carbon::now();
+        $dt = Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d');
+        return $now->diffInMonths($dt);
+    }
+
+
+
 
 }

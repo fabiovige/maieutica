@@ -15,6 +15,7 @@ class Role extends Model
     public const ROLE_SUPER_ADMIN = 1;
     public const ROLE_ADMIN = 2;
     public const ROLE_PAIS = 3;
+    public const ROLE_PROFESSION = 4;
 
     public function users()
     {

@@ -63,9 +63,9 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 mt-3">
-                                    <label for="responsability_user_id">Pais ou responsável</label> <br>
+                                    <label for="responsible_id">Pais ou responsável</label> <br>
 
-                                    <select class="form-select @error('responsability_user_id') is-invalid @enderror"
+                                    <select class="form-select @error('responsible_id') is-invalid @enderror"
                                     aria-label="responsible_id" name="responsible_id">
                                         <option value="">-- selecione --</option>
                                         @foreach($responsibles as $responsible)
@@ -75,7 +75,7 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('responsability_user_id')
+                                    @error('responsible_id')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>

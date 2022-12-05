@@ -36,5 +36,27 @@ class UserSeeder extends Seeder
         ]);
         $user2->role()->associate(2);
         $user2->save();
+
+        $user3 = User::create([
+            'name' => 'Flávia',
+            'email' => 'flavia@gmail.com',
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'remember_token' => Str::random(10),
+            'created_by' => 2,
+        ]);
+        $user3->role()->associate(4);
+        $user3->save();
+
+        $user3 = User::create([
+            'name' => 'João Pedro',
+            'email' => 'joaopedro@gmail.com',
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'remember_token' => Str::random(10),
+            'created_by' => 2,
+        ]);
+        $user3->role()->associate(4);
+        $user3->save();
     }
 }

@@ -26,11 +26,11 @@ class AuthServiceProvider extends ServiceProvider
             }
         });
 
-        // $abilities = Ability::all();
-        // foreach ($abilities as $ability) {
-        //     Gate::define($ability->ability, function (User $user) use ($ability) {
-        //         return $ability->roles->contains($user->role);
-        //     });
-        // }
+        $abilities = Ability::all();
+        foreach ($abilities as $ability) {
+            Gate::define($ability->ability, function (User $user) use ($ability) {
+                return $ability->roles->contains($user->role);
+            });
+        }
     }
 }

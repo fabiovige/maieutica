@@ -57,10 +57,14 @@ class KidsController extends Controller
                 return '<span class="badge bg-success"><i class="bi bi-check"></i> ' . $data->checklists->count() . ' Checklist(s) </span>';
             })
             ->editColumn('user_id', function ($data) {
-                return $data->user->name;
+                if($data->user_id) {
+                    return $data->user->name;
+                }
             })
             ->editColumn('responsible_id', function ($data) {
-                return '?';
+                if($data->responsible_id) {
+                    return $data->responsible->name;
+                }
             })
             ->rawColumns(['name', 'checklists', 'user_id', 'responsible_id', 'action'])
             ->orderColumns(['id'], '-:column $1')
@@ -99,6 +103,7 @@ class KidsController extends Controller
     public function show(Kid $kid)
     {
         try {
+
             $message = label_case('Show Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
@@ -108,12 +113,16 @@ class KidsController extends Controller
             }
 
             $checklists = $kid->checklists()->orderBy('created_at', 'DESC')->get();
-
+            $kid->months = $kid->months;
+            $kid->profession = $kid->user->name;
             $data = [
                 'kid' => $kid,
+                'profession' => $kid->user->name,
                 'checklists' => $checklists,
                 'checklist_id' => $checklists[0]->id,
-                'level' => $checklists[0]->level
+                'level' => $checklists[0]->level,
+                'countChecklists' => $kid->checklists()->count(),
+                'countPlanes' => $kid->planes()->count(),
             ];
 
             return view('kids.show', $data);
@@ -151,6 +160,7 @@ class KidsController extends Controller
             Log::info($message);
 
             $data = $request->all();
+
             $kid->update($data);
             flash(self::MSG_UPDATE_SUCCESS)->success();
             return redirect()->route('kids.index');
@@ -199,13 +209,15 @@ class KidsController extends Controller
 
             $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-            $this->preferences($pdf, $nameKid, $therapist, $plane->id, $date->format('d/m/Y H:i:s'));
+            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'));
 
             $totalDomain = count($arr);
             $countDomain = 1;
-            $countCompetences = 1;
+
 
             foreach ($arr as $initial => $v) {
+                $countCompetences = 1;
+                $pdf->AddPage();
 
                 $pdf->Ln(5);
                 $pdf->SetFont('helvetica', 'B', 14);
@@ -216,8 +228,9 @@ class KidsController extends Controller
 
                 foreach ($v['competences'] as $k => $competence) {
 
-                    if ($countCompetences == 7) {
+                    if ($countCompetences == 8) {
                         $pdf->AddPage();
+                        $countCompetences = 1;
                     }
                     $countCompetences++;
 
@@ -237,10 +250,10 @@ class KidsController extends Controller
                     $etapas = "Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____";
                     $pdf->Write(0, $etapas, '', 0, 'L', true);
                 }
-                ++$countDomain;
-                if ($countDomain <= $totalDomain) {
-                    $pdf->AddPage();
-                }
+//                ++$countDomain;
+//                if ($countDomain < $totalDomain) {
+//                    $pdf->AddPage();
+//                }
             }
 
             $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
@@ -253,7 +266,7 @@ class KidsController extends Controller
         }
     }
 
-    private function preferences(&$pdf, $nameKid, $therapist, $plane_id, $date)
+    private function preferences(&$pdf, $kid, $therapist, $plane_id, $date)
     {
         $preferences = array(
             'HideToolbar' => true,
@@ -276,15 +289,20 @@ class KidsController extends Controller
 
         $pdf->setViewerPreferences($preferences);
         $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 16);
-        $pdf->Cell(0, 15, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
-        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetFont('helvetica', '', 18);
+        $pdf->Cell(0, 75, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
+        $pdf->SetFont('helvetica', '', 12);
         $txt = 'Terapeuta: ' . $therapist . ',  Data: ' . $date;
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
-        $pdf->Ln(10);
-        $pdf->SetFont('helvetica', '', 16);
-        $pdf->Write(0, $nameKid, '', 0, 'L', true, 0, false, false, 0);
+        $pdf->Ln(15);
+        $pdf->SetFont('helvetica', '', 18);
+        $pdf->Write(0, $kid->name , '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(2);
+
+        $pdf->SetFont('helvetica', '', 18);
+        $pdf->Write(0, $kid->months . ' meses'  , '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(3);
+
         $pdf->SetFont('helvetica', '', 14);
     }
 }

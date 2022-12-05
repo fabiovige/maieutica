@@ -19,7 +19,7 @@ class ChecklistSeeder extends Seeder
         $kid = Kid::pluck('id');
 
         // checklists
-        foreach([1,2,3,4,5,6,7] as $c => $v) {
+        foreach([1,2] as $c => $v) {
 
             // levels
             $indice = 4;

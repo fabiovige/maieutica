@@ -16,7 +16,7 @@ cp .env.example .env
 
 Habilitando permissões
 ```
-sudo chown -R $USER:$USER && maieutica.test
+sudo chown -R $USER:$USER maieutica.test
 sudo chmod 777 -R storage && chmod 777 bootstrap && chmod 777 resources
 ```
 

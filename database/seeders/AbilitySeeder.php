@@ -44,5 +44,8 @@ class AbilitySeeder extends Seeder
 
         $role = Role::find(Role::ROLE_PAIS);
         $role->abilities()->sync([5,8,13]);
+
+        $role = Role::find(Role::ROLE_PROFESSION);
+        $role->abilities()->sync([5,6,7,8,13,14,15,16,17,18,19,20,21]);
     }
 }

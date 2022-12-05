@@ -48,7 +48,13 @@
                                 aria-labelledby="nav-profile-tab">
 
                                 {{-- <Dashboard user="{{ auth()->user()->id }}"></Dashboard> --}}
-                                <Resume :responsible="{{ $kid->responsible()->first() }}" :kid="{{ $kid }}">
+                                {{-- <Resume :responsible="{{ $kid->responsible()->first() }}" :kid="{{ $kid }}">
+                                </Resume> --}}
+                                <Resume :responsible="{{ $kid->responsible()->first() }}"
+                                    :kid="{{ $kid }}"
+                                    :checklist="{{ $countChecklists }}"
+                                    :plane="{{ $countPlanes }}"
+                                >
                                 </Resume>
                             </div>
                             <div class="tab-pane fade show" id="nav-charts" role="tabpanel"

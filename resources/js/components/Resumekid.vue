@@ -1,14 +1,12 @@
 <template>
     <div class="card mb-4">
         <div class="card-body shadown text-center mousePointer" @click.prevent="selectKid()">
-            <img src="" alt="{{ kid.name }}" class="rounded-circle img-fluid" style="width: 150px" />
-            <h5 class="my-3">{{ kid.name }}</h5>
-            <div class="text-muted mb-1">Data de Nasc.: {{ kid.birth_date }}</div>
-            <div class="d-flex justify-content-center mb-2">
-                <span class="badge bg-success ms-2"><i class="bi bi-check"></i> Checklist - {{ countChecklists }}</span>
-                <span class="badge bg-danger ms-2"><i class="bi bi-check"></i> Plano - {{ countPlanes }}</span>
+            <h5 class="mt-3">{{ kid.name }}</h5>
+            <div class="text-muted mb-1">{{ kid.months }} meses - {{ kid.birth_date }} - Cod: {{ kid.id }}</div>
+            <div class="d-flex justify-content-center mt-3">
+                <span class="badge bg-success ms-2"><i class="bi bi-check"></i> Checklist - {{ checklist }}</span>
+                <span class="badge bg-danger ms-2"><i class="bi bi-check"></i> Plano - {{ plane }}</span>
             </div>
-            {{ countChecklists }}
         </div>
     </div>
 </template>
@@ -21,14 +19,14 @@ export default {
     props: {
         kid: Object,
         responsible: Object,
-        countChecklists: Number,
-        countPlanes: Number,
+        checklist: Number,
+        plane: Number,
     },
     setup(props) {
         const kid = ref(props.kid);
         const responsible = ref(props.responsible);
-        const checklist = ref(props.countChecklists);
-        const plane = ref(props.countPlanes);
+        const checklist = ref(props.checklist);
+        const plane = ref(props.plane);
 
         onMounted(() => {
         });
