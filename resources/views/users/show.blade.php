@@ -10,10 +10,6 @@
     </nav>
 @endsection
 
-@section('button')
-    <x-button href="{{route('users.index', $user->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
-@endsection
-
 @section('content')
 
     <div class="row">

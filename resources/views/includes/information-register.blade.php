@@ -9,8 +9,8 @@
 
 @can($action)
     <div class="row">
-        <div class="col-md-12 mt-2">
-            <form class="d-flex justify-content-end" action="{{ route($action, $data->id) }}" name="form-delete" method="post">
+        <div class="col-md-12 mt-5">
+            <form class="d-flex justify-content-start" action="{{ route($action, $data->id) }}" name="form-delete" method="post">
                 @csrf
                 @method('DELETE')
                 <x-button icon="trash" name="Enviar para lixeira" type="submit" class="danger form-delete"></x-button>

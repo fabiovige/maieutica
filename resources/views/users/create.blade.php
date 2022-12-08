@@ -10,10 +10,6 @@
     </nav>
 @endsection
 
-@section('button')
-    <x-button href="{{ route('users.index') }}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
-@endsection
-
 @section('content')
     <form action="{{ route('users.store') }}" method="post">
         @csrf
@@ -93,8 +89,8 @@
                         </div>
                     </div>
 
-                    <div class="card-footer">
-                        <x-button icon="save" name="Salvar" type="submit" class="dark"></x-button>
+                    <div class="card-footer d-flex justify-content-end">
+                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                     </div>
                 </div>
 

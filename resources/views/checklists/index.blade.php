@@ -13,7 +13,7 @@
 
 @section('button')
     @can('checklists.store')
-        <x-button href="{{route('checklists.create')}}" icon="plus" name="Cadastrar" type="link" class="dark"></x-button>
+        <x-button href="{{route('checklists.create')}}" icon="plus" name="Novo" type="link" class="primary btn-sm"></x-button>
     @endcan
 @endsection
 

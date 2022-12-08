@@ -10,10 +10,6 @@
     </nav>
 @endsection
 
-@section('button')
-    <x-button href="{{route('kids.index', $kid->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
-@endsection
-
 @section('content')
 
     <div class="row">
@@ -84,9 +80,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer d-flex justify-content-between">
+                    <div class="card-footer d-flex justify-content-end">
                         @can('kids.store')
-                        <x-button icon="save" name="Salvar" type="submit" class="dark"></x-button>
+                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                         @endcan
                     </div>
                 </div>

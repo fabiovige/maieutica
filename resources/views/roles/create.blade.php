@@ -10,10 +10,6 @@
     </nav>
 @endsection
 
-@section('button')
-    <x-button href="{{route('roles.index')}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
-@endsection
-
 @section('content')
 
     <div class="row">
@@ -62,7 +58,7 @@
                                         <div class="card-header">{{ $resource->name }}</div>
                                         <div class="card-body">
                                             @foreach ( $resource->abilities as $ability )
-                                                
+
                                                 <div class="custom-control custom-checkbox">
                                                     <div class="form-check">
                                                         <input class="form-check-input permission-input"
@@ -73,11 +69,11 @@
                                                             @if($ability->id == old('abilities')) checked @endif
                                                         >
                                                         <label class="form-check-label" for="customCheck{{$ability->id}}">
-                                                            {{ $ability->name }} 
+                                                            {{ $ability->name }}
                                                         </label>
                                                     </div>
 
-                                                </div>                                    
+                                                </div>
                                             @endforeach
                                         </div>
                                     </div>
@@ -103,10 +99,8 @@
                         </div>
                     </div>
 
-                    <div class="card-footer">
-
-                        <x-button icon="save" name="Salvar" type="submit" class="dark"></x-button>
-
+                    <div class="card-footer d-flex justify-content-end">
+                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                     </div>
                 </div>
 

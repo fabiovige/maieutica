@@ -10,10 +10,6 @@
     </nav>
 @endsection
 
-@section('button')
-    <x-button href="{{route('checklists.show', $checklist_id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
-@endsection
-
 @section('content')
     <div class="row">
         <div class="col-md-12 ">

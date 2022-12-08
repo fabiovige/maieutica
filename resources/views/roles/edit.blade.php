@@ -10,10 +10,6 @@
     </nav>
 @endsection
 
-@section('button')
-    <x-button href="{{route('roles.index', $role->id)}}" icon="arrow-left" name="Voltar" type="link" class="dark"></x-button>
-@endsection
-
 @section('content')
 
     <div class="row">
@@ -80,8 +76,8 @@
 
                     </div>
 
-                    <div class="card-footer">
-                        <x-button icon="save" name="Salvar" type="submit" class="dark"></x-button>
+                    <div class="card-footer d-flex justify-content-end">
+                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                     </div>
 
                 </div>
