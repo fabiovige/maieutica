@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\KidRequest;
+use App\Jobs\SendKidUpdateJob;
 use App\Models\Kid;
 use App\Models\Plane;
 use App\Models\Responsible;
 use App\Models\User;
+use App\Notifications\KidUpdateNotification;
 use App\Util\MyPdf;
 use Exception;
 use Illuminate\Http\Request;
@@ -162,14 +164,17 @@ class KidsController extends Controller
             $data = $request->all();
 
             $kid->update($data);
+            SendKidUpdateJob::dispatch($kid)->onQueue('emails');
+
+
             flash(self::MSG_UPDATE_SUCCESS)->success();
             return redirect()->route('kids.index');
         } catch (Exception $e) {
-            flash(self::MSG_UPDATE_ERROR)->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            //flash(self::MSG_UPDATE_ERROR)->warning();
+            echo $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            //Log::error($message);
 
-            return redirect()->back();
+            //return redirect()->back();
         }
     }
 

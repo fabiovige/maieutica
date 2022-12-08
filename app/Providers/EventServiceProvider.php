@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Event;
 class EventServiceProvider extends ServiceProvider
 {
 
+    protected $observers = [
+        Kid::class => [ KidObserver::class ]
+    ];
+
     /**
      * The event listener mappings for the application.
      *

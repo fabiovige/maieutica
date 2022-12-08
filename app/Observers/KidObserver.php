@@ -27,7 +27,7 @@ class KidObserver
      */
     public function updated(Kid $kid)
     {
-
+        //dd('updated');
     }
 
     /**

@@ -71,6 +71,11 @@ sudo a2dissite maieutica.test.conf
 sudo systemctl restart apache2
 ```
 
+Filas
+```
+php artisan queue:work --queue=emails
+```
+
 Acesse:
 http://maieutica.test
 
