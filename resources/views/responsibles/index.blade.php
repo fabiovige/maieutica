@@ -79,7 +79,7 @@
                 },
                 {
                     data: 'cell',
-                    name: 'cell'
+                    name: 'cell',
                 },
                 {
                     data: 'action',

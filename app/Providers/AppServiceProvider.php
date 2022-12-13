@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\View\Components\Address;
 use App\View\Components\Button;
 use App\View\Components\Table;
 use Illuminate\Pagination\Paginator;
@@ -32,5 +33,6 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrap();
         Blade::component('button', Button::class);
         Blade::component('table', Table::class);
+        Blade::component('address', Address::class);
     }
 }

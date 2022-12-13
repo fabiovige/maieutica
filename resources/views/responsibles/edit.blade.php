@@ -70,6 +70,9 @@
                             </div>
                         </div>
 
+                        <!-- address-->
+                        <x-address :model="$responsible"></x-address>
+
                         <div class="row">
                             <div class="col-md-12">
                                 <h4 class="mt-4">Filhos(as)</h4>

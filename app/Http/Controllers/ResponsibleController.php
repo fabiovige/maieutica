@@ -67,6 +67,7 @@ class ResponsibleController extends Controller
         $responsible = new Responsible();
         $data = $request->all();
         $data['created_by'] = Auth::id();
+        
         $findUser = User::where('email', '=', $data['email']);
         if ($data['allow']) {
 

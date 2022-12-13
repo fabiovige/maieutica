@@ -10,7 +10,17 @@ class Responsible extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['id', 'user_id', 'name', 'email', 'cell', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = [
+        'id',
+        'user_id',
+        'name',
+        'email',
+        'cell',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+        'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'estado'
+    ];
 
     public function kids()
     {
@@ -20,6 +30,21 @@ class Responsible extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getCellAttribute($value)
+    {
+        return '(' . substr($value, 0, 2) . ') ' . substr($value, 2, 5) .'-'. substr($value, 7, 4);
+    }
+
+    public function setCellAttribute($value)
+    {
+        $value = str_replace('(', '', $value);
+        $value = str_replace(')', '', $value);
+        $value = str_replace('-', '', $value);
+        $value = str_replace(' ', '', $value);
+
+        $this->attributes['cell'] = $value;
     }
 
 }

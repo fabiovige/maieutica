@@ -13,21 +13,20 @@ class PlaneSeeder extends Seeder
     public function run()
     {
         // kid
-        $kid = Kid::pluck('id');
-
-        // planes
-        for ($i = 1; $i <= 4; $i++) {
-            $this->insertPlane($kid);
+        $arrKid = Kid::pluck('id');
+        foreach($arrKid as $key => $kid_id) {
+            $data = Kid::find($kid_id);
+            if($data->checklists()->count() > 0){
+                $this->insertPlane($kid_id);
+            }
         }
-
-
     }
 
-    public function insertPlane($kid)
+    public function insertPlane($kid_id)
     {
         // planes
         $plane = Plane::create([
-            'kid_id' => $kid->random(),
+            'kid_id' => $kid_id,
             'created_by' => 1
         ]);
 

@@ -78,6 +78,43 @@
                                     @enderror
                                 </div>
                             </div>
+
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h4 class="mt-4">Responsável</h4>
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Id</th>
+                                                <th>Nome</th>
+                                                <th>E-mail</th>
+                                                <th>Acesso liberado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        <tr>
+                                            <td>{{ $kid->responsible->id }}</td>
+                                            <td>{{ $kid->responsible->name }}</td>
+                                            <td>{{ $kid->responsible->email }}</td>
+                                            <td>
+                                                @if($kid->responsible->user_id)
+                                                    <span class="badge bg-primary"><i class="bi bi-emoji-smile"></i> Sim </span>
+                                                @else
+                                                    <span class="badge bg-info"><i class="bi bi-emoji-frown"></i> Não </span>
+                                                @endif
+
+                                            </td>
+                                        </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- end row ->
+
+
                         </div>
                     </div>
                     <div class="card-footer d-flex justify-content-end">

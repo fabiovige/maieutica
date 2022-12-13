@@ -70,6 +70,7 @@
                 {
                     data: 'role',
                     name: 'role',
+                    searchable: false
                 },
                 {
                     data: 'email',
@@ -78,6 +79,7 @@
                 {
                     data: 'allow',
                     name: 'allow',
+                    searchable: false
                 },
                 {
                     data: 'action',

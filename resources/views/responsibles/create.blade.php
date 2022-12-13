@@ -23,6 +23,7 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group">
+
                             <div class="row">
                                 <div class="mb-2 col-md-4">
                                     <label for="name">Nome</label> <br>
@@ -54,6 +55,10 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            <!-- address-->
+                            <x-address></x-address>
+
                         </div>
                     </div>
                     <div class="card-footer d-flex justify-content-end">
@@ -64,4 +69,55 @@
         </div>
     </div>
 @endsection
+
+{{--
+@push ('scripts')
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script type="text/javascript">
+
+        var zipCodeField = document.querySelector('#cep')
+        var submitButton = document.querySelector('#btnConsultarCep')
+
+        var logradouro = document.querySelector('#logradouro')
+        var bairro = document.querySelector('#bairro')
+        var cidade = document.querySelector('#cidade')
+        var estado = document.querySelector('#estado')
+        var numero = document.querySelector('#numero')
+
+        submitButton.addEventListener('click', run)
+
+        function run(event){
+            event.preventDefault();
+            var zipCode = zipCodeField.value
+            if(zipCode.length < 8){
+                zipCodeField.focus()
+                return ;
+            }
+            axios
+                .get('https://viacep.com.br/ws/' + zipCode + '/json/')
+                .then(function(response) {
+                    console.log(response.data)
+                    logradouro.value = response.data.logradouro
+                    bairro.value = response.data.bairro
+                    cidade.value = response.data.localidade
+                    estado.value = response.data.uf
+                    numero.focus()
+                })
+                .catch(function(error) {
+                    console.log(error)
+                })
+
+        }
+    </script>
+
+@endpush --}}
+
+
+
+
+
+
+
 

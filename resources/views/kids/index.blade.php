@@ -45,7 +45,6 @@
 
 @endsection
 
-
 @push ('styles')
     <link rel="stylesheet" href="{{ asset('vendor/datatable/datatables.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/datatable/responsive.bootstrap5.min.css') }}">
@@ -73,12 +72,13 @@
                 },
                 {
                     data: 'name',
-                    name: 'Nome'
+                    name: 'name'
                 },
                 {
                     data: 'birth_date',
-                    name: 'Data de nascimento',
+                    name: 'birth_date',
                     orderable: false,
+                    searchable: false
                 },
                 {
                     data: 'checklists',
@@ -89,10 +89,12 @@
                 {
                     data: 'user_id',
                     name: 'Terapeuta',
+                    searchable: false
                 },
                 {
                     data: 'responsible_id',
                     name: 'Pais ou responsável',
+                    searchable: false
                 },
                 {
                     data: 'action',

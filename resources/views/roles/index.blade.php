@@ -59,7 +59,6 @@
                     columns: [{
                             data: 'id',
                             name: 'id',
-                            searchable: true
                         },
                         {
                             data: 'name',
