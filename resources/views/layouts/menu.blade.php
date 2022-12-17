@@ -16,7 +16,7 @@
         </a>
     </li> --}}
 
-    @can('kids.index', 'checklists.index', 'responsible.index')
+    @can('kids.index', 'checklists.index', 'responsible.index', 'users.index', 'roles.index')
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false">
@@ -44,41 +44,24 @@
                             href="{{ route('checklists.index') }}">Checklists</a>
                     <li>
                     @endcan
-            </ul>
-        </li>
-    @endcan
 
-
-
-
-    @can('users.index', 'roles.index')
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                Configurações
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-
-                @can('users.index')
+                    @can('users.index')
                     <li>
                         <a class="dropdown-item @if (request()->is('users*')) active @endif" aria-current="page"
                             href="{{ route('users.index') }}">Usuários</a>
                     </li>
-                @endcan
+                    @endcan
 
-                @can('roles.index')
-                    <li>
+                    @can('roles.index')
+                        <li>
 
-                        <a class="dropdown-item @if (request()->is('roles*')) active @endif" aria-current="page"
-                            href="{{ route('roles.index') }}">Papéis</a>
+                            <a class="dropdown-item @if (request()->is('roles*')) active @endif" aria-current="page"
+                                href="{{ route('roles.index') }}">Papéis</a>
 
-                    </li>
-                @endcan
-
+                        </li>
+                    @endcan
             </ul>
         </li>
     @endcan
-
-
 
 </ul>

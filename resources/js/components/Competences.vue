@@ -131,7 +131,11 @@
                 </div>
             </div>
         </div>
-            <button class="btn btn-dark"><i class="bi bi-save"></i> Salvar</button>
+
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-success"><i class="bi bi-check"></i> Salvar</button>
+            </div>
+
         </form>
     </div>
 </template>
