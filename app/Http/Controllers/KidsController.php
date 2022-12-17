@@ -105,7 +105,6 @@ class KidsController extends Controller
     public function show(Kid $kid)
     {
         try {
-
             $message = label_case('Show Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
@@ -304,8 +303,8 @@ class KidsController extends Controller
         $pdf->Write(0, $kid->name , '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(2);
 
-        $pdf->SetFont('helvetica', '', 18);
-        $pdf->Write(0, $kid->months . ' meses'  , '', 0, 'C', true, 0, false, false, 0);
+        $pdf->SetFont('helvetica', '', 11);
+        $pdf->Write(0, $kid->FullNameMonths  , '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(3);
 
         $pdf->SetFont('helvetica', '', 14);

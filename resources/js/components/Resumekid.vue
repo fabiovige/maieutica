@@ -5,7 +5,7 @@
             <div class="text-muted mb-1">{{ kid.months }} meses - {{ kid.birth_date }} - Cod: {{ kid.id }}</div>
             <div class="d-flex justify-content-center mt-3">
                 <span class="badge bg-success ms-2"><i class="bi bi-check"></i> Checklist - {{ checklist }}</span>
-                <span class="badge bg-danger ms-2"><i class="bi bi-check"></i> Plano - {{ plane }}</span>
+                <span class="badge bg-success ms-2"><i class="bi bi-check"></i> Plano - {{ plane }}</span>
             </div>
         </div>
     </div>

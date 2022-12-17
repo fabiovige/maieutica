@@ -7,14 +7,8 @@
             <h5 class="my-3">{{ kid.name }}</h5>
             <p class="text-muted mb-1"> {{ kid.months }} meses {{ kid.birth_date }} - Cod. {{ kid.id }}</p>
             <div class="d-flex justify-content-center mt-3">
-                <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Checklist
-                    <span class="badge rounded-pill bg-dark">{{ checklist }}</span>
-                </span>
-                <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Plano
-                    <span class="badge rounded-pill bg-dark">{{ plane }}</span>
-                </span>
-
-
+                <span class="badge bg-success ms-2"><i class="bi bi-check"></i> Checklist - {{ checklist }}</span>
+                <span class="badge bg-success ms-2"><i class="bi bi-check"></i> Plano - {{ plane }}</span>
             </div>
           </div>
         </div>

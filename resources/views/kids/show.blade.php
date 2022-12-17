@@ -13,7 +13,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12 ">
-            <h5>{{ $kid->name }}. Nascido(a) em: {{ $kid->birth_date }}</h5>
+            <h5>{{ $kid->name }} - {{ $kid->FullNameMonths }}</h5>
         </div>
     </div>
 

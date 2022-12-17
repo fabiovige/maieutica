@@ -82,6 +82,13 @@ class Kid extends BaseModel
     }
 
 
+    public function getFullNameMonthsAttribute()
+    {
+        $now = Carbon::now();
+        $dt = Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d');
+        $month = $now->diffInMonths($dt);
 
+        return $month . ' meses - ' . $this->birth_date . ' - Cod. ' . $this->id;
+    }
 
 }
