@@ -33,7 +33,7 @@
                                 <th>Data de nascimento</th>
                                 <th>Checklists</th>
                                 <th>Terapeuta</th>
-                                <th>Pais ou responsável</th>
+                                <th>Responsáveis</th>
                                 <th style="width: 30px"></th>
                             </tr>
                         </thead>
@@ -93,7 +93,7 @@
                 },
                 {
                     data: 'responsible_id',
-                    name: 'Pais ou responsável',
+                    name: 'Responsáveis',
                     searchable: false
                 },
                 {

@@ -13,7 +13,7 @@ class ResourceSeeder extends Seeder
         ['name' => 'Crianças'],
         ['name' => 'Papéis'],
         ['name' => 'Checklists'],
-        ['name' => 'Pais ou responsável'],
+        ['name' => 'Responsáveis'],
     ];
 
     public function run()

@@ -4,7 +4,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('responsibles.index') }}">Pais ou responsável</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('responsibles.index') }}">Responsáveis</a></li>
             <li class="breadcrumb-item active" aria-current="page">Editar</li>
         </ol>
     </nav>

@@ -59,7 +59,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 mt-3">
-                                    <label for="responsible_id">Pais ou responsável</label> <br>
+                                    <label for="responsible_id">Responsáveis</label> <br>
 
                                     <select class="form-select @error('responsible_id') is-invalid @enderror"
                                     aria-label="responsible_id" name="responsible_id">
