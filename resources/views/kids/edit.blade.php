@@ -112,9 +112,6 @@
                                     </table>
                                 </div>
                             </div>
-                            <!-- end row ->
-
-
                         </div>
                     </div>
                     <div class="card-footer d-flex justify-content-end">

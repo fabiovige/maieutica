@@ -67,7 +67,7 @@ class ResponsibleController extends Controller
         $responsible = new Responsible();
         $data = $request->all();
         $data['created_by'] = Auth::id();
-        
+
         $findUser = User::where('email', '=', $data['email']);
         if ($data['allow']) {
 
@@ -120,16 +120,19 @@ class ResponsibleController extends Controller
             $user = User::where('email', '=', $data['email']);
 
             if (isset($data['allow'])) {
+
                 if ($user->count() > 0) {
+                    $this->emailDuplicate($data['email']);
                     $dataUser['allow'] = true;
                     $user->first()->update($dataUser);
                 } else {
-
                     // busca na lixeira e restaura
                     $userTrash = User::where('email', '=', $data['email'])->withTrashed();
                     if($userTrash->count()){
                         $userTrash->restore();
                     } else {
+                        // verifica se ja existe esse e-mail
+                        $this->emailDuplicate($data['email']);
                         $dataUser['name'] = $data['name'];
                         $dataUser['password'] = bcrypt('password');
                         $dataUser['email'] = $data['email'];
@@ -161,6 +164,16 @@ class ResponsibleController extends Controller
             return redirect()->back();
         }
 
+    }
+
+    private function emailDuplicate($email)
+    {
+        $userEmail = User::where('email', '=', $email)->get();
+        if($userEmail->count() > 0){
+            $msg = sprintf(self::MSG_ALREADY_EXISTS, $email);
+            flash($msg)->warning();
+            return redirect()->route('responsibles.index');
+        }
     }
 
     public function destroy(Responsible $responsible)
