@@ -18,6 +18,11 @@ class AclMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        if (!Auth::user()->allow) {
+            Auth::guard()->logout();
+            return $next($request);
+        }
+
         if (Auth::user()->isSuperAdmin()) {
             return $next($request);
         }

@@ -34,7 +34,7 @@ class Controller extends BaseController
 
     public const MSG_NOT_FOUND_CHECKLIST_USER = 'Nenhum checklist encontrado!';
 
-    public const MSG_ALREADY_EXISTS = 'O registro %s já exste na base de dados';
+    public const MSG_ALREADY_EXISTS = 'O registro %s já existe na base de dados';
 
     public const ID_SUPER_ADMIN = 1;
 

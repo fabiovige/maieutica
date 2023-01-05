@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -45,5 +46,24 @@ class LoginController extends Controller
     {
         Log::notice(label_case('Autenticado').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')');
         Auth::logoutOtherDevices($request->password);
+
+        // se user acesso bloqueado
+        if(Auth::user()->allow == false) {
+            // logout
+            $this->guard()->logout();
+
+            $request->session()->invalidate();
+
+            $request->session()->regenerateToken();
+
+            if ($response = $this->loggedOut($request)) {
+                return $response;
+            }
+
+            throw ValidationException::withMessages([
+                $this->username() => [trans('auth.failed')],
+            ]);
+        }
+
     }
 }
