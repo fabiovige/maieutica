@@ -62,11 +62,11 @@ return [
             ]
         ],
 
-        'maillog' => [
+        /*'maillog' => [
             'mail' => env('LOG_MAIL', false),
             'driver' => 'custom',
             'via' => EmailErrorLogger::class
-        ],
+        ],*/
 
         'stack' => [
             'driver' => 'stack',

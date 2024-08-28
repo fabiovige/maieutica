@@ -6,7 +6,6 @@ use App\Models\Ability;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -19,7 +18,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::before(function ($user, $ability) {
-            if($user->isSuperAdmin() || $user->isAdmin()){
+            if ($user->isSuperAdmin() || $user->isAdmin()) {
                 return true;
             } else {
                 return null;
@@ -27,10 +26,12 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         $abilities = Ability::all();
-        foreach ($abilities as $ability) {
-            Gate::define($ability->ability, function (User $user) use ($ability) {
-                return $ability->roles->contains($user->role);
-            });
+        if ($abilities) {
+            foreach ($abilities as $ability) {
+                Gate::define($ability->ability, function (User $user) use ($ability) {
+                    return $ability->roles->contains($user->role);
+                });
+            }
         }
     }
 }
