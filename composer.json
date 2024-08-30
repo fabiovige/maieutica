@@ -23,14 +23,15 @@
         "laracasts/flash": "^3.2.1"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.12",
         "fakerphp/faker": "^1.9.1",
+        "laravel/pint": "^1.17",
         "laravel/sail": "^1.0.1",
+        "lucascudo/laravel-pt-br-localization": "^1.2",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^6.1",
         "phpunit/phpunit": "^9.5.10",
-        "spatie/laravel-ignition": "^1.0",
-        "barryvdh/laravel-ide-helper": "^2.12",
-        "lucascudo/laravel-pt-br-localization": "^1.2"
+        "spatie/laravel-ignition": "^1.0"
     },
     "autoload": {
         "psr-4": {

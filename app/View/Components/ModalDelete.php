@@ -6,16 +6,10 @@ use Illuminate\View\Component;
 
 class ModalDelete extends Component
 {
-    /**
-     * @var
-     */
     public $id;
 
     public $name;
 
-    /**
-     * @param $id
-     */
     public function __construct($id, $name)
     {
         $this->id = $id;

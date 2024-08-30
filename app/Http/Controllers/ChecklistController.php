@@ -6,10 +6,8 @@ use App\Http\Requests\ChecklistRequest;
 use App\Models\Checklist;
 use App\Models\ChecklistRegister;
 use App\Models\Competence;
-use App\Models\CompetenceDescription;
 use App\Models\Kid;
 use App\Models\Plane;
-use App\Models\Responsible;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +18,7 @@ class ChecklistController extends Controller
 {
     public function index()
     {
-        $message = label_case('Index Checklists ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+        $message = label_case('Index Checklists ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::debug($message);
 
         return view('checklists.index');
@@ -39,14 +37,13 @@ class ChecklistController extends Controller
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('checklists.update') || request()->user()->can('checklists.store')) {
 
-
                     $html = '<div class="dropdown">
                       <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="bi bi-gear"></i>
                                         </button>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                        <li><a class="dropdown-item" href="' . route('checklists.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a></li>
-                        <li><a class="dropdown-item" href="' . route('checklists.fill', $data->id) . '"><i class="bi bi-check2-square"></i> Avaliação</a></li>
+                        <li><a class="dropdown-item" href="'.route('checklists.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a></li>
+                        <li><a class="dropdown-item" href="'.route('checklists.fill', $data->id).'"><i class="bi bi-check2-square"></i> Avaliação</a></li>
                       </ul>
                     </div>';
 
@@ -62,23 +59,24 @@ class ChecklistController extends Controller
             ->editColumn('created_at', function ($data) {
                 return Carbon::createFromFormat('Y-m-d H:i:s', $data->created_at)->format('d/m/Y');
             })
-            ->rawColumns(['kid_id', 'level', 'created_at', 'situation','action'])
+            ->rawColumns(['kid_id', 'level', 'created_at', 'situation', 'action'])
             ->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
 
     public function create()
     {
-        $message = label_case('Create Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+        $message = label_case('Create Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
         $kids = Kid::all('id', 'name');
+
         return view('checklists.create', compact('kids'));
     }
 
     public function store(ChecklistRequest $request)
     {
         try {
-            $message = label_case('Store Checklists ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Store Checklists '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
             $data = $request->all();
@@ -90,7 +88,7 @@ class ChecklistController extends Controller
             // Plane
             $plane = Plane::create([
                 'kid_id' => $request->kid_id,
-                'created_by' => Auth::id()
+                'created_by' => Auth::id(),
             ]);
 
             // levels
@@ -110,13 +108,15 @@ class ChecklistController extends Controller
             }
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
+
             return redirect()->route('checklists.index');
         } catch (Exception $e) {
 
-            $message = label_case('Create Checklists ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Create Checklists '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             flash(self::MSG_UPDATE_ERROR)->warning();
+
             return redirect()->back();
         }
     }
@@ -130,7 +130,7 @@ class ChecklistController extends Controller
     {
         try {
             $checklist = Checklist::findOrFail($id);
-            $message = label_case('Edit Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Edit Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
             return view('checklists.edit', [
@@ -138,7 +138,7 @@ class ChecklistController extends Controller
             ]);
         } catch (Exception $e) {
             flash(self::MSG_UPDATE_ERROR)->warning();
-            $message = label_case('Update Checklist ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Update Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             return redirect()->back();
@@ -148,7 +148,7 @@ class ChecklistController extends Controller
     public function update(ChecklistRequest $request, $id)
     {
         try {
-            $message = label_case('Update Checklists ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Update Checklists '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
             $data = $request->all();
@@ -157,13 +157,15 @@ class ChecklistController extends Controller
             $checklist->update($data);
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
+
             return redirect()->route('checklists.index');
         } catch (Exception $e) {
 
-            $message = label_case('Update Checklists ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Update Checklists '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             flash(self::MSG_UPDATE_ERROR)->warning();
+
             return redirect()->back();
         }
     }
@@ -171,7 +173,7 @@ class ChecklistController extends Controller
     public function destroy($id)
     {
         try {
-            $message = label_case('Destroy Checklist ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Destroy Checklist '.self::MSG_DELETE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
             $checklist = Checklist::findOrFail($id);
@@ -179,10 +181,11 @@ class ChecklistController extends Controller
             $checklist->update();
             $checklist->delete();
             flash(self::MSG_DELETE_SUCCESS)->success();
+
             return redirect()->route('checklists.index');
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Destroy Checkilist ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Destroy Checkilist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             return redirect()->back();
@@ -192,19 +195,20 @@ class ChecklistController extends Controller
     public function fill($id)
     {
         try {
-            $message = label_case('Fill Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Fill Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
             $checklist = Checklist::findOrFail($id);
             $data = [
                 'checklist_id' => $id,
                 'level_id' => $checklist->level,
-                'created_at' => $checklist->created_at->format('d/m/Y') . ' Cod. ' . $id,
-                'kid' => $checklist->kid
+                'created_at' => $checklist->created_at->format('d/m/Y').' Cod. '.$id,
+                'kid' => $checklist->kid,
             ];
+
             return view('checklists.fill', $data);
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Fill Checklist ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Fill Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             return redirect()->back();
@@ -227,7 +231,7 @@ class ChecklistController extends Controller
     public function chart($id)
     {
         try {
-            $message = label_case('Esfera Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Esfera Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
             $checklist = Checklist::findOrFail($id);
 
@@ -235,12 +239,13 @@ class ChecklistController extends Controller
                 'checklists' => $checklist->kid->checklists()->get(),
                 'checklist' => $checklist,
                 'level_id' => $checklist->level,
-                'kid' => $checklist->kid
+                'kid' => $checklist->kid,
             ];
+
             return view('checklists.chart', $data);
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Fill Checklist ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Fill Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             return redirect()->back();

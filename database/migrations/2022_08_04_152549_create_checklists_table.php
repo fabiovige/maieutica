@@ -15,7 +15,7 @@ class CreateChecklistsTable extends Migration
     {
         Schema::create('checklists', function (Blueprint $table) {
             $table->id();
-            $table->enum('level', [1,2,3,4])->default(1);
+            $table->enum('level', [1, 2, 3, 4])->default(1);
             $table->char('situation')->default('a');
             $table->text('description')->nullable();
             $table->timestamps();

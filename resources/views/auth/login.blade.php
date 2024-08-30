@@ -1,15 +1,15 @@
 @extends('layouts.guest')
 
 @section('content')
-                        <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login') }}">
                             @csrf
 
-                            <div class="row mb-2">
+                    <div class="row mb-2">
                                 <label for="email" class="col-form-label text-md-start">E-mail</label>
 
                                 <div class="">
 
-                                    <input id="email" type="email" maxlength="150"  class="form-control" name="email" value="{{ old('email') ?? 'ricardo@gmail.com' }}" required autocomplete="email"
+                                    <input id="email" type="email" maxlength="150"  class="form-control" name="email" value="{{ old('email') ?? '' }}" required autocomplete="email"
                                     autofocus>
                                 </div>
                             </div>
@@ -19,7 +19,7 @@
 
                                 <div class="">
                                     <input id="password" maxlength="32" type="password"
-                                           class="form-control" value="password"
+                                           class="form-control" value=""
                                            name="password" required autocomplete="current-password">
                                 </div>
                             </div>

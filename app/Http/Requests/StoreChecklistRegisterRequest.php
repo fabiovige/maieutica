@@ -8,7 +8,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreChecklistRegisterRequest extends FormRequest
 {
-
     public function authorize(): bool
     {
         return true;
@@ -19,7 +18,7 @@ class StoreChecklistRegisterRequest extends FormRequest
         return [
             'checklist_id' => 'required',
             'competence_description_id' => 'required',
-            'note' => 'required'
+            'note' => 'required',
         ];
     }
 }

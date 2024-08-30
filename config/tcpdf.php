@@ -1,17 +1,18 @@
 <?php
+
 return [
-    'page_format'           => 'A4',
-    'page_orientation'      => 'P',
-    'page_units'            => 'mm',
-    'unicode'               => true,
-    'encoding'              => 'UTF-8',
-    'font_directory'        => '',
-    'image_directory'       => '',
+    'page_format' => 'A4',
+    'page_orientation' => 'P',
+    'page_units' => 'mm',
+    'unicode' => true,
+    'encoding' => 'UTF-8',
+    'font_directory' => '',
+    'image_directory' => '',
     'tcpdf_throw_exception' => false,
-    'use_fpdi'              => false,
-    'use_original_header'   => false,
-    'use_original_footer'   => false,
-    'pdfa'                  => false, // Options: false, 1, 3
+    'use_fpdi' => false,
+    'use_original_header' => false,
+    'use_original_footer' => false,
+    'pdfa' => false, // Options: false, 1, 3
 
     // See more info at the tcpdf_config.php file in TCPDF (if you do not set this here, TCPDF will use it default)
     // https://raw.githubusercontent.com/tecnickcom/TCPDF/master/config/tcpdf_config.php
@@ -45,5 +46,5 @@ return [
     //    'small_ratio'         => '', // K_SMALL_RATIO
     //    'thai_topchars'       => '', // K_THAI_TOPCHARS
     //    'tcpdf_calls_in_html' => '', // K_TCPDF_CALLS_IN_HTML
-        'timezone'            => 'America/Sao_Paulo', // K_TIMEZONE
+    'timezone' => 'America/Sao_Paulo', // K_TIMEZONE
 ];

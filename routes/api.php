@@ -1,18 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\ChartController;
 use App\Http\Controllers\Api\ChecklistController;
+use App\Http\Controllers\Api\ChecklistRegisterController;
+use App\Http\Controllers\Api\CompetenceController;
 use App\Http\Controllers\Api\DomainController;
 use App\Http\Controllers\Api\KidController;
 use App\Http\Controllers\Api\LevelController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\CompetenceController;
-use App\Http\Controllers\Api\ChecklistRegisterController;
-use App\Http\Controllers\Api\ChartController;
 use App\Http\Controllers\Api\PlaneController;
+use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => 'auth'], function() {
-
-});
+Route::group(['middleware' => 'auth'], function () {});
 
 // levels
 Route::apiResource('levels', LevelController::class);
@@ -45,5 +43,3 @@ Route::apiResource('checklistregisters', ChecklistRegisterController::class);
 
 // charts
 Route::get('charts/percentage', [ChartController::class, 'percentage'])->name('api.charts.percentage');
-
-

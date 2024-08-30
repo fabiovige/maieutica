@@ -20,7 +20,7 @@ class KidFactory extends Factory
     {
         $date = $this->faker->randomElement(['01/01/2019', '31/12/2021']);
 
-        $user = User::whereNotIn('id',[1,2])->pluck('id');
+        $user = User::whereNotIn('id', [1, 2])->pluck('id');
         $responsible = Responsible::pluck('id');
 
         return [

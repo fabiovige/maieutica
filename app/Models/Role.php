@@ -8,13 +8,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Role extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = ['name', 'role', 'created_by', 'updated_by', 'deleted_by'];
 
     public const ROLE_SUPER_ADMIN = 1;
+
     public const ROLE_ADMIN = 2;
+
     public const ROLE_PAIS = 3;
+
     public const ROLE_PROFESSION = 4;
 
     public function users()

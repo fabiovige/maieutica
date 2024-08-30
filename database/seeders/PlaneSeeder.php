@@ -2,21 +2,19 @@
 
 namespace Database\Seeders;
 
-use App\Models\Competence;
 use App\Models\Kid;
 use App\Models\Plane;
 use Illuminate\Database\Seeder;
 
 class PlaneSeeder extends Seeder
 {
-
     public function run()
     {
         // kid
         $arrKid = Kid::pluck('id');
-        foreach($arrKid as $key => $kid_id) {
+        foreach ($arrKid as $key => $kid_id) {
             $data = Kid::find($kid_id);
-            if($data->checklists()->count() > 0){
+            if ($data->checklists()->count() > 0) {
                 $this->insertPlane($kid_id);
             }
         }
@@ -27,7 +25,7 @@ class PlaneSeeder extends Seeder
         // planes
         $plane = Plane::create([
             'kid_id' => $kid_id,
-            'created_by' => 1
+            'created_by' => 1,
         ]);
 
         // competences

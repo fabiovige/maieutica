@@ -11,9 +11,8 @@ use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
-
     protected $observers = [
-        Kid::class => [ KidObserver::class ]
+        Kid::class => [KidObserver::class],
     ];
 
     /**

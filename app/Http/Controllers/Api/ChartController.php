@@ -14,8 +14,8 @@ class ChartController extends Controller
 
         $arrNote = [];
         $arrColor = [];
-        foreach($result as $c=>$v){
-            if($v->note === 1){
+        foreach ($result as $c => $v) {
+            if ($v->note === 1) {
                 $arrNote[$v->checklist_id][$v->level_id][$v->initial][] = 0;
             } else {
                 $arrNote[$v->checklist_id][$v->level_id][$v->initial][] = $v->note;
@@ -24,19 +24,19 @@ class ChartController extends Controller
         }
 
         $arrDomain = [];
-        foreach($arrNote as $checklist_id => $levels){
-            foreach($levels as $level_id => $domains) {
-                foreach($domains as $initial=> $notes){
+        foreach ($arrNote as $checklist_id => $levels) {
+            foreach ($levels as $level_id => $domains) {
+                foreach ($domains as $initial => $notes) {
                     $qtde = count($notes);
                     $soma = array_sum($notes);
-                    $arrDomain[$checklist_id][$initial][] = ceil(( $soma * 100 ) / ( $qtde * 3 ) );
+                    $arrDomain[$checklist_id][$initial][] = ceil(($soma * 100) / ($qtde * 3));
                 }
             }
         }
 
         $arrDomain2 = [];
-        foreach($arrDomain as $checklist_id => $domains) {
-            foreach($domains as $initial=> $notes){
+        foreach ($arrDomain as $checklist_id => $domains) {
+            foreach ($domains as $initial => $notes) {
                 $qtde = count($notes);
                 $soma = array_sum($notes);
                 $arrDomain2['note'][] = ceil(($soma / $qtde));
@@ -48,5 +48,4 @@ class ChartController extends Controller
 
         return response()->json($arrDomain2, 200);
     }
-
 }

@@ -6,8 +6,6 @@ use App\Http\Requests\ResponsibleRequest;
 use App\Models\Responsible;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Http\Request;
-
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +16,7 @@ class ResponsibleController extends Controller
 {
     public function index()
     {
-        $message = label_case('Index Responsibles ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+        $message = label_case('Index Responsibles ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::debug($message);
 
         return view('responsibles.index');
@@ -38,7 +36,7 @@ class ResponsibleController extends Controller
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('responsibles.update') || request()->user()->can('responsibles.store')) {
 
-                    $html = '<a class="btn btn-sm btn-success" href="' . route('responsibles.edit', $data->id) . '"><i class="bi bi-gear"></i> </a>';
+                    $html = '<a class="btn btn-sm btn-success" href="'.route('responsibles.edit', $data->id).'"><i class="bi bi-gear"></i> </a>';
 
                     return $html;
                 }
@@ -98,12 +96,12 @@ class ResponsibleController extends Controller
 
             return view('responsibles.edit', [
                 'responsible' => $responsible,
-                'allow' => $allow
+                'allow' => $allow,
             ]);
 
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Update Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Update Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             return redirect()->back();
@@ -128,7 +126,7 @@ class ResponsibleController extends Controller
                 } else {
                     // busca na lixeira e restaura
                     $userTrash = User::where('email', '=', $data['email'])->withTrashed();
-                    if($userTrash->count()){
+                    if ($userTrash->count()) {
                         $userTrash->restore();
                     } else {
                         // verifica se ja existe esse e-mail
@@ -154,13 +152,15 @@ class ResponsibleController extends Controller
             $responsible->update($data);
             DB::commit();
             flash(self::MSG_UPDATE_SUCCESS)->success();
+
             return redirect()->route('responsibles.index');
 
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_UPDATE_ERROR)->warning();
-            $message = label_case('Update Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Update Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
+
             return redirect()->back();
         }
 
@@ -169,9 +169,10 @@ class ResponsibleController extends Controller
     private function emailDuplicate($email)
     {
         $userEmail = User::where('email', '=', $email)->get();
-        if($userEmail->count() > 0){
+        if ($userEmail->count() > 0) {
             $msg = sprintf(self::MSG_ALREADY_EXISTS, $email);
             flash($msg)->warning();
+
             return redirect()->route('responsibles.index');
         }
     }
@@ -187,12 +188,14 @@ class ResponsibleController extends Controller
             $user->delete();
             DB::commit();
             flash(self::MSG_DELETE_SUCCESS)->success();
+
             return redirect()->route('responsibles.index');
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_DELETE_SUCCESS)->warning();
-            $message = label_case('Delete Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Delete Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
+
             return redirect()->back();
         }
     }

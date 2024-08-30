@@ -20,13 +20,13 @@ class CreateResponsiblesTable extends Migration
             $table->string('email', 200)->nullable();
             $table->string('cell')->nullable();
 
-            $table->string("cep")->nullable();
-            $table->string("logradouro")->nullable();
-            $table->string("numero")->nullable();
-            $table->string("complemento")->nullable();
-            $table->string("bairro")->nullable();
-            $table->string("cidade")->nullable();
-            $table->string("estado")->nullable();
+            $table->string('cep')->nullable();
+            $table->string('logradouro')->nullable();
+            $table->string('numero')->nullable();
+            $table->string('complemento')->nullable();
+            $table->string('bairro')->nullable();
+            $table->string('cidade')->nullable();
+            $table->string('estado')->nullable();
 
             $table->timestamps();
 

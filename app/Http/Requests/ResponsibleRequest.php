@@ -25,27 +25,27 @@ class ResponsibleRequest extends FormRequest
     {
         switch ($this->method()) {
             case 'GET':
-            case 'DELETE': {
+            case 'DELETE':
                 return [
                     'id' => 'required|exists:responsible,id',
                 ];
-            }
-            case 'POST': {
+
+            case 'POST':
                 return [
                     'name' => 'required|min:3|max:100',
                     'email' => 'required|email|min:3|max:200',
                     'cell' => 'required|celular_com_ddd',
-                    'user_id' => 'nullable'
+                    'user_id' => 'nullable',
                 ];
-            }
-            case 'PUT': {
+
+            case 'PUT':
                 return [
                     'name' => 'required|min:3|max:100',
                     'email' => 'required|email|min:3|max:200',
                     'cell' => 'required|celular_com_ddd',
                     'user_id' => 'nullable|exists:users,id',
                 ];
-            }
+
             default:
                 break;
         }
@@ -57,7 +57,7 @@ class ResponsibleRequest extends FormRequest
             'name' => 'Nome',
             'email' => 'E-mail',
             'cell' => 'Celular',
-            'user_id' => 'Usuário'
+            'user_id' => 'Usuário',
         ];
     }
 

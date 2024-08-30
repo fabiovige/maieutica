@@ -3,12 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Resource;
-use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class ResourceSeeder extends Seeder
 {
-    const RESOURCES = [
+    public const RESOURCES = [
         ['name' => 'Usuários'],
         ['name' => 'Crianças'],
         ['name' => 'Papéis'],

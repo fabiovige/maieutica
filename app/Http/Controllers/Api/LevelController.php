@@ -11,6 +11,7 @@ class LevelController
     public function index()
     {
         $levels = Level::all();
+
         return LevelResource::collection($levels);
     }
 
@@ -18,6 +19,7 @@ class LevelController
     {
         $level = Level::where('id', $id)->first();
         $domains = $level->domains()->orderBy('name')->get();
+
         return DomainResource::collection($domains);
     }
 }

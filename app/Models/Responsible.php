@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Responsible extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'id',
@@ -19,7 +20,7 @@ class Responsible extends Model
         'created_by',
         'updated_by',
         'deleted_by',
-        'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'estado'
+        'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'estado',
     ];
 
     public function kids()
@@ -34,7 +35,7 @@ class Responsible extends Model
 
     public function getCellAttribute($value)
     {
-        return '(' . substr($value, 0, 2) . ') ' . substr($value, 2, 5) .'-'. substr($value, 7, 4);
+        return '('.substr($value, 0, 2).') '.substr($value, 2, 5).'-'.substr($value, 7, 4);
     }
 
     public function setCellAttribute($value)
@@ -46,5 +47,4 @@ class Responsible extends Model
 
         $this->attributes['cell'] = $value;
     }
-
 }
