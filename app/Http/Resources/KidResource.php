@@ -17,7 +17,7 @@ class KidResource extends JsonResource
             'responsible' => $this->responsible()->first(),
             'terapeuta' => $this->user()->first(),
             'checklists' => $this->checklists()->get(),
-            'planes' => $this->planes()->get()
+            'planes' => $this->planes()->get(),
         ];
     }
 }

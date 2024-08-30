@@ -7,9 +7,13 @@ use Illuminate\View\Component;
 class Button extends Component
 {
     public $href;
+
     public $type; // button || link
+
     public $class; // btn-dark
+
     public $name; // salvar, voltar, cadastrar
+
     public $icon;
 
     public function __construct($href = '', $type = '', $class = '', $name = '', $icon = '')

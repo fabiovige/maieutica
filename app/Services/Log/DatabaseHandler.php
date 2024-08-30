@@ -9,6 +9,7 @@ use Monolog\Handler\AbstractProcessingHandler;
 class DatabaseHandler extends AbstractProcessingHandler
 {
     private $log = null;
+
     private $isDelete = null;
 
     public function __construct($log)
@@ -19,7 +20,7 @@ class DatabaseHandler extends AbstractProcessingHandler
     protected function write(array $record): void
     {
         dd($record);
-        if (!empty($record['message']) && $record['level_name'] != 'ERROR') {
+        if (! empty($record['message']) && $record['level_name'] != 'ERROR') {
             $this->createLog(
                 null,
                 null,
@@ -32,7 +33,7 @@ class DatabaseHandler extends AbstractProcessingHandler
 
         $model = Arr::get($record['context'], 0);
 
-        if (!$model instanceof Model) {
+        if (! $model instanceof Model) {
             return;
         }
 
@@ -56,7 +57,7 @@ class DatabaseHandler extends AbstractProcessingHandler
                 'object' => $object,
                 'object_id' => $objectId,
                 'action' => $action,
-                'description' => $description
+                'description' => $description,
             ]
         );
     }
@@ -71,7 +72,7 @@ class DatabaseHandler extends AbstractProcessingHandler
             return json_encode(
                 [
                     'original' => $model->getOriginal(),
-                    'updated' => $model->toArray()
+                    'updated' => $model->toArray(),
                 ]
             );
         }
@@ -85,7 +86,7 @@ class DatabaseHandler extends AbstractProcessingHandler
             return $this->log::ACTION_REMOVE;
         }
 
-        if (!$model->getOriginal()) {
+        if (! $model->getOriginal()) {
             return $this->log::ACTION_INSERT;
         }
 

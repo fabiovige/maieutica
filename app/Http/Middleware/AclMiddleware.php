@@ -18,8 +18,9 @@ class AclMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::user()->allow) {
+        if (! Auth::user()->allow) {
             Auth::guard()->logout();
+
             return $next($request);
         }
 
@@ -29,7 +30,7 @@ class AclMiddleware
 
         $ability = Ability::where('ability', $request->route()->getName())->count();
 
-        if($ability) {
+        if ($ability) {
             $this->authorize($request->route()->getName());
         }
 

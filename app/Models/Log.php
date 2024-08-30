@@ -4,16 +4,19 @@ namespace App\Models;
 
 class Log extends BaseModel
 {
-    const ACTION_INSERT = 'insert';
-    const ACTION_UPDATE = 'update';
-    const ACTION_REMOVE = 'remove';
-    const ACTION_INFO = 'info';
+    public const ACTION_INSERT = 'insert';
 
-    const ACTION_LIST = [
+    public const ACTION_UPDATE = 'update';
+
+    public const ACTION_REMOVE = 'remove';
+
+    public const ACTION_INFO = 'info';
+
+    public const ACTION_LIST = [
         self::ACTION_INSERT,
         self::ACTION_UPDATE,
         self::ACTION_REMOVE,
-        self::ACTION_INFO
+        self::ACTION_INFO,
     ];
 
     protected $guarded = [];

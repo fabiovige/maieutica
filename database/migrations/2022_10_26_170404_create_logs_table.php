@@ -17,7 +17,7 @@ class CreateLogsTable extends Migration
             $table->id();
             $table->string('object')->nullable();
             $table->integer('object_id')->nullable();
-            $table->enum('action', array('insert','update','remove','info'));
+            $table->enum('action', ['insert', 'update', 'remove', 'info']);
             $table->text('description');
             $table->dateTime('creation_date', 0);
             $table->integer('created_by')->nullable();

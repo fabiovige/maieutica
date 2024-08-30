@@ -14,7 +14,7 @@ class LevelResource extends JsonResource
             'id' => $this->id,
             'level' => $this->level,
             'name' => $this->name,
-            'domain' => $this->domains()->get()
+            'domain' => $this->domains()->get(),
         ];
     }
 }

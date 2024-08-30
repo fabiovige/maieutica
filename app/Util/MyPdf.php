@@ -6,9 +6,8 @@ use TCPDF;
 
 class MyPdf extends TCPDF
 {
-
-
     protected $image_file = '';
+
     protected $col = 0;
 
     public function __construct($orientation = 'P', $unit = 'mm', $format = 'A4', $unicode = true, $encoding = 'UTF-8', $diskcache = false, $pdfa = false)
@@ -24,11 +23,11 @@ class MyPdf extends TCPDF
         $this->SetSubject(config('app.description'));
 
         // set default header data
-        $this->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE . ' 009', PDF_HEADER_STRING);
+        $this->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 009', PDF_HEADER_STRING);
 
         // set header and footer fonts
-        $this->setHeaderFont(array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-        $this->setFooterFont(array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+        $this->setHeaderFont([PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN]);
+        $this->setFooterFont([PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA]);
 
         // set default monospaced font
         $this->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
@@ -39,9 +38,8 @@ class MyPdf extends TCPDF
         $this->SetFooterMargin(2);
 
         // set auto page breaks
-        $this->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+        $this->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
     }
-
 
     //Page header
     public function Header($data = '')
@@ -51,7 +49,7 @@ class MyPdf extends TCPDF
         $this->SetFont('helvetica', '', 10);
 
         // Title
-        $this->Cell(0, -10, config('app.name') . ' - ' . config('app.description') . '.', 0, false, 'C', 0, '', 0, false, 'M', 'M');
+        $this->Cell(0, -10, config('app.name').' - '.config('app.description').'.', 0, false, 'C', 0, '', 0, false, 'M', 'M');
     }
 
     // Page footer
@@ -69,7 +67,6 @@ class MyPdf extends TCPDF
         $txt2 = 'Os objetivos aqui descritos visam facilitar a consulta, sobretudo pelos pais, e segue fielmente o conteúdo do checklist original com';
         $txt3 = 'Copyright © 2010 The Guiford Press, com direitos de publicação, em lingua portuguesa a Lidel Edições Técnicas Lda, dos autores Sally J. Rogers e Geraldine Dawson';
 
-
         // Page number
         $this->Cell(0, 5, $name, 0, false, 'C', 0, '', 0, false, 'T', 'M');
         $this->SetFont('helvetica', '', 6);
@@ -81,6 +78,6 @@ class MyPdf extends TCPDF
         $this->Cell(0, 4, $txt3, 0, false, 'C', 0, '', 0, false, 'T', 'M');
 
         $this->ln(2);
-        $this->Cell(0, 10, 'Página.: ' . $this->getAliasNumPage() . '/' . $this->getAliasNbPages(), 0, false, 'C',);
+        $this->Cell(0, 10, 'Página.: '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C');
     }
 }

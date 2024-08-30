@@ -1,12 +1,10 @@
 <?php
 
+use app\Models\Log;
+use app\Services\Log\DatabaseLogger;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
-
-use app\Services\Log\DatabaseLogger;
-use app\Services\Log\LogModel;
-use app\Models\Log;
 
 return [
 
@@ -58,8 +56,8 @@ return [
             'via' => DatabaseLogger::class,
             'level' => 'info',
             'with' => [
-                'logModel' => Log::class
-            ]
+                'logModel' => Log::class,
+            ],
         ],
 
         /*'maillog' => [

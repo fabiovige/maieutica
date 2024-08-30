@@ -15,6 +15,7 @@ class ChecklistFactory extends Factory
     public function definition()
     {
         $user = Kid::pluck('id');
+
         return [
             'kid_id' => $user->random(),
         ];

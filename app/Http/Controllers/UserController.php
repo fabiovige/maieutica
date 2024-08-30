@@ -26,7 +26,7 @@ class UserController extends Controller
     {
 
         if (auth()->user()->isSuperAdmin()) {
-            $data = User::select('id', 'name', 'email', 'type', 'allow',  'role_id');
+            $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
         } else {
             $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
             $data->where('created_by', '=', auth()->user()->id);
@@ -47,7 +47,7 @@ class UserController extends Controller
             })
 
             ->editColumn('role', function ($data) {
-                $role = '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> '. $data->role->name . ' </span>';
+                $role = '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> '.$data->role->name.' </span>';
 
                 return $role;
             })
@@ -58,7 +58,7 @@ class UserController extends Controller
 
             ->editColumn('allow', function ($data) {
 
-                if($data->allow) {
+                if ($data->allow) {
                     $html = '<span class="badge bg-primary"><i class="bi bi-emoji-smile"></i> Sim </span>';
                 } else {
                     $html = '<span class="badge bg-info"><i class="bi bi-emoji-frown"></i> Não </span>';
@@ -78,9 +78,9 @@ class UserController extends Controller
 
             if (auth()->user()->isSuperAdmin()) {
                 $roles = Role::all();
-            } else if(auth()->user()->isAdmin()) {
+            } elseif (auth()->user()->isAdmin()) {
                 $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
-            }else {
+            } else {
                 $roles = Role::where('created_by', '=', Auth::id())->get();
             }
 
@@ -124,9 +124,9 @@ class UserController extends Controller
     {
         if (auth()->user()->isSuperAdmin()) {
             $roles = Role::all();
-        } else if(auth()->user()->isAdmin()) {
+        } elseif (auth()->user()->isAdmin()) {
             $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
-        }else {
+        } else {
             $roles = Role::where('created_by', '=', Auth::id())->get();
         }
 
@@ -176,8 +176,8 @@ class UserController extends Controller
         try {
             $data = $request->all();
 
-            $data['type'] = (!isset($data['type'])) ? User::TYPE_I : $data['type'];
-            $data['allow'] = !!isset($data['allow']);
+            $data['type'] = (! isset($data['type'])) ? User::TYPE_I : $data['type'];
+            $data['allow'] = (bool) isset($data['allow']);
 
             $user = User::findOrFail($id);
             $data['updated_by'] = Auth::id();

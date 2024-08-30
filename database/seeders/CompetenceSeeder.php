@@ -226,12 +226,10 @@ class CompetenceSeeder extends Seeder
         Competence::create(['level_id' => 2, 'domain_id' => 16, 'code' => 4, 'description' => 'Combina ações funcionalmente relacionadas com o tema do jogo (alimenta e dá bebida, deita na cama e cobre).', 'description_detail' => 'Requer ações espontâneas que envolvam pelo menos duas ações relacionadas numa sequência. Não passa a penas com imitação.']);
         Competence::create(['level_id' => 2, 'domain_id' => 16, 'code' => 5, 'description' => 'Demonstra uma abordagem de tentativa e erro para resolver problemas com brinquedos de construção; os esquemas são flexíveis e não repetitivos.', 'description_detail' => 'A criança passa se demonstrar consistentemente a abordagem de tentativa e erro na resolução de problemas no jogo com objetos.']);
 
-
         // Nível 2 - Jogo: Independente 17
         Competence::create(['level_id' => 2, 'domain_id' => 17, 'code' => 6, 'description' => 'Brinca de forma adequada e flexível durante 10 minutos apenas com atenção ocasional do adulto.', 'description_detail' => 'O adulto pode preparar vários conjuntos de materiais de construção ou visuoespaciais, mas a criança tem de brincar sozinha usando durante o jogo uma maioria de ações apropriadas, sem mais do que duas interações verbais, para passar este item. Não penalize se alguns atos repetitivos ou estereotipados ocorrerem dentro de um jogo apropriado.']);
         Competence::create(['level_id' => 2, 'domain_id' => 17, 'code' => 7, 'description' => 'Mantém-se ocupada com materiais simples de uso múltiplo de forma adequada durante pelo menos 10 minutos de cada vez com orientação ocasional do adulto.', 'description_detail' => 'O adulto pode preparar algum material (massa de brincar, arte, livros, adereços de jogo), mas a criança precisa de brincar sozinha usando durante o jogo uma maioria de ações a propriadas, sem mais do que duas interações verbais, para passar este item. Não penalize se alguns atos repetitivos ou estereotipados ocorrerem dentro de um jogo apropriado.']);
         Competence::create(['level_id' => 2, 'domain_id' => 17, 'code' => 8, 'description' => 'Obtém os materiais, traz para a mesa, completa a atividade de jogo e afasta-se.', 'description_detail' => 'A criança brinca de forma autónoma, incluindo ir buscar os materiais, deslocar-se para um espaço de jogo, arrumar e afastar os materiais no final. Isto pode envolver atividades ilimitadas ou limitadas.']);
-
 
         // Nível 2 - Motricidade Fina 18
         Competence::create(['level_id' => 2, 'domain_id' => 18, 'code' => 1, 'description' => 'Introduz três ou mais peças no jogo de encaixe.', 'description_detail' => 'A criança completa o jogo de encaixe de forma autónoma; pode usar a tentativa e erro mas sem instruções ou apoio de qualquer tipo.']);
@@ -274,7 +272,6 @@ class CompetenceSeeder extends Seeder
         Competence::create(['level_id' => 2, 'domain_id' => 12, 'code' => 11, 'description' => 'Completa alguns passos ao vestir algumas peças de roupa sozinha (precisa de ajuda com fechos).', 'description_detail' => 'Autoexplicativo.']);
         Competence::create(['level_id' => 2, 'domain_id' => 12, 'code' => 12, 'description' => 'Tira o casaco, o chapéu (sem fechos), e coloca-os no cabide.', 'description_detail' => 'Tira o casaco e o chapéu de forma autónoma; pode ser solicitado para os colocar no cabide.']);
 
-
         // Nível 2 - Independência Pessoal: Higiene 13
         Competence::create(['level_id' => 2, 'domain_id' => 13, 'code' => 13, 'description' => 'Limpa a cara com um pano quente quando instruída.', 'description_detail' => 'Depois de o adulto lhe dar um pano húmido e após a instruçâo "Lava a cara", a criança esfrega toda a superfície do rosto sem mais ajudas e afasta o pano ou pousa-o quando termina.']);
         Competence::create(['level_id' => 2, 'domain_id' => 13, 'code' => 14, 'description' => 'Lmpa o nariz quando instruída.', 'description_detail' => 'Quando instruída para assoar ou limpar o nariz, a criança dirige-se consistentemente para a caixa dos lenços, assoa ou limpa o nariz e deita o lenço fora, sem mais do que uma ajuda verbal e sem manuais.']);
@@ -309,7 +306,6 @@ class CompetenceSeeder extends Seeder
         Competence::create(['level_id' => 3, 'domain_id' => 2, 'code' => 13, 'description' => 'Identifica 10 ações através de imagens, escolhas, representações.', 'description_detail' => 'Vocaliza ou gesticula (por exemplo, aponta, entrega as imagens, representa) em resposta às perguntas do adulto. Os exemplos são: "Mostra-me como atiras a bola" ou "Mostra-me como come o porco".']);
         Competence::create(['level_id' => 3, 'domain_id' => 2, 'code' => 14, 'description' => 'Segue duas ou mais ações não relacionadas num contexto novo.', 'description_detail' => 'Completa a instrução, olhando para o adulto e realizando a ação sem gestos ou ajuda física do adulto. O adulto pode repetir a instrução um segundo momento, sem pista gestual. Exemplos sâo: "Dá-me o carro e fecha o livro" ou "Põe a bola no balde e a boneca em cima da mesa".']);
 
-
         // Nível 3 - Comunicação Expressiva - 3
         Competence::create(['level_id' => 3, 'domain_id' => 3, 'code' => 1, 'description' => 'Produz uma combinação de duas a três palavras para uma variedade de intenções comunicativas (por exemplo, pedir, cumprimentar, chamar a atenção, protestar).', 'description_detail' => 'As verbalizações devem incluir o contacto visual. Os exemplos são: "Quer mais sumo", "Adeus, Sally", "Ajuda a abrir" ou "Bola não". A articulação não precisa de ser perfeita.']);
         Competence::create(['level_id' => 3, 'domain_id' => 3, 'code' => 2, 'description' => 'Produz enunciados de duas ou mais palavras para fazer comentários a outra pessoa.', 'description_detail' => 'As verbalizações devem incluir o contacto visual e não estão relacionadas com pedidos para comentar objetos ou ações. Os exemplos são: "Ol ha vaca", "Avião anda rápido" ou "Cãozinho". A articulação não precisa de ser perfeita.']);
@@ -329,7 +325,6 @@ class CompetenceSeeder extends Seeder
         Competence::create(['level_id' => 3, 'domain_id' => 3, 'code' => 16, 'description' => 'Faz perguntas simples de "Sim/Não" usando uma entoação ascendente (pode ser um enunciado de uma palavra com uma entoação ascendente).', 'description_detail' => 'A verbalização não precisa de ser acompanhada por contacto visual. A pergunta pode ser um enunciado de uma palavra com uma entoação ascendente. Os exem plos são: "Biscoito?" ou "Vamos embora?".']);
         Competence::create(['level_id' => 3, 'domain_id' => 3, 'code' => 17, 'description' => 'Faz perguntas de "O quê?" e "Onde?".', 'description_detail' => 'A verbalização não precisa de ser acompanhada por contacto visual. Deve fazer as duas perguntas para passar.']);
         Competence::create(['level_id' => 3, 'domain_id' => 3, 'code' => 18, 'description' => 'Responde a perguntas sobre informações simples: nome, idade, cor da camisola, etc.', 'description_detail' => 'A verbalização não precisa de ser acompanhada por contacto visual. Os exemplos são, "Qual é o teu nome", "Quantos anos tens?" ou "Qual é a cor da tua camisola?".']);
-
 
         // Nível 3 - Competências Sociais: Adultos ou Pares - 7
         Competence::create(['level_id' => 3, 'domain_id' => 7, 'code' => 1, 'description' => 'Joga jogos simples de motricidade grossa (por exemplo, bola, escondidas, rodas de canções).', 'description_detail' => 'Participa duas ou mais vezes em qualquer comportamento ativo (alcançar, imitar, vocalizar) em três ou mais jogos. O contacto visual e os sorrisos não são sufieientes. Os exemplos são "Escondidas", "Ring-around-the-Rosy" e jogar à bola.']);
@@ -398,7 +393,6 @@ class CompetenceSeeder extends Seeder
         Competence::create(['level_id' => 3, 'domain_id' => 10, 'code' => 4, 'description' => 'Leva os seus materiais de e para o carro, a casa e a escola.', 'description_detail' => 'Leva pelo menos um material sozinho. Os exemplos são a mochila, a lancheira, o casaco, etc.']);
         Competence::create(['level_id' => 3, 'domain_id' => 10, 'code' => 5, 'description' => 'Abre e fecha a mochila de forma autônoma; Coloca e remove objetos quando solicitado.', 'description_detail' => 'Introduzremove pelo menos três objetos sozinha mediante pedido. Os exemplos são a lancheira, o caderno, um brinquedo, etc.']);
         Competence::create(['level_id' => 3, 'domain_id' => 10, 'code' => 6, 'description' => 'Veste-se e despe-se quando é apropriado (abre roupas com fechos - fecho-éclair e molas).', 'description_detail' => 'Abre fechos e molas de forma autônoma.']);
-
 
         // Nível 3 - Independência Pessoal: Higiene 13
         Competence::create(['level_id' => 3, 'domain_id' => 13, 'code' => 7, 'description' => 'Usa a casa de banho de forma autônoma, todas as etapas, por iniciativa própria ou quando mandada.', 'description_detail' => 'Pode pedir ajuda na lavagem das mãos se não chegar ao lavatório.']);

@@ -14,10 +14,12 @@ use Illuminate\Support\Facades\Notification;
 
 class SendKidUpdateJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private Kid $kid;
-
 
     /**
      * Create a new job instance.
@@ -37,7 +39,7 @@ class SendKidUpdateJob implements ShouldQueue
     public function handle()
     {
 
-        $admin = User::where('id','=',2)->get();
+        $admin = User::where('id', '=', 2)->get();
         Notification::send($admin, new KidUpdateNotification($this->kid));
     }
 }

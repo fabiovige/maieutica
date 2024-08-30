@@ -21,17 +21,18 @@ class Ability extends Model
         return $this->belongsTo(Resource::class);
     }
 
-    public static function assocAbilities($role, $resources) 
+    public static function assocAbilities($role, $resources)
     {
         $abilitiesRole = $role->abilities()->pluck('id')->toArray();
         $abilities = [];
-        foreach($resources as $resource) {
+        foreach ($resources as $resource) {
             foreach ($resource->abilities as $ability) {
                 if (in_array($ability->id, $abilitiesRole)) {
                     $abilities[$resource->name][] = $ability->name;
                 }
             }
         }
+
         return $abilities;
     }
 }
