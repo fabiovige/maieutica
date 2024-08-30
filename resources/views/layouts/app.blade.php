@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title> {{ config('app.name') }} - {{ config('app.description') }}</title>
+    <title>{{ config('app.name') }} - {{ config('app.description') }} - by fabiovige</title>
 
     <!-- Styles -->
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
@@ -54,6 +54,7 @@
 
     @stack('scripts')
 
+    <!-- by fabiovige -->
 </body>
 
 </html>
