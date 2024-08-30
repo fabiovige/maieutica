@@ -6,8 +6,8 @@ use Illuminate\View\Component;
 
 class Table extends Component
 {
-
     public $title = '';
+
     public $columns = [];
 
     /**

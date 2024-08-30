@@ -16,12 +16,13 @@ class HomeController extends Controller
     {
         $kids = Kid::getKids()->get();
         $data = [];
-        foreach($kids as $key => $kid) {
+        foreach ($kids as $key => $kid) {
             $kids[$key]['months'] = $kid->months;
             $data['countChecklists'][$kid->id] = $kid->checklists()->count();
             $data['countPlanes'][$kid->id] = $kid->planes()->count();
         }
         $data['kids'] = $kids;
+
         return view('home', $data);
     }
 }

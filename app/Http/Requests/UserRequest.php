@@ -15,25 +15,25 @@ class UserRequest extends FormRequest
     {
         switch ($this->method()) {
             case 'GET':
-            case 'DELETE': {
+            case 'DELETE':
                 return [
                     'id' => 'required|exists:users,id',
                 ];
-            }
-            case 'POST': {
+
+            case 'POST':
                 return [
                     'name' => 'required|string|max:150',
                     'email' => 'required|string|email|max:150|unique:users,email',
                     'role_id' => 'required',
                 ];
-            }
-            case 'PUT': {
+
+            case 'PUT':
                 return [
                     'name' => 'required|string|max:150',
                     'email' => 'required|string|email|max:150|unique:users,email,'.$this->route('user'),
                     'role_id' => 'required',
                 ];
-            }
+
             default:
                 break;
         }

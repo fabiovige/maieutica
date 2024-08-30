@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreatePlanesTable extends Migration
 {
-
     public function up()
     {
         Schema::create('planes', function (Blueprint $table) {

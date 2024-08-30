@@ -14,7 +14,7 @@ class Kid extends BaseModel
         'created_by',
         'updated_by',
         'deleted_by',
-        'months'
+        'months',
     ];
 
     public function user()
@@ -47,10 +47,11 @@ class Kid extends BaseModel
         $this->attributes['birth_date'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
     }
 
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
-        self::deleting(function($kid) {
-            $kid->checklists()->each(function($checklist) {
+        self::deleting(function ($kid) {
+            $kid->checklists()->each(function ($checklist) {
                 $checklist->delete();
             });
         });
@@ -66,11 +67,12 @@ class Kid extends BaseModel
             $data->where('created_by', '=', auth()->user()->id);
             $data->orWhere('user_id', '=', auth()->user()->id);
 
-            $responsible = Responsible::where("user_id", '=', auth()->user()->id)->first();
+            $responsible = Responsible::where('user_id', '=', auth()->user()->id)->first();
             if ($responsible) {
-                $data->orWhere('responsible_id',  '=', $responsible->id);
+                $data->orWhere('responsible_id', '=', $responsible->id);
             }
         }
+
         return $data;
     }
 
@@ -78,9 +80,9 @@ class Kid extends BaseModel
     {
         $now = Carbon::now();
         $dt = Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d');
+
         return $now->diffInMonths($dt);
     }
-
 
     public function getFullNameMonthsAttribute()
     {
@@ -88,7 +90,6 @@ class Kid extends BaseModel
         $dt = Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d');
         $month = $now->diffInMonths($dt);
 
-        return $month . ' meses - ' . $this->birth_date . ' - Cod. ' . $this->id;
+        return $month.' meses - '.$this->birth_date.' - Cod. '.$this->id;
     }
-
 }

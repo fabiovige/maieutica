@@ -6,7 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ChecklistRequest extends FormRequest
 {
-
     public function authorize()
     {
         return true;
@@ -16,23 +15,23 @@ class ChecklistRequest extends FormRequest
     {
         switch ($this->method()) {
             case 'GET':
-            case 'DELETE': {
+            case 'DELETE':
                 return [
                     'id' => 'required|exists:checklist,id',
                 ];
-            }
-            case 'POST': {
+
+            case 'POST':
                 return [
                     'kid_id' => 'required',
                     'level' => 'required',
                     'description' => 'nullable',
                 ];
-            }
-            case 'PUT': {
+
+            case 'PUT':
                 return [
                     'description' => 'required|min:6',
                 ];
-            }
+
             default:
                 break;
         }
@@ -45,5 +44,4 @@ class ChecklistRequest extends FormRequest
             'level' => 'nível',
         ];
     }
-
 }

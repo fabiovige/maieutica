@@ -10,7 +10,10 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -30,18 +33,20 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'allow' => 'boolean'
+        'allow' => 'boolean',
     ];
 
-    const SUPERADMIN = 1;
-    const ADMIN = 2;
+    public const SUPERADMIN = 1;
 
-    const TYPE_E = 'e';
-    const TYPE_I = 'i';
+    public const ADMIN = 2;
 
-    const TYPE = [
+    public const TYPE_E = 'e';
+
+    public const TYPE_I = 'i';
+
+    public const TYPE = [
         'i' => 'Interno',
-        'e' => 'Externo'
+        'e' => 'Externo',
     ];
 
     public function kids()
@@ -97,17 +102,17 @@ class User extends Authenticatable
         ])->get();
     }
 
-    public static function listAssocUser($type) {
+    public static function listAssocUser($type)
+    {
 
         if (auth()->user()->isSuperAdmin()) {
             return self::where('type', '=', $type)->get();
-        } else if (auth()->user()->isAdmin()) {
+        } elseif (auth()->user()->isAdmin()) {
             return self::where('type', '=', $type)
-            ->where('created_by', '!=', 1)->get();
+                ->where('created_by', '!=', 1)->get();
         } else {
             return self::where('type', '=', $type)
-            ->where('created_by', '=', auth()->user()->id)->get();
+                ->where('created_by', '=', auth()->user()->id)->get();
         }
     }
-
 }

@@ -34,12 +34,14 @@ class Competence extends Model
     public static function total($level_id)
     {
         $query = "SELECT COUNT(1) AS total FROM competences AS c WHERE c.level_id in($level_id)";
+
         return DB::select($query);
     }
 
     public static function partial($checklist_id, $level_id)
     {
         $query = "SELECT COUNT(1) AS partial FROM competences AS c inner JOIN checklist_competence AS cc ON cc.competence_id = c.id WHERE cc.checklist_id = $checklist_id AND c.level_id in($level_id) AND cc.note != 0";
+
         return DB::select($query);
     }
 
@@ -50,7 +52,7 @@ class Competence extends Model
             ->leftJoin('competences as c', 'c.id', '=', 'cc.competence_id')
             ->leftJoin('domains as d', 'd.id', '=', 'c.domain_id')
             ->where('cc.checklist_id', '=', $checklist_id)
-            ->where('c.level_id',  $level_id)
+            ->where('c.level_id', $level_id)
             ->where('c.domain_id', $domain_id)
             ->get();
     }

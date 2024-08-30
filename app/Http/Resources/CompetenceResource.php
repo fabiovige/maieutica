@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Resources;
+
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CompetenceResource extends JsonResource
@@ -21,7 +22,7 @@ class CompetenceResource extends JsonResource
             'description_detail' => $this->description_detail,
             'note' => $this->note,
             'competence_id' => $this->id,
-            'checked' => true
+            'checked' => true,
         ];
     }
 }

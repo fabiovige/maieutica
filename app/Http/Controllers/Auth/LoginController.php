@@ -48,7 +48,7 @@ class LoginController extends Controller
         Auth::logoutOtherDevices($request->password);
 
         // se user acesso bloqueado
-        if(Auth::user()->allow == false) {
+        if (Auth::user()->allow == false) {
             // logout
             $this->guard()->logout();
 

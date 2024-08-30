@@ -39,7 +39,7 @@ class RoleController extends Controller
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
-                if (request()->user()->can('roles.update') || request()->user()->can('roles.store') ) {
+                if (request()->user()->can('roles.update') || request()->user()->can('roles.store')) {
                     $html = '<a class="btn btn-sm btn-success" href="'.route('roles.edit', $data->id).'"><i class="bi bi-gear"></i></a>';
 
                     return $html;
@@ -100,7 +100,7 @@ class RoleController extends Controller
         try {
             $role = $this->role->findOrFail($id);
             $resources = Resource::with('abilities')->orderBy('created_at')->get();
-            $abilities =  Ability::assocAbilities($role, $resources);
+            $abilities = Ability::assocAbilities($role, $resources);
             $message = label_case('Show Role ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
@@ -123,7 +123,7 @@ class RoleController extends Controller
             Log::info($message);
 
             $resources = Resource::with('abilities')->orderBy('created_at')->get();
-            $abilities =  Ability::all();
+            $abilities = Ability::all();
 
             return view('roles.edit', compact('role', 'abilities', 'resources'));
         } catch (\Exception $e) {
@@ -197,56 +197,56 @@ class RoleController extends Controller
             return redirect()->back();
         }
     }
-//
-//    public function syncResources(int $role)
-//    {
-//        DB::beginTransaction();
-//        try {
-//            $role = $this->role->findOrFail($role);
-//            $resources = Resource::orderBy('name')->get();
-//            DB::commit();
-//
-//            $message = label_case('Resources Role ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-//            Log::info($message);
-//
-//            return view('roles.sync-resources', compact('role', 'resources'));
-//        } catch (Exception $e) {
-//            DB::rollBack();
-//
-//            flash(self::MSG_UPDATE_ERROR)->error();
-//
-//            $message = label_case('Resources Role '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-//            Log::error($message);
-//
-//            return redirect()->route('roles.index', $role);
-//        }
-//    }
-//
-//    public function updateSyncResources($role, Request $request)
-//    {
-//        DB::beginTransaction();
-//        try {
-//            $role = $this->role->findOrFail($role);
-//            $role->updated_by = auth()->user()->id;
-//            $role->update();
-//            $role->resources()->sync($request->abilities);
-//
-//            DB::commit();
-//            flash(self::MSG_UPDATE_SUCCESS)->success();
-//
-//            $message = label_case('Update Resources Role '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-//            Log::notice($message);
-//
-//            return redirect()->route('roles.show', $role);
-//        } catch (Exception $e) {
-//            DB::rollBack();
-//
-//            flash(self::MSG_UPDATE_ERROR)->error();
-//
-//            $message = label_case('Update Resources Role '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-//            Log::error($message);
-//
-//            return redirect()->route('roles.index', $role);
-//        }
-//    }
+    //
+    //    public function syncResources(int $role)
+    //    {
+    //        DB::beginTransaction();
+    //        try {
+    //            $role = $this->role->findOrFail($role);
+    //            $resources = Resource::orderBy('name')->get();
+    //            DB::commit();
+    //
+    //            $message = label_case('Resources Role ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+    //            Log::info($message);
+    //
+    //            return view('roles.sync-resources', compact('role', 'resources'));
+    //        } catch (Exception $e) {
+    //            DB::rollBack();
+    //
+    //            flash(self::MSG_UPDATE_ERROR)->error();
+    //
+    //            $message = label_case('Resources Role '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+    //            Log::error($message);
+    //
+    //            return redirect()->route('roles.index', $role);
+    //        }
+    //    }
+    //
+    //    public function updateSyncResources($role, Request $request)
+    //    {
+    //        DB::beginTransaction();
+    //        try {
+    //            $role = $this->role->findOrFail($role);
+    //            $role->updated_by = auth()->user()->id;
+    //            $role->update();
+    //            $role->resources()->sync($request->abilities);
+    //
+    //            DB::commit();
+    //            flash(self::MSG_UPDATE_SUCCESS)->success();
+    //
+    //            $message = label_case('Update Resources Role '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+    //            Log::notice($message);
+    //
+    //            return redirect()->route('roles.show', $role);
+    //        } catch (Exception $e) {
+    //            DB::rollBack();
+    //
+    //            flash(self::MSG_UPDATE_ERROR)->error();
+    //
+    //            $message = label_case('Update Resources Role '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+    //            Log::error($message);
+    //
+    //            return redirect()->route('roles.index', $role);
+    //        }
+    //    }
 }

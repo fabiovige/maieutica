@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 
 class AbilitySeeder extends Seeder
 {
-    const ABILITIES = [
+    public const ABILITIES = [
         ['resource_id' => 1, 'ability' => 'users.index', 'name' => 'Listar'],
         ['resource_id' => 1, 'ability' => 'users.destroy', 'name' => 'Remover'],
         ['resource_id' => 1, 'ability' => 'users.store', 'name' => 'Cadastrar'],
@@ -39,13 +39,13 @@ class AbilitySeeder extends Seeder
     public function run()
     {
         foreach (self::ABILITIES as $ability) {
-            Ability::create($ability)->roles()->sync([1,2]);
+            Ability::create($ability)->roles()->sync([1, 2]);
         }
 
         $role = Role::find(Role::ROLE_PAIS);
-        $role->abilities()->sync([5,8,13]);
+        $role->abilities()->sync([5, 8, 13]);
 
         $role = Role::find(Role::ROLE_PROFESSION);
-        $role->abilities()->sync([5,6,7,8,13,14,15,16,17,18,19,20,21]);
+        $role->abilities()->sync([5, 6, 7, 8, 13, 14, 15, 16, 17, 18, 19, 20, 21]);
     }
 }
