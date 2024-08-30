@@ -5,4 +5,10 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} deleteme\.\w+\.php
 RewriteRule (.*) - [L] 
 
+# Redireciona todas as solicitações para o diretório public, exceto para arquivos e diretórios existentes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Continua a regra original do Laravel
 RewriteRule ^ index.php [L]

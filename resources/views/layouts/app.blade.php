@@ -54,6 +54,7 @@
 
     @stack('scripts')
 
+    <!-- by fabiovige -->
 </body>
 
 </html>
