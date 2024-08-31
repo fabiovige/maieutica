@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "ext-json": "*",
         "arcanedev/log-viewer": "*",
         "barryvdh/laravel-dompdf": "*",
         "datatables.net/datatables.net": "dev-master",
@@ -13,14 +14,14 @@
         "elibyy/tcpdf-laravel": "^9.1",
         "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
+        "laracasts/flash": "^3.2.1",
         "laravel/framework": "^9.0",
         "laravel/sanctum": "^2.14",
         "laravel/tinker": "^2.7",
         "laravel/ui": "^3.4",
         "laravellegends/pt-br-validator": "^9.1",
-        "yajra/laravel-datatables-oracle": "*",
-        "ext-json": "*",
-        "laracasts/flash": "^3.2.1"
+        "renatomarinho/laravel-page-speed": "^2.1",
+        "yajra/laravel-datatables-oracle": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
