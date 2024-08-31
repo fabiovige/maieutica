@@ -62,7 +62,7 @@ class ResponsibleController extends Controller
 
     public function store(ResponsibleRequest $request)
     {
-        $responsible = new Responsible();
+        $responsible = new Responsible;
         $data = $request->all();
         $data['created_by'] = Auth::id();
 
