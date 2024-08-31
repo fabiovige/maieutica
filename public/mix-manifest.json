@@ -58,5 +58,7 @@
     "/vendor/datatable/pt-BR.json": "/vendor/datatable/pt-BR.json?id=677d05c409cc0410a808c6d3a3951b12",
     "/vendor/datatable/responsive.bootstrap5.js": "/vendor/datatable/responsive.bootstrap5.js?id=eaf53c7428250d95227f80c2a3c96ddf",
     "/vendor/datatable/responsive.bootstrap5.min.css": "/vendor/datatable/responsive.bootstrap5.min.css?id=3a4613a6d489c5f597f5211c4c30661a",
-    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd"
+    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd",
+    "/js/app.min.js": "/js/app.min.js?id=8e70c0fd0735dcbcafb396c7e4acc97c",
+    "/css/app.min.css": "/css/app.min.css?id=784d982ff83cf111c89bf484fca6e7a9"
 }
