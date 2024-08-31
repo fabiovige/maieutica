@@ -1,3 +1,3 @@
-git tag -a 1.0.15 -m "Release 15"
+git tag -a 1.0.19 -m "Release 19 - Atualização de pacotes e padronização de código"
 
 git push --tags
