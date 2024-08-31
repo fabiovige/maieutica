@@ -3,15 +3,18 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
 
     <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token"
+          content="{{ csrf_token() }}">
 
     <title>{{ config('app.name') }} - {{ config('app.description') }} - by fabiovige</title>
 
     <!-- Styles -->
-    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+    <link href="{{ mix('css/app.css') }}"
+          rel="stylesheet">
 
     @stack('styles')
 
@@ -38,19 +41,28 @@
         </main>
         <footer>
             <div class="container">
-                <div class="row  py-4 d-flex justify-content-center">
-                    <p class="small text-center mb-0 mt-4">
-                        &copy; {{ now()->format('Y') }} {{ config('app.name') }} - {{ config('app.description') }}
-                        <br>
-                        {{ config('app.version') }}
-                    </p>
+                <div class="row py-4 d-flex justify-content-between">
+                    <div class="col-auto">
+                        <p class="small mb-0 mt-4">
+                            &copy; {{ now()->format('Y') }} {{ config('app.name') }} - {{ config('app.description') }}
+                        </p>
+                    </div>
+                    <div class="col-auto">
+                        <p class="small mb-0 mt-4 text-right">
+                            versão: {{ config('app.version') }} | 31/08/2024 -
+                            by <a href="https://fabiovige.dev"
+                               target="_black"
+                               title="Developer PHP | Laravel">fabiovige</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </footer>
     </div>
 
     <!-- Scripts -->
-    <script src="{{ mix('js/app.js') }}" defer></script>
+    <script src="{{ mix('js/app.js') }}"
+            defer></script>
 
     @stack('scripts')
 
