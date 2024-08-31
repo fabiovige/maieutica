@@ -42,7 +42,7 @@ class KidUpdateNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage())
+        return (new MailMessage)
             ->line('Criança atualizada com sucesso.'.$this->kid->name)
             ->action('Notification Action', url('/'))
             ->line('Thank you for using our application!');
