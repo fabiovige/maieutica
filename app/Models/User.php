@@ -49,6 +49,9 @@ class User extends Authenticatable
         'e' => 'Externo',
     ];
 
+    public const PAIS = 'Pais';
+    public const PROFESSION = 'Profession';
+
     public function kids()
     {
         return $this->hasMany(Kid::class);

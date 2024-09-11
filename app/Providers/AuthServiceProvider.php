@@ -3,14 +3,16 @@
 namespace App\Providers;
 
 use App\Models\Ability;
+use App\Models\Responsible;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-
+        Responsible::class => 'App\Policies\ResponsiblePolicy',
     ];
 
     public function boot()
@@ -26,11 +28,13 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         $abilities = Ability::all();
-        if ($abilities) {
-            foreach ($abilities as $ability) {
-                Gate::define($ability->ability, function (User $user) use ($ability) {
-                    return $ability->roles->contains($user->role);
-                });
+        if(Schema::hasTable('abilities') && Schema::hasTable('roles')) {
+            if ($abilities) {
+                foreach ($abilities as $ability) {
+                    Gate::define($ability->ability, function (User $user) use ($ability) {
+                        return $ability->roles->contains($user->role);
+                    });
+                }
             }
         }
     }

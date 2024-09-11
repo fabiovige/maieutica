@@ -100,7 +100,7 @@
                         </div>
                     </div>
                     <div class="card-footer d-flex justify-content-end">
-                        @can('responsibles.store')
+                        @can('responsibles.update')
                         <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                         @endcan
                     </div>

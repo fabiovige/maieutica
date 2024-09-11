@@ -16,7 +16,8 @@ class ResponsibleController extends Controller
 {
     public function index()
     {
-        $message = label_case('Index Responsibles ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+        //$this->authorize('viewAny', Responsible::class);
+        $message = label_case('Index Responsibles ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::debug($message);
 
         return view('responsibles.index');
@@ -24,21 +25,45 @@ class ResponsibleController extends Controller
 
     public function index_data()
     {
+        /*
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Responsible::select('id', 'name', 'email', 'cell');
         } else {
             $data = Responsible::select('id', 'name', 'email', 'cell');
-            $data->where('created_by', '=', auth()->user()->id);
-            $data->orWhere('user_id', '=', auth()->user()->id);
+
+            if (auth()->user()->role->name === User::PAIS) {
+                $data = $data->where('user_id', auth()->user()->id);
+            }
+
+            if (auth()->user()->role->name === User::PROFESSION) {
+                $kids = auth()->user()->kids()->get();
+                $responsibleIds = [];
+                if ($kids) {
+                    foreach ($kids as $kid) {
+                        $responsibleIds[] = $kid->responsible()->first()->id;
+                    }
+                }
+                $data = $data->whereIn('id', array_unique($responsibleIds));
+            }
+            //$data->where('created_by', '=', auth()->user()->id);
+            //$data->orWhere('user_id', '=', auth()->user()->id);
         }
+
+        */
+
+        //$data = Responsible::select('id', 'name', 'email', 'cell');
+        $responsible = Responsible::with('user')->get();
+
+        // Filtrar os registros com base na policy 'show'
+        $data = $responsible->filter(function ($responsible) {
+            // Apenas retorna os registros onde o usuário tem permissão de visualização
+            return auth()->user()->can('show', $responsible);
+        });
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
-                if (request()->user()->can('responsibles.update') || request()->user()->can('responsibles.store')) {
-
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('responsibles.edit', $data->id).'"><i class="bi bi-gear"></i> </a>';
-
-                    return $html;
+                if (auth()->user()->can('update', $data)) {
+                    return '<a class="btn btn-sm btn-success" href="' . route('responsibles.edit', $data->id) . '"><i class="bi bi-edit"></i> Editar</a>';
                 }
             })
             ->editColumn('name', function ($data) {
@@ -51,7 +76,7 @@ class ResponsibleController extends Controller
                 return $data->cell;
             })
             ->rawColumns(['action'])
-            ->orderColumns(['id'], '-:column $1')
+            //->orderColumns($data->id, '-:column $1')
             ->make(true);
     }
 
@@ -91,6 +116,8 @@ class ResponsibleController extends Controller
 
     public function edit(Responsible $responsible)
     {
+        $this->authorize('update', $responsible);
+
         try {
             $allow = ($responsible->user()->count() == 0 ? false : $responsible->user->allow);
 
@@ -98,10 +125,9 @@ class ResponsibleController extends Controller
                 'responsible' => $responsible,
                 'allow' => $allow,
             ]);
-
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Update Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -115,6 +141,9 @@ class ResponsibleController extends Controller
             $data = $request->all();
             $data['updated_by'] = Auth::id();
             $responsible = Responsible::findOrFail($id);
+
+            $this->authorize('update', $responsible);
+
             $user = User::where('email', '=', $data['email']);
 
             if (isset($data['allow'])) {
@@ -154,16 +183,14 @@ class ResponsibleController extends Controller
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
             return redirect()->route('responsibles.index');
-
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_UPDATE_ERROR)->warning();
-            $message = label_case('Update Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
         }
-
     }
 
     private function emailDuplicate($email)
@@ -193,7 +220,7 @@ class ResponsibleController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_DELETE_SUCCESS)->warning();
-            $message = label_case('Delete Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Delete Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
