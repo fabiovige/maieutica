@@ -23,8 +23,16 @@ class User extends Authenticatable
         'created_by',
         'updated_by',
         'deleted_by',
-        'responsible_id',
+        'phone',
+        'postal_code',
+        'street',
+        'number',
+        'complement',
+        'neighborhood',
+        'city',
+        'state',
     ];
+
 
     protected $hidden = [
         'password',
@@ -37,29 +45,22 @@ class User extends Authenticatable
     ];
 
     public const SUPERADMIN = 1;
-
     public const ADMIN = 2;
+    public const ROLE_PAIS = 3;
+    public const ROLE_PROFESSION = 4;
 
-    public const TYPE_E = 'e';
-
+    // Constantes para os tipos
     public const TYPE_I = 'i';
+    public const TYPE_E = 'e';
 
     public const TYPE = [
         'i' => 'Interno',
         'e' => 'Externo',
     ];
 
-    public const PAIS = 'Pais';
-    public const PROFESSION = 'Profession';
-
     public function kids()
     {
         return $this->hasMany(Kid::class);
-    }
-
-    public function responsible()
-    {
-        return $this->hasMany(Responsible::class);
     }
 
     public function role()

@@ -45,21 +45,21 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mt-3">
-                                    <label for="user_id">Terapeuta responsável</label> <br>
-                                    <select class="form-select @error('user_id') is-invalid @enderror" aria-label="user_id" name="user_id">
+                                    <label for="profession_id">Profissional</label> <br>
+                                    <select class="form-select @error('profession_id') is-invalid @enderror" aria-label="profession_id" name="profession_id">
                                         <option value="">-- selecione --</option>
-                                        @foreach($users as $user)
-                                            <option value="{{ $user->id }}" @if(old('user_id') == $user->id || $user->id == $kid->user_id  ) selected @endif> {{ $user->name }} - {{ $user->role->name }} </option>
+                                        @foreach($professions as $profession)
+                                            <option value="{{ $profession->id }}" @if(old('profession_id') == $profession->id || $profession->id == $kid->profession_id  ) selected @endif> {{ $profession->name }}</option>
                                         @endforeach
                                     </select>
-                                    @error('user_id')
+                                    @error('profession_id')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6 mt-3">
-                                    <label for="responsible_id">Responsáveis</label> <br>
+                                    <label for="responsible_id">Pais ou responsável</label> <br>
 
                                     <select class="form-select @error('responsible_id') is-invalid @enderror"
                                     aria-label="responsible_id" name="responsible_id">
@@ -78,7 +78,6 @@
                                     @enderror
                                 </div>
                             </div>
-
 
                             <div class="row">
                                 <div class="col-md-12">
@@ -99,7 +98,7 @@
                                             <td>{{ $kid->responsible->name }}</td>
                                             <td>{{ $kid->responsible->email }}</td>
                                             <td>
-                                                @if($kid->responsible->user_id)
+                                                @if($kid->responsible)
                                                     <span class="badge bg-primary"><i class="bi bi-emoji-smile"></i> Sim </span>
                                                 @else
                                                     <span class="badge bg-info"><i class="bi bi-emoji-frown"></i> Não </span>
@@ -112,6 +111,7 @@
                                     </table>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                     <div class="card-footer d-flex justify-content-end">

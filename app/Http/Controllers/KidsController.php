@@ -10,6 +10,7 @@ use App\Models\Responsible;
 use App\Models\User;
 use App\Util\MyPdf;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
 
@@ -54,18 +55,16 @@ class KidsController extends Controller
             ->editColumn('checklists', function ($data) {
                 return '<span class="badge bg-success"><i class="bi bi-check"></i> '.$data->checklists->count().' Checklist(s) </span>';
             })
-            ->editColumn('user_id', function ($data) {
-                if ($data->user_id) {
-                    return $data->user->name;
-                }
+            ->editColumn('profession_id', function ($data) {
+                // Exibe o nome do profissional ou 'Não atribuído' caso não tenha um profissional
+                return $data->professional ? $data->professional->name : 'Não atribuído';
             })
             ->editColumn('responsible_id', function ($data) {
-                if ($data->responsible_id) {
-                    return $data->responsible->name;
-                }
+                // Exibe o nome do responsável ou 'Não atribuído' caso não tenha um responsável
+                return $data->responsible ? $data->responsible->name : 'Não atribuído';
             })
-            ->rawColumns(['name', 'checklists', 'user_id', 'responsible_id', 'action'])
-            ->orderColumns(['id'], '-:column $1')
+            ->rawColumns(['name', 'checklists','responsible','action'])
+            //->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
 
@@ -74,23 +73,52 @@ class KidsController extends Controller
         $message = label_case('Create Kids').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
 
-        $users = User::scopeListUsers();
-        $responsibles = Responsible::all();
+        $responsibles = User::where('role_id', User::ROLE_PAIS)->get();
+        $professions = User::where('role_id', User::ROLE_PROFESSION)->get();
 
-        return view('kids.create', compact('users', 'responsibles'));
+        return view('kids.create', compact('professions','responsibles'));
     }
 
     public function store(KidRequest $request)
     {
+        DB::beginTransaction();
         try {
             $message = label_case('Store Kids '.self::MSG_CREATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
-            Kid::create($request->all());
+            $kidData = [
+                'name' => $request->name,
+                'birth_date' => $request->birth_date,
+            ];
+            $kid = Kid::create($kidData);
+            Log::info('Kid created: '.$kid->id. ' created by: '.auth()->user()->id);
+
+            // cadastra user com role_id = 3 (pais)
+            $userData = [
+                'name' => $request->responsible_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'cep' => $request->cep,
+                'street' => $request->logradouro,
+                'number' => $request->numero,
+                'complement' => $request->complemento,
+                'neighborhood' => $request->bairro,
+                'city' => $request->cidade,
+                'state' => $request->estado,
+                'password' => bcrypt('default_password'), // Ou você pode gerar uma senha aleatória
+                'role_id' => 3, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
+                'created_by' => auth()->user()->id,
+            ];
+            $user = User::create($userData);
+            Log::info('User created: '.$user->id. ' created by: '.auth()->user()->id);
+
             flash(self::MSG_CREATE_SUCCESS)->success();
 
+            DB::commit();
             return redirect()->route('kids.index');
+
         } catch (Exception $e) {
+            DB::rollBack();
             flash(self::MSG_CREATE_ERROR)->warning();
             $message = label_case('Store Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
@@ -140,10 +168,10 @@ class KidsController extends Controller
             $message = label_case('Edit Kids ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
-            $users = User::scopeListUsers();
-            $responsibles = Responsible::all();
+            $responsibles = User::where('role_id', User::ROLE_PAIS)->get();
+            $professions = User::where('role_id', User::ROLE_PROFESSION)->get();
 
-            return view('kids.edit', compact('kid', 'users', 'responsibles'));
+            return view('kids.edit', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Update Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
@@ -160,19 +188,19 @@ class KidsController extends Controller
             Log::info($message);
 
             $data = $request->all();
-
+            //dd($data);
             $kid->update($data);
-            SendKidUpdateJob::dispatch($kid)->onQueue('emails');
+            //SendKidUpdateJob::dispatch($kid)->onQueue('emails');
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
-            //flash(self::MSG_UPDATE_ERROR)->warning();
-            echo $message = label_case('Update Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-            //Log::error($message);
+            $message = label_case('Update Kids Error'.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            Log::error($message);
 
-            //return redirect()->back();
+            flash(self::MSG_UPDATE_ERROR)->warning();
+            return redirect()->back();
         }
     }
 

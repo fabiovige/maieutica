@@ -27,8 +27,11 @@ class AuthServiceProvider extends ServiceProvider
             }
         });
 
-        $abilities = Ability::all();
-        if(Schema::hasTable('abilities') && Schema::hasTable('roles')) {
+        // Verifica se as tabelas existem antes de executar qualquer operação no banco
+        if (Schema::hasTable('abilities') && Schema::hasTable('roles')) {
+            $abilities = Ability::all();  // Mova isso para dentro do bloco condicional
+            //dd('Tabelas existem', $abilities);
+
             if ($abilities) {
                 foreach ($abilities as $ability) {
                     Gate::define($ability->ability, function (User $user) use ($ability) {

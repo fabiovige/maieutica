@@ -18,13 +18,13 @@ export default {
     name: "Resumekid",
     props: {
         kid: Object,
-        responsible: Object,
+        user: Object,
         checklist: Number,
         plane: Number,
     },
     setup(props) {
         const kid = ref(props.kid);
-        const responsible = ref(props.responsible);
+        const user = ref(props.user);
         const checklist = ref(props.checklist);
         const plane = ref(props.plane);
 
@@ -37,7 +37,7 @@ export default {
 
         return {
             kid,
-            responsible, checklist, plane,
+            user, checklist, plane,
             selectKid,
         };
     },

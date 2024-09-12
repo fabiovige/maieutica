@@ -36,7 +36,7 @@ class UserController extends Controller
 
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('users.update') || request()->user()->can('users.create')) {
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('users.edit', $data->id).'"><i class="bi bi-gear"></i> </a>';
+                    $html = '<a class="btn btn-sm btn-secondary" href="'.route('users.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a>';
 
                     return $html;
                 }

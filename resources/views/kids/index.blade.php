@@ -32,7 +32,7 @@
                                 <th>Nome</th>
                                 <th>Data de nascimento</th>
                                 <th>Checklists</th>
-                                <th>Terapeuta</th>
+                                <th>Profissional</th>
                                 <th>Responsáveis</th>
                                 <th style="width: 30px"></th>
                             </tr>
@@ -87,13 +87,13 @@
                     searchable: false
                 },
                 {
-                    data: 'user_id',
-                    name: 'Terapeuta',
+                    data: 'profession_id',
+                    name: 'Profissional',
                     searchable: false
                 },
                 {
                     data: 'responsible_id',
-                    name: 'Responsáveis',
+                    name: 'Responsável',
                     searchable: false
                 },
                 {

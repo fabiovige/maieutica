@@ -11,9 +11,6 @@
 
         <div class="input-group">
             <input class="form-control @error('cep') is-invalid @enderror" type="text" name="cep" id="cep" value="{{ old('cep') ??$model->cep ?? '' }}" maxlength="8" >
-            <div class="input-group-append">
-                <button id="btnConsultarCep" class="btn btn-success" type="button"><i class="bi bi-search"></i></button>
-            </div>
         </div>
 
         @error('cep')
@@ -108,7 +105,7 @@
     <script type="text/javascript">
 
         var zipCodeField = document.querySelector('#cep')
-        var submitButton = document.querySelector('#btnConsultarCep')
+        //var submitButton = document.querySelector('#btnConsultarCep')
 
         var logradouro = document.querySelector('#logradouro')
         var bairro = document.querySelector('#bairro')
@@ -118,11 +115,21 @@
         var complemento = document.querySelector('#complemento')
 
 
-        submitButton.addEventListener('click', run)
+        //submitButton.addEventListener('click', run)
 
-        function run(event){
-            event.preventDefault();
+        // Evento para quando o usuário terminar de digitar o CEP
+        zipCodeField.addEventListener('keyup', function(event) {
+            var zipCode = zipCodeField.value;
+            console.log(zipCode);
+            // Executa a função se o CEP tiver exatamente 8 dígitos
+            if (zipCode.length === 8) {
+                run();  // Chama a função de busca de CEP
+            }
+        });
+
+        function run(){
             var zipCode = zipCodeField.value
+
             if(zipCode.length < 8){
                 zipCodeField.focus()
                 return ;
@@ -145,5 +152,4 @@
 
         }
     </script>
-
 @endpush

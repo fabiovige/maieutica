@@ -16,8 +16,8 @@ class UserSeeder extends Seeder
     public function run()
     {
         $user1 = User::create([
-            'name' => 'Fabio',
-            'email' => 'fabio@gmail.com',
+            'name' => 'Fabio Martins',
+            'email' => 'fabiovige@gmail.com',
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
@@ -27,8 +27,8 @@ class UserSeeder extends Seeder
         $user1->save();
 
         $user2 = User::create([
-            'name' => 'Ricardo',
-            'email' => 'ricardo@gmail.com',
+            'name' => 'Ricardo Nascimento',
+            'email' => 'ricardo@mailinator.com',
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
@@ -38,8 +38,8 @@ class UserSeeder extends Seeder
         $user2->save();
 
         $user3 = User::create([
-            'name' => 'Flávia',
-            'email' => 'flavia@gmail.com',
+            'name' => 'Flávia Moreno',
+            'email' => 'flavia@mailinator.com',
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
@@ -50,13 +50,13 @@ class UserSeeder extends Seeder
 
         $user3 = User::create([
             'name' => 'João Pedro',
-            'email' => 'joaopedro@gmail.com',
+            'email' => 'joao@mailinator.com',
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
             'created_by' => 2,
         ]);
-        $user3->role()->associate(4);
+        $user3->role()->associate(3);
         $user3->save();
     }
 }

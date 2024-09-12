@@ -5,14 +5,6 @@
            href="{{ route('home.index') }}">Home</a>
     </li>
 
-    @can('responsibles.index')
-        <li class="nav-item">
-            <a class="nav-link @if (request()->is('responsibles*')) active @endif"
-               aria-current="page"
-               href="{{ route('responsibles.index') }}">Responsáveis</a>
-        </li>
-    @endcan
-
     @can('kids.index')
         <li class="nav-item">
             <a class="nav-link @if (request()->is('kids*')) active @endif"

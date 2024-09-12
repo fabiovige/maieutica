@@ -20,14 +20,17 @@ class KidFactory extends Factory
     {
         $date = $this->faker->randomElement(['01/01/2019', '31/12/2021']);
 
-        $user = User::whereNotIn('id', [1, 2])->pluck('id');
-        $responsible = Responsible::pluck('id');
+        // Filtra os responsáveis (ROLE_PAIS)
+        $responsible = User::where('role_id', User::ROLE_PAIS)->pluck('id'); // ROLE_PAIS é 4
+
+        // Filtra os profissionais (ROLE_PROFESSION)
+        $professional = User::where('role_id', User::ROLE_PROFESSION)->pluck('id'); // ROLE_PROFESSION é 5
 
         return [
             'name' => $this->faker->name,
             'birth_date' => $date,
-            'user_id' => $user->random(),
-            'responsible_id' => $responsible->random(),
+            'responsible_id' => $responsible->random(), // Associando ao responsável
+            'profession_id' => $professional->random(), // Associando ao profissional
             'created_by' => 2,
         ];
     }

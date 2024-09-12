@@ -27,7 +27,7 @@ class AlterChecklistsTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('checklists', function (Blueprint $table) {
             $table->dropForeign('checklists_kid_id_foreign');
             $table->dropColumn('kid_id');
         });
