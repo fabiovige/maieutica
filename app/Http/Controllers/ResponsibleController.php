@@ -7,6 +7,7 @@ use App\Models\Responsible;
 use App\Models\Role;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -25,7 +26,7 @@ class ResponsibleController extends Controller
 
     public function index_data()
     {
-        /*
+
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Responsible::select('id', 'name', 'email', 'cell');
         } else {
@@ -49,16 +50,6 @@ class ResponsibleController extends Controller
             //$data->orWhere('user_id', '=', auth()->user()->id);
         }
 
-        */
-
-        //$data = Responsible::select('id', 'name', 'email', 'cell');
-        $responsible = Responsible::with('user')->get();
-
-        // Filtrar os registros com base na policy 'show'
-        $data = $responsible->filter(function ($responsible) {
-            // Apenas retorna os registros onde o usuário tem permissão de visualização
-            return auth()->user()->can('show', $responsible);
-        });
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
@@ -116,8 +107,6 @@ class ResponsibleController extends Controller
 
     public function edit(Responsible $responsible)
     {
-        $this->authorize('update', $responsible);
-
         try {
             $allow = ($responsible->user()->count() == 0 ? false : $responsible->user->allow);
 
@@ -141,9 +130,6 @@ class ResponsibleController extends Controller
             $data = $request->all();
             $data['updated_by'] = Auth::id();
             $responsible = Responsible::findOrFail($id);
-
-            $this->authorize('update', $responsible);
-
             $user = User::where('email', '=', $data['email']);
 
             if (isset($data['allow'])) {
@@ -180,14 +166,16 @@ class ResponsibleController extends Controller
             }
             $responsible->update($data);
             DB::commit();
+            Log::info("Responsible updated by user: " . auth()->user()->name . '(ID:' . auth()->user()->id . ')');
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
             return redirect()->route('responsibles.index');
         } catch (Exception $e) {
             DB::rollBack();
-            flash(self::MSG_UPDATE_ERROR)->warning();
             $message = label_case('Update Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
+
+            flash(self::MSG_UPDATE_ERROR)->warning();
 
             return redirect()->back();
         }

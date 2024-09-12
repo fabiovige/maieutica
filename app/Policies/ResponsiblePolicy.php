@@ -12,11 +12,11 @@ class ResponsiblePolicy
 
     public function show(User $user, Responsible $responsible)
     {
-        return $responsible->user_id === $user->id;
+        return true;
     }
 
     public function update(User $user, Responsible $responsible)
     {
-        return $responsible->user_id === $user->id;
+        return true;
     }
 }
