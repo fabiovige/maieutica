@@ -86,19 +86,13 @@ class KidsController extends Controller
             $message = label_case('Store Kids '.self::MSG_CREATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
-            $kidData = [
-                'name' => $request->name,
-                'birth_date' => $request->birth_date,
-            ];
-            $kid = Kid::create($kidData);
-            Log::info('Kid created: '.$kid->id. ' created by: '.auth()->user()->id);
-
+            /*
             // cadastra user com role_id = 3 (pais)
             $userData = [
                 'name' => $request->responsible_name,
                 'email' => $request->email,
                 'phone' => $request->phone,
-                'cep' => $request->cep,
+                'postal_code' => $request->cep,
                 'street' => $request->logradouro,
                 'number' => $request->numero,
                 'complement' => $request->complemento,
@@ -111,6 +105,14 @@ class KidsController extends Controller
             ];
             $user = User::create($userData);
             Log::info('User created: '.$user->id. ' created by: '.auth()->user()->id);
+            */
+
+            $kidData = [
+                'name' => $request->name,
+                'birth_date' => $request->birth_date,
+            ];
+            $kid = Kid::create($kidData);
+            Log::info('Kid created: '.$kid->id. ' created by: '.auth()->user()->id);
 
             flash(self::MSG_CREATE_SUCCESS)->success();
 
@@ -189,12 +191,13 @@ class KidsController extends Controller
 
             $data = $request->all();
             //dd($data);
+
             $kid->update($data);
             //SendKidUpdateJob::dispatch($kid)->onQueue('emails');
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
-            return redirect()->route('kids.index');
+            return redirect()->route('kids.edit', $kid->id);
         } catch (Exception $e) {
             $message = label_case('Update Kids Error'.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);

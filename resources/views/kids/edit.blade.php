@@ -17,6 +17,14 @@
             <form action="{{ route('kids.update', $kid->id) }}" method="POST">
                 @csrf
                 @method('PUT')
+
+                <!-- DADOS DA CRIANÇA -->
+                <div class="row">
+                    <div class="col-md-12 mt-3">
+                        <h3>Dados da criança</h3>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-header">
                         Id: {{ $kid->id }}
@@ -60,7 +68,6 @@
                                 </div>
                                 <div class="col-md-6 mt-3">
                                     <label for="responsible_id">Pais ou responsável</label> <br>
-
                                     <select class="form-select @error('responsible_id') is-invalid @enderror"
                                     aria-label="responsible_id" name="responsible_id">
                                         <option value="">-- selecione --</option>
@@ -78,48 +85,100 @@
                                     @enderror
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- DADOS OS PAIS -->
+                <div class="row">
+                    <div class="col-md-12 mt-3">
+                        <h3>Dados do responsável</h3>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        Id: {{ $kid->responsible ? $kid->responsible->id : 'Não cadastrado' }}
+                    </div>
+                    <div class="card-body">
+                        @if ($kid->responsible)
                             <div class="row">
                                 <div class="col-md-12">
-                                    <h4 class="mt-4">Responsável</h4>
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
                                                 <th>Id</th>
                                                 <th>Nome</th>
                                                 <th>E-mail</th>
-                                                <th>Acesso liberado</th>
+                                                <th>Telefone</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-
-                                        <tr>
-                                            <td>{{ $kid->responsible->id }}</td>
-                                            <td>{{ $kid->responsible->name }}</td>
-                                            <td>{{ $kid->responsible->email }}</td>
-                                            <td>
-                                                @if($kid->responsible)
-                                                    <span class="badge bg-primary"><i class="bi bi-emoji-smile"></i> Sim </span>
-                                                @else
-                                                    <span class="badge bg-info"><i class="bi bi-emoji-frown"></i> Não </span>
-                                                @endif
-
-                                            </td>
-                                        </tr>
-
+                                            <tr>
+                                                <td>{{ $kid->responsible->id }}</td>
+                                                <td>{{ $kid->responsible->name }}</td>
+                                                <td>{{ $kid->responsible->email }}</td>
+                                                <td>{{ $kid->responsible->phone }}</td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-
-                        </div>
-                    </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        @can('kids.store')
-                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
-                        @endcan
+                        @else
+                            <div class="alert alert-warning" role="alert">
+                                Não há responsável cadastrado
+                            </div>
+                        @endif
                     </div>
                 </div>
+
+                <!-- DADOS DO PROFISSIONAL -->
+                <div class="row">
+                    <div class="col-md-12 mt-3">
+                        <h3>Dados do profissional</h3>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        Id: {{ $kid->professional ? $kid->professional->id : 'Não cadastrado' }}
+                    </div>
+                    <div class="card-body">
+                        @if ($kid->professional)
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Nome</th>
+                                            <th>E-mail</th>
+                                            <th>Telefone</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{ $kid->professional->id }}</td>
+                                            <td>{{ $kid->professional->name }}</td>
+                                            <td>{{ $kid->professional->email }}</td>
+                                            <td>{{ $kid->professional->phone }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        @else
+                        <div class="alert alert-warning" role="alert">
+                            Não há profissional cadastrado
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="card-footer d-flex justify-content-center mt-3">
+                    @can('kids.store')
+                    <x-button icon="check" name="Atualizar dados da criança" type="submit" class="primary"></x-button>
+                    @endcan
+                </div>
+
             </form>
         </div>
     </div>

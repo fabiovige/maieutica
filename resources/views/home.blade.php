@@ -26,7 +26,7 @@
 
                             @foreach ($kids as $kid)
                                 <div class="col">
-                                    <Resumekid :user="{{ $kid->user()->first() }}"
+                                    <Resumekid :user="{{ $kid->first() }}"
                                                :kid="{{ $kid }}"
                                                :checklist="{{ $countChecklists[$kid->id] }}"
                                                :plane="{{ $countPlanes[$kid->id] }}"

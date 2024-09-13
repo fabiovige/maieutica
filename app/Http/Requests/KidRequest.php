@@ -38,9 +38,9 @@ class KidRequest extends FormRequest
                     'responsible_id' => 'nullable|exists:users,id',
 
                     // validação do responsavel
-                    'responsible_name' => 'required|min:3|max:100',
-                    'email' => 'required|string|email|max:150|unique:users,email',
-                    'phone' => 'required|min:3|max:100',
+                    //'responsible_name' => 'required|min:3|max:100',
+                    //'email' => 'required|string|email|max:150|unique:users,email',
+                    //'phone' => 'required|min:3|max:100',
                 ];
 
             case 'PUT':

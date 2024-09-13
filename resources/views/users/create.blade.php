@@ -17,15 +17,15 @@
         <div class="row">
             <div class="col-12">
 
+                <!-- DADOS DO USUARIO-->
                 <div class="card">
                     <div class="card-header">
-                        Cadastrar usuário
+                        Dados do usuário
                     </div>
                     <div class="card-body">
-
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label>Nome</label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
                                         name="name" value="{{ old('name') }}">
@@ -35,7 +35,7 @@
                                         </div>
                                     @enderror
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label>Email</label>
                                     <input type="email" class="form-control @error('email') is-invalid @enderror"
                                         name="email" value="{{ old('email') }}">
@@ -45,15 +45,42 @@
                                         </div>
                                     @enderror
                                 </div>
-
-
-
+                                <div class="col-md-4">
+                                    <label>Telefone</label>
+                                    <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                        name="phone" value="{{ old('phone') }}" maxlength="14"
+                                        placeholder="(99) 99999-9999">
+                                    @error('phone')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- ENDEREÇO-->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Endereço
+                    </div>
+                    <div class="card-body">
+                        <!-- address-->
+                        <x-address :model="null"></x-address>
+                    </div>
+                </div>
+
+                <!-- PERMISSOES-->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Permissões
+                    </div>
+                    <div class="card-body">
 
                         {{-- papeis --}}
-                        <div class="row mt-2">
-                            <label>Papél</label>
+                        <div class="row">
                             @foreach ($roles as $role)
                                 <div class="col-6 py-2">
                                     <div class="card">
@@ -88,19 +115,25 @@
                             @endforeach
                         </div>
                     </div>
-
-                    <div class="card-footer d-flex justify-content-end">
-                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
-                    </div>
                 </div>
 
 
-
-
             </div>
-
         </div>
 
+        <div class="card-footer d-flex justify-content-center mt-3">
+            <x-button icon="check" name="Confirmar novo usuário" type="submit" class="primary"></x-button>
+        </div>
 
     </form>
 @endsection
+
+@push ('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('input[name="phone"]').mask('(00) 00000-0000');
+        });
+    </script>
+@endpush

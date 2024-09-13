@@ -66,55 +66,6 @@
                     </div>
                 </div>
 
-                <!-- DADOS DO RESPONSAVEL -->
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <h3>Dados do responsável</h3>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="mb-2 col-md-4">
-                                    <label for="responsible_name">Nome do responsável</label> <br>
-                                    <input class="form-control @error('responsible_name') is-invalid @enderror" type="text" name="responsible_name" value="{{ old('responsible_name') }}">
-                                    @error('responsible_name')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="mb-2 col-md-4">
-                                    <label for="email">E-mail</label> <br>
-                                    <input class="form-control @error('email') is-invalid @enderror" type="text"
-                                    name="email" value="{{ old('email') }}">
-                                    @error('email')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="mb-2 col-md-4">
-                                    <label for="phone">Telefone</label> <br>
-                                    <input class="form-control @error('phone') is-invalid @enderror phone" type="text"
-                                    name="phone" value="{{ old('phone') }}">
-                                    @error('phone')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <!-- address-->
-                            <x-address></x-address>
-
-                        </div>
-                    </div>
-                </div>
-
-
                 <div class="card-footer d-flex justify-content-center mt-3">
                     <x-button icon="check" name="Cadastrar nova criança" type="submit" class="primary"></x-button>
                 </div>

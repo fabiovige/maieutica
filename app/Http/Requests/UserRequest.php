@@ -24,6 +24,12 @@ class UserRequest extends FormRequest
                 return [
                     'name' => 'required|string|max:150',
                     'email' => 'required|string|email|max:150|unique:users,email',
+                    'phone' => [
+                        'nullable', // Permite que o campo seja opcional
+                        'string',
+                        'regex:/^\(\d{2}\)\s\d{5}-\d{4}$/', // Exige o formato "11 99999-8888"
+                        'max:15'
+                    ],
                     'role_id' => 'required',
                 ];
 

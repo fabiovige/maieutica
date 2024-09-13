@@ -18,7 +18,7 @@ class HomeController extends Controller
         var_dump(auth()->user()->role->role);
 
         try {
-            $kids = Kid::getKids()->get();
+            $kids = Kid::getKids();
             $data = [];
             foreach ($kids as $key => $kid) {
                 $kids[$key]['months'] = $kid->months;

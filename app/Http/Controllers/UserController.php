@@ -141,9 +141,29 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $data = $request->all();
-            $data['password'] = bcrypt('password');
-            $data['created_by'] = Auth::id();
-            $user = User::create($data);
+            $data['type'] = (! isset($request->type)) ? User::TYPE_I : $data['type'];
+
+            // cadastra user com role_id = 3 (pais)
+            $userData = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'postal_code' => $request->cep,
+                'street' => $request->logradouro,
+                'number' => $request->numero,
+                'complement' => $request->complemento,
+                'neighborhood' => $request->bairro,
+                'city' => $request->cidade,
+                'state' => $request->estado,
+                'password' => bcrypt('default_password'), // Ou você pode gerar uma senha aleatória
+                'role_id' => 3, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
+                'created_by' => auth()->user()->id,
+                'allow' => (bool) isset($request->allow),
+                'type' => $data['type'],
+            ];
+
+            $user = User::create($userData);
+            Log::info('User created: '.$user->id. ' created by: '.auth()->user()->id);
 
             $role = Role::find($data['role_id']);
             $user = $user->role()->associate($role);
@@ -175,13 +195,28 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $data = $request->all();
-
             $data['type'] = (! isset($data['type'])) ? User::TYPE_I : $data['type'];
-            $data['allow'] = (bool) isset($data['allow']);
 
             $user = User::findOrFail($id);
-            $data['updated_by'] = Auth::id();
-            $user->update($data);
+            $userData = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'postal_code' => $request->cep,
+                'street' => $request->logradouro,
+                'number' => $request->numero,
+                'complement' => $request->complemento,
+                'neighborhood' => $request->bairro,
+                'city' => $request->cidade,
+                'state' => $request->estado,
+                'password' => bcrypt('default_password'), // Ou você pode gerar uma senha aleatória
+                'role_id' => $request->role_id, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
+                'updated_by' => auth()->user()->id,
+                'allow' => (bool) isset($request->allow),
+                'type' => $data['type'],
+            ];
+
+            $user->update($userData);
 
             $role = Role::find($data['role_id']);
             $user = $user->role()->associate($role);
@@ -194,7 +229,7 @@ class UserController extends Controller
             $message = label_case('Update User '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::notice($message);
 
-            return redirect()->route('users.index');
+            return redirect()->route('users.edit', $id);
 
         } catch (Exception $e) {
             DB::rollBack();
