@@ -56,3 +56,4 @@ Route::get('logs', function () {
     Log::info($message);
     Log::debug($message);
 });
+

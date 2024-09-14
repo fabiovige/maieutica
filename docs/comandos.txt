@@ -1,3 +1,8 @@
 git tag -a 1.0.20 -m "Release 20 - Minificação para deploy de produção"
 
 git push --tags
+
+
+php artisan queue:failed-table
+
+php artisan queue:work --queue=emails --verbose

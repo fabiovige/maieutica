@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -47,7 +49,7 @@ class UserController extends Controller
             })
 
             ->editColumn('role', function ($data) {
-                $role = '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> '.$data->role->name.' </span>';
+                $role = '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> '.$data->role->name ?? '' .' </span>';
 
                 return $role;
             })
@@ -155,7 +157,7 @@ class UserController extends Controller
                 'neighborhood' => $request->bairro,
                 'city' => $request->cidade,
                 'state' => $request->estado,
-                'password' => bcrypt('default_password'), // Ou você pode gerar uma senha aleatória
+                'password' =>  bcrypt('2024@mudar'), // Ou você pode gerar uma senha aleatória
                 'role_id' => 3, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
                 'created_by' => auth()->user()->id,
                 'allow' => (bool) isset($request->allow),
@@ -164,12 +166,12 @@ class UserController extends Controller
 
             $user = User::create($userData);
             Log::info('User created: '.$user->id. ' created by: '.auth()->user()->id);
+            DB::commit();
 
             $role = Role::find($data['role_id']);
             $user = $user->role()->associate($role);
             $user->save();
 
-            DB::commit();
 
             flash(self::MSG_CREATE_SUCCESS)->success();
 
@@ -208,8 +210,7 @@ class UserController extends Controller
                 'complement' => $request->complemento,
                 'neighborhood' => $request->bairro,
                 'city' => $request->cidade,
-                'state' => $request->estado,
-                'password' => bcrypt('default_password'), // Ou você pode gerar uma senha aleatória
+                'state' => $request->estado,// Ou você pode gerar uma senha aleatória
                 'role_id' => $request->role_id, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
                 'updated_by' => auth()->user()->id,
                 'allow' => (bool) isset($request->allow),

@@ -2,7 +2,15 @@
 
 namespace App\Observers;
 
+use App\Mail\UserUpdatedMail;
+use App\Mail\UserCreatedMail;
+
 use App\Models\User;
+
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class UserObserver
 {
@@ -13,7 +21,29 @@ class UserObserver
      */
     public function created(User $user)
     {
-        //
+
+        try {
+            // Criar a instância do Mailable e depois chamar onQueue()
+            $email = (new UserCreatedMail($user))->onQueue('emails');
+
+            // Enviar o e-mail para a fila
+            Mail::to($user->email)->queue($email);
+
+            Log::alert('E-mail de boas-vindas enfileirado para o novo usuário', [
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email
+            ]);
+
+        } catch (\Exception $e) {
+            // Registrar o erro no log
+            Log::error('Falha ao enviar o e-mail de boas-vindas', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        Log::info('Novo usuário criado e processado no UserObserver', ['user_id' => $user->id]);
     }
 
     /**
@@ -23,7 +53,25 @@ class UserObserver
      */
     public function updated(User $user)
     {
-        //
+        try {
+            // Criar a instância do Mailable e depois chamar onQueue()
+            $email = (new UserUpdatedMail($user))->onQueue('emails');
+
+            // Enviar o e-mail para a fila
+            Mail::to($user->email)->queue($email);
+
+            Log::alert('E-mail de atualização enfileirado para o usuário', ['user_id' => $user->id]);
+
+        } catch (\Exception $e) {
+            // Registrar o erro no log
+            Log::error('Falha ao enviar o e-mail de atualização', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // Continuar o processo de log, mesmo que o e-mail falhe
+        Log::info('Usuário atualizado UserObserver', ['user_id' => $user->id]);
     }
 
     /**
