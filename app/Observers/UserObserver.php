@@ -52,7 +52,7 @@ class UserObserver
             'neighborhood' => $user->neighborhood,
             'postal_code' => $user->postal_code,
             'created_at' => $user->created_at,
-            'created_by' => $user->created_by,
+            'created_by' => auth()->user()->id,
         ]);
     }
 
@@ -83,7 +83,7 @@ class UserObserver
                 'neighborhood' => $user->neighborhood,
                 'postal_code' => $user->postal_code,
                 'updated_at' => $user->updated_at,
-                'updated_by' => $user->updated_by,
+                'updated_by' => auth()->user()->id,
             ]);
 
         } catch (\Exception $e) {
@@ -134,7 +134,7 @@ class UserObserver
                 'neighborhood' => $user->neighborhood,
                 'postal_code' => $user->postal_code,
                 'deleted_at' => $user->deleted_at,
-                'deleted_by' => $user->deleted_by,
+                'deleted_by' => auth()->user()->id,
             ]);
         }
     }

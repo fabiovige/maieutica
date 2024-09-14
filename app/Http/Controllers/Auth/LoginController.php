@@ -44,12 +44,12 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        Log::notice(label_case('Autenticado').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')');
+        Log::alert(label_case('Autenticado').' | User: '.auth()->user()->name.' (ID: '.auth()->user()->id.')');
         Auth::logoutOtherDevices($request->password);
 
         // se user acesso bloqueado
         if (Auth::user()->allow == false) {
-            // logout
+            
             $this->guard()->logout();
 
             $request->session()->invalidate();
