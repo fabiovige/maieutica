@@ -2,15 +2,11 @@
 
 namespace App\Observers;
 
-use App\Mail\UserUpdatedMail;
 use App\Mail\UserCreatedMail;
-
+use App\Mail\UserUpdatedMail;
 use App\Models\User;
-
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
 
 class UserObserver
 {
@@ -32,7 +28,7 @@ class UserObserver
             Log::alert('E-mail de boas-vindas enfileirado para o novo usuário', [
                 'user_id' => $user->id,
                 'name' => $user->name,
-                'email' => $user->email
+                'email' => $user->email,
             ]);
 
         } catch (\Exception $e) {

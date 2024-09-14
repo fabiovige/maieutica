@@ -38,5 +38,4 @@ class CreateAbilitiesTable extends Migration
     {
         Schema::dropIfExists('abilities');
     }
-
 }

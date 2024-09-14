@@ -63,7 +63,7 @@ class KidsController extends Controller
                 // Exibe o nome do responsável ou 'Não atribuído' caso não tenha um responsável
                 return $data->responsible ? $data->responsible->name : 'Não atribuído';
             })
-            ->rawColumns(['name', 'checklists','responsible','action'])
+            ->rawColumns(['name', 'checklists', 'responsible', 'action'])
             //->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
@@ -76,7 +76,7 @@ class KidsController extends Controller
         $responsibles = User::where('role_id', User::ROLE_PAIS)->get();
         $professions = User::where('role_id', User::ROLE_PROFESSION)->get();
 
-        return view('kids.create', compact('professions','responsibles'));
+        return view('kids.create', compact('professions', 'responsibles'));
     }
 
     public function store(KidRequest $request)
@@ -112,11 +112,12 @@ class KidsController extends Controller
                 'birth_date' => $request->birth_date,
             ];
             $kid = Kid::create($kidData);
-            Log::info('Kid created: '.$kid->id. ' created by: '.auth()->user()->id);
+            Log::info('Kid created: '.$kid->id.' created by: '.auth()->user()->id);
 
             flash(self::MSG_CREATE_SUCCESS)->success();
 
             DB::commit();
+
             return redirect()->route('kids.index');
 
         } catch (Exception $e) {
@@ -203,6 +204,7 @@ class KidsController extends Controller
             Log::error($message);
 
             flash(self::MSG_UPDATE_ERROR)->warning();
+
             return redirect()->back();
         }
     }

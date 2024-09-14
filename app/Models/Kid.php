@@ -77,7 +77,6 @@ class Kid extends BaseModel
         //$data = Kid::with(['professional', 'responsible', 'checklists']); // Carregando as relações necessárias
         $data = Kid::all(); // Carregando as relações necessárias
 
-
         return $data;
     }
 

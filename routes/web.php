@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\KidsController;
-use App\Http\Controllers\ResponsibleController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Log;
@@ -56,4 +55,3 @@ Route::get('logs', function () {
     Log::info($message);
     Log::debug($message);
 });
-

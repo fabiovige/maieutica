@@ -26,6 +26,7 @@ class HomeController extends Controller
                 $data['countPlanes'][$kid->id] = $kid->planes()->count();
             }
             $data['kids'] = $kids;
+
             return view('home', $data);
         } catch (\Exception $e) {
             Log::error("message: {$e->getMessage()} file: {$e->getFile()} line: {$e->getLine()}");
