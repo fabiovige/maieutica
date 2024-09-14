@@ -7,14 +7,14 @@
     <h2>Olá, {{ $user->name }}!</h2>
     <p>Bem-vindo ao nosso sistema!</p>
 
-    <h3>Seus dados de acesso:</h3>
+    <h3>Seus dados de acesso</h3>
     <p>Link do site: <a href="{{ config('app.url') }}"> {{ config('app.name') }} </a> ou copie a url: {{ config('app.url') }}</p>
     <p><strong>Nome:</strong> {{ $user->name }}<br>
     <strong>E-mail:</strong> {{ $user->email }}<br>
     <strong>Senha:</strong> 2024@mudar<br>
     <strong>Telefone:</strong> {{ $user->phone ?? 'Não informado' }}</p>
 
-    <h3>Endereço:</h3>
+    <h3>Endereço</h3>
     <p><strong>Rua:</strong> {{ $user->street ?? 'Não informado' }}<br>
     <strong>Número:</strong> {{ $user->number ?? 'Não informado' }}<br>
     <strong>Complemento:</strong> {{ $user->complement ?? 'Não informado' }}<br>

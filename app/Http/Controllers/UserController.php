@@ -251,7 +251,7 @@ class UserController extends Controller
                 throw new Exception(self::MSG_DELETE_USER_SELF);
             }
             $user->deleted_by = Auth::id();
-            $user->update();
+            $user->update();            
             $user->delete();
             DB::commit();
 

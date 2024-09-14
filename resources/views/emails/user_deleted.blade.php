@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Conta Atualizada</title>
+    <title>Conta Desativada</title>
 </head>
 <body>
     <h2>Olá, {{ $user->name }}!</h2>
-    <p>Suas informações foram atualizadas com sucesso.</p>
-    <p>Data da atualização: <strong>{{ $user->updated_at }}</strong></p>
+    <p>Sua conta foi desativadacom sucesso.</p>
+    <p>Data da desativação: <strong>{{ $user->deleted_at }}</strong></p>
 
     <h3>Seus dados</h3>
     <p><strong>Nome:</strong> {{ $user->name }}<br>
@@ -21,8 +21,6 @@
     <strong>Cidade:</strong> {{ $user->city ?? 'Não informado' }}<br>
     <strong>Estado:</strong> {{ $user->state ?? 'Não informado' }}<br>
     <strong>CEP:</strong> {{ $user->postal_code ?? 'Não informado' }}</p>
-
-    <p>Se você não realizou esta alteração, por favor entre em contato com nosso suporte.</p>
 
     <p>&nbsp;</p>
     <p>Atenciosamente, <br>
