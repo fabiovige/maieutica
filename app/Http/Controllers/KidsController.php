@@ -117,8 +117,8 @@ class KidsController extends Controller
 
     public function show(Kid $kid)
     {
+        $this->authorize('view', $kid);
         try {
-            //dd('show kids');
             Log::info('', [
                 'user' => auth()->user()->name,
                 'id' => auth()->user()->id,

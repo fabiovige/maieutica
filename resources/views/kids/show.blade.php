@@ -76,7 +76,7 @@
 
     </div>
 
-    @include('includes.information-register', ['data' => $kid, 'action' => 'kids.destroy'])
+    @include('includes.information-register', ['data' => $kid, 'action' => 'kids.destroy', 'can' => 'remove kids'])
 @endsection
 
 @push('scripts')

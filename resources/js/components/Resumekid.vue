@@ -1,7 +1,7 @@
 <template>
-    <div class="card mb-4">
+    <div class="card">
         <div class="card-body shadown text-center mousePointer" @click.prevent="selectKid()">
-            <h5 class="mt-3">{{ kid.name }}</h5>
+            <h5 class="mt-2">{{ kid.name }}</h5>
             <div class="text-muted mb-1">{{ kid.months }} meses - {{ kid.birth_date }} - Cod: {{ kid.id }}</div>
             <div class="d-flex justify-content-center mt-3">
                 <span class="badge bg-success ms-2"><i class="bi bi-check"></i> Checklist - {{ checklist }}</span>

@@ -16,12 +16,9 @@ class HomeController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $permissionNames = $user->getPermissionNames();
-        $permissions = $user->permissions;
 
         $roles = $user->getRoleNames()->first();
-        var_dump($roles);
-        
+
         try {
             $kids = Kid::getKids();
             $data = [];

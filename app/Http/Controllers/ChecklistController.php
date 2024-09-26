@@ -18,6 +18,8 @@ class ChecklistController extends Controller
 {
     public function index()
     {
+        $this->authorize('list checklists');
+
         $message = label_case('Index Checklists ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::debug($message);
 
@@ -26,16 +28,20 @@ class ChecklistController extends Controller
 
     public function index_data()
     {
+        /*
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at');
         } else {
             $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at');
             $data->where('created_by', '=', auth()->user()->id);
         }
+        */
+
+        $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at');
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
-                if (request()->user()->can('checklists.update') || request()->user()->can('checklists.store')) {
+                if (request()->user()->can('edit checklists')) {
 
                     $html = '<div class="dropdown">
                       <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -66,6 +72,8 @@ class ChecklistController extends Controller
 
     public function create()
     {
+        $this->authorize('create checklists');
+
         $message = label_case('Create Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
         $kids = Kid::all('id', 'name');
@@ -75,6 +83,8 @@ class ChecklistController extends Controller
 
     public function store(ChecklistRequest $request)
     {
+        $this->authorize('create');
+
         try {
             $message = label_case('Store Checklists '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
@@ -128,15 +138,18 @@ class ChecklistController extends Controller
 
     public function edit($id)
     {
+        $this->authorize('edit checklists');
+
         try {
-            $checklist = Checklist::findOrFail($id);
             $message = label_case('Edit Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
+
+            $checklist = Checklist::findOrFail($id);
 
             return view('checklists.edit', [
                 'checklist' => $checklist,
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             flash(self::MSG_UPDATE_ERROR)->warning();
             $message = label_case('Update Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
@@ -147,19 +160,21 @@ class ChecklistController extends Controller
 
     public function update(ChecklistRequest $request, $id)
     {
+        $checklist = Checklist::findOrFail($id);
+        $this->authorize('update', $checklist);
+
         try {
             $message = label_case('Update Checklists '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
             $data = $request->all();
             $data['updated_by'] = Auth::id();
-            $checklist = Checklist::findOrFail($id);
             $checklist->update($data);
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
             return redirect()->route('checklists.index');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 
             $message = label_case('Update Checklists '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
@@ -172,18 +187,20 @@ class ChecklistController extends Controller
 
     public function destroy($id)
     {
+        $checklist = Checklist::findOrFail($id);
+        $this->authorize('delete', $checklist);
+
         try {
             $message = label_case('Destroy Checklist '.self::MSG_DELETE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
-            $checklist = Checklist::findOrFail($id);
             $checklist->deleted_by = Auth::id();
-            $checklist->update();
+            $checklist->save();
             $checklist->delete();
             flash(self::MSG_DELETE_SUCCESS)->success();
 
             return redirect()->route('checklists.index');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Destroy Checkilist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
@@ -208,7 +225,7 @@ class ChecklistController extends Controller
         } catch (\Exception $e) {
             $message = label_case('Fill Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
-            
+
             dd($e->getMessage());
             flash(self::MSG_NOT_FOUND)->warning();
             //return redirect()->back();
