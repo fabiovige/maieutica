@@ -204,14 +204,14 @@ class ChecklistController extends Controller
                 'created_at' => $checklist->created_at->format('d/m/Y').' Cod. '.$id,
                 'kid' => $checklist->kid,
             ];
-
             return view('checklists.fill', $data);
-        } catch (Exception $e) {
-            flash(self::MSG_NOT_FOUND)->warning();
+        } catch (\Exception $e) {
             $message = label_case('Fill Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
-
-            return redirect()->back();
+            
+            dd($e->getMessage());
+            flash(self::MSG_NOT_FOUND)->warning();
+            //return redirect()->back();
         }
     }
 

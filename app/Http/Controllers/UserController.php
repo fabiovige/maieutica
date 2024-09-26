@@ -12,30 +12,43 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
 
+use Spatie\Permission\Models\Role as SpatieRole;
+
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        // Aplica a policy automaticamente para resource controller
+        //$this->authorizeResource(User::class, 'user');
+    }
+
     public function index()
     {
-        $message = label_case('Index User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+        $message = label_case('list users ').' | User:'.auth()->user()->name.'(ID: '.auth()->user()->id.') ';
         Log::info($message);
 
+        $this->authorize('list users');
+
+        $user = auth()->user();
         return view('users.index');
     }
 
     public function index_data()
     {
 
-        if (auth()->user()->isSuperAdmin()) {
+        /*if (auth()->user()->isSuperAdmin()) {
             $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
         } else {
             $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
             $data->where('created_by', '=', auth()->user()->id);
-        }
+        }*/
+
+        $data = User::select('id', 'name', 'email', 'type', 'allow');
 
         return Datatables::of($data)
 
             ->addColumn('action', function ($data) {
-                if (request()->user()->can('users.update') || request()->user()->can('users.create')) {
+                if (request()->user()->can('update users') || request()->user()->can('create users')) {
                     $html = '<a class="btn btn-sm btn-secondary" href="'.route('users.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a>';
 
                     return $html;
@@ -47,9 +60,7 @@ class UserController extends Controller
             })
 
             ->editColumn('role', function ($data) {
-                $role = '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> '.$data->role->name ?? ''.' </span>';
-
-                return $role;
+                return '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> '. $data->getRoleNames()->first() ?? ''.' </span>';
             })
 
             ->editColumn('email', function ($data) {
@@ -73,16 +84,23 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        try {
-            $user = User::findOrFail($id);
+        $user = User::findOrFail($id);
 
-            if (auth()->user()->isSuperAdmin()) {
+        // Usa a política para verificar se o usuário pode atualizar
+        $this->authorize('update', $user);
+
+        try {
+            //$user = User::findOrFail($id);
+
+            /*if (auth()->user()->isSuperAdmin()) {
                 $roles = Role::all();
             } elseif (auth()->user()->isAdmin()) {
                 $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
             } else {
                 $roles = Role::where('created_by', '=', Auth::id())->get();
-            }
+            }*/
+
+            $roles = SpatieRole::all();
 
             $message = label_case('Edit User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
@@ -122,13 +140,16 @@ class UserController extends Controller
 
     public function create()
     {
+        /*
         if (auth()->user()->isSuperAdmin()) {
             $roles = Role::all();
         } elseif (auth()->user()->isAdmin()) {
             $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
         } else {
             $roles = Role::where('created_by', '=', Auth::id())->get();
-        }
+        }*/
+
+        $roles = SpatieRole::all();
 
         $message = label_case('Create User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
@@ -164,11 +185,14 @@ class UserController extends Controller
 
             $user = User::create($userData);
             Log::info('User created: '.$user->id.' created by: '.auth()->user()->id);
-            DB::commit();
 
-            $role = Role::find($data['role_id']);
-            $user = $user->role()->associate($role);
+
+            $role = SpatieRole::find($data['role_id']);
+            $user->syncRoles([]);
+            $user->assignRole($role->name);
             $user->save();
+
+            DB::commit();
 
             flash(self::MSG_CREATE_SUCCESS)->success();
 
@@ -178,13 +202,13 @@ class UserController extends Controller
             return redirect()->route('users.index');
 
         } catch (Exception $e) {
+            dd($e->getMessage());
             DB::rollBack();
-
-            flash(self::MSG_CREATE_ERROR)->warning();
 
             $message = label_case('Create User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
+            flash(self::MSG_CREATE_ERROR)->warning();
             return redirect()->back();
         }
     }
@@ -216,8 +240,9 @@ class UserController extends Controller
 
             $user->update($userData);
 
-            $role = Role::find($data['role_id']);
-            $user = $user->role()->associate($role);
+            $role = SpatieRole::find($data['role_id']);
+            $user->syncRoles([]);
+            $user->assignRole($role->name);
             $user->save();
 
             DB::commit();
@@ -251,7 +276,7 @@ class UserController extends Controller
                 throw new Exception(self::MSG_DELETE_USER_SELF);
             }
             $user->deleted_by = Auth::id();
-            $user->update();            
+            $user->update();
             $user->delete();
             DB::commit();
 

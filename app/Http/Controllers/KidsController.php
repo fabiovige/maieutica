@@ -26,7 +26,13 @@ class KidsController extends Controller
 
     public function index_data()
     {
+
         $data = Kid::getKids();
+
+
+        foreach ($data as $kid) {
+            $this->authorize('view', $kid);
+        }
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
@@ -81,6 +87,8 @@ class KidsController extends Controller
 
     public function store(KidRequest $request)
     {
+        $this->authorize('create', Kid::class);
+
         DB::beginTransaction();
         try {
             $message = label_case('Store Kids '.self::MSG_CREATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
@@ -111,6 +119,11 @@ class KidsController extends Controller
                 'name' => $request->name,
                 'birth_date' => $request->birth_date,
             ];
+
+            if(auth()->user()->isProfessional()){
+                $kidData['profession_id'] = auth()->user()->id;
+            }
+
             $kid = Kid::create($kidData);
             Log::info('Kid created: '.$kid->id.' created by: '.auth()->user()->id);
 
@@ -133,8 +146,11 @@ class KidsController extends Controller
     public function show(Kid $kid)
     {
         try {
-            $message = label_case('Show Kids ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-            Log::info($message);
+            //dd('show kids');
+            Log::info('', [
+                'user' => auth()->user()->name,
+                'id' => auth()->user()->id,
+            ]);
 
             if ($kid->checklists()->count() === 0) {
                 flash(self::MSG_NOT_FOUND_CHECKLIST_USER)->warning();
@@ -144,10 +160,10 @@ class KidsController extends Controller
 
             $checklists = $kid->checklists()->orderBy('created_at', 'DESC')->get();
             $kid->months = $kid->months;
-            $kid->profession = $kid->user->name;
+            //$kid->profession = $kid->user->name;
             $data = [
                 'kid' => $kid,
-                'profession' => $kid->user->name,
+                'profession' => $kid->professional->name,
                 'checklists' => $checklists,
                 'checklist_id' => $checklists[0]->id,
                 'level' => $checklists[0]->level,
@@ -186,12 +202,16 @@ class KidsController extends Controller
 
     public function update(KidRequest $request, Kid $kid)
     {
+        $this->authorize('update', $kid);
+
         try {
             $message = label_case('Update Kids '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
             $data = $request->all();
-            //dd($data);
+            if(auth()->user()->isProfessional()){
+                $data['profession_id'] = auth()->user()->id;
+            }
 
             $kid->update($data);
             //SendKidUpdateJob::dispatch($kid)->onQueue('emails');
@@ -234,7 +254,7 @@ class KidsController extends Controller
             $kid_id = $plane->kid()->first()->id;
             $kid = Kid::findOrFail($kid_id);
             $nameKid = $plane->kid()->first()->name;
-            $therapist = $kid->user()->first()->name;
+            $therapist = $kid->professional->name;
             $date = $plane->first()->created_at;
             $arr = [];
 
@@ -292,12 +312,19 @@ class KidsController extends Controller
             }
 
             $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
-        } catch (Exception $e) {
-            flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Plane Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
-            Log::error($message);
 
-            return redirect()->route('kids.index');
+        } catch (Exception $e) {
+            $message = label_case('Plane Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            Log::error('Exibe Plano Erro', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            dd($e->getMessage());
+
+            flash(self::MSG_NOT_FOUND)->warning();
+
+            //return redirect()->route('kids.index');
         }
     }
 

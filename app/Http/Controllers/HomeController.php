@@ -10,13 +10,18 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('acl');
+        //$this->middleware('acl');
     }
 
     public function index()
     {
-        var_dump(auth()->user()->role->role);
+        $user = auth()->user();
+        $permissionNames = $user->getPermissionNames();
+        $permissions = $user->permissions;
 
+        $roles = $user->getRoleNames()->first();
+        var_dump($roles);
+        
         try {
             $kids = Kid::getKids();
             $data = [];
@@ -26,7 +31,6 @@ class HomeController extends Controller
                 $data['countPlanes'][$kid->id] = $kid->planes()->count();
             }
             $data['kids'] = $kids;
-
             return view('home', $data);
         } catch (\Exception $e) {
             Log::error("message: {$e->getMessage()} file: {$e->getFile()} line: {$e->getLine()}");

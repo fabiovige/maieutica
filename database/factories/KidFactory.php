@@ -2,35 +2,48 @@
 
 namespace Database\Factories;
 
+use App\Models\Kid;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\DB;
 
-/**
- * @extends Factory
- */
 class KidFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Kid::class;
+
     public function definition()
     {
-        $date = $this->faker->randomElement(['01/01/2019', '31/12/2021']);
+        // Gera uma data de nascimento aleatória entre 01/01/2019 e 31/12/2021
+        $birthDate = $this->faker->dateTimeBetween('2019-01-01', '2021-12-31')->format('d/m/Y');
 
-        // Filtra os responsáveis (ROLE_PAIS)
-        $responsible = User::where('role_id', User::ROLE_PAIS)->pluck('id'); // ROLE_PAIS é 4
+        // Recupera os IDs dos usuários com a role 'pais' (responsável)
+        $responsibleIds = User::whereHas('roles', function ($query) {
+            $query->where('name', 'pais');
+        })->pluck('id');
 
-        // Filtra os profissionais (ROLE_PROFESSION)
-        $professional = User::where('role_id', User::ROLE_PROFESSION)->pluck('id'); // ROLE_PROFESSION é 5
+        // Recupera os IDs dos usuários com a role 'profissional'
+        $professionalIds = User::whereHas('roles', function ($query) {
+            $query->where('name', 'profissional');
+        })->pluck('id');
+
+        // Seleciona um ID aleatório para o responsável, ou null se não houver
+        $responsibleId = $responsibleIds->isNotEmpty() ? $responsibleIds->random() : null;
+
+        // Seleciona um ID aleatório para o profissional, ou null se não houver
+        $professionalId = $professionalIds->isNotEmpty() ? $professionalIds->random() : null;
+
+        // Seleciona um usuário aleatório para ser o criador, tipicamente um admin ou superadmin
+        $createdBy = User::whereHas('roles', function ($query) {
+            $query->whereIn('name', ['admin', 'superadmin']);
+        })->inRandomOrder()->first()->id ?? null;
 
         return [
             'name' => $this->faker->name,
-            'birth_date' => $date,
-            'responsible_id' => $responsible->random(), // Associando ao responsável
-            'profession_id' => $professional->random(), // Associando ao profissional
-            'created_by' => 2,
+            'birth_date' => $birthDate,
+            'responsible_id' => $responsibleId, // Associando ao responsável (pais)
+            'profession_id' => $professionalId, // Associando ao profissional
+            'created_by' => $createdBy,
+            // Adicione outros campos preenchíveis conforme necessário
         ];
     }
 }

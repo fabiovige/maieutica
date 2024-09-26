@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Ability;
+use App\Models\Kid;
 use App\Models\Responsible;
 use App\Models\User;
+use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
@@ -12,14 +14,16 @@ use Illuminate\Support\Facades\Schema;
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        Responsible::class => 'App\Policies\ResponsiblePolicy',
+        //Responsible::class => 'App\Policies\ResponsiblePolicy',
+        //Kid::class => 'App\Policies\KidPolicy',
+        User::class => UserPolicy::class,
     ];
 
     public function boot()
     {
         $this->registerPolicies();
 
-        Gate::before(function ($user, $ability) {
+        /*Gate::before(function ($user, $ability) {
             if ($user->isSuperAdmin() || $user->isAdmin()) {
                 return true;
             } else {
@@ -39,6 +43,6 @@ class AuthServiceProvider extends ServiceProvider
                     });
                 }
             }
-        }
+        }*/
     }
 }

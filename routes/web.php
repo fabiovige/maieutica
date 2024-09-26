@@ -17,7 +17,7 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])
     ->middleware(['auth'])
     ->name('home.index');
 
-Route::middleware(['auth', 'acl'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     // checklists
     Route::get('checklists/{id}/chart', [ChecklistController::class, 'chart'])->name('checklists.chart');

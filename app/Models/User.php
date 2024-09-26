@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -14,6 +15,7 @@ class User extends Authenticatable
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
+    use HasRoles;
 
     protected $fillable = [
         'name',
@@ -44,12 +46,9 @@ class User extends Authenticatable
     ];
 
     public const SUPERADMIN = 1;
-
-    public const ADMIN = 2;
-
-    public const ROLE_PAIS = 3;
-
-    public const ROLE_PROFESSION = 4;
+    //public const ADMIN = 2;
+    //public const ROLE_PAIS = 3;
+    //public const ROLE_PROFESSION = 4;
 
     // Constantes para os tipos
     public const TYPE_I = 'i';
@@ -89,6 +88,24 @@ class User extends Authenticatable
         return false;
     }
 
+    public function isProfessional(): bool
+    {
+        if ($this->role) {
+            return $this->role->id == self::ROLE_PROFESSION;
+        }
+
+        return false;
+    }
+
+    public function isPais(): bool
+    {
+        if ($this->role) {
+            return $this->role->id == self::ROLE_PAIS;
+        }
+
+        return false;
+    }
+
     public function scopeGetUsers()
     {
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
@@ -111,7 +128,6 @@ class User extends Authenticatable
 
     public static function listAssocUser($type)
     {
-
         if (auth()->user()->isSuperAdmin()) {
             return self::where('type', '=', $type)->get();
         } elseif (auth()->user()->isAdmin()) {

@@ -104,10 +104,8 @@
                                         </div>
                                         <div class="card-body">
                                             <strong>Resursos adicionados:</strong><br>
-                                            @foreach ($role->abilities()->orderBy('name')->get() as $ability)
-                                                <i class="bi bi-check-circle"></i> {{ $ability->name }}
-                                                ({{ $ability->ability }})
-                                                <br>
+                                            @foreach ($role->permissions as $ability)
+                                                <i class="bi bi-check-circle"></i> {{ $ability->name }}<br>
                                             @endforeach
                                         </div>
                                     </div>
@@ -122,7 +120,7 @@
         </div>
 
         <div class="card-footer d-flex justify-content-center mt-3">
-            <x-button icon="check" name="Confirmar novo usuário" type="submit" class="primary"></x-button>
+            <x-button icon="check" name="Confirmar cadastro de usuário" type="submit" class="primary"></x-button>
         </div>
 
     </form>

@@ -61,23 +61,19 @@ class Kid extends BaseModel
 
     public static function getKids()
     {
-        /*
-        $data = null;
-        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
-            $data = Kid::with('re')->select('id', 'name', 'birth_date', 'user_id');
-        } else {
-            $data = Kid::select('id', 'name', 'birth_date', 'user_id');
-            $data->where('created_by', '=', auth()->user()->id);
-            $data->orWhere('user_id', '=', auth()->user()->id);
+        $query = Kid::query();
 
-        }*/
+        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+            $query->with(['professional', 'responsible', 'checklists']);
+        } else if (auth()->user()->hasRole('professional')) {
+            $query->where('profession_id', auth()->user()->id)
+                ->with(['professional', 'responsible', 'checklists']);
+        } else if (auth()->user()->hasRole('Pais')) {
+            $query->where('responsible_id', auth()->user()->id)
+                ->with(['professional', 'responsible', 'checklists']);
+        }
 
-        //$data = Kid::select('id', 'name', 'birth_date', 'profession_id', 'responsible_id');
-
-        //$data = Kid::with(['professional', 'responsible', 'checklists']); // Carregando as relações necessárias
-        $data = Kid::all(); // Carregando as relações necessárias
-
-        return $data;
+        return $query->get();
     }
 
     public function getMonthsAttribute()

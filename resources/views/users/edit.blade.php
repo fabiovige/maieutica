@@ -94,12 +94,12 @@
                                 </div>
                             </div>
 
-                            @can('roles.update')
+                            @can('update roles')
                                 <div class="row mt-2">
                                     <label>Papél</label>
                                     @foreach($roles as $role)
                                         <div class="col-6 py-2">
-                                            <div class="card @if($user->role_id == $role->id) bg-warning bg-opacity-25 @endif ">
+                                            <div class="card @if($user->hasRole($role->name)) bg-warning bg-opacity-25 @endif ">
                                                 <div class="card-header">
                                                     <div class="custom-control custom-checkbox">
                                                         <div class="form-check ">
@@ -109,7 +109,7 @@
                                                                    name="role_id"
                                                                    id="customRadio{{$role->id}}"
                                                                    value="{{$role->id}}"
-                                                                   @if($user->role_id == $role->id) checked @endif
+                                                                   @if($user->hasRole($role->name)) checked @endif
                                                             >
                                                             <label class="form-check-label" for="customRadio{{$role->id}}">
                                                                 {{ $role->name }}
@@ -119,8 +119,8 @@
                                                 </div>
                                                 <div class="card-body">
                                                     <strong>Resursos adicionados:</strong><br>
-                                                    @foreach($role->abilities()->orderBy('name')->get() as $ability)
-                                                        <i class="bi bi-check-circle"></i> {{ $ability->name }} ({{ $ability->ability }}) <br>
+                                                    @foreach($role->permissions as $ability)
+                                                        <i class="bi bi-check-circle"></i> {{ $ability->name }} <br>
                                                     @endforeach
                                                 </div>
                                             </div>
@@ -138,7 +138,7 @@
         </div>
     </form>
 
-    @include('includes.information-register', ['data' => $user, 'action' => 'users.destroy'])
+    @include('includes.information-register', ['data' => $user, 'action' => 'users.destroy', 'can' => 'remove users'])
 
 @endsection
 

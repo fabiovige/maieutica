@@ -54,7 +54,7 @@
                             <div class="row">
                                 <div class="col-md-6 mt-3">
                                     <label for="profession_id">Profissional</label> <br>
-                                    <select class="form-select @error('profession_id') is-invalid @enderror" aria-label="profession_id" name="profession_id">
+                                    <select class="form-select @error('profession_id') is-invalid @enderror" aria-label="profession_id" name="profession_id" @if(auth()->user()->isProfessional()) disabled @endif>
                                         <option value="">-- selecione --</option>
                                         @foreach($professions as $profession)
                                             <option value="{{ $profession->id }}" @if(old('profession_id') == $profession->id || $profession->id == $kid->profession_id  ) selected @endif> {{ $profession->name }}</option>

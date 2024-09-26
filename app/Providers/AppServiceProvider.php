@@ -21,7 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        if ($this->app->isLocal()) {
+            $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
+        }
     }
 
     /**
@@ -38,6 +40,6 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('address', Address::class);
 
         // Observers
-        User::observe(UserObserver::class);
+        // User::observe(UserObserver::class);
     }
 }

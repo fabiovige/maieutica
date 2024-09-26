@@ -4,59 +4,60 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        $user1 = User::create([
-            'name' => 'Fabio Martins',
-            'email' => 'fabiovige@gmail.com',
-            'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
-            'created_by' => 1,
-        ]);
-        $user1->role()->associate(1);
-        $user1->save();
+        // Definição dos usuários a serem criados
+        $users = [
+            [
+                'name' => 'Fabio Martins',
+                'email' => 'fabiovige@gmail.com',
+                'password' => 'password', // senha simples para teste
+                'created_by' => null, // ou o ID do criador, se aplicável
+                'role' => 'superadmin',
+            ],
+            [
+                'name' => 'Ricardo Nascimento',
+                'email' => 'ricardo@mailinator.com',
+                'password' => 'password',
+                'created_by' => 1, // criado por superadmin
+                'role' => 'admin',
+            ],
+            [
+                'name' => 'Flávia Moreno',
+                'email' => 'flavia@mailinator.com',
+                'password' => 'password',
+                'created_by' => 2, // criado por admin
+                'role' => 'profissional',
+            ],
+            [
+                'name' => 'Valéria Nunes',
+                'email' => 'valeria@mailinator.com',
+                'password' => 'password',
+                'created_by' => 2, // criado por admin
+                'role' => 'pais',
+            ],
+        ];
 
-        $user2 = User::create([
-            'name' => 'Ricardo Nascimento',
-            'email' => 'ricardo@mailinator.com',
-            'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
-            'created_by' => 1,
-        ]);
-        $user2->role()->associate(2);
-        $user2->save();
+        foreach ($users as $userData) {
+            // Atribuir role antes de criar o usuário, se necessário
+            $roleName = $userData['role'];
+            unset($userData['role']);
 
-        $user3 = User::create([
-            'name' => 'Flávia Moreno',
-            'email' => 'flavia@mailinator.com',
-            'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
-            'created_by' => 2,
-        ]);
-        $user3->role()->associate(4);
-        $user3->save();
+            // Criar o usuário
+            $user = User::create([
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+                'password' => Hash::make($userData['password']),
+                'created_by' => $userData['created_by'],
+                // Adicione outros campos conforme necessário
+            ]);
 
-        $user3 = User::create([
-            'name' => 'João Pedro',
-            'email' => 'joao@mailinator.com',
-            'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
-            'created_by' => 2,
-        ]);
-        $user3->role()->associate(3);
-        $user3->save();
+            // Atribuir o role usando o nome
+            $user->assignRole($roleName);
+        }
     }
 }
