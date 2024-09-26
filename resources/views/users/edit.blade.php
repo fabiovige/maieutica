@@ -94,7 +94,7 @@
                                 </div>
                             </div>
 
-                            @can('update roles')
+                            @can('edit roles')
                                 <div class="row mt-2">
                                     <label>Papél</label>
                                     @foreach($roles as $role)

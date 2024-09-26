@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class BaseModel extends Model
 {
@@ -19,7 +20,7 @@ class BaseModel extends Model
     public static function boot()
     {
         parent::boot();
-
+        /*
         static::created(function ($model) {
             \Log::channel('database')->info(null, [
                 $model,
@@ -33,7 +34,7 @@ class BaseModel extends Model
         });
 
         static::deleted(function ($model) {
-            \Log::channel('database')->info(null, [
+            Log::channel('database')->info(null, [
                 $model,
                 LogModel::ACTION_REMOVE,
             ]);
@@ -73,5 +74,6 @@ class BaseModel extends Model
             }
             $model->updated_by = $userId;
         });
+        */
     }
 }

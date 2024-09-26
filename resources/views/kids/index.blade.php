@@ -12,8 +12,8 @@
 @endsection
 
 @section('button')
-    @can('kids.store')
-    <x-button href="{{route('kids.create')}}" icon="plus" name="Novo" type="link" class="primary btn-sm"></x-button>
+    @can('create kids')
+    <x-button href="{{route('kids.create')}}" icon="plus" name="Cadastrar criança" type="link" class="primary btn-sm"></x-button>
     @endcan
 @endsection
 

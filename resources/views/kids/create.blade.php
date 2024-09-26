@@ -46,21 +46,6 @@
                                     </div>
                                     @enderror
                                 </div>
-                                <!--<div class="col-md-6">
-                                    <label for="profession_id">Profissional</label> <br>
-                                    <select class="form-select @error('profession_id') is-invalid @enderror" aria-label="profession_id" name="profession_id">
-                                        <option value="">-- selecione --</option>
-                                        @foreach($professions as $profession)
-                                            <option value="{{ $profession->id }}" @if(old('profession_id') == $profession->id  ) selected @endif> {{  $profession->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('profession_id')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>-->
-
                             </div>
                         </div>
                     </div>

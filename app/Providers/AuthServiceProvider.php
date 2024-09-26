@@ -6,6 +6,7 @@ use App\Models\Ability;
 use App\Models\Kid;
 use App\Models\Responsible;
 use App\Models\User;
+use App\Policies\KidPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -15,7 +16,7 @@ class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
         //Responsible::class => 'App\Policies\ResponsiblePolicy',
-        //Kid::class => 'App\Policies\KidPolicy',
+        Kid::class => KidPolicy::class,
         User::class => UserPolicy::class,
     ];
 

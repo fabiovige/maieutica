@@ -16,15 +16,11 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-        // Aplica a policy automaticamente para resource controller
-        //$this->authorizeResource(User::class, 'user');
-    }
+    public function __construct() {}
 
     public function index()
     {
-        $message = label_case('list users ').' | User:'.auth()->user()->name.'(ID: '.auth()->user()->id.') ';
+        $message = label_case('list users ') . ' | User:' . auth()->user()->name . '(ID: ' . auth()->user()->id . ') ';
         Log::info($message);
 
         $this->authorize('list users');
@@ -49,7 +45,7 @@ class UserController extends Controller
 
             ->addColumn('action', function ($data) {
                 if (request()->user()->can('update users') || request()->user()->can('create users')) {
-                    $html = '<a class="btn btn-sm btn-secondary" href="'.route('users.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a>';
+                    $html = '<a class="btn btn-sm btn-secondary" href="' . route('users.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a>';
 
                     return $html;
                 }
@@ -60,7 +56,7 @@ class UserController extends Controller
             })
 
             ->editColumn('role', function ($data) {
-                return '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> '. $data->getRoleNames()->first() ?? ''.' </span>';
+                return '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> ' . $data->getRoleNames()->first() ?? '' . ' </span>';
             })
 
             ->editColumn('email', function ($data) {
@@ -100,16 +96,16 @@ class UserController extends Controller
                 $roles = Role::where('created_by', '=', Auth::id())->get();
             }*/
 
-            $roles = SpatieRole::all();
+            $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 
-            $message = label_case('Edit User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Edit User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             return view('users.edit', compact('user', 'roles'));
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
 
-            $message = label_case('Edit User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Edit User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -122,7 +118,7 @@ class UserController extends Controller
             $user = User::findOrFail($id);
             $roles = Role::all();
 
-            $message = label_case('Show User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Show User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             return view('users.show', compact('user', 'roles'));
@@ -131,7 +127,7 @@ class UserController extends Controller
 
             flash($message)->warning();
 
-            $message = label_case('Show User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Show User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -149,9 +145,9 @@ class UserController extends Controller
             $roles = Role::where('created_by', '=', Auth::id())->get();
         }*/
 
-        $roles = SpatieRole::all();
+        $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 
-        $message = label_case('Create User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+        $message = label_case('Create User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
         return view('users.create', compact('roles'));
@@ -184,7 +180,7 @@ class UserController extends Controller
             ];
 
             $user = User::create($userData);
-            Log::info('User created: '.$user->id.' created by: '.auth()->user()->id);
+            Log::info('User created: ' . $user->id . ' created by: ' . auth()->user()->id);
 
 
             $role = SpatieRole::find($data['role_id']);
@@ -196,16 +192,15 @@ class UserController extends Controller
 
             flash(self::MSG_CREATE_SUCCESS)->success();
 
-            $message = label_case('Create User '.self::MSG_CREATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Create User ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::notice($message);
 
             return redirect()->route('users.index');
-
         } catch (Exception $e) {
-            dd($e->getMessage());
+
             DB::rollBack();
 
-            $message = label_case('Create User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Create User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             flash(self::MSG_CREATE_ERROR)->warning();
@@ -249,16 +244,15 @@ class UserController extends Controller
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
-            $message = label_case('Update User '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update User ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::notice($message);
 
             return redirect()->route('users.edit', $id);
-
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_UPDATE_ERROR)->warning();
 
-            $message = label_case('Update User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -269,33 +263,57 @@ class UserController extends Controller
     {
         DB::beginTransaction();
         try {
-
-            if (auth()->user()->role_id == $user->id) {
-                $message = label_case('Destroy Self Users '.self::MSG_DELETE_USER_SELF).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            // Verifica se o usuário autenticado está tentando excluir a si mesmo
+            if (auth()->id() == $user->id) {
+                $message = label_case('Attempted to delete self. ' . self::MSG_DELETE_USER_SELF) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
                 Log::alert($message);
-                throw new Exception(self::MSG_DELETE_USER_SELF);
+
+                // Lança uma exceção para bloquear a operação
+                throw new \Exception(self::MSG_DELETE_USER_SELF);
             }
-            $user->deleted_by = Auth::id();
-            $user->update();
+
+            // Verifica se o usuário tem papéis atribuídos
+            if ($user->roles()->count() > 0) {
+                $message = label_case('Attempted to delete user with roles. ' . self::MSG_DELETE_USER_WITH_ROLE) . ' | User: ' . $user->name . ' (ID: ' . $user->id . ')';
+                Log::alert($message);
+
+                // Lança uma exceção para impedir a exclusão de usuários com papéis
+                throw new Exception(self::MSG_DELETE_USER_WITH_ROLE);
+            }
+
+            // Marca o usuário como deletado por
+            $user->deleted_by = auth()->id();
+            $user->save(); // Usa save() em vez de update() quando há apenas uma mudança
+
+            // Exclui o usuário
             $user->delete();
+
             DB::commit();
 
+            // Exibe a mensagem de sucesso
             flash(self::MSG_DELETE_SUCCESS)->success();
 
-            $message = label_case('Destroy Users '.self::MSG_DELETE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            // Registra a ação de exclusão no log
+            $message = label_case('User deleted successfully. ' . self::MSG_DELETE_SUCCESS) . ' | Deleted User: ' . $user->name . ' (ID: ' . $user->id . ')';
             Log::notice($message);
 
+            // Redireciona para a lista de usuários
             return redirect()->route('users.index');
         } catch (Exception $e) {
             DB::rollBack();
-            flash(self::MSG_DELETE_ERROR)->warning();
 
-            $message = label_case('Destroy Users '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            // Exibe uma mensagem de erro ao usuário
+            flash($e->getMessage())->warning();
+
+            // Registra o erro no log
+            $message = label_case('Error while deleting user: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
             Log::error($message);
 
+            // Redireciona de volta
             return redirect()->back();
         }
     }
+
 
     public function pdf($id)
     {
@@ -304,14 +322,14 @@ class UserController extends Controller
 
             $pdf = PDF::loadView('users.show', compact('user'));
 
-            $message = label_case('PDF Users Teste ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('PDF Users Teste ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return $pdf->download('user.pdf');
         } catch (Exception $e) {
             flash(self::MSG_DELETE_ERROR)->warning();
 
-            $message = label_case('Destroy Users '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Destroy Users ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();

@@ -10,71 +10,110 @@ class UserPolicy
     use HandlesAuthorization;
 
     /**
-     * Antes de qualquer método, verifica se o usuário é superadmin.
-     * Se for, permite todas as ações.
+     * Método executado antes de qualquer outra permissão.
+     * Permite todas as ações para superadmin e admin.
+     *
+     * @param User $user
+     * @param string $ability
+     * @return bool|null
      */
-    public function before(User $user, $ability)
+    public function before(User $user, $ability): ?bool
     {
         if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
             return true;
         }
+
+        return null;
     }
 
     /**
-     * Determine se o usuário pode visualizar qualquer usuário.
+     * Determina se o usuário pode visualizar qualquer usuário (listagem).
+     *
+     * @param User $user
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return $user->can('list users');
     }
 
     /**
-     * Determine se o usuário pode visualizar um usuário específico.
+     * Determina se o usuário pode visualizar um usuário específico.
+     *
+     * @param User $user
+     * @param User $model
+     * @return bool
      */
-    public function view(User $user, User $model)
+    public function view(User $user, User $model): bool
     {
-        return $user->can('view users');
+        // Permite visualizar se o usuário tem a permissão 'view users' ou se está visualizando a si mesmo
+        return $user->can('view users') || $user->id === $model->id;
     }
 
     /**
-     * Determine se o usuário pode criar novos usuários.
+     * Determina se o usuário pode criar novos usuários.
+     *
+     * @param User $user
+     * @return bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         return $user->can('create users');
     }
 
     /**
-     * Determine se o usuário pode atualizar um usuário específico.
+     * Determina se o usuário pode atualizar um usuário específico.
+     *
+     * @param User $user
+     * @param User $model
+     * @return bool
      */
-    public function update(User $user, User $model)
+    public function update(User $user, User $model): bool
     {
-        return $user->can('update users');
+        // Permite atualizar se o usuário tem a permissão ou se está atualizando a si mesmo
+        return $user->can('update users') || $user->id === $model->id;
     }
 
     /**
-     * Determine se o usuário pode remover um usuário específico.
+     * Determina se o usuário pode remover um usuário específico.
+     *
+     * @param User $user
+     * @param User $model
+     * @return bool
      */
-    public function delete(User $user, User $model)
+    public function delete(User $user, User $model): bool
     {
+        // Impede que o usuário remova a si mesmo
+        if ($user->id === $model->id) {
+            return false;
+        }
+
         return $user->can('remove users');
     }
 
     /**
-     * Determine se o usuário pode restaurar um usuário específico.
+     * Determina se o usuário pode restaurar um usuário específico.
+     *
+     * @param User $user
+     * @param User $model
+     * @return bool
      */
-    public function restore(User $user, User $model)
+    public function restore(User $user, User $model): bool
     {
         // Implementar se necessário
-        return false;
+        return $user->can('restore users');
     }
 
     /**
-     * Determine se o usuário pode forçar a remoção de um usuário específico.
+     * Determina se o usuário pode forçar a remoção de um usuário específico.
+     *
+     * @param User $user
+     * @param User $model
+     * @return bool
      */
-    public function forceDelete(User $user, User $model)
+    public function forceDelete(User $user, User $model): bool
     {
         // Implementar se necessário
-        return false;
+        return $user->can('force delete users');
     }
 }
