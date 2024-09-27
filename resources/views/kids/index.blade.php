@@ -32,7 +32,7 @@
                                 <th>Nome</th>
                                 <th>Data de nascimento</th>
                                 <th>Checklists</th>
-                                <th>Profissional</th>
+                                <th>Professional</th>
                                 <th>Responsáveis</th>
                                 <th style="width: 30px"></th>
                             </tr>
@@ -88,7 +88,7 @@
                 },
                 {
                     data: 'profession_id',
-                    name: 'Profissional',
+                    name: 'Professional',
                     searchable: false
                 },
                 {

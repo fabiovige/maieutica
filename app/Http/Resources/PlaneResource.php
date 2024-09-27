@@ -18,6 +18,7 @@ class PlaneResource extends JsonResource
         return [
             'id' => $this->id,
             'kid_id' => $this->kid_id,
+            'checklist_id' => $this->checklist_id,
             'created_at' => $this->created_at->format('d/m/Y'),
             'competences' => $competences,
         ];

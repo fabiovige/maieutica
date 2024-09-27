@@ -36,7 +36,7 @@ class KidPolicy
      */
     public function view(User $user, Kid $kid): bool
     {
-        // Permite visualizar se o usuário é o profissional associado à criança
+        // Permite visualizar se o usuário é o professional associado à criança
         return $user->id === $kid->profession_id;
     }
 
@@ -61,7 +61,7 @@ class KidPolicy
      */
     public function update(User $user, Kid $kid): bool
     {
-        // Permite atualizar se o usuário é o profissional associado à criança
+        // Permite atualizar se o usuário é o professional associado à criança
         return $user->id === $kid->profession_id;
     }
 
@@ -74,7 +74,7 @@ class KidPolicy
      */
     public function delete(User $user, Kid $kid): bool
     {
-        // Permite deletar se o usuário é o profissional associado à criança
+        // Permite deletar se o usuário é o professional associado à criança
         return $user->id === $kid->profession_id;
     }
 
@@ -87,7 +87,7 @@ class KidPolicy
      */
     public function restore(User $user, Kid $kid): bool
     {
-        // Permite restaurar se o usuário é o profissional associado à criança
+        // Permite restaurar se o usuário é o professional associado à criança
         return $user->id === $kid->profession_id;
     }
 
@@ -100,7 +100,7 @@ class KidPolicy
      */
     public function forceDelete(User $user, Kid $kid): bool
     {
-        // Permite exclusão definitiva se o usuário é o profissional associado à criança
+        // Permite exclusão definitiva se o usuário é o professional associado à criança
         return $user->id === $kid->profession_id;
     }
 }

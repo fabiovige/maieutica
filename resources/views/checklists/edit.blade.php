@@ -61,8 +61,8 @@
                         </div>
 
                     </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
+                    <div class="card-footer d-flex justify-content-center">
+                        <x-button icon="check" name="Atualizar checklist" type="submit" class="primary"></x-button>
                     </div>
                 </div>
             </form>

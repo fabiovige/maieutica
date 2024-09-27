@@ -63,7 +63,7 @@ class MyPdf extends TCPDF
 
         $name = 'www.maieutica.com.br';
 
-        $txt1 = 'A descrição das etapas é apenas uma sugestão e que pode ser alterada de acordo com a prática do profissional e adequada às necessidades específicas da criança.';
+        $txt1 = 'A descrição das etapas é apenas uma sugestão e que pode ser alterada de acordo com a prática do professional e adequada às necessidades específicas da criança.';
         $txt2 = 'Os objetivos aqui descritos visam facilitar a consulta, sobretudo pelos pais, e segue fielmente o conteúdo do checklist original com';
         $txt3 = 'Copyright © 2010 The Guiford Press, com direitos de publicação, em lingua portuguesa a Lidel Edições Técnicas Lda, dos autores Sally J. Rogers e Geraldine Dawson';
 

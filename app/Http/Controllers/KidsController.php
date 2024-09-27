@@ -58,7 +58,7 @@ class KidsController extends Controller
                 return '<span class="badge bg-success"><i class="bi bi-check"></i> ' . $data->checklists->count() . ' Checklist(s) </span>';
             })
             ->editColumn('profession_id', function ($data) {
-                // Exibe o nome do profissional ou 'Não atribuído' caso não tenha um profissional
+                // Exibe o nome do professional ou 'Não atribuído' caso não tenha um professional
                 return $data->professional ? $data->professional->name : 'Não atribuído';
             })
             ->editColumn('responsible_id', function ($data) {

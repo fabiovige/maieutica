@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
                 'email' => 'flavia@mailinator.com',
                 'password' => 'password',
                 'created_by' => 2, // criado por admin
-                'role' => 'profissional',
+                'role' => 'Professional',
             ],
             [
                 'name' => 'Valéria Nunes',

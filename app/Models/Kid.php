@@ -23,7 +23,7 @@ class Kid extends BaseModel
         return $this->belongsTo(User::class, 'responsible_id');
     }
 
-    // Relacionamento com o profissional (ROLE_PROFESSION)
+    // Relacionamento com o professional (ROLE_PROFESSION)
     public function professional()
     {
         return $this->belongsTo(User::class, 'profession_id');

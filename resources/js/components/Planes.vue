@@ -129,11 +129,11 @@
 </template>
 
 <script>
-import {onMounted, ref, watchEffect} from "vue";
-import useChecklists from "../composables/checklists";
-import usePlanes from "../composables/planes";
+import { onMounted, ref, watchEffect } from "vue";
 import Loading from "vue3-loading-overlay";
 import 'vue3-loading-overlay/dist/vue3-loading-overlay.css';
+import useChecklists from "../composables/checklists";
+import usePlanes from "../composables/planes";
 
 export default {
     name: "Planes",
@@ -169,7 +169,7 @@ export default {
         }
 
         function createPlane() {
-            newPlane(kid_id.value)
+            newPlane(kid_id.value, checklist_id.value)
         }
 
         function deletePlanes(competence_id) {

@@ -14,7 +14,7 @@ class RoleAndPermissionSeeder extends Seeder
         $superAdmin = Role::firstOrCreate(['name' => 'superadmin']);
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $pais = Role::firstOrCreate(['name' => 'pais']);
-        $profissional = Role::firstOrCreate(['name' => 'profissional']);
+        $professional = Role::firstOrCreate(['name' => 'professional']);
 
         // Criação de Permissões
         $permissions = [
@@ -57,7 +57,7 @@ class RoleAndPermissionSeeder extends Seeder
 
         // Atribuição de Permissões aos Roles
         $superAdmin->syncPermissions($permissions);
-        
+
         // Admin tem todas as permissões relacionadas a usuários, roles, kids e checklists
         $admin->syncPermissions([
             'list users',
@@ -84,8 +84,8 @@ class RoleAndPermissionSeeder extends Seeder
             'manage dashboard',
         ]);
 
-        // Profissional tem permissões limitadas
-        $profissional->syncPermissions([
+        // professional tem permissões limitadas
+        $professional->syncPermissions([
             'list kids',
             'view kids',
             'create kids',

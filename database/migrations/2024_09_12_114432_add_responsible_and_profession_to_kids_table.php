@@ -18,8 +18,8 @@ class AddResponsibleAndProfessionToKidsTable extends Migration
             $table->unsignedBigInteger('responsible_id')->nullable(); // Referencia o responsável (pai/mãe)
             $table->foreign('responsible_id')->references('id')->on('users')->onDelete('set null'); // Define a FK para a tabela users
 
-            // Adiciona a coluna para o profissional (professor/mentor)
-            $table->unsignedBigInteger('profession_id')->nullable(); // Referencia o profissional
+            // Adiciona a coluna para o professional (professor/mentor)
+            $table->unsignedBigInteger('profession_id')->nullable(); // Referencia o professional
             $table->foreign('profession_id')->references('id')->on('users')->onDelete('set null'); // Define a FK para a tabela users
         });
     }

@@ -66,7 +66,7 @@ class KidRequest extends FormRequest
         return [
             'name' => 'Nome',
             'birth_date' => 'Data de nascimento',
-            'profession_id' => 'Profissional responsável',
+            'profession_id' => 'Professional responsável',
             'responsible_name' => 'Nome do responsável',
         ];
     }

@@ -193,21 +193,32 @@ class ChecklistController extends Controller
         try {
             $message = label_case('Destroy Checklist '.self::MSG_DELETE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
+            if ($checklist->planes()->exists()) {
+                foreach ($checklist->planes as $plane) {
+                    $plane->deleted_by = Auth::id(); // Atribui o usuário que deletou
+                    $plane->save(); // Salva as alterações no banco de dados
+                    $plane->delete(); // Realiza a exclusão (soft delete, se for o caso)
+                }
+            }
 
+            // Exclui o Checklist
             $checklist->deleted_by = Auth::id();
             $checklist->save();
             $checklist->delete();
+
             flash(self::MSG_DELETE_SUCCESS)->success();
 
             return redirect()->route('checklists.index');
         } catch (\Exception $e) {
-            flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Destroy Checkilist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            dd($e->getMessage());
+            $message = label_case('Destroy Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
+            flash(self::MSG_NOT_FOUND)->warning();
             return redirect()->back();
         }
     }
+
 
     public function fill($id)
     {
@@ -232,7 +243,7 @@ class ChecklistController extends Controller
         }
     }
 
-    public function register(Request $request)
+    /*public function register(Request $request)
     {
         $data = $request->all();
         $checklistRegister = ChecklistRegister::where('checklist_id', $request->checklist_id)->where('competence_description_id', $request->competence_description_id);
@@ -243,7 +254,7 @@ class ChecklistController extends Controller
         } else {
             $checklistRegister->create($data);
         }
-    }
+    }*/
 
     public function chart($id)
     {

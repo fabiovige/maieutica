@@ -21,15 +21,15 @@ class KidFactory extends Factory
             $query->where('name', 'pais');
         })->pluck('id');
 
-        // Recupera os IDs dos usuários com a role 'profissional'
+        // Recupera os IDs dos usuários com a role 'Professional'
         $professionalIds = User::whereHas('roles', function ($query) {
-            $query->where('name', 'profissional');
+            $query->where('name', 'Professional');
         })->pluck('id');
 
         // Seleciona um ID aleatório para o responsável, ou null se não houver
         $responsibleId = $responsibleIds->isNotEmpty() ? $responsibleIds->random() : null;
 
-        // Seleciona um ID aleatório para o profissional, ou null se não houver
+        // Seleciona um ID aleatório para o professional, ou null se não houver
         $professionalId = $professionalIds->isNotEmpty() ? $professionalIds->random() : null;
 
         // Seleciona um usuário aleatório para ser o criador, tipicamente um admin ou superadmin
@@ -41,7 +41,7 @@ class KidFactory extends Factory
             'name' => $this->faker->name,
             'birth_date' => $birthDate,
             'responsible_id' => $responsibleId, // Associando ao responsável (pais)
-            'profession_id' => $professionalId, // Associando ao profissional
+            'profession_id' => $professionalId, // Associando ao professional
             'created_by' => $createdBy,
             // Adicione outros campos preenchíveis conforme necessário
         ];

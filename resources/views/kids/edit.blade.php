@@ -53,7 +53,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mt-3">
-                                    <label for="profession_id">Profissional</label> <br>
+                                    <label for="profession_id">Professional</label> <br>
                                     <select class="form-select @error('profession_id') is-invalid @enderror" aria-label="profession_id" name="profession_id" @if(auth()->user()->isProfessional()) disabled @endif>
                                         <option value="">-- selecione --</option>
                                         @foreach($professions as $profession)
@@ -131,10 +131,10 @@
                     </div>
                 </div>
 
-                <!-- DADOS DO PROFISSIONAL -->
+                <!-- DADOS DO professional -->
                 <div class="row">
                     <div class="col-md-12 mt-3">
-                        <h3>Dados do profissional</h3>
+                        <h3>Dados do professional</h3>
                     </div>
                 </div>
                 <div class="card">
@@ -167,7 +167,7 @@
                         </div>
                         @else
                         <div class="alert alert-warning" role="alert">
-                            Não há profissional cadastrado
+                            Não há professional cadastrado
                         </div>
                         @endif
                     </div>
