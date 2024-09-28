@@ -18,18 +18,18 @@
                 @method('PUT')
                 <div class="card">
                     <div class="card-header">
-                        Id: {{ $checklist->id }}
+                        Checklist Id: {{ $checklist->id }}
                     </div>
                     <div class="card-body">
                         <div class="form-group">
                             <div class="row">
                                 <div class="col">
                                     <label for="name">Criança</label> <br>
-                                    <input class="form-control" type="text" name="name" value="{{ $checklist->kid->name }}" readonly>
+                                    <input disabled class="form-control" type="text" name="name" value="{{ $checklist->kid->name }}" readonly>
                                 </div>
                                 <div class="col">
                                     <label for="birth_date">Data de nascimento</label> <br>
-                                    <input class="form-control " type="text" name="birth_date" value="{{ $checklist->kid->birth_date }}" readonly>
+                                    <input disabled class="form-control " type="text" name="birth_date" value="{{ $checklist->kid->birth_date }}" readonly>
                                 </div>
                             </div>
                         </div>
@@ -38,12 +38,12 @@
                             <div class="row">
                                 <div class="col">
                                     <label for="created_at">Data de criação</label> <br>
-                                    <input class="form-control bg-ligth" type="text" name="created_at" value="{{ $checklist->created_at->format('d/m/Y') }}" readonly>
+                                    <input disabled class="form-control bg-ligth" type="text" name="created_at" value="{{ $checklist->created_at->format('d/m/Y') }}" readonly>
                                 </div>
                                 <div class="col">
                                     <label for="level">Nível</label> <br>
                                     <input type="hidden" name="level" value="{{ $checklist->level }}" >
-                                    <input class="form-control" type="text" value="{{ \App\Models\Checklist::LEVEL[$checklist->level] }}" readonly>
+                                    <input disabled class="form-control" type="text" value="{{ \App\Models\Checklist::LEVEL[$checklist->level] }}" readonly>
                                 </div>
                             </div>
                         </div>
@@ -61,13 +61,13 @@
                         </div>
 
                     </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
+                    <div class="card-footer d-flex justify-content-center">
+                        <x-button icon="check" name="Atualizar checklist" type="submit" class="primary"></x-button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-    @include('includes.information-register', ['data' => $checklist, 'action'=>'checklists.destroy'])
+    @include('includes.information-register', ['data' => $checklist, 'action'=>'checklists.destroy', 'can' => 'remove checklists'])
 @endsection

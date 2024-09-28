@@ -29,11 +29,6 @@ class AbilitySeeder extends Seeder
         ['resource_id' => 4, 'ability' => 'checklists.store', 'name' => 'Cadastrar'],
         ['resource_id' => 4, 'ability' => 'checklists.update', 'name' => 'Atualizar'],
         ['resource_id' => 4, 'ability' => 'checklists.fill', 'name' => 'Preencher'],
-
-        ['resource_id' => 5, 'ability' => 'responsibles.index', 'name' => 'Listar'],
-        ['resource_id' => 5, 'ability' => 'responsibles.destroy', 'name' => 'Remover'],
-        ['resource_id' => 5, 'ability' => 'responsibles.store', 'name' => 'Cadastrar'],
-        ['resource_id' => 5, 'ability' => 'responsibles.update', 'name' => 'Atualizar'],
     ];
 
     public function run()
@@ -46,6 +41,6 @@ class AbilitySeeder extends Seeder
         $role->abilities()->sync([5, 8, 13]);
 
         $role = Role::find(Role::ROLE_PROFESSION);
-        $role->abilities()->sync([5, 6, 7, 8, 13, 14, 15, 16, 17, 18, 19, 20, 21]);
+        $role->abilities()->sync([5, 7, 8, 13, 15, 16, 17]);
     }
 }

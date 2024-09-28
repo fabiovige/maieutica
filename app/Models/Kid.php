@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class Kid extends BaseModel
 {
     protected $fillable = [
         'name',
         'birth_date',
-        'user_id',
+        'profession_id',
         'responsible_id',
         'created_by',
         'updated_by',
@@ -17,14 +19,27 @@ class Kid extends BaseModel
         'months',
     ];
 
-    public function user()
+    // Adicionando o Scope Local
+    public function scopeForProfessional(Builder $query)
     {
-        return $this->belongsTo(User::class);
+        if (Auth::check() && Auth::user()->hasRole('professional')) {
+            return $query->where('profession_id', Auth::id());
+        }
+
+        return $query;
     }
 
+
+    // Relacionamento com o responsável (ROLE_PAIS)
     public function responsible()
     {
-        return $this->belongsTo(Responsible::class);
+        return $this->belongsTo(User::class, 'responsible_id');
+    }
+
+    // Relacionamento com o professional (ROLE_PROFESSION)
+    public function professional()
+    {
+        return $this->belongsTo(User::class, 'profession_id');
     }
 
     public function checklists()
@@ -59,21 +74,20 @@ class Kid extends BaseModel
 
     public static function getKids()
     {
-        $data = null;
-        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
-            $data = Kid::with('user')->select('id', 'name', 'birth_date', 'user_id', 'responsible_id');
-        } else {
-            $data = Kid::select('id', 'name', 'birth_date', 'user_id', 'responsible_id');
-            $data->where('created_by', '=', auth()->user()->id);
-            $data->orWhere('user_id', '=', auth()->user()->id);
+        $query = Kid::query();
 
-            $responsible = Responsible::where('user_id', '=', auth()->user()->id)->first();
-            if ($responsible) {
-                $data->orWhere('responsible_id', '=', $responsible->id);
-            }
+        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+            $query->with(['professional', 'responsible', 'checklists']);
+        } else if (auth()->user()->hasRole('professional')) {
+            $query->where('profession_id', auth()->user()->id)
+                ->whereOr('created_by', auth()->user()->id)
+                ->with(['professional', 'responsible', 'checklists']);
+        } else if (auth()->user()->hasRole('pais')) {
+            $query->where('responsible_id', auth()->user()->id)
+                ->with(['professional', 'responsible', 'checklists']);
         }
 
-        return $data;
+        return $query->get();
     }
 
     public function getMonthsAttribute()
@@ -90,6 +104,6 @@ class Kid extends BaseModel
         $dt = Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d');
         $month = $now->diffInMonths($dt);
 
-        return $month.' meses - '.$this->birth_date.' - Cod. '.$this->id;
+        return 'Cod. '. $this->id . ' - ' . ' Nascido em: ' . $this->birth_date . ' (' . $month . ' meses)';
     }
 }

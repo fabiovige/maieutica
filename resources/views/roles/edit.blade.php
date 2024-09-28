@@ -21,59 +21,54 @@
 
                 <div class="card">
                     <div class="card-header">
-                        Editar papél
+                        Editar papel
                     </div>
                     <div class="card-body">
 
                         <div class="form-group mb-2">
                             <label>Nome</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" placeholder="Ex.: Administrador" value="{{$role->name}}">
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" placeholder="Ex.: Administrador" value="{{ $role->name }}">
 
                             @error('name')
-                            <div class="invalid-feedback">{{$message}}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-
+                        <!-- Check Todos -->
                         <div class="custom-control custom-checkbox">
                             <label>Permissões</label>
                             <div class="form-check">
                                 <input class="form-check-input permission-input"
                                        type="checkbox"
                                        id="checkAll"
-                                    {{ (count($abilities) == count($role->abilities()->pluck('id')->toArray())) ? 'checked' : '' }}
+                                    {{ (count($permissions) == count($role->permissions)) ? 'checked' : '' }}
                                 >
                                 <label class="form-check-label" for="checkAll">
-                                    Todos
+                                    Selecionar Todos
                                 </label>
                             </div>
                         </div>
-                        <div class="row">
-                            @foreach($resources as $resource)
-                                <div class="col-md-4 py-2">
-                                    <div class="card">
-                                        <div class="card-header">{{ $resource->name }}</div>
-                                        <div class="card-body">
-                                            @foreach ( $resource->abilities as $ability )
-                                                <div class="form-check">
-                                                    <input class="form-check-input permission-input"
-                                                            type="checkbox"
-                                                            name="abilities[]"
-                                                            id="customCheck{{$ability->id}}"
-                                                            value="{{$ability->id}}"
-                                                            @if($role->abilities->contains($ability)) checked @endif
-                                                    >
-                                                    <label class="form-check-label" for="customCheck{{$ability->id}}">
-                                                        {{ $ability->name }}
-                                                    </label>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
 
+                        <!-- Lista de permissões -->
+                        <div class="row">
+                            <div class="col-12">
+                                Permissões Disponíveis
+                                @foreach ($permissions as $permission)
+                                    <div class="form-check">
+                                        <input class="form-check-input permission-input"
+                                                type="checkbox"
+                                                name="permissions[]"
+                                                id="customCheck{{ $permission->name }}"
+                                                value="{{ $permission->name }}"
+                                                {{ in_array($permission->name, $role->permissions->pluck('name')->toArray()) ? 'checked' : '' }}
+                                        >
+                                        <label class="form-check-label" for="customCheck{{ $permission->name }}">
+                                            {{ $permission->name }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
 
                     <div class="card-footer d-flex justify-content-end">
@@ -85,7 +80,7 @@
         </div>
     </div>
 
-    @include('includes.information-register', ['data' => $role, 'action'=> 'roles.destroy'])
+    @include('includes.information-register', ['data' => $role, 'action'=> 'roles.destroy', 'can' => 'remove roles'])
 
 @endsection
 

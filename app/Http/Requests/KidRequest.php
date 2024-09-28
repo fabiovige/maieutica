@@ -34,16 +34,26 @@ class KidRequest extends FormRequest
                 return [
                     'name' => 'required|min:3|max:100',
                     'birth_date' => 'required|date_format:"d/m/Y"',
-                    'user_id' => 'required|exists:users,id',
-                    'responsible_id' => 'required|exists:responsibles,id',
+                    'profession_id' => 'nullable|exists:users,id',
+                    'responsible_id' => 'nullable|exists:users,id',
+
+                    // validação do responsavel
+                    //'responsible_name' => 'required|min:3|max:100',
+                    //'email' => 'required|string|email|max:150|unique:users,email',
+                    //'phone' => 'required|min:3|max:100',
                 ];
 
             case 'PUT':
                 return [
                     'name' => 'required|min:4|max:50',
                     'birth_date' => 'required|date_format:"d/m/Y"',
-                    'user_id' => 'required|exists:users,id',
-                    'responsible_id' => 'required|exists:responsibles,id',
+                    'profession_id' => 'nullable|exists:users,id',
+                    'responsible_id' => 'nullable|exists:users,id',
+
+                    // validação do responsavel
+                    /*'responsible_name' => 'required|min:3|max:100',
+                    'email' => 'required|string|email|max:150|unique:users,email,' . $this->route('kid')->id,
+                    'phone' => 'required|min:3|max:100',*/
                 ];
 
             default:
@@ -54,10 +64,10 @@ class KidRequest extends FormRequest
     public function attributes()
     {
         return [
-            'name' => 'Nome completo',
+            'name' => 'Nome',
             'birth_date' => 'Data de nascimento',
-            'user_id' => 'Profissional responsável',
-            'responsible_id' => 'Responsável pela criança',
+            'profession_id' => 'Professional responsável',
+            'responsible_name' => 'Nome do responsável',
         ];
     }
 

@@ -16,6 +16,7 @@ class ResponsibleController extends Controller
 {
     public function index()
     {
+        //$this->authorize('viewAny', Responsible::class);
         $message = label_case('Index Responsibles ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::debug($message);
 
@@ -24,21 +25,34 @@ class ResponsibleController extends Controller
 
     public function index_data()
     {
+
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Responsible::select('id', 'name', 'email', 'cell');
         } else {
             $data = Responsible::select('id', 'name', 'email', 'cell');
-            $data->where('created_by', '=', auth()->user()->id);
-            $data->orWhere('user_id', '=', auth()->user()->id);
+
+            if (auth()->user()->role->name === User::PAIS) {
+                $data = $data->where('user_id', auth()->user()->id);
+            }
+
+            if (auth()->user()->role->name === User::PROFESSION) {
+                $kids = auth()->user()->kids()->get();
+                $responsibleIds = [];
+                if ($kids) {
+                    foreach ($kids as $kid) {
+                        $responsibleIds[] = $kid->responsible()->first()->id;
+                    }
+                }
+                $data = $data->whereIn('id', array_unique($responsibleIds));
+            }
+            //$data->where('created_by', '=', auth()->user()->id);
+            //$data->orWhere('user_id', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
-                if (request()->user()->can('responsibles.update') || request()->user()->can('responsibles.store')) {
-
-                    $html = '<a class="btn btn-sm btn-success" href="'.route('responsibles.edit', $data->id).'"><i class="bi bi-gear"></i> </a>';
-
-                    return $html;
+                if (auth()->user()->can('update', $data)) {
+                    return '<a class="btn btn-sm btn-success" href="'.route('responsibles.edit', $data->id).'"><i class="bi bi-edit"></i> Editar</a>';
                 }
             })
             ->editColumn('name', function ($data) {
@@ -51,7 +65,7 @@ class ResponsibleController extends Controller
                 return $data->cell;
             })
             ->rawColumns(['action'])
-            ->orderColumns(['id'], '-:column $1')
+            //->orderColumns($data->id, '-:column $1')
             ->make(true);
     }
 
@@ -98,7 +112,6 @@ class ResponsibleController extends Controller
                 'responsible' => $responsible,
                 'allow' => $allow,
             ]);
-
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
             $message = label_case('Update Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
@@ -151,19 +164,19 @@ class ResponsibleController extends Controller
             }
             $responsible->update($data);
             DB::commit();
+            Log::info('Responsible updated by user: '.auth()->user()->name.'(ID:'.auth()->user()->id.')');
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
             return redirect()->route('responsibles.index');
-
         } catch (Exception $e) {
             DB::rollBack();
-            flash(self::MSG_UPDATE_ERROR)->warning();
             $message = label_case('Update Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
+            flash(self::MSG_UPDATE_ERROR)->warning();
+
             return redirect()->back();
         }
-
     }
 
     private function emailDuplicate($email)

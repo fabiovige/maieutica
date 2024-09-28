@@ -25,6 +25,7 @@ class PlaneSeeder extends Seeder
         // planes
         $plane = Plane::create([
             'kid_id' => $kid_id,
+            'checklist_id' => 1,
             'created_by' => 1,
         ]);
 

@@ -10,8 +10,8 @@
 @endsection
 
 @section('button')
-    @can('users.store')
-    <x-button href="{{route('users.create')}}" icon="plus" name="Novo" type="link" class="primary btn-sm"></x-button>
+    @can('create users')
+    <x-button href="{{route('users.create')}}" icon="plus" name="Cadastrar novo usuário" type="link" class="primary btn-sm"></x-button>
     @endcan
 @endsection
 

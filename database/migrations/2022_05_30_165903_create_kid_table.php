@@ -16,7 +16,6 @@ class CreateKidTable extends Migration
         Schema::create('kids', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('responsible_id')->nullable();
             $table->string('name');
             $table->date('birth_date');
             $table->timestamps();
@@ -28,7 +27,6 @@ class CreateKidTable extends Migration
             $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('responsible_id')->references('id')->on('responsibles');
         });
     }
 

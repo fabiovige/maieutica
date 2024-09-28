@@ -3,21 +3,31 @@
 namespace App\Providers;
 
 use App\Models\Ability;
+use App\Models\Checklist;
+use App\Models\Kid;
+use App\Models\Responsible;
 use App\Models\User;
+use App\Policies\ChecklistPolicy;
+use App\Policies\KidPolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-
+        //Responsible::class => 'App\Policies\ResponsiblePolicy',
+        Kid::class => KidPolicy::class,
+        User::class => UserPolicy::class,
+        Checklist::class => ChecklistPolicy::class,
     ];
 
     public function boot()
     {
         $this->registerPolicies();
 
-        Gate::before(function ($user, $ability) {
+        /*Gate::before(function ($user, $ability) {
             if ($user->isSuperAdmin() || $user->isAdmin()) {
                 return true;
             } else {
@@ -25,13 +35,18 @@ class AuthServiceProvider extends ServiceProvider
             }
         });
 
-        $abilities = Ability::all();
-        if ($abilities) {
-            foreach ($abilities as $ability) {
-                Gate::define($ability->ability, function (User $user) use ($ability) {
-                    return $ability->roles->contains($user->role);
-                });
+        // Verifica se as tabelas existem antes de executar qualquer operação no banco
+        if (Schema::hasTable('abilities') && Schema::hasTable('roles')) {
+            $abilities = Ability::all();  // Mova isso para dentro do bloco condicional
+            //dd('Tabelas existem', $abilities);
+
+            if ($abilities) {
+                foreach ($abilities as $ability) {
+                    Gate::define($ability->ability, function (User $user) use ($ability) {
+                        return $ability->roles->contains($user->role);
+                    });
+                }
             }
-        }
+        }*/
     }
 }

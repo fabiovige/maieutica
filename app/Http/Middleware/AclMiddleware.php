@@ -8,31 +8,42 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AclMiddleware
 {
     use AuthorizesRequests;
 
-    /**
-     * @throws AuthorizationException
-     */
     public function handle(Request $request, Closure $next)
     {
-        if (! Auth::user()->allow) {
+        $user = Auth::user();
+
+        // Se o usuário não estiver permitido (flag 'allow'), faz logout.
+        if (! $user->allow) {
             Auth::guard()->logout();
+            return redirect()->route('login')->withErrors('Acesso negado.');
+        }
 
+        // Superadmin tem todas as permissões automaticamente.
+        if ($user->hasRole('SuperAdmin')) {
             return $next($request);
         }
 
-        if (Auth::user()->isSuperAdmin()) {
-            return $next($request);
-        }
+        $roles = $user->getRoleNames();
+        $firstRole = $roles->first();
 
-        $ability = Ability::where('ability', $request->route()->getName())->count();
+        dd($request->path());
+        $permissions = $user->getPermissionsViaRoles();
+        dd($firstRole, $request->is('list users'));
 
-        if ($ability) {
-            $this->authorize($request->route()->getName());
+        foreach ($permissions as $permission) {
+            if ($request->is($permission->name)) {
+                //return $next($request);
+                return $this->authorize($permission->name);
+            }
         }
+        
+        dd($permissions);
 
         return $next($request);
     }

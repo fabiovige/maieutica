@@ -29,6 +29,7 @@
                             <label>Nome</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror"
                                    name="name"
+                                   placeholder="Nome do Papel"
                                    value="{{old('name')}}">
 
                             @error('name')
@@ -36,7 +37,7 @@
                             @enderror
                         </div>
 
-                        <label>Pemissões</label>
+                        <label>Permissões</label>
 
                         <div class="custom-control custom-checkbox">
 
@@ -46,54 +47,28 @@
                                        id="checkAll"
                                 >
                                 <label class="form-check-label" for="checkAll">
-                                    Todos
+                                    Selecionar Todos
                                 </label>
                             </div>
 
                         </div>
                         <div class="row">
-                            @foreach($resources as $resource)
+                            @foreach($permissions as $permission)
                                 <div class="col-md-4 py-2">
-                                    <div class="card">
-                                        <div class="card-header">{{ $resource->name }}</div>
-                                        <div class="card-body">
-                                            @foreach ( $resource->abilities as $ability )
-
-                                                <div class="custom-control custom-checkbox">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input permission-input"
-                                                            type="checkbox"
-                                                            name="abilities[]"
-                                                            id="customCheck{{$ability->id}}"
-                                                            value="{{$ability->id}}"
-                                                            @if($ability->id == old('abilities')) checked @endif
-                                                        >
-                                                        <label class="form-check-label" for="customCheck{{$ability->id}}">
-                                                            {{ $ability->name }}
-                                                        </label>
-                                                    </div>
-
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-
-                                    {{-- <div class="custom-control custom-checkbox">
-
+                                    <div class="custom-control custom-checkbox">
                                         <div class="form-check">
                                             <input class="form-check-input permission-input"
                                                 type="checkbox"
-                                                name="abilities[]"
-                                                id="customCheck{{$resource->id}}"
-                                                value="{{$resource->id}}"
-                                                @if($resource->id == old('abilities')) checked @endif
+                                                name="permissions[]"
+                                                id="customCheck{{$permission->name}}"
+                                                value="{{$permission->name}}"
+                                                @if(is_array(old('permissions')) && in_array($permission->name, old('permissions'))) checked @endif
                                             >
-                                            <label class="form-check-label" for="customCheck{{$resource->id}}">
-                                                {{ $resource->name }} ({{ $resource->ability }})
+                                            <label class="form-check-label" for="customCheck{{$permission->name}}">
+                                                {{ $permission->name }}
                                             </label>
                                         </div>
-
-                                    </div> --}}
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
@@ -115,8 +90,18 @@
 @push('scripts')
     <script type="text/javascript" src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
     <script>
+        // Selecionar/Deselecionar todas as permissões
         $("#checkAll").click(function () {
             $('input:checkbox').not(this).prop('checked', this.checked);
+        });
+
+        // Verifica se todas as permissões estão marcadas e ajusta o "Selecionar Todos"
+        $('.permission-input').on('click', function() {
+            if ($('.permission-input:checked').length === $('.permission-input').length) {
+                $('#checkAll').prop('checked', true);
+            } else {
+                $('#checkAll').prop('checked', false);
+            }
         });
     </script>
 @endpush

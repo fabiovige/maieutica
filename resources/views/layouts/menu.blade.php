@@ -5,15 +5,15 @@
            href="{{ route('home.index') }}">Home</a>
     </li>
 
-    @can('responsibles.index')
-        <li class="nav-item">
-            <a class="nav-link @if (request()->is('responsibles*')) active @endif"
-               aria-current="page"
-               href="{{ route('responsibles.index') }}">Responsáveis</a>
-        </li>
+    @can('list users')
+    <li class="nav-item">
+        <a class="nav-link @if (request()->is('users*')) active @endif"
+           aria-current="page"
+           href="{{ route('users.index') }}">Usuários</a>
+    </li>
     @endcan
 
-    @can('kids.index')
+    @can('list kids')
         <li class="nav-item">
             <a class="nav-link @if (request()->is('kids*')) active @endif"
                aria-current="page"
@@ -21,7 +21,7 @@
         </li>
     @endcan
 
-    @can('checklists.index')
+    @can('list checklists')
         <li class="nav-item">
             <a class="nav-link @if (request()->is('checklists*')) active @endif"
                aria-current="page"
@@ -29,15 +29,7 @@
         </li>
     @endcan
 
-    @can('users.index')
-        <li class="nav-item">
-            <a class="nav-link @if (request()->is('users*')) active @endif"
-               aria-current="page"
-               href="{{ route('users.index') }}">Usuários</a>
-        </li>
-    @endcan
-
-    @can('roles.index')
+    @can('list roles')
         <li class="nav-item">
             <a class="nav-link @if (request()->is('roles*')) active @endif"
                aria-current="page"

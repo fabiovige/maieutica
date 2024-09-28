@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -14,6 +15,7 @@ class User extends Authenticatable
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
+    use HasRoles;
 
     protected $fillable = [
         'name',
@@ -23,7 +25,14 @@ class User extends Authenticatable
         'created_by',
         'updated_by',
         'deleted_by',
-        'responsible_id',
+        'phone',
+        'postal_code',
+        'street',
+        'number',
+        'complement',
+        'neighborhood',
+        'city',
+        'state',
     ];
 
     protected $hidden = [
@@ -37,12 +46,14 @@ class User extends Authenticatable
     ];
 
     public const SUPERADMIN = 1;
+    //public const ADMIN = 2;
+    //public const ROLE_PAIS = 3;
+    //public const ROLE_PROFESSION = 4;
 
-    public const ADMIN = 2;
+    // Constantes para os tipos
+    public const TYPE_I = 'i';
 
     public const TYPE_E = 'e';
-
-    public const TYPE_I = 'i';
 
     public const TYPE = [
         'i' => 'Interno',
@@ -52,11 +63,6 @@ class User extends Authenticatable
     public function kids()
     {
         return $this->hasMany(Kid::class);
-    }
-
-    public function responsible()
-    {
-        return $this->hasMany(Responsible::class);
     }
 
     public function role()
@@ -77,6 +83,24 @@ class User extends Authenticatable
     {
         if ($this->role) {
             return $this->role->id == 2;
+        }
+
+        return false;
+    }
+
+    public function isProfessional(): bool
+    {
+        if ($this->role) {
+            return $this->role->id == self::ROLE_PROFESSION;
+        }
+
+        return false;
+    }
+
+    public function isPais(): bool
+    {
+        if ($this->role) {
+            return $this->role->id == self::ROLE_PAIS;
         }
 
         return false;
@@ -104,7 +128,6 @@ class User extends Authenticatable
 
     public static function listAssocUser($type)
     {
-
         if (auth()->user()->isSuperAdmin()) {
             return self::where('type', '=', $type)->get();
         } elseif (auth()->user()->isAdmin()) {

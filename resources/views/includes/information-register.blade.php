@@ -7,7 +7,7 @@
     </div>
 </div>
 
-@can($action)
+@can($can)
     <div class="row">
         <div class="col-md-12 mt-5">
             <form class="d-flex justify-content-start" action="{{ route($action, $data->id) }}" name="form-delete" method="post">

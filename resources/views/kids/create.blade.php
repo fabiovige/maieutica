@@ -12,20 +12,24 @@
 
 @section('content')
 
+
     <div class="row">
         <div class="col-md-12">
             <form action="{{ route('kids.store') }}" method="POST">
                 @csrf
-                <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-                <div class="card">
-                    <div class="card-header">
-                        Cadastrar criança
+                <input type="hidden" name="created_by" value="{{ auth()->id() }}">
+                <!-- DADOS DA CRIANÇA -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3>Dados da criança</h3>
                     </div>
+                </div>
+                <div class="card">
                     <div class="card-body">
                         <div class="form-group">
                             <div class="row">
                                 <div class="mb-2 col-md-6">
-                                    <label for="name">Nome completo</label> <br>
+                                    <label for="name">Nome</label> <br>
                                     <input class="form-control @error('name') is-invalid @enderror" type="text" name="name" value="{{ old('name') }}">
                                     @error('name')
                                     <div class="invalid-feedback">
@@ -42,47 +46,15 @@
                                     </div>
                                     @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="user_id">Terapeuta responsável</label> <br>
-                                    <select class="form-select @error('user_id') is-invalid @enderror" aria-label="user_id" name="user_id">
-                                        <option value="">-- selecione --</option>
-                                        @foreach($users as $user)
-                                            <option value="{{ $user->id }}" @if(old('user_id') == $user->id  ) selected @endif> {{  $user->name }} - {{ $user->role->name }}   </option>
-                                        @endforeach
-                                    </select>
-                                    @error('user_id')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="responsible_id">Responsáveis</label> <br>
-
-                                    <select class="form-select @error('responsible_id') is-invalid @enderror"
-                                    aria-label="responsible_id" name="responsible_id">
-                                        <option value="">-- selecione --</option>
-                                        @foreach($responsibles as $responsible)
-                                            <option value="{{ $responsible->id }}"
-                                                @if(old('responsible_id') == $responsible->id ) selected @endif
-                                                >
-                                                {{ $responsible->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('responsible_id')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
-                    </div>
                 </div>
+
+                <div class="card-footer d-flex justify-content-center mt-3">
+                    <x-button icon="check" name="Cadastrar nova criança" type="submit" class="primary"></x-button>
+                </div>
+
             </form>
         </div>
     </div>

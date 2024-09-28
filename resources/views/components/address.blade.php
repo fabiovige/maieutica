@@ -10,10 +10,7 @@
         <label for="cep">Informe o cep</label> <br>
 
         <div class="input-group">
-            <input class="form-control @error('cep') is-invalid @enderror" type="text" name="cep" id="cep" value="{{ old('cep') ??$model->cep ?? '' }}" maxlength="8" >
-            <div class="input-group-append">
-                <button id="btnConsultarCep" class="btn btn-success" type="button"><i class="bi bi-search"></i></button>
-            </div>
+            <input class="form-control @error('cep') is-invalid @enderror" type="text" name="cep" id="cep" value="{{ old('cep', $model->postal_code ?? null) }}" maxlength="8" >
         </div>
 
         @error('cep')
@@ -31,7 +28,7 @@
         <label for="logradouro">Logradouro</label> <br>
         <input class="form-control @error('logradouro') is-invalid @enderror" type="text"
         id="logradouro" name="logradouro"
-        value="{{ old('logradouro') ?? $model->logradouro ?? '' }}" maxlength="50" >
+        value="{{ old('logradouro', $model->street ?? null) }}" maxlength="50" >
         @error('logradouro')
         <div class="invalid-feedback">
             {{ $message }}
@@ -43,7 +40,7 @@
         <label for="numero">Número</label> <br>
         <input class="form-control @error('numero') is-invalid @enderror" type="text"
         id="numero" name="numero"
-        value="{{ old('numero') ?? $model->numero ?? '' }}" maxlength="10">
+        value="{{ old('numero', $model->number ?? null) }}" maxlength="10">
         @error('numero')
         <div class="invalid-feedback">
             {{ $message }}
@@ -54,7 +51,7 @@
     <div class="mb-2 col-md-4">
         <label for="complemento">Complemento (opcional)</label> <br>
         <input class="form-control @error('complemento') is-invalid @enderror" type="text"
-        id="complemento" name="complemento" value="{{ old('complemento') ?? $model->complemento ?? '' }}" maxlength="50" >
+        id="complemento" name="complemento" value="{{ old('complemento', $model->complement ?? null) }}" maxlength="50" >
         @error('complemento')
         <div class="invalid-feedback">
             {{ $message }}
@@ -70,7 +67,7 @@
         <label for="bairro">Bairro</label> <br>
         <input class="form-control @error('bairro') is-invalid @enderror" type="text"
         id="bairro" name="bairro"
-        value="{{ old('bairro') ?? $model->bairro ?? '' }}" maxlength="50"  >
+        value="{{ old('bairro', $model->neighborhood ?? null) }}" maxlength="50"  >
         @error('bairro')
         <div class="invalid-feedback">
             {{ $message }}
@@ -80,7 +77,7 @@
     <div class="mb-2 col-md-4">
         <label for="cidade">Cidade</label> <br>
         <input class="form-control @error('cidade') is-invalid @enderror" type="text"
-        id="cidade" name="cidade" value="{{ old('cidade') ?? $model->cidade ?? '' }}" maxlength="50"  >
+        id="cidade" name="cidade" value="{{ old('cidade', $model->city ?? null) }}" maxlength="50"  >
         @error('cidade')
         <div class="invalid-feedback">
             {{ $message }}
@@ -90,7 +87,7 @@
     <div class="mb-2 col-md-4">
         <label for="estado">Estado</label> <br>
         <input class="form-control @error('estado') is-invalid @enderror" type="text"
-        id="estado" name="estado" value="{{ old('estado') ?? $model->estado ?? '' }}" maxlength="50"  >
+        id="estado" name="estado" value="{{ old('estado', $model->state ?? null) }}" maxlength="50"  >
         @error('estado')
         <div class="invalid-feedback">
             {{ $message }}
@@ -108,7 +105,7 @@
     <script type="text/javascript">
 
         var zipCodeField = document.querySelector('#cep')
-        var submitButton = document.querySelector('#btnConsultarCep')
+        //var submitButton = document.querySelector('#btnConsultarCep')
 
         var logradouro = document.querySelector('#logradouro')
         var bairro = document.querySelector('#bairro')
@@ -118,11 +115,21 @@
         var complemento = document.querySelector('#complemento')
 
 
-        submitButton.addEventListener('click', run)
+        //submitButton.addEventListener('click', run)
 
-        function run(event){
-            event.preventDefault();
+        // Evento para quando o usuário terminar de digitar o CEP
+        zipCodeField.addEventListener('keyup', function(event) {
+            var zipCode = zipCodeField.value;
+            console.log(zipCode);
+            // Executa a função se o CEP tiver exatamente 8 dígitos
+            if (zipCode.length === 8) {
+                run();  // Chama a função de busca de CEP
+            }
+        });
+
+        function run(){
             var zipCode = zipCodeField.value
+
             if(zipCode.length < 8){
                 zipCodeField.focus()
                 return ;
@@ -145,5 +152,4 @@
 
         }
     </script>
-
 @endpush

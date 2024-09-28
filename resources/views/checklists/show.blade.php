@@ -13,10 +13,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12 ">
-            <h5>
-                {{ $checklist->kid->name }}, Nascido(a) em: {{ $checklist->kid->birth_date }}.
-                Checklist: {{ $checklist->id }}, Criado em: {{ $checklist->created_at->format('d/m/Y') }}
-            </h5>
+            <h5>{{ $checklist->kid->name }} - {{ $checklist->kid->FullNameMonths }}</h5>
         </div>
     </div>
 
@@ -26,6 +23,7 @@
 
             <div class="card">
                 <div class="card-body">
+                    Checklist: {{ $checklist->id }}
                     <div id="app">
                         <Checklists checklist_id="{{ $checklist->id }}" level="{{ $checklist->level }}"></Checklists>
                     </div>
@@ -35,7 +33,11 @@
     </div>
 
 
-    @include('includes.information-register', ['data' => $checklist, 'action'=>'checklists.destroy'])
+    @include('includes.information-register', [
+        'data' => $checklist,
+        'action'=>'checklists.destroy',
+        'can' => 'remove checklists'
+    ])
 
 @endsection
 

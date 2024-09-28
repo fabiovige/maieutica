@@ -13,7 +13,7 @@ class Plane extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['kid_id', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['kid_id', 'checklist_id','created_by', 'updated_by', 'deleted_by'];
 
     protected $casts = [
         'created_at' => 'datetime:d/m/Y',
@@ -27,5 +27,10 @@ class Plane extends Model
     public function competences(): BelongsToMany
     {
         return $this->belongsToMany(Competence::class);
+    }
+
+    public function checklist(): BelongsTo
+    {
+        return $this->belongsTo(Checklist::class);  // Um plane pertence a um checklist
     }
 }

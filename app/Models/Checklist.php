@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
@@ -44,6 +45,11 @@ class Checklist extends Model
         return $this->belongsToMany(Competence::class)->withPivot('note');
     }
 
+    public function planes(): HasMany
+    {
+        return $this->hasMany(Plane::class);  // Um checklist pode ter vários planes
+    }
+
     public static function calculatePercentage($request)
     {
         $queryBuilder = DB::table('checklist_competence AS cc')
@@ -58,5 +64,28 @@ class Checklist extends Model
         }
 
         return $queryBuilder->get();
+    }
+
+    public static function getChecklists()
+    {
+        $query = Checklist::query();
+
+        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+            // Superadmin ou admin pode ver todos os checklists e seus relacionamentos
+            $query->with(['kid']);
+        } else if (auth()->user()->hasRole('professional')) {
+            // Profissionais podem ver checklists criados por eles ou associados a eles
+            $query->where('profession_id', auth()->user()->id)
+                ->orWhere('created_by', auth()->user()->id)
+                ->with(['kid', ]);
+        } else if (auth()->user()->hasRole('pais')) {
+            // Pais podem ver checklists associados às crianças pelas quais são responsáveis
+            $query->whereHas('kid', function ($q) {
+                $q->where('responsible_id', auth()->user()->id);
+            })
+                ->with(['kid']);
+        }
+
+        return $query;
     }
 }

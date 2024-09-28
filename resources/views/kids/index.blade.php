@@ -12,8 +12,8 @@
 @endsection
 
 @section('button')
-    @can('kids.store')
-    <x-button href="{{route('kids.create')}}" icon="plus" name="Novo" type="link" class="primary btn-sm"></x-button>
+    @can('create kids')
+    <x-button href="{{route('kids.create')}}" icon="plus" name="Cadastrar criança" type="link" class="primary btn-sm"></x-button>
     @endcan
 @endsection
 
@@ -32,7 +32,7 @@
                                 <th>Nome</th>
                                 <th>Data de nascimento</th>
                                 <th>Checklists</th>
-                                <th>Terapeuta</th>
+                                <th>Professional</th>
                                 <th>Responsáveis</th>
                                 <th style="width: 30px"></th>
                             </tr>
@@ -87,13 +87,13 @@
                     searchable: false
                 },
                 {
-                    data: 'user_id',
-                    name: 'Terapeuta',
+                    data: 'profession_id',
+                    name: 'Professional',
                     searchable: false
                 },
                 {
                     data: 'responsible_id',
-                    name: 'Responsáveis',
+                    name: 'Responsável',
                     searchable: false
                 },
                 {
