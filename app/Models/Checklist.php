@@ -75,9 +75,11 @@ class Checklist extends Model
             $query->with(['kid']);
         } else if (auth()->user()->hasRole('professional')) {
             // Profissionais podem ver checklists criados por eles ou associados a eles
-            $query->where('profession_id', auth()->user()->id)
-                ->orWhere('created_by', auth()->user()->id)
-                ->with(['kid', ]);
+            //$query->where('created_by', auth()->user()->id)
+            $query->whereHas('kid', function ($q) {
+                    $q->where('profession_id', auth()->user()->id);
+                })
+                ->with(['kid']);
         } else if (auth()->user()->hasRole('pais')) {
             // Pais podem ver checklists associados às crianças pelas quais são responsáveis
             $query->whereHas('kid', function ($q) {
