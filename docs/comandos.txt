@@ -2,11 +2,9 @@ git tag -a 1.1.0 -m "Release 1.1.0 - Refatoração de roles e permissions"
 
 git push --tags
 
-
 php artisan queue:failed-table
 
 php artisan queue:work --queue=emails --verbose
-
 
 ######################
 ssh -p 65002 u350247040@154.49.247.137
