@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class Kid extends BaseModel
 {
@@ -16,6 +18,17 @@ class Kid extends BaseModel
         'deleted_by',
         'months',
     ];
+
+    // Adicionando o Scope Local
+    public function scopeForProfessional(Builder $query)
+    {
+        if (Auth::check() && Auth::user()->hasRole('professional')) {
+            return $query->where('profession_id', Auth::id());
+        }
+
+        return $query;
+    }
+
 
     // Relacionamento com o responsável (ROLE_PAIS)
     public function responsible()
@@ -67,8 +80,9 @@ class Kid extends BaseModel
             $query->with(['professional', 'responsible', 'checklists']);
         } else if (auth()->user()->hasRole('professional')) {
             $query->where('profession_id', auth()->user()->id)
+                ->whereOr('created_by', auth()->user()->id)
                 ->with(['professional', 'responsible', 'checklists']);
-        } else if (auth()->user()->hasRole('Pais')) {
+        } else if (auth()->user()->hasRole('pais')) {
             $query->where('responsible_id', auth()->user()->id)
                 ->with(['professional', 'responsible', 'checklists']);
         }

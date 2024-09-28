@@ -3,7 +3,7 @@
 
         <loading :active="isLoading" :is-full-page="fullPage"></loading>
 
-        <div class="row">
+        <!--<div class="row">
             <div class="col-md-3">
                 <label class="mt-2">Checklists</label>
                 <select v-model="search_checklist" class="form-select">
@@ -12,7 +12,7 @@
                     </option>
                 </select>
             </div>
-        </div>
+        </div>-->
 
         <ul class="nav nav-tabs nav-fill mt-2" id="navTablevel" role="tablist">
             <li v-for="(data, level_id) in checklist.levels" :key="level_id" class="nav-item" role="presentation">
@@ -104,10 +104,10 @@
 </template>
 
 <script>
-import {onMounted, watch, ref, inject} from "vue";
-import useChecklists from "../composables/checklists";
+import { onMounted, ref, watch } from "vue";
 import Loading from "vue3-loading-overlay";
 import 'vue3-loading-overlay/dist/vue3-loading-overlay.css';
+import useChecklists from "../composables/checklists";
 
 export default {
     name: "Checklists",

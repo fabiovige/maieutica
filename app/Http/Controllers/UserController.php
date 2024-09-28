@@ -213,14 +213,14 @@ class UserController extends Controller
 
     public function update(UserRequest $request, $id)
     {
-        $this->authorize('update', User::class);
+        $user = User::findOrFail($id);
+        $this->authorize('update', $user);
 
         DB::beginTransaction();
         try {
             $data = $request->all();
             $data['type'] = (! isset($data['type'])) ? User::TYPE_I : $data['type'];
 
-            $user = User::findOrFail($id);
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,

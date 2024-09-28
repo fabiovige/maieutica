@@ -71,7 +71,7 @@ class UserPolicy
     public function update(User $user, User $model): bool
     {
         // Permite atualizar se o usuário tem a permissão ou se está atualizando a si mesmo
-        return $user->can('update users') || $user->id === $model->id;
+        return $user->can('edit users') || $user->id === $model->id;
     }
 
     /**

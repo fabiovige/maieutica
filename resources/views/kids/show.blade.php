@@ -63,8 +63,13 @@
                                 </Checklists>
                             </div>
                             <div class="tab-pane fade" id="nav-plane" role="tabpanel" aria-labelledby="nav-plane-tab">
-                                <Planes :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"
-                                    :kid_id="{{ $kid->id }}"></Planes>
+                                <Planes
+                                    :checklists="{{ $checklists }}"
+                                    :checklist_id="{{ $checklist_id }}"
+                                    :kid_id="{{ $kid->id }}"
+                                    :can-create-plane="{{ Auth::user()->can('create planes') }}"
+                                    :can-view-plane="{{ Auth::user()->can('view planes') }}"
+                                ></Planes>
                             </div>
                         </div>
                     @endif

@@ -32,6 +32,13 @@ class RoleAndPermissionSeeder extends Seeder
             'edit kids',
             'remove kids',
 
+            // Planes
+            'list planes',
+            'view planes',
+            'create planes',
+            'edit planes',
+            'remove planes',
+
             // Roles
             'list roles',
             'view roles',
@@ -60,27 +67,43 @@ class RoleAndPermissionSeeder extends Seeder
 
         // Admin tem todas as permissões relacionadas a usuários, roles, kids e checklists
         $admin->syncPermissions([
+            // Usuários
             'list users',
             'view users',
             'create users',
             'edit users',
             'remove users',
-            'list roles',
-            'view roles',
-            'create roles',
-            'edit roles',
-            'remove roles',
+
+            // Crianças
             'list kids',
             'view kids',
             'create kids',
             'edit kids',
             'remove kids',
+
+            // Planes
+            'list planes',
+            'view planes',
+            'create planes',
+            'edit planes',
+            'remove planes',
+
+            // Roles
+            'list roles',
+            'view roles',
+            'create roles',
+            'edit roles',
+            'remove roles',
+
+            // Checklists
             'list checklists',
             'view checklists',
             'create checklists',
             'edit checklists',
             'remove checklists',
             'fill checklists',
+
+            // Permissões Adicionais
             'manage dashboard',
         ]);
 
@@ -90,11 +113,18 @@ class RoleAndPermissionSeeder extends Seeder
             'view kids',
             'create kids',
             'edit kids',
+
             'list checklists',
             'view checklists',
             'create checklists',
             'edit checklists',
             'fill checklists',
+
+            'list planes',
+            'view planes',
+            'create planes',
+            'edit planes',
+            'remove planes',
         ]);
 
         // Pais tem permissões limitadas aos seus filhos e checklists

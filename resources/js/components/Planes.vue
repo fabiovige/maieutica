@@ -16,16 +16,15 @@
                     </div>
                 </div>
 
-                <div class="">
+                <div  v-if="canViewPlane" class="">
                     <div v-if="Object.keys(plane).length > 0" >
                         <button class="btn btn-success mt-3" @click.prevent="viewPdfPlane"><i class="bi bi-file-pdf"></i> Visualizar plano</button>
                     </div>
                 </div>
 
-                <div class="">
+                <div  v-if="canCreatePlane" class="">
                     <button class="btn btn-dark mt-3 " @click.prevent="createPlane"><i class="bi bi-plus"></i> Novo plano</button>
                 </div>
-
             </div>
         </div>
 
@@ -137,12 +136,14 @@ import usePlanes from "../composables/planes";
 
 export default {
     name: "Planes",
-    props: ['checklists', 'checklist_id', 'kid_id', "app_url"],
+    props: ['checklists', 'checklist_id', 'kid_id', "app_url", "canCreatePlane", "canViewPlane"], // Adicionando a nova prop
     components: { Loading },
     setup(props) {
         const checklist_id = ref(props.checklist_id)
         const checklists = ref(props.checklists)
         const kid_id = ref(props.kid_id)
+        const canCreatePlane = ref(props.canCreatePlane)
+        const canViewPlane = ref(props.canViewPlane)
         const search_plane = ref('')
         const fullPagePlane = ref(true)
         const { checklist, getChecklist  } = useChecklists()
@@ -197,7 +198,8 @@ export default {
             storePlanes,
             deletePlanes,
             createPlane,
-            viewPdfPlane
+            viewPdfPlane,
+            canCreatePlane, canViewPlane
         }
     }
 }

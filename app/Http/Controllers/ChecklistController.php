@@ -37,24 +37,42 @@ class ChecklistController extends Controller
         }
         */
 
-        $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at');
+        $data = Checklist::getChecklists();
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
-                if (request()->user()->can('edit checklists')) {
+                $user = request()->user();
 
-                    $html = '<div class="dropdown">
-                      <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-gear"></i>
-                                        </button>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                        <li><a class="dropdown-item" href="'.route('checklists.edit', $data->id).'"><i class="bi bi-pencil"></i> Editar</a></li>
-                        <li><a class="dropdown-item" href="'.route('checklists.fill', $data->id).'"><i class="bi bi-check2-square"></i> Avaliação</a></li>
-                      </ul>
-                    </div>';
+                $html = '<div class="dropdown">
+                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-gear"></i>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">';
 
-                    return $html;
-                }
+                    // Adiciona o botão de visualizar se o usuário tiver permissão de visualizar checklists
+                    if ($user->can('view checklists')) {
+                        $html .= '<li><a class="dropdown-item" href="'.route('checklists.show', $data->id).'">
+                                    <i class="bi bi-eye"></i> Visualizar
+                                </a></li>';
+                    }
+
+                    // Adiciona o botão de editar se o usuário tiver permissão de editar checklists
+                    if ($user->can('edit checklists')) {
+                        $html .= '<li><a class="dropdown-item" href="'.route('checklists.edit', $data->id).'">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a></li>';
+                    }
+
+                    // Adiciona o botão de avaliação se o usuário tiver permissão de preencher checklists (fill)
+                    if ($user->can('fill checklists')) {
+                        $html .= '<li><a class="dropdown-item" href="'.route('checklists.fill', $data->id).'">
+                                    <i class="bi bi-check2-square"></i> Avaliação
+                                </a></li>';
+                    }
+
+                $html .= '</ul></div>';
+
+                return $html;
             })
             ->editColumn('kid_id', function ($data) {
                 return $data->kid->name;
@@ -134,7 +152,24 @@ class ChecklistController extends Controller
 
     public function show($id)
     {
-        dd('show');
+        $checklist = Checklist::findOrFail($id);
+        $this->authorize('view', $checklist);
+
+        try {
+            $message = label_case('Edit Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            Log::info($message);
+
+            return view('checklists.show', [
+                'checklist' => $checklist,
+            ]);
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            $message = label_case('Update Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            Log::error($message);
+
+            flash(self::MSG_UPDATE_ERROR)->warning();
+            return redirect()->back();
+        }
     }
 
     public function edit($id)

@@ -43,12 +43,7 @@ class KidPolicy
     public function view(User $user, Kid $kid): bool
     {
         // Permite visualizar se o usuário é o professional associado à criança
-        return (
-                $user->can('view kids')
-                || $user->id === $kid->created_by
-                || $user->id === $kid->professional_id
-                || $user->id === $kid->responsible_id
-            );
+        return $user->can('view kids');
     }
 
     /**
@@ -73,7 +68,8 @@ class KidPolicy
     public function update(User $user, Kid $kid): bool
     {
         // Permite atualizar se o usuário é o professional associado à criança
-        return $user->can('update kids') || $user->id === $kid->created_by;
+
+        return $user->can('edit kids') || ( $user->id === $kid->created_by || $user->id === $kid->profession_id );
     }
 
     /**

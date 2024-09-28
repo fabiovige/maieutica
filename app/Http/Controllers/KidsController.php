@@ -9,6 +9,7 @@ use App\Models\Plane;
 use App\Models\Responsible;
 use App\Models\User;
 use App\Util\MyPdf;
+use Auth;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -27,8 +28,7 @@ class KidsController extends Controller
 
     public function index_data()
     {
-
-        $data = Kid::All();
+        $data = Kid::getKids();
 
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
@@ -93,11 +93,15 @@ class KidsController extends Controller
             $kidData = [
                 'name' => $request->name,
                 'birth_date' => $request->birth_date,
+                'created_by' => auth()->user()->id,
             ];
 
-            // removido is professional
+            if (Auth::user()->hasRole('professional')) {
+                $kidData['profession_id'] = Auth::user()->id;
+            }
 
-            $kid = Kid::create($kidData);
+            $kid = Kid::forProfessional()->create($kidData);
+
             Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
 
             flash(self::MSG_CREATE_SUCCESS)->success();
@@ -118,8 +122,9 @@ class KidsController extends Controller
     public function show(Kid $kid)
     {
         $this->authorize('view', $kid);
+
         try {
-            Log::info('', [
+            Log::info('show', [
                 'user' => auth()->user()->name,
                 'id' => auth()->user()->id,
             ]);
@@ -145,10 +150,10 @@ class KidsController extends Controller
 
             return view('kids.show', $data);
         } catch (Exception $e) {
-            flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Show Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Error show kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
+            flash(self::MSG_NOT_FOUND)->warning();
             return redirect()->back();
         }
     }

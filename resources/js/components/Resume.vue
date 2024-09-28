@@ -61,8 +61,7 @@
 </template>
 
 <script>
-import { onMounted, watch, ref, inject } from "vue";
-import Loading from "vue3-loading-overlay";
+import { onMounted, ref } from "vue";
 import "vue3-loading-overlay/dist/vue3-loading-overlay.css";
 
 export default {
