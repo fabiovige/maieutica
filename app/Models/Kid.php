@@ -104,6 +104,6 @@ class Kid extends BaseModel
         $dt = Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d');
         $month = $now->diffInMonths($dt);
 
-        return $month.' meses - '.$this->birth_date.' - Cod. '.$this->id;
+        return 'Cod. '. $this->id . ' - ' . ' Nascido em: ' . $this->birth_date . ' (' . $month . ' meses)';
     }
 }

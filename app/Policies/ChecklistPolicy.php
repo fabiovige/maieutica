@@ -44,8 +44,8 @@ class ChecklistPolicy
     public function view(User $user, Checklist $checklist): bool
     {
         // Permite visualizar se o usuário é o criador do checklist
-        return $user->can('view checklists') &&
-        ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id || $user->id === $checklist->kid->responsible_id);
+        return $user->can('view checklists');
+            //&& ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id || $user->id === $checklist->kid->responsible_id);
     }
 
     /**

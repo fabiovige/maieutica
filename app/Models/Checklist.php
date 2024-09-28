@@ -72,12 +72,12 @@ class Checklist extends Model
 
         if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
             // Superadmin ou admin pode ver todos os checklists e seus relacionamentos
-            $query->with(['kid', 'professional', 'responsible']);
+            $query->with(['kid']);
         } else if (auth()->user()->hasRole('professional')) {
             // Profissionais podem ver checklists criados por eles ou associados a eles
             $query->where('profession_id', auth()->user()->id)
                 ->orWhere('created_by', auth()->user()->id)
-                ->with(['kid', 'professional', 'responsible']);
+                ->with(['kid', ]);
         } else if (auth()->user()->hasRole('pais')) {
             // Pais podem ver checklists associados às crianças pelas quais são responsáveis
             $query->whereHas('kid', function ($q) {

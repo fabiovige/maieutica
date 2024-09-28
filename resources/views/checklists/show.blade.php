@@ -13,9 +13,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12 ">
-            <h5>
-                {{ $checklist->kid->name }}, Nascido(a) em: {{ $checklist->kid->birth_date }}
-            </h5>
+            <h5>{{ $checklist->kid->name }} - {{ $checklist->kid->FullNameMonths }}</h5>
         </div>
     </div>
 
