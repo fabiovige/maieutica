@@ -18,13 +18,20 @@ class ChecklistPolicy
      * @param string $ability
      * @return bool|null
      */
-    public function before(User $user, $ability): ?bool
+    /*public function before(User $user, $ability): ?bool
     {
         if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
             return true;
         }
 
         return false;
+    }*/
+
+
+    public function viewAny(User $user): bool
+    {
+        // Verifica se o usuário tem a permissão de listar checklists
+        return $user->can('list checklists');
     }
 
     /**
@@ -62,8 +69,7 @@ class ChecklistPolicy
     public function update(User $user, Checklist $checklist): bool
     {
         // Permite atualizar se o usuário é o criador do checklist
-        //return $user->id === $checklist->created_by;
-        return false;
+        return $user->id === $checklist->created_by;
     }
 
     /**

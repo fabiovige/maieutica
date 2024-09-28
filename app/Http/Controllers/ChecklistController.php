@@ -18,7 +18,7 @@ class ChecklistController extends Controller
 {
     public function index()
     {
-        $this->authorize('list checklists');
+        $this->authorize('viewAny', Checklist::class);
 
         $message = label_case('Index Checklists ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::debug($message);
@@ -72,7 +72,7 @@ class ChecklistController extends Controller
 
     public function create()
     {
-        $this->authorize('create checklists');
+        $this->authorize('create', Checklist::class);
 
         $message = label_case('Create Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
@@ -83,7 +83,7 @@ class ChecklistController extends Controller
 
     public function store(ChecklistRequest $request)
     {
-        $this->authorize('create');
+        $this->authorize('create', Checklist::class);
 
         try {
             $message = label_case('Store Checklists '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
@@ -98,6 +98,7 @@ class ChecklistController extends Controller
             // Plane
             $plane = Plane::create([
                 'kid_id' => $request->kid_id,
+                'checklist_id' => $checklist->id,
                 'created_by' => Auth::id(),
             ]);
 
@@ -120,8 +121,8 @@ class ChecklistController extends Controller
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
             return redirect()->route('checklists.index');
-        } catch (Exception $e) {
-
+        } catch (\Exception $e) {
+            dd($e->getMessage());
             $message = label_case('Create Checklists '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 

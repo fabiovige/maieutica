@@ -18,7 +18,7 @@
                 @method('PUT')
                 <div class="card">
                     <div class="card-header">
-                        Id: {{ $checklist->id }}
+                        Checklist Id: {{ $checklist->id }}
                     </div>
                     <div class="card-body">
                         <div class="form-group">
