@@ -18,13 +18,19 @@ class KidPolicy
      * @param string $ability
      * @return bool|null
      */
-    public function before(User $user, $ability): ?bool
+    /*public function before(User $user, $ability): ?bool
     {
         if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
             return true;
         }
 
         return null;
+    }*/
+
+    public function viewAny(User $user): bool
+    {
+        // Verifica se o usuário tem a permissão de listar checklists
+        return $user->can('list users');
     }
 
     /**
@@ -37,7 +43,12 @@ class KidPolicy
     public function view(User $user, Kid $kid): bool
     {
         // Permite visualizar se o usuário é o professional associado à criança
-        return $user->id === $kid->profession_id;
+        return (
+                $user->can('view kids')
+                || $user->id === $kid->created_by
+                || $user->id === $kid->professional_id
+                || $user->id === $kid->responsible_id
+            );
     }
 
     /**
@@ -62,7 +73,7 @@ class KidPolicy
     public function update(User $user, Kid $kid): bool
     {
         // Permite atualizar se o usuário é o professional associado à criança
-        return $user->id === $kid->profession_id;
+        return $user->can('update kids') || $user->id === $kid->created_by;
     }
 
     /**
@@ -75,7 +86,7 @@ class KidPolicy
     public function delete(User $user, Kid $kid): bool
     {
         // Permite deletar se o usuário é o professional associado à criança
-        return $user->id === $kid->profession_id;
+        return $user->can('remove kids');
     }
 
     /**

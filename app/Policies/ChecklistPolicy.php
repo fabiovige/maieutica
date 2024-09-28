@@ -44,7 +44,7 @@ class ChecklistPolicy
     public function view(User $user, Checklist $checklist): bool
     {
         // Permite visualizar se o usuário é o criador do checklist
-        return $user->id === $checklist->created_by;
+        return $user->can('view checklists') || $user->id === $checklist->created_by;
     }
 
     /**
@@ -69,7 +69,7 @@ class ChecklistPolicy
     public function update(User $user, Checklist $checklist): bool
     {
         // Permite atualizar se o usuário é o criador do checklist
-        return $user->id === $checklist->created_by;
+        return $user->can('update checklists') || $user->id === $checklist->created_by;
     }
 
     /**
@@ -82,7 +82,7 @@ class ChecklistPolicy
     public function delete(User $user, Checklist $checklist): bool
     {
         // Permite deletar se o usuário é o criador do checklist
-        return $user->id === $checklist->created_by;
+        return $user->can('remove checklists') || $user->id === $checklist->created_by;
     }
 
     /**

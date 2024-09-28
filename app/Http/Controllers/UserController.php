@@ -20,10 +20,11 @@ class UserController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', User::class);
+
         $message = label_case('list users ') . ' | User:' . auth()->user()->name . '(ID: ' . auth()->user()->id . ') ';
         Log::info($message);
 
-        $this->authorize('list users');
 
         $user = auth()->user();
         return view('users.index');
@@ -81,8 +82,6 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-
-        // Usa a política para verificar se o usuário pode atualizar
         $this->authorize('update', $user);
 
         try {
@@ -114,6 +113,7 @@ class UserController extends Controller
 
     public function show($id)
     {
+        $this->authorize('view', User::class);
         try {
             $user = User::findOrFail($id);
             $roles = Role::all();
@@ -136,6 +136,7 @@ class UserController extends Controller
 
     public function create()
     {
+        $this->authorize('create', User::class);
         /*
         if (auth()->user()->isSuperAdmin()) {
             $roles = Role::all();
@@ -155,6 +156,8 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
+        $this->authorize('create', User::class);
+
         DB::beginTransaction();
         try {
             $data = $request->all();
@@ -210,6 +213,8 @@ class UserController extends Controller
 
     public function update(UserRequest $request, $id)
     {
+        $this->authorize('update', User::class);
+
         DB::beginTransaction();
         try {
             $data = $request->all();
@@ -261,6 +266,8 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        $this->authorize('delete', $user);
+
         DB::beginTransaction();
         try {
             // Verifica se o usuário autenticado está tentando excluir a si mesmo

@@ -17,14 +17,14 @@ class UserPolicy
      * @param string $ability
      * @return bool|null
      */
-    public function before(User $user, $ability): ?bool
+    /*public function before(User $user, $ability): ?bool
     {
         if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
             return true;
         }
 
         return null;
-    }
+    }*/
 
     /**
      * Determina se o usuário pode visualizar qualquer usuário (listagem).
@@ -85,9 +85,10 @@ class UserPolicy
     {
         // Impede que o usuário remova a si mesmo
         if ($user->id === $model->id) {
-            return false;
+            return false; // Não permite remover a si mesmo
         }
 
+        // Verifica se o usuário tem permissão para remover outros usuários
         return $user->can('remove users');
     }
 
