@@ -11,8 +11,11 @@ use App\Models\User;
 use App\Util\MyPdf;
 use Auth;
 use Exception;
+use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Request;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role as SpatieRole;
 
@@ -48,11 +51,23 @@ class KidsController extends Controller
                     return $html;
                 }
             })
+            ->editColumn('photo', function ($data) {
+                // Verifica se a criança tem uma foto. Se não tiver, gera um avatar aleatório.
+                if ($data->photo) {
+                    $photoUrl = asset('storage/' . $data->photo);
+                } else {
+                    $randomAvatarNumber = rand(1, 13); // Gera um número aleatório entre 1 e 13
+                    $photoUrl = asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png');
+                }
+
+                $html = '<img src="' . $photoUrl . '" class="rounded-img" style="width: 50px; height: 50px;">';
+                return $html;
+            })
             ->editColumn('name', function ($data) {
                 return $data->name;
             })
             ->editColumn('birth_date', function ($data) {
-                return $data->birth_date;
+                return $data->birth_date . ' (' . $data->months . ' meses)';
             })
             ->editColumn('checklists', function ($data) {
                 return '<span class="badge bg-success"><i class="bi bi-check"></i> ' . $data->checklists->count() . ' Checklist(s) </span>';
@@ -65,7 +80,7 @@ class KidsController extends Controller
                 // Exibe o nome do responsável ou 'Não atribuído' caso não tenha um responsável
                 return $data->responsible ? $data->responsible->name : 'Não atribuído';
             })
-            ->rawColumns(['name', 'checklists', 'responsible', 'action'])
+            ->rawColumns(['photo','name', 'checklists', 'responsible', 'action'])
             //->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
@@ -369,7 +384,7 @@ class KidsController extends Controller
         $pdf->SetFont('helvetica', '', 18);
         $pdf->Cell(0, 75, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 12);
-        $txt = 'Terapeuta: ' . $therapist . ',  Data: ' . $date;
+        $txt = 'Profissional: ' . $therapist . ',  Data: ' . $date;
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(15);
         $pdf->SetFont('helvetica', '', 18);
@@ -381,5 +396,46 @@ class KidsController extends Controller
         $pdf->Ln(3);
 
         $pdf->SetFont('helvetica', '', 14);
+    }
+
+    public function uploadPhoto(HttpRequest $request, Kid $kid)
+    {
+        //$this->authorize('update', $kid);
+
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Remove a foto anterior se houver uma
+            if ($kid->photo) {
+                Storage::disk('public')->delete($kid->photo);
+            }
+
+            // Armazena a nova foto
+            $photoPath = $request->file('photo')->store('kids_photos', 'public');
+
+            // Atualiza o caminho da foto no banco de dados
+            $kid->update(['photo' => $photoPath]);
+
+            // Confirma a transação
+            DB::commit();
+
+            // Retorna com sucesso
+            flash('Foto atualizada com sucesso!')->success();
+        } catch (\Exception $e) {
+            // Reverte a transação em caso de falha
+            DB::rollBack();
+
+            // Loga o erro
+            Log::error('Erro ao fazer upload da foto da criança: ' . $e->getMessage());
+
+            // Retorna mensagem de erro
+            flash('Houve um erro ao atualizar a foto. Por favor, tente novamente.')->error();
+        }
+
+        return redirect()->route('kids.edit', $kid->id);
     }
 }

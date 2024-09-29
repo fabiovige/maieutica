@@ -17,6 +17,7 @@ class Kid extends BaseModel
         'updated_by',
         'deleted_by',
         'months',
+        'photo'
     ];
 
     // Adicionando o Scope Local

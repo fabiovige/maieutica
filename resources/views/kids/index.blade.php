@@ -29,6 +29,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th></th>
                                 <th>Nome</th>
                                 <th>Data de nascimento</th>
                                 <th>Checklists</th>
@@ -66,41 +67,56 @@
             autoWidth: true,
             responsive: true,
             ajax: '{{ route("kids.index_data") }}',
-            columns: [{
-                data: 'id',
-                name: 'id',
+            columns: [
+                {
+                    data: 'id',
+                    name: 'id',
+                    className: 'centered-column'
+                },
+                {
+                    data: 'photo',
+                    name: 'Photo',
+                    orderable: false,
+                    searchable: false,
+                    className: 'centered-column'
                 },
                 {
                     data: 'name',
-                    name: 'name'
+                    name: 'Name',
+                    className: 'centered-column-vertically'
                 },
                 {
                     data: 'birth_date',
                     name: 'birth_date',
                     orderable: false,
-                    searchable: false
+                    searchable: false,
+                    className: 'centered-column-vertically'
                 },
                 {
                     data: 'checklists',
                     name: 'Checklists',
                     orderable: false,
-                    searchable: false
+                    searchable: false,
+                    className: 'centered-column-vertically'
                 },
                 {
                     data: 'profession_id',
                     name: 'Professional',
-                    searchable: false
+                    searchable: false,
+                    className: 'centered-column-vertically'
                 },
                 {
                     data: 'responsible_id',
                     name: 'Responsável',
-                    searchable: false
+                    searchable: false,
+                    className: 'centered-column-vertically'
                 },
                 {
                     data: 'action',
                     name: 'action',
                     orderable: false,
-                    searchable: false
+                    searchable: false,
+                    className: 'centered-column-vertically'
                 }
             ]
         });

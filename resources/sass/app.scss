@@ -16,6 +16,22 @@
 
 }
 
+.rounded-img {
+    border-radius: 50%;
+    width: 150px; /* Ajuste o tamanho conforme necessário */
+    height: 150px; /* Certifique-se de que altura e largura sejam iguais para manter o formato circular */
+    object-fit: cover; /* Isso garante que a imagem seja cortada corretamente dentro do círculo */
+}
+
+.centered-column {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.centered-column-vertically {
+    vertical-align: middle;
+}
+
 main {
     flex-grow: 1;
 }
