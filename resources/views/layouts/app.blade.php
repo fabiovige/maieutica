@@ -49,10 +49,7 @@
                     </div>
                     <div class="col-auto">
                         <p class="small mb-0 mt-4 text-right">
-                            versão: {{ config('app.version') }} | 29/09/2024 -
-                            by <a href="https://fabiovige.dev"
-                               target="_black"
-                               title="Developer PHP | Laravel">fabiovige</a>
+                            versão: {{ config('app.version') }}
                         </p>
                     </div>
                 </div>
