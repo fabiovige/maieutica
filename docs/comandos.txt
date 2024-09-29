@@ -4,6 +4,10 @@ git push --tags
 
 php artisan queue:failed-table
 
+php artisan storage:link
+sudo chmod -R 775 storage
+sudo chmod -R 775 bootstrap/cache
+
 php artisan queue:work --queue=emails --verbose
 
 ######################

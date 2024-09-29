@@ -46,7 +46,9 @@
                                 {{-- <Dashboard user="{{ auth()->user()->id }}"></Dashboard> --}}
                                 {{-- <Resume :responsible="{{ $kid->responsible()->first() }}" :kid="{{ $kid }}">
                                 </Resume> --}}
-                                <Resume :responsible="{{ $kid->responsible()->first() }}"
+                                <Resume
+                                    :responsible="{{ $kid->responsible()->first() }}"
+                                    :professional="{{ $kid->professional()->first() }}"
                                     :kid="{{ $kid }}"
                                     :checklist="{{ $countChecklists }}"
                                     :plane="{{ $countPlanes }}"
