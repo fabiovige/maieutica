@@ -1,7 +1,8 @@
 /node_modules
 /public/hot
 /public/storage
-/storage
+/storage/*
+!/storage/app/public/kids_avatars
 /vendor
 .php-cs-fixer.cache
 .env
