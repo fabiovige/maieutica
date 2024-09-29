@@ -40,6 +40,6 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('address', Address::class);
 
         // Observers
-        // User::observe(UserObserver::class);
+        User::observe(UserObserver::class);
     }
 }
