@@ -12,6 +12,52 @@
 
 @section('content')
 
+<div class="row">
+    <div class="col-md-3 mt-3">
+        <div class="mt-3 centered-column">
+            @if($kid->photo)
+                <!-- Exibe a foto da criança se ela tiver uma -->
+                <img src="{{ asset('storage/' . $kid->photo) }}" alt="Foto da criança" width="150" class="rounded-img">
+            @else
+                <!-- Exibe um avatar aleatório se não houver foto -->
+                @php
+                    $randomAvatarNumber = rand(1, 13); // Gera um número aleatório entre 1 e 13
+                @endphp
+                <img src="{{ asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png') }}" alt="Avatar aleatório" width="150" class="rounded-img">
+            @endif
+        </div>
+    </div>
+
+
+    <div class="col-md-9 mt-3">
+        <div class="card">
+            <div class="card-header">
+                Atualizar Foto
+            </div>
+            <div class="card-body">
+                <form action="{{ route('kids.upload.photo', $kid->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group">
+                        <label for="photo">Escolha uma foto:</label>
+                        <input type="file" class="form-control @error('photo') is-invalid @enderror" name="photo" required>
+                        @error('photo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Salvar Foto</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
     <div class="row">
         <div class="col-md-12">
             <form action="{{ route('kids.update', $kid->id) }}" method="POST">
