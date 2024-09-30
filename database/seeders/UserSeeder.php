@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Observers\UserObserver;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -42,6 +43,7 @@ class UserSeeder extends Seeder
             ],
         ];
 
+        User::flushEventListeners();
         foreach ($users as $userData) {
             // Atribuir role antes de criar o usuário, se necessário
             $roleName = $userData['role'];
@@ -59,5 +61,6 @@ class UserSeeder extends Seeder
             // Atribuir o role usando o nome
             $user->assignRole($roleName);
         }
+        User::observe(UserObserver::class);
     }
 }

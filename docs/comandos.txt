@@ -9,6 +9,7 @@ sudo chmod -R 775 storage
 sudo chmod -R 775 bootstrap/cache
 
 php artisan queue:work --queue=emails --verbose
+php artisan queue:listen --queue=emails --verbose
 
 ######################
 ssh -p 65002 u350247040@154.49.247.137

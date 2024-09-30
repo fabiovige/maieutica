@@ -19,7 +19,7 @@ class ChecklistSeeder extends Seeder
         $kid = Kid::pluck('id');
 
         // checklists
-        foreach ([1, 2] as $c => $v) {
+        foreach ([1, 2, 3] as $c => $v) {
 
             // levels
             $indice = 4;
@@ -40,7 +40,7 @@ class ChecklistSeeder extends Seeder
                 $notes = [];
                 // competences
                 foreach ($components as $c => $v) {
-                    $notes[$v] = ['note' => rand(0, 3)];
+                    $notes[$v] = ['note' => rand(1, 2)];
                 }
 
                 $checklist->competences()->syncWithoutDetaching($notes);

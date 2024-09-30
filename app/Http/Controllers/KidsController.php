@@ -438,4 +438,220 @@ class KidsController extends Controller
 
         return redirect()->route('kids.edit', $kid->id);
     }
+
+    // app/Http/Controllers/KidController.php
+
+    public function teste()
+    {
+        // Obter a criança pelo ID
+        $child = Kid::findOrFail(6);
+
+        // Idade da criança em meses
+        $ageInMonths = 28; // Para este exemplo, fixamos em 28 meses
+
+        // Dados fictícios das competências
+        $competenceLabels = [
+            'Comunicação Receptiva',
+            'Comunicação Expressiva',
+            'Motricidade Grossa',
+            'Cognição',
+            'Imitação',
+            'Social',
+            'Independência Pessoal: Alimentação',
+            'Independência Pessoal: Vestir',
+            'Independência Pessoal: Higiene',
+            'Independência Pessoal: Tarefas',
+            'Comportamento',
+            'Motricidade Fina',
+            'Jogo',
+            'Comportamento Social',
+            'Autonomia',
+            'Resolução de Problemas',
+        ];
+
+        $childScores = [
+            2, // Comunicação Receptiva - A
+            1, // Comunicação Expressiva - P
+            2, // Motricidade Grossa - A
+            1, // Cognição - P
+            2, // Imitação - A
+            0, // Social - N
+            1, // Independência Pessoal: Alimentação - P
+            2, // Independência Pessoal: Vestir - A
+            1, // Independência Pessoal: Higiene - P
+            2, // Independência Pessoal: Tarefas - A
+            1, // Comportamento - P
+            2, // Motricidade Fina - A
+            1, // Jogo - P
+            0, // Comportamento Social - N
+            1, // Autonomia - P
+            2, // Resolução de Problemas - A
+        ];
+
+        $percentil25 = [
+            22, // Comunicação Receptiva
+            23, // Comunicação Expressiva
+            24, // Motricidade Grossa
+            25, // Cognição
+            26, // Imitação
+            27, // Social
+            24, // Independência Pessoal: Alimentação
+            25, // Independência Pessoal: Vestir
+            26, // Independência Pessoal: Higiene
+            27, // Independência Pessoal: Tarefas
+            28, // Comportamento
+            25, // Motricidade Fina
+            26, // Jogo
+            28, // Comportamento Social
+            27, // Autonomia
+            29, // Resolução de Problemas
+        ];
+
+        $percentil50 = [
+            24, // Comunicação Receptiva
+            25, // Comunicação Expressiva
+            26, // Motricidade Grossa
+            27, // Cognição
+            28, // Imitação
+            29, // Social
+            26, // Independência Pessoal: Alimentação
+            27, // Independência Pessoal: Vestir
+            28, // Independência Pessoal: Higiene
+            29, // Independência Pessoal: Tarefas
+            30, // Comportamento
+            27, // Motricidade Fina
+            28, // Jogo
+            30, // Comportamento Social
+            29, // Autonomia
+            31, // Resolução de Problemas
+        ];
+
+        $percentil75 = [
+            26, // Comunicação Receptiva
+            27, // Comunicação Expressiva
+            28, // Motricidade Grossa
+            29, // Cognição
+            30, // Imitação
+            31, // Social
+            28, // Independência Pessoal: Alimentação
+            29, // Independência Pessoal: Vestir
+            30, // Independência Pessoal: Higiene
+            31, // Independência Pessoal: Tarefas
+            32, // Comportamento
+            29, // Motricidade Fina
+            30, // Jogo
+            32, // Comportamento Social
+            31, // Autonomia
+            33, // Resolução de Problemas
+        ];
+
+        $percentil90 = [
+            28, // Comunicação Receptiva
+            29, // Comunicação Expressiva
+            30, // Motricidade Grossa
+            31, // Cognição
+            32, // Imitação
+            33, // Social
+            30, // Independência Pessoal: Alimentação
+            31, // Independência Pessoal: Vestir
+            32, // Independência Pessoal: Higiene
+            33, // Independência Pessoal: Tarefas
+            34, // Comportamento
+            31, // Motricidade Fina
+            32, // Jogo
+            34, // Comportamento Social
+            33, // Autonomia
+            35, // Resolução de Problemas
+        ];
+
+        // Calcular o status para cada competência
+        $status = [];
+        foreach ($competenceLabels as $index => $competence) {
+            $age = $ageInMonths;
+            if ($age <= $percentil25[$index]) {
+                $status[] = 'Adiantada';
+            } elseif ($age > $percentil25[$index] && $age <= $percentil75[$index]) {
+                $status[] = 'No Prazo';
+            } else {
+                $status[] = 'Atrasada';
+            }
+        }
+
+        // Definir cores com base no status
+        $pointColors = [];
+        foreach ($status as $s) {
+            if ($s == 'Adiantada') {
+                $pointColors[] = 'rgb(75, 192, 192)'; // Verde-água
+            } elseif ($s == 'No Prazo') {
+                $pointColors[] = 'rgb(54, 162, 235)'; // Azul
+            } else { // 'Atrasada'
+                $pointColors[] = 'rgb(255, 99, 132)'; // Vermelho
+            }
+        }
+
+        // Preparar dados para o gráfico de pizza (Nível 2)
+        $level = 2; // Nível específico para a análise
+        // Supondo que as competências do nível 2 são as últimas 13 (indices 3 a 15)
+        $level2Competences = array_slice($competenceLabels, 3, 13);
+        $level2ChildScores = array_slice($childScores, 3, 13);
+
+        // Contar quantas competências estão Adiantadas, No Prazo ou Atrasadas no Nível 2
+        $level2StatusCounts = [
+            'Adiantada' => 0,
+            'No Prazo' => 0,
+            'Atrasada' => 0,
+        ];
+
+        foreach ($level2ChildScores as $index => $score) {
+            // Mapeamento de score para status
+            if ($score == 2) {
+                $level2StatusCounts['Adiantada'] += 1;
+            } elseif ($score == 1) {
+                $level2StatusCounts['No Prazo'] += 1;
+            } else {
+                $level2StatusCounts['Atrasada'] += 1;
+            }
+        }
+
+        // Preparar dados para o gráfico de barras
+        $idealPercentiles = $percentil50; // Usando percentil50 como ideal
+        // Calcular o percentil atual da criança para cada competência
+        $childPercentiles = [];
+        foreach ($competenceLabels as $index => $competence) {
+            $age = $ageInMonths;
+            if ($age <= $percentil25[$index]) {
+                $childPercentiles[] = 90; // Adiantada
+            } elseif ($age > $percentil25[$index] && $age <= $percentil50[$index]) {
+                $childPercentiles[] = 75;
+            } elseif ($age > $percentil50[$index] && $age <= $percentil75[$index]) {
+                $childPercentiles[] = 50;
+            } elseif ($age > $percentil75[$index] && $age <= $percentil90[$index]) {
+                $childPercentiles[] = 25;
+            } else {
+                $childPercentiles[] = 10; // Atrasada
+            }
+        }
+
+        // Calcular a média dos percentis atuais para a linha de evolução
+        $averageChildPercentile = array_sum($childPercentiles) / count($childPercentiles);
+
+        return view('kids.teste', compact(
+            'child',
+            'competenceLabels',
+            'childScores',
+            'percentil25',
+            'percentil50',
+            'percentil75',
+            'percentil90',
+            'ageInMonths',
+            'status',
+            'pointColors',
+            'level2Competences',
+            'level2StatusCounts',
+            'idealPercentiles',
+            'childPercentiles',
+            'averageChildPercentile'
+        ));
+    }
+
 }

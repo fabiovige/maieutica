@@ -56,3 +56,5 @@ Route::get('logs', function () {
     Log::info($message);
     Log::debug($message);
 });
+
+Route::get('/teste',  [KidsController::class, 'teste'])->name('kids.teste');
