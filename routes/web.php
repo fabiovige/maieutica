@@ -58,3 +58,8 @@ Route::get('logs', function () {
 });
 
 Route::get('/teste',  [KidsController::class, 'teste'])->name('kids.teste');
+Route::get('/teste/{kidId}/level/{levelId}', [KidsController::class, 'showRadarChart'])->name('kids.radarChart');
+Route::get('/teste2/{kidId}/level/{levelId}', [KidsController::class, 'showRadarChart2'])->name('kids.radarChart2');
+Route::get('/teste/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
+
+
