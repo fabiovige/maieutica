@@ -1192,10 +1192,10 @@ class KidsController extends Controller
                 // Adquirido
                 if ($ageInMonths < $competence->percentil_25) {
                     $status = 'Adiantada'; // Adquirido antes do esperado
-                    $statusColor = 'green';
+                    $statusColor = 'blue';
                 } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
                     $status = 'Adiantada'; // Adquirido entre 25% e 50%, ainda adiantada
-                    $statusColor = 'green';
+                    $statusColor = 'blue';
                 } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
                     $status = 'Dentro do esperado'; // Adquirido dentro da faixa normal (50% - 75%)
                     $statusColor = 'orange';
