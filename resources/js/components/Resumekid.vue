@@ -35,7 +35,7 @@ export default {
         });
 
         function selectKid() {
-            window.location.href = "/kids/" + this.kid.id;
+            window.location.href = "/analysis/" + this.kid.id + "/level/1";
         }
 
         function getKidPhotoUrl(photo) {

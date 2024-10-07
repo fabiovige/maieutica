@@ -50,23 +50,23 @@ class ChecklistController extends Controller
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">';
 
                     // Adiciona o botão de visualizar se o usuário tiver permissão de visualizar checklists
-                    if ($user->can('view checklists')) {
+                    /*if ($user->can('view checklists')) {
                         $html .= '<li><a class="dropdown-item" href="'.route('checklists.show', $data->id).'">
                                     <i class="bi bi-eye"></i> Visualizar
                                 </a></li>';
-                    }
+                    }*/
 
                     // Adiciona o botão de editar se o usuário tiver permissão de editar checklists
                     if ($user->can('edit checklists')) {
                         $html .= '<li><a class="dropdown-item" href="'.route('checklists.edit', $data->id).'">
-                                    <i class="bi bi-pencil"></i> Editar
+                                    <i class="bi bi-pencil"></i> Anotações
                                 </a></li>';
                     }
 
                     // Adiciona o botão de avaliação se o usuário tiver permissão de preencher checklists (fill)
                     if ($user->can('fill checklists')) {
                         $html .= '<li><a class="dropdown-item" href="'.route('checklists.fill', $data->id).'">
-                                    <i class="bi bi-check2-square"></i> Avaliação
+                                    <i class="bi bi-check2-square"></i> Aplicar avaliação
                                 </a></li>';
                     }
 

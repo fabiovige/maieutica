@@ -14,7 +14,7 @@ class KidFactory extends Factory
     public function definition()
     {
         // Gera uma data de nascimento aleatória entre 01/01/2019 e 31/12/2021
-        $birthDate = $this->faker->dateTimeBetween('2019-01-01', '2021-12-31')->format('d/m/Y');
+        $birthDate = $this->faker->dateTimeBetween('2018-01-01', '2023-12-31')->format('d/m/Y');
 
         // Recupera os IDs dos usuários com a role 'pais' (responsável)
         $responsibleIds = User::whereHas('roles', function ($query) {
