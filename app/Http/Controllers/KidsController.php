@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\KidRequest;
 use App\Jobs\SendKidUpdateJob;
+use App\Models\Checklist;
+use App\Models\Competence;
+use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
 use App\Models\Responsible;
@@ -12,6 +15,7 @@ use App\Util\MyPdf;
 use Auth;
 use Exception;
 use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -25,8 +29,8 @@ class KidsController extends Controller
     {
         $message = label_case('Index Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::debug($message);
-
-        return view('kids.index');
+        $kids = Kid::getKids();
+        return view('kids.index', compact('kids'));
     }
 
     public function index_data()
@@ -43,7 +47,8 @@ class KidsController extends Controller
                     $html .= '<li><a class="dropdown-item" href="' . route('kids.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a></li>';
 
                     if ($data->checklists()->count() > 0) {
-                        $html .= '<li><a class="dropdown-item" href="' . route('kids.show', $data->id) . '"><i class="bi bi-check2-square"></i> Checklist</a></li>';
+                        $html .= '<li><a class="dropdown-item" href="' . route('kids.radarChart2', ['kidId' => $data->id, 'levelId' => 1, 'checklist' => null])
+                        . '"><i class="bi bi-check2-square"></i> Análise Geral</a></li>';
                     }
 
                     $html .= '</ul></div>';
@@ -80,7 +85,7 @@ class KidsController extends Controller
                 // Exibe o nome do responsável ou 'Não atribuído' caso não tenha um responsável
                 return $data->responsible ? $data->responsible->name : 'Não atribuído';
             })
-            ->rawColumns(['photo','name', 'checklists', 'responsible', 'action'])
+            ->rawColumns(['photo', 'name', 'checklists', 'responsible', 'action'])
             //->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
@@ -134,7 +139,10 @@ class KidsController extends Controller
         }
     }
 
-    public function show(Kid $kid)
+    public function show(Kid $kid){
+
+    }
+    public function showPlane(Kid $kid, $checklistId = null)
     {
         $this->authorize('view', $kid);
 
@@ -152,15 +160,26 @@ class KidsController extends Controller
 
             $checklists = $kid->checklists()->orderBy('created_at', 'DESC')->get();
             $kid->months = $kid->months;
-            //$kid->profession = $kid->user->name;
+
+            $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
+            $ageInMonths = $birthdate->diffInMonths(Carbon::now());
+
+            if ($checklistId) {
+                $checklist = Checklist::findOrFail($checklistId);
+            } else {
+                $checklist = $checklists[0];
+            }
+
             $data = [
                 'kid' => $kid,
                 'profession' => $kid->professional->name,
                 'checklists' => $checklists,
+                'checklist' => $checklist,
                 'checklist_id' => $checklists[0]->id,
                 'level' => $checklists[0]->level,
                 'countChecklists' => $kid->checklists()->count(),
                 'countPlanes' => $kid->planes()->count(),
+                'ageInMonths' => $ageInMonths,
             ];
 
             return view('kids.show', $data);
@@ -173,10 +192,10 @@ class KidsController extends Controller
         }
     }
 
-    public function edit(Kid $kid)
+    public function edit($id)
     {
+        $kid = Kid::findOrFail($id);
         $this->authorize('update', $kid);
-
         try {
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
@@ -253,7 +272,6 @@ class KidsController extends Controller
             return redirect()->back();
         }
     }
-
 
     public function destroy(Kid $kid)
     {
@@ -437,5 +455,1003 @@ class KidsController extends Controller
         }
 
         return redirect()->route('kids.edit', $kid->id);
+    }
+
+
+    public function teste1()
+    {
+        // Dados da criança
+        $kidId = 2;
+        // Obter a criança pelo ID
+        $kid = Kid::findOrFail($kidId);
+
+        if (!$kid) {
+            return redirect()->back()->with('error', 'Criança não encontrada.');
+        }
+
+        // Idade da criança em meses
+        $ageInMonths = 25;
+
+        // Competências a avaliar (Nível 2 - Independência Pessoal Higiene)
+        $competences = Competence::where('level_id', 2)->where('domain_id', 13)->get();
+
+
+        // Simulação de percentis e notas
+        $simulatedCompetences = [];
+        $i = 1;
+        foreach ($competences as $competence) {
+            // Atribuir percentis simulados
+            $competence->percentil_25 = 19 + $i;
+            $competence->percentil_50 = 21 + $i;
+            $competence->percentil_75 = 23 + $i;
+            $competence->percentil_90 = 25 + $i;
+
+            // Simular notas
+            $simulatedNotes = [
+                1 => 3,
+                2 => 2,
+                3 => 1,
+                4 => 3,
+                5 => 2,
+                6 => 1,
+                7 => 2,
+                8 => 3,
+                9 => 1,
+                10 => 2,
+            ];
+
+            $competence->note = $simulatedNotes[$i] ?? null;
+
+            $simulatedCompetences[] = $competence;
+            $i++;
+        }
+
+        // Preparar os resultados
+        $results = [];
+        $somaNotas = 0;
+        $numAvaliacoes = 0;
+
+        foreach ($simulatedCompetences as $competence) {
+            $note = $competence->note;
+
+            // Determinar o status
+            $status = '';
+
+            if ($note == 1) {
+                // Incapaz
+                $status = 'Incapaz';
+            } elseif ($note == 2) {
+                // Parcial - verificar percentis
+                if ($ageInMonths < $competence->percentil_25) {
+                    $status = 'Adiantada';
+                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_75) {
+                    $status = 'Dentro do esperado';
+                } elseif ($ageInMonths >= $competence->percentil_75) {
+                    $status = 'Atrasada';
+                }
+            } elseif ($note == 3) {
+                // Adquirido - verificar percentis
+                if ($ageInMonths < $competence->percentil_25) {
+                    $status = 'Adiantada';
+                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_75) {
+                    $status = 'Dentro do esperado';
+                } elseif ($ageInMonths >= $competence->percentil_75) {
+                    $status = 'Atrasada';
+                }
+            } elseif ($note == 0) {
+                // Não Observado
+                $status = 'Não Observado';
+            } else {
+                $status = 'Não Avaliada';
+            }
+
+            // Somar as notas para cálculo da média
+            if ($note !== null && $note !== 0) {
+                $somaNotas += $note;
+                $numAvaliacoes++;
+            }
+
+            $results[] = [
+                'competence' => $competence->description,
+                'note' => $note,
+                'status' => $status,
+            ];
+        }
+
+        // Calcular a média das notas
+        if ($numAvaliacoes > 0) {
+            $mediaNotas = $somaNotas / $numAvaliacoes;
+        } else {
+            $mediaNotas = null;
+        }
+
+        // Determinar o status geral
+        if ($mediaNotas !== null) {
+            if ($mediaNotas < 2) {
+                $statusGeral = 'Atrasada';
+            } elseif ($mediaNotas >= 2 && $mediaNotas < 3) {
+                $statusGeral = 'Em processo';
+            } elseif ($mediaNotas == 3) {
+                $statusGeral = 'Adiantada';
+            } else {
+                $statusGeral = 'Indeterminado';
+            }
+        } else {
+            $statusGeral = 'Sem avaliações';
+        }
+
+        // Preparar dados para o gráfico de radar
+        $domains = DB::table('domains')->get();
+
+        // Supondo que temos pontuações para outros domínios, vamos simular
+        $radarData = [];
+        foreach ($domains as $domain) {
+            // Simulação de pontuação média para cada domínio
+            $domainAverage = rand(1, 3);
+
+            $radarData[] = [
+                'domain' => $domain->initial,
+                'average' => $domainAverage,
+            ];
+        }
+
+        // Atualizar a pontuação do domínio "IPH" com a média real
+        foreach ($radarData as &$data) {
+            if ($data['domain'] == 'IPH') {
+                $data['average'] = $mediaNotas;
+                break;
+            }
+        }
+
+        // Retornar a view com os resultados
+        return view('kids.isabela_evaluation', compact('kid', 'results', 'statusGeral', 'mediaNotas', 'radarData'));
+    }
+
+    public function teste4()
+    {
+        $kidId = 2;
+        // Obter a criança pelo ID
+        $kid = Kid::findOrFail($kidId);
+        // Calcular a idade da criança em meses
+        $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
+        $ageInMonths = $birthdate->diffInMonths(Carbon::now());
+
+        // Obter o checklist mais recente da criança
+        $checklist = Checklist::where('kid_id', $kidId)->orderBy('created_at', 'desc')->first();
+
+        if (!$checklist) {
+            return redirect()->back()->with('error', 'Nenhum checklist encontrado para esta criança.');
+        }
+
+        // Obter todos os domínios
+        $domains = DB::table('domains')->get(); // Supondo que você tenha uma tabela 'domains'
+
+        // Preparar os dados
+        $domainResults = [];
+        $overallSum = 0;
+        $overallCount = 0;
+
+        foreach ($domains as $domain) {
+            dd($domain);
+            // Obter as competências deste domínio
+            $competences = Competence::where('domain_id', $domain->id)->get();
+
+            // Obter as avaliações da criança para essas competências
+            $evaluations = DB::table('checklist_competence')
+                ->where('checklist_id', $checklist->id)
+                ->whereIn('competence_id', $competences->pluck('id'))
+                ->get()
+                ->keyBy('competence_id');
+
+            // Preparar os resultados por domínio
+            $domainData = [];
+            $domainSum = 0;
+            $domainCount = 0;
+
+            foreach ($competences as $competence) {
+                // Obter a nota da avaliação para esta competência
+                $evaluation = $evaluations->get($competence->id);
+
+                if ($evaluation) {
+                    $note = $evaluation->note;
+
+                    // Determinar o status
+                    $status = '';
+
+                    if ($note == 1) {
+                        // Incapaz
+                        $status = 'Incapaz';
+                    } elseif ($note == 2) {
+                        // Parcial - verificar percentis
+                        if ($ageInMonths < $competence->percentil_25) {
+                            $status = 'Adiantada';
+                        } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_75) {
+                            $status = 'Dentro do esperado';
+                        } elseif ($ageInMonths >= $competence->percentil_75) {
+                            $status = 'Atrasada';
+                        }
+                    } elseif ($note == 3) {
+                        // Adquirido - verificar percentis
+                        if ($ageInMonths < $competence->percentil_25) {
+                            $status = 'Adiantada';
+                        } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_75) {
+                            $status = 'Dentro do esperado';
+                        } elseif ($ageInMonths >= $competence->percentil_75) {
+                            $status = 'Atrasada';
+                        }
+                    } elseif ($note == 0) {
+                        // Não Observado
+                        $status = 'Não Observado';
+                    } else {
+                        $status = 'Não Avaliada';
+                    }
+
+                    // Adicionar aos resultados do domínio
+                    $domainData[] = [
+                        'competence' => $competence->description,
+                        'note' => $note,
+                        'status' => $status,
+                    ];
+
+                    // Somar as notas para cálculo das médias
+                    if ($note !== null && $note !== 0) {
+                        $domainSum += $note;
+                        $domainCount++;
+                        $overallSum += $note;
+                        $overallCount++;
+                    }
+                }
+            }
+
+            // Calcular a média do domínio
+            if ($domainCount > 0) {
+                $domainAverage = $domainSum / $domainCount;
+            } else {
+                $domainAverage = null;
+            }
+
+            $domainResults[] = [
+                'domain' => $domain->name,
+                'competences' => $domainData,
+                'average' => $domainAverage,
+            ];
+        }
+
+        // Calcular a média geral
+        if ($overallCount > 0) {
+            $overallAverage = $overallSum / $overallCount;
+        } else {
+            $overallAverage = null;
+        }
+
+        // Determinar o status geral
+        if ($overallAverage !== null) {
+            if ($overallAverage < 2) {
+                $statusGeral = 'Atrasado';
+            } elseif ($overallAverage >= 2 && $overallAverage < 3) {
+                $statusGeral = 'Em processo';
+            } elseif ($overallAverage == 3) {
+                $statusGeral = 'Adiantado';
+            } else {
+                $statusGeral = 'Indeterminado';
+            }
+        } else {
+            $statusGeral = 'Sem avaliações';
+        }
+
+        // Retornar a view com os resultados
+        return view('kids.evaluation_all_domains', compact('kid', 'checklist', 'domainResults', 'statusGeral', 'overallAverage'));
+    }
+
+    public function teste3()
+    {
+        try {
+            $kidId = 1;
+            // Obter a criança pelo ID
+            $kid = Kid::findOrFail($kidId);
+
+            // Idade da criança em meses
+            $birthdate = new \DateTime($kid->birth_date);
+            $today = new \DateTime();
+            $ageInMonths = $birthdate->diff($today)->y * 12 + $birthdate->diff($today)->m;
+
+            // Obter o checklist mais recente da criança
+            $checklist = Checklist::where('kid_id', $kidId)->orderBy('created_at', 'desc')->first();
+
+            if (!$checklist) {
+                throw new Exception('A criança não tem nenhum checklist.');
+            }
+
+            $competences = Competence::where('level_id', $checklist->level)->where('domain_id', 3)->get(); // domain_id 3 = Comunicação Expressiva
+
+
+            // Obter as avaliações da criança para essas competências
+            $evaluations = DB::table('checklist_competence')
+                ->where('checklist_id', $checklist->id)
+                ->whereIn('competence_id', $competences->pluck('id'))
+                ->get()
+                ->keyBy('competence_id');
+
+            // Preparar os resultados
+            $results = [];
+            $somaResultados = 0;
+            $numCompetencias = 0;
+
+            foreach ($competences as $competence) {
+                // Obter a nota da avaliação para esta competência
+                $evaluation = $evaluations->get($competence->id);
+
+                if ($evaluation) {
+                    $note = $evaluation->note;
+                    $somaResultados += $note;
+                    $numCompetencias++;
+
+                    // Determinar o status com base na nota e nos percentis
+                    $status = '';
+                    if ($note == 1) {
+                        // N - Incapaz
+                        $status = 'Incapaz';
+                    } elseif ($note == 2) {
+                        // P - Parcial, verificar com base nos percentis
+                        if ($ageInMonths < $competence->percentil_25) {
+                            $status = 'Adiantada';  // A criança está parcial, mas está adiantada em relação à faixa esperada
+                        } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_75) {
+                            $status = 'Dentro do esperado';  // A criança está parcial e dentro da faixa esperada
+                        } elseif ($ageInMonths >= $competence->percentil_75) {
+                            $status = 'Atrasada';  // A criança está parcial, mas já passou da faixa esperada
+                        }
+                    } elseif ($note == 3) {
+                        // A - Adquirido, verificar com base nos percentis
+                        if ($ageInMonths < $competence->percentil_25) {
+                            $status = 'Adiantada';  // A criança adquiriu a competência antes do esperado
+                        } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_75) {
+                            $status = 'Dentro do esperado';  // A criança adquiriu a competência dentro da faixa esperada
+                        } elseif ($ageInMonths >= $competence->percentil_75) {
+                            $status = 'Atrasada';  // A criança adquiriu a competência, mas tardiamente
+                        }
+                    } elseif ($note == 0) {
+                        // X - Não Observado
+                        $status = 'Não Observado';
+                    } else {
+                        $status = 'Resultado Desconhecido';
+                    }
+                } else {
+                    $note = null;
+                    $status = 'Não Avaliada';
+                }
+
+                $results[] = [
+                    'competence' => $competence->description,
+                    'note' => $note,
+                    'status' => $status,
+                ];
+            }
+
+            // Calcular a média geral se houver avaliações
+            if ($numCompetencias > 0) {
+                $media = $somaResultados / $numCompetencias;
+                $statusGeral = $media < 2 ? 'Em processo' : 'Adquirido';
+            } else {
+                $media = null;
+                $statusGeral = 'Sem Avaliações';
+            }
+
+            dd($results, $media, $statusGeral);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            dd($e->getTraceAsString());
+        }
+    }
+
+    public function teste2()
+    {
+        // Obter a criança pelo ID
+        $child = Kid::findOrFail(6);
+
+        // Idade da criança em meses
+        $ageInMonths = 28; // Para este exemplo, fixamos em 28 meses
+
+        // Dados fictícios das competências
+        $competenceLabels = [
+            'Comunicação Receptiva',
+            'Comunicação Expressiva',
+            'Motricidade Grossa',
+            'Cognição',
+            'Imitação',
+            'Social',
+            'Independência Pessoal: Alimentação',
+            'Independência Pessoal: Vestir',
+            'Independência Pessoal: Higiene',
+            'Independência Pessoal: Tarefas',
+            'Comportamento',
+            'Motricidade Fina',
+            'Jogo',
+            'Comportamento Social',
+            'Autonomia',
+            'Resolução de Problemas',
+        ];
+
+        $childScores = [
+            2, // Comunicação Receptiva - A
+            1, // Comunicação Expressiva - P
+            2, // Motricidade Grossa - A
+            1, // Cognição - P
+            2, // Imitação - A
+            0, // Social - N
+            1, // Independência Pessoal: Alimentação - P
+            2, // Independência Pessoal: Vestir - A
+            1, // Independência Pessoal: Higiene - P
+            2, // Independência Pessoal: Tarefas - A
+            1, // Comportamento - P
+            2, // Motricidade Fina - A
+            1, // Jogo - P
+            0, // Comportamento Social - N
+            1, // Autonomia - P
+            2, // Resolução de Problemas - A
+        ];
+
+        $percentil25 = [
+            22, // Comunicação Receptiva
+            23, // Comunicação Expressiva
+            24, // Motricidade Grossa
+            25, // Cognição
+            26, // Imitação
+            27, // Social
+            24, // Independência Pessoal: Alimentação
+            25, // Independência Pessoal: Vestir
+            26, // Independência Pessoal: Higiene
+            27, // Independência Pessoal: Tarefas
+            28, // Comportamento
+            25, // Motricidade Fina
+            26, // Jogo
+            28, // Comportamento Social
+            27, // Autonomia
+            29, // Resolução de Problemas
+        ];
+
+        $percentil50 = [
+            24, // Comunicação Receptiva
+            25, // Comunicação Expressiva
+            26, // Motricidade Grossa
+            27, // Cognição
+            28, // Imitação
+            29, // Social
+            26, // Independência Pessoal: Alimentação
+            27, // Independência Pessoal: Vestir
+            28, // Independência Pessoal: Higiene
+            29, // Independência Pessoal: Tarefas
+            30, // Comportamento
+            27, // Motricidade Fina
+            28, // Jogo
+            30, // Comportamento Social
+            29, // Autonomia
+            31, // Resolução de Problemas
+        ];
+
+        $percentil75 = [
+            26, // Comunicação Receptiva
+            27, // Comunicação Expressiva
+            28, // Motricidade Grossa
+            29, // Cognição
+            30, // Imitação
+            31, // Social
+            28, // Independência Pessoal: Alimentação
+            29, // Independência Pessoal: Vestir
+            30, // Independência Pessoal: Higiene
+            31, // Independência Pessoal: Tarefas
+            32, // Comportamento
+            29, // Motricidade Fina
+            30, // Jogo
+            32, // Comportamento Social
+            31, // Autonomia
+            33, // Resolução de Problemas
+        ];
+
+        $percentil90 = [
+            28, // Comunicação Receptiva
+            29, // Comunicação Expressiva
+            30, // Motricidade Grossa
+            31, // Cognição
+            32, // Imitação
+            33, // Social
+            30, // Independência Pessoal: Alimentação
+            31, // Independência Pessoal: Vestir
+            32, // Independência Pessoal: Higiene
+            33, // Independência Pessoal: Tarefas
+            34, // Comportamento
+            31, // Motricidade Fina
+            32, // Jogo
+            34, // Comportamento Social
+            33, // Autonomia
+            35, // Resolução de Problemas
+        ];
+
+        // Calcular o status para cada competência
+        $status = [];
+        foreach ($competenceLabels as $index => $competence) {
+            $age = $ageInMonths;
+            if ($age <= $percentil25[$index]) {
+                $status[] = 'Adiantada';
+            } elseif ($age > $percentil25[$index] && $age <= $percentil75[$index]) {
+                $status[] = 'No Prazo';
+            } else {
+                $status[] = 'Atrasada';
+            }
+        }
+
+        // Definir cores com base no status
+        $pointColors = [];
+        foreach ($status as $s) {
+            if ($s == 'Adiantada') {
+                $pointColors[] = 'rgb(75, 192, 192)'; // Verde-água
+            } elseif ($s == 'No Prazo') {
+                $pointColors[] = 'rgb(54, 162, 235)'; // Azul
+            } else { // 'Atrasada'
+                $pointColors[] = 'rgb(255, 99, 132)'; // Vermelho
+            }
+        }
+
+        // Preparar dados para o gráfico de pizza (Nível 2)
+        $level = 2; // Nível específico para a análise
+        // Supondo que as competências do nível 2 são as últimas 13 (indices 3 a 15)
+        $level2Competences = array_slice($competenceLabels, 3, 13);
+        $level2ChildScores = array_slice($childScores, 3, 13);
+
+        // Contar quantas competências estão Adiantadas, No Prazo ou Atrasadas no Nível 2
+        $level2StatusCounts = [
+            'Adiantada' => 0,
+            'No Prazo' => 0,
+            'Atrasada' => 0,
+        ];
+
+        foreach ($level2ChildScores as $index => $score) {
+            // Mapeamento de score para status
+            if ($score == 2) {
+                $level2StatusCounts['Adiantada'] += 1;
+            } elseif ($score == 1) {
+                $level2StatusCounts['No Prazo'] += 1;
+            } else {
+                $level2StatusCounts['Atrasada'] += 1;
+            }
+        }
+
+        // Preparar dados para o gráfico de barras
+        $idealPercentiles = $percentil50; // Usando percentil50 como ideal
+        // Calcular o percentil atual da criança para cada competência
+        $childPercentiles = [];
+        foreach ($competenceLabels as $index => $competence) {
+            $age = $ageInMonths;
+            if ($age <= $percentil25[$index]) {
+                $childPercentiles[] = 90; // Adiantada
+            } elseif ($age > $percentil25[$index] && $age <= $percentil50[$index]) {
+                $childPercentiles[] = 75;
+            } elseif ($age > $percentil50[$index] && $age <= $percentil75[$index]) {
+                $childPercentiles[] = 50;
+            } elseif ($age > $percentil75[$index] && $age <= $percentil90[$index]) {
+                $childPercentiles[] = 25;
+            } else {
+                $childPercentiles[] = 10; // Atrasada
+            }
+        }
+
+        // Calcular a média dos percentis atuais para a linha de evolução
+        $averageChildPercentile = array_sum($childPercentiles) / count($childPercentiles);
+
+        return view('kids.teste', compact(
+            'child',
+            'competenceLabels',
+            'childScores',
+            'percentil25',
+            'percentil50',
+            'percentil75',
+            'percentil90',
+            'ageInMonths',
+            'status',
+            'pointColors',
+            'level2Competences',
+            'level2StatusCounts',
+            'idealPercentiles',
+            'childPercentiles',
+            'averageChildPercentile'
+        ));
+    }
+
+    public function showRadarChart($kidId, $levelId)
+    {
+        // Obter a criança pelo ID
+        $kid = Kid::findOrFail($kidId);
+
+        // Calcular a idade da criança em meses
+        $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
+        $ageInMonths = $birthdate->diffInMonths(Carbon::now());
+
+        // Obter os domínios para o nível selecionado
+        $domainLevels = DB::table('domain_level')->where('level_id', $levelId)->pluck('domain_id');
+        $domains = Domain::whereIn('id', $domainLevels)->get();
+
+        // Preparar os dados para o radar geral por domínios
+        $radarDataDomains = [];
+        foreach ($domains as $domain) {
+            // Obter as competências do domínio e nível selecionados
+            $competences = Competence::where('domain_id', $domain->id)->where('level_id', $levelId)->get();
+
+            // Obter as avaliações da criança para essas competências
+            $evaluations = DB::table('checklist_competence')
+                ->join('checklists', 'checklist_competence.checklist_id', '=', 'checklists.id')
+                ->where('checklists.kid_id', $kidId)
+                ->whereIn('competence_id', $competences->pluck('id'))
+                ->select('competence_id', 'note')
+                ->get()
+                ->keyBy('competence_id');
+
+            // Calcular a média das notas para o domínio
+            $sumNotes = 0;
+            $countNotes = 0;
+
+            foreach ($competences as $competence) {
+                $evaluation = $evaluations->get($competence->id);
+
+                if ($evaluation) {
+                    $note = $evaluation->note;
+
+                    if ($note !== null && $note !== 0) {
+                        $sumNotes += $note;
+                        $countNotes++;
+                    }
+                }
+            }
+
+            if ($countNotes > 0) {
+                $average = $sumNotes / $countNotes;
+            } else {
+                $average = null;
+            }
+
+            $radarDataDomains[] = [
+                'domain' => $domain->initial,
+                'average' => $average,
+            ];
+        }
+
+        // Retornar a view com os dados do radar geral
+        return view('kids.radar_chart', compact('kid', 'ageInMonths', 'levelId', 'radarDataDomains', 'domains'));
+    }
+
+    public function showDomainDetails($kidId, $levelId, $domainId, $checklistId = null)
+    {
+        //dd($kidId, $levelId, $domainId, $checklistId);
+
+        // Obter a criança pelo ID
+        $kid = Kid::findOrFail($kidId);
+
+        // Calcular a idade da criança em meses
+        $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
+        $ageInMonths = $birthdate->diffInMonths(Carbon::now());
+
+        // Obter o domínio
+        $domain = Domain::findOrFail($domainId);
+
+        // Obter o checklist atual (mais recente)
+        $currentChecklist = Checklist::where('kid_id', $kidId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        // Obter o checklist de comparação, se um ID foi fornecido
+        if ($checklistId) {
+            $previousChecklist = Checklist::find($checklistId);
+        } else {
+            $previousChecklist = null;
+        }
+
+        // Obter as competências do domínio e nível selecionados
+        $competences = Competence::where('domain_id', $domainId)
+            ->where('level_id', $levelId)
+            ->get();
+
+        // Preparar os dados para as avaliações de ambos os checklists
+        $radarDataCompetences = [];
+        foreach ($competences as $competence) {
+            // Inicializar as notas
+            $currentNote = null;
+            $previousNote = null;
+
+            // Obter a avaliação para o checklist atual
+            if ($currentChecklist) {
+                $currentEvaluation = DB::table('checklist_competence')
+                    ->where('checklist_id', $currentChecklist->id)
+                    ->where('competence_id', $competence->id)
+                    ->select('note')
+                    ->first();
+                $currentNote = $currentEvaluation ? $currentEvaluation->note : null;
+            }
+
+            // Obter a avaliação para o checklist anterior
+            if ($previousChecklist) {
+                $previousEvaluation = DB::table('checklist_competence')
+                    ->where('checklist_id', $previousChecklist->id)
+                    ->where('competence_id', $competence->id)
+                    ->select('note')
+                    ->first();
+                $previousNote = $previousEvaluation ? $previousEvaluation->note : null;
+            }
+
+            // Determinar os status
+            $currentStatusValue = $this->getStatusValue($currentNote);
+            $previousStatusValue = $this->getStatusValue($previousNote);
+
+            // Verificar se a criança deveria passar a competência com base nos percentis
+            $shouldPass = [
+                '25' => $ageInMonths >= $competence->percentil_25,
+                '50' => $ageInMonths >= $competence->percentil_50,
+                '75' => $ageInMonths >= $competence->percentil_75,
+                '90' => $ageInMonths >= $competence->percentil_90,
+            ];
+
+            $shouldPassPercentil = [
+                '25' => $ageInMonths >= $competence->percentil_25,
+                '50' => $ageInMonths >= $competence->percentil_50,
+                '75' => $ageInMonths >= $competence->percentil_75,
+                '90' => $ageInMonths >= $competence->percentil_90,
+            ];
+
+            // Determinar o progresso em termos de percentil
+            // Definir status e cor inicial
+            $status = 'Dentro do esperado';
+            $statusColor = 'blue';
+
+            // Analisar com base nos percentis e status
+            // Analisar com base nos percentis e status
+            // Aplicar a lógica para todos os percentis
+            if ($currentStatusValue === 3) {
+                // Adquirido
+                if ($ageInMonths < $competence->percentil_25) {
+                    $status = 'Adiantada'; // Adquirido antes do esperado
+                    $statusColor = 'blue';
+                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
+                    $status = 'Adiantada'; // Adquirido entre 25% e 50%, ainda adiantada
+                    $statusColor = 'blue';
+                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                    $status = 'Dentro do esperado'; // Adquirido dentro da faixa normal (50% - 75%)
+                    $statusColor = 'orange';
+                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                    $status = 'Dentro do esperado'; // Adquirido dentro da faixa normal (75% - 90%)
+                    $statusColor = 'orange';
+                } elseif ($ageInMonths >= $competence->percentil_90) {
+                    $status = 'Dentro do esperado'; // Adquirido depois do percentil 90, mas adquirido
+                    $statusColor = 'orange';
+                }
+            } elseif ($currentStatusValue === 2) {
+                // Em processo
+                if ($ageInMonths < $competence->percentil_25) {
+                    $status = 'Dentro do esperado'; // Em processo, mas ainda dentro da faixa esperada (<25%)
+                    $statusColor = 'orange';
+                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
+                    $status = 'Dentro do esperado'; // Em processo entre 25% e 50%
+                    $statusColor = 'orange';
+                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                    $status = 'Dentro do esperado'; // Em processo entre 50% e 75%
+                    $statusColor = 'orange';
+                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                    $status = 'Dentro do esperado'; // Em processo entre 75% e 90%
+                    $statusColor = 'orange';
+                } elseif ($ageInMonths >= $competence->percentil_90) {
+                    $status = 'Atrasada'; // Em processo após o percentil 90, deveria ter adquirido
+                    $statusColor = 'red';
+                }
+            } elseif ($currentStatusValue === 1) {
+                
+                // Incapaz ou não avaliado
+                if ($ageInMonths < $competence->percentil_25) {
+                    $status = 'Dentro do esperado'; // Incapaz, mas ainda dentro da faixa esperada (<25%)
+                    $statusColor = 'orange';
+                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
+                    $status = 'Atrasada'; // Incapaz entre 25% e 50%
+                    $statusColor = 'red';
+                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                    $status = 'Atrasada'; // Incapaz entre 50% e 75%
+                    $statusColor = 'red';
+                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                    $status = 'Atrasada'; // Incapaz entre 75% e 90%
+                    $statusColor = 'red';
+                } elseif ($ageInMonths >= $competence->percentil_90) {
+                    $status = 'Atrasada'; // Incapaz após o percentil 90, deveria ter adquirido
+                    $statusColor = 'red';
+                }
+            }
+
+            // Determinar o progresso em termos de percentil
+            $percentComplete = 0;
+            if ($ageInMonths < $competence->percentil_25) {
+                $percentComplete = ($ageInMonths / $competence->percentil_25) * 25;
+            } elseif ($ageInMonths < $competence->percentil_50) {
+                $percentComplete = 25 + (($ageInMonths - $competence->percentil_25) / ($competence->percentil_50 - $competence->percentil_25)) * 25;
+            } elseif ($ageInMonths < $competence->percentil_75) {
+                $percentComplete = 50 + (($ageInMonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
+            } elseif ($ageInMonths < $competence->percentil_90) {
+                $percentComplete = 75 + (($ageInMonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
+            } else {
+                $percentComplete = 90 + (($ageInMonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
+            }
+            
+            $radarDataCompetences[] = [
+                'competence' => $competence->code,
+                'description' => $competence->description,
+                'currentStatusValue' => $currentStatusValue,
+                'previousStatusValue' => $previousStatusValue,
+                'shouldPass' => $shouldPass,
+                'statusColor' => $statusColor,
+                'status' => $status,
+                'percentil_25' => $competence->percentil_25,
+                'percentil_50' => $competence->percentil_50,
+                'percentil_75' => $competence->percentil_75,
+                'percentil_90' => $competence->percentil_90
+            ];
+        }
+
+        // Retornar a view com os dados do radar detalhado
+        return view('kids.domain_details', compact(
+            'kid',
+            'ageInMonths',
+            'levelId',
+            'domain',
+            'radarDataCompetences',
+            'currentChecklist',
+            'previousChecklist'
+        ));
+    }
+
+    public function showRadarChart2($kidId, $levelId, $checklistId = null)
+    {
+        // Obter a criança pelo ID
+        $kid = Kid::findOrFail($kidId);
+
+        // Calcular a idade da criança em meses
+        $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
+        $ageInMonths = $birthdate->diffInMonths(Carbon::now());
+
+        // Obter os domínios para o nível selecionado
+        $domainLevels = DB::table('domain_level')->where('level_id', $levelId)->pluck('domain_id');
+        $domains = Domain::whereIn('id', $domainLevels)->get();
+
+        // Obter o checklist atual (mais recente)
+        $currentChecklist = Checklist::where('kid_id', $kidId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        // Verificar se existe um checklist atual
+        if (!$currentChecklist) {
+            // Tratar o caso em que não há checklists para a criança
+            throw new ('Nenhum checklist encontrado!');
+        }
+
+        // Obter o checklist de comparação, se um ID foi fornecido
+        if ($checklistId) {
+            $previousChecklist = Checklist::find($checklistId);
+        } else {
+            $previousChecklist = null;
+        }
+
+        // Obter todos os checklists para o combobox, excluindo o atual
+        $allChecklists = Checklist::where('kid_id', $kidId)
+            ->where('id', '<>', $currentChecklist->id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Obter os dois checklists mais recentes da criança
+        $checklists = Checklist::where('kid_id', $kidId)
+            ->orderBy('created_at', 'desc')
+            ->take(2)
+            ->get();
+
+        // Preparar os dados para o radar geral por domínios
+        $radarDataDomains = [];
+        $levels = [];
+        foreach ($domains as $domain) {
+            // Obter as competências do domínio e nível selecionados
+            $competences = Competence::where('domain_id', $domain->id)
+                ->where('level_id', $levelId)
+                ->get();
+
+            // Inicializar as médias como null
+            $currentAverage = null;
+            $previousAverage = null;
+
+            // Calcular a média para o checklist atual, se existir
+            if ($currentChecklist) {
+                $currentEvaluations = DB::table('checklist_competence')
+                    ->where('checklist_id', $currentChecklist->id)
+                    ->whereIn('competence_id', $competences->pluck('id'))
+                    ->select('competence_id', 'note')
+                    ->get()
+                    ->keyBy('competence_id');
+
+                $currentSumNotes = 0;
+                $currentCountNotes = 0;
+
+                foreach ($competences as $competence) {
+                    $evaluation = $currentEvaluations->get($competence->id);
+
+                    if ($evaluation) {
+                        $note = $evaluation->note;
+
+                        if ($note !== null && $note !== 0) {
+                            $currentSumNotes += $note;
+                            $currentCountNotes++;
+                        }
+                    }
+                }
+
+                $currentAverage = $currentCountNotes > 0 ? $currentSumNotes / $currentCountNotes : null;
+            }
+
+            // Calcular a média para o checklist anterior, se existir
+            if ($previousChecklist) {
+                $previousEvaluations = DB::table('checklist_competence')
+                    ->where('checklist_id', $previousChecklist->id)
+                    ->whereIn('competence_id', $competences->pluck('id'))
+                    ->select('competence_id', 'note')
+                    ->get()
+                    ->keyBy('competence_id');
+
+                $previousSumNotes = 0;
+                $previousCountNotes = 0;
+
+                foreach ($competences as $competence) {
+                    $evaluation = $previousEvaluations->get($competence->id);
+
+                    if ($evaluation) {
+                        $note = $evaluation->note;
+
+                        if ($note !== null && $note !== 0) {
+                            $previousSumNotes += $note;
+                            $previousCountNotes++;
+                        }
+                    }
+                }
+
+                $previousAverage = $previousCountNotes > 0 ? $previousSumNotes / $previousCountNotes : null;
+            }
+
+            $radarDataDomains[] = [
+                'domain' => $domain->initial,
+                'currentAverage' => $currentAverage,
+                'previousAverage' => $previousAverage,
+            ];
+
+
+            for ($i = 1; $i <= $currentChecklist->level; $i++) {
+                $levels[$i] = $i;
+            }
+        }
+        $countPlanes = 1;
+        $countChecklists = Checklist::where('kid_id', $kidId)->count();
+
+        // Retornar a view com os dados do radar geral
+        return view('kids.radar_chart2', compact(
+            'kid',
+            'ageInMonths',
+            'levelId',
+            'radarDataDomains',
+            'domains',
+            'currentChecklist',
+            'previousChecklist',
+            'allChecklists',
+            'levels',
+            'countChecklists',
+            'countPlanes'
+        ));
+    }
+
+    private function getStatusValue($note)
+    {
+        if ($note == 1) {
+            return 1; // Incapaz
+        } elseif ($note == 2) {
+            return 2; // Em Processo
+        } elseif ($note == 3) {
+            return 3; // Adquirido
+        } else {
+            return 0; // Não Avaliado
+        }
     }
 }

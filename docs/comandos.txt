@@ -1,4 +1,4 @@
-git tag -a 1.2.0 -m "Release 1.2.0 - Adicionado foto da crianças"
+git tag -a 1.2.0 -m "Release 1.2.1 - Adicionado foto da crianças"
 
 git push --tags
 
@@ -9,6 +9,7 @@ sudo chmod -R 775 storage
 sudo chmod -R 775 bootstrap/cache
 
 php artisan queue:work --queue=emails --verbose
+php artisan queue:listen --queue=emails --verbose
 
 ######################
 ssh -p 65002 u350247040@154.49.247.137

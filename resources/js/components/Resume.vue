@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="row py-2">
-      <div class="col-lg-4">
-        <h4>Informações da Criança</h4>
+      <div class="">
+        <h3>Informações da Criança</h3>
         <div class="card mb-4">
           <div class="card-body text-center">
 
@@ -18,13 +18,13 @@
           </div>
         </div>
       </div>
-      <div class="col-lg-8">
-        <h4>Responsável</h4>
+      <!--<div class="col-md-8">
+        <h3>Responsável</h3>
         <div class="card mb-4">
           <div class="card-body">
             <div class="row">
               <div class="col-sm-3">
-                <p class="mb-0">Responsável</p>
+                <p class="mb-0">Nome:</p>
               </div>
               <div class="col-sm-9">
                 <p class="text-muted mb-0">{{ responsible.name }}</p>
@@ -33,7 +33,7 @@
             <hr />
             <div class="row">
               <div class="col-sm-3">
-                <p class="mb-0">Email</p>
+                <p class="mb-0">E-mail:</p>
               </div>
               <div class="col-sm-9">
                 <p class="text-muted mb-0">{{ responsible.email }}</p>
@@ -42,46 +42,24 @@
             <hr />
             <div class="row">
               <div class="col-sm-3">
-                <p class="mb-0">Telefone</p>
+                <p class="mb-0">Telefone:</p>
               </div>
               <div class="col-sm-9">
                 <p class="text-muted mb-0">{{ responsible.phone }}</p>
               </div>
             </div>
-          </div>
-        </div>
-        <h4>Profissional</h4>
-        <div class="card mb-4">
-          <div class="card-body">
+            <hr />
             <div class="row">
               <div class="col-sm-3">
-                <p class="mb-0">Nome</p>
+                <p class="mb-0">Profissional:</p>
               </div>
               <div class="col-sm-9">
                 <p class="text-muted mb-0">{{ professional.name }}</p>
               </div>
             </div>
-            <hr />
-            <div class="row">
-              <div class="col-sm-3">
-                <p class="mb-0">Email</p>
-              </div>
-              <div class="col-sm-9">
-                <p class="text-muted mb-0">{{ professional.email }}</p>
-              </div>
-            </div>
-            <hr />
-            <div class="row">
-              <div class="col-sm-3">
-                <p class="mb-0">Telefone</p>
-              </div>
-              <div class="col-sm-9">
-                <p class="text-muted mb-0">{{ professional.phone }}</p>
-              </div>
-            </div>
           </div>
         </div>
-      </div>
+      </div>-->
     </div>
   </div>
 </template>
