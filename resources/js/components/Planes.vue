@@ -46,9 +46,9 @@
                         </td>
                         <td class="customColumn">
                             <h5 v-if="competence.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
-                            <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Mais ou menos</span></h5>
-                            <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Difícil de obter</span></h5>
-                            <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Consistente</span></h5>
+                            <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Incapaz</span></h5>
+                            <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Em processo</span></h5>
+                            <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Adquirido</span></h5>
                         </td>
                     </tr>
                     </tbody>
@@ -111,11 +111,20 @@
                                     <td>
                                         {{ competence.description }}
                                     </td>
-                                    <td class="customColumn">
-                                        <h5 v-if="competence.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
-                                        <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Mais ou menos</span></h5>
-                                        <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Difícil de obter</span></h5>
-                                        <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Consistente</span></h5>
+                                    <td style="width:300px !important;">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h5 :style="{ color: getStatusColor(competence) }">
+                                                    {{ getStatus(competence) }}
+                                                </h5>
+                                            </div>
+                                            <div>
+                                                <h5 v-if="competence.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
+                                                <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Incapaz</span></h5>
+                                                <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Em processo</span></h5>
+                                                <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Adquirido</span></h5>                                            
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -136,7 +145,7 @@ import usePlanes from "../composables/planes";
 
 export default {
     name: "Planes",
-    props: ['checklists', 'checklist_id', 'kid_id', "app_url", "canCreatePlane", "canViewPlane"], // Adicionando a nova prop
+    props: ['checklists', 'checklist_id', 'kid_id', "app_url", "canCreatePlane", "canViewPlane", "ageInMonths"], // Adicionando a nova prop
     components: { Loading },
     setup(props) {
         const checklist_id = ref(props.checklist_id)
@@ -146,6 +155,7 @@ export default {
         const canViewPlane = ref(props.canViewPlane)
         const search_plane = ref('')
         const fullPagePlane = ref(true)
+        const ageInMonths = ref(props.ageInMonths)
         const { checklist, getChecklist  } = useChecklists()
         const { planes, getPlanes, plane, plane_id, getPlane, isLoadingPlane,
             getCompetences, createPlanes, destroyCompetencePlane, newPlane
@@ -153,8 +163,8 @@ export default {
 
         onMounted(() => {
             getChecklist(checklist_id.value)
-            getPlanes(kid_id.value)
-            getPlane(kid_id.value)
+            getPlanes(kid_id.value, checklist_id.value);
+            getPlane(kid_id.value);
         })
 
         watchEffect(() => {
@@ -182,6 +192,50 @@ export default {
             window.open("/kids/" + plane.value.id + "/pdfplane", '_blank');
         }
 
+
+// Método para obter o status com base na competência e idade
+        function getStatus(competence) {
+            const currentStatusValue = competence.note;
+            console.log(ageInMonths.value)
+            if (currentStatusValue === 3) {
+                if (ageInMonths.value < competence.percentil_25) return 'Adiantada';
+                if (ageInMonths.value >= competence.percentil_25 && ageInMonths.value < competence.percentil_50) return 'Adiantada';
+                if (ageInMonths.value >= competence.percentil_50 && ageInMonths.value < competence.percentil_75) return 'Dentro do esperado';
+                if (ageInMonths.value >= competence.percentil_75 && ageInMonths.value < competence.percentil_90) return 'Dentro do esperado';
+                if (ageInMonths.value >= competence.percentil_90) return 'Dentro do esperado';
+            } else if (currentStatusValue === 2) {
+                if (ageInMonths.value < competence.percentil_25) return 'Dentro do esperado';
+                if (ageInMonths.value >= competence.percentil_25 && ageInMonths.value < competence.percentil_50) return 'Dentro do esperado';
+                if (ageInMonths.value >= competence.percentil_50 && ageInMonths.value < competence.percentil_75) return 'Dentro do esperado';
+                if (ageInMonths.value >= competence.percentil_75 && ageInMonths.value < competence.percentil_90) return 'Dentro do esperado';
+                if (ageInMonths.value >= competence.percentil_90) return 'Atrasada';
+            } else if (currentStatusValue === 1) {
+                if (ageInMonths.value < competence.percentil_25) return 'Dentro do esperado';
+                if (ageInMonths.value >= competence.percentil_25 && ageInMonths.value < competence.percentil_50) return 'Atrasada';
+                if (ageInMonths.value >= competence.percentil_50 && ageInMonths.value < competence.percentil_75) return 'Atrasada';
+                if (ageInMonths.value >= competence.percentil_75 && ageInMonths.value < competence.percentil_90) return 'Atrasada';
+                if (ageInMonths.value >= competence.percentil_90) return 'Atrasada';
+            }
+            return 'Não Avaliado'; // Caso não caia em nenhuma condição
+        }
+
+        // Método para obter a cor do status
+        function getStatusColor(competence) {
+            const currentStatusValue = competence.note;
+
+            if (currentStatusValue === 3) {
+                if (ageInMonths.value < competence.percentil_50) return 'blue';
+                if (ageInMonths.value >= competence.percentil_50 && ageInMonths.value <= competence.percentil_90) return 'orange';
+            } else if (currentStatusValue === 2) {
+                if (ageInMonths.value < competence.percentil_90) return 'orange';
+                return 'red'; // Atrasada
+            } else if (currentStatusValue === 1) {
+                if (ageInMonths.value < competence.percentil_25) return 'orange';
+                return 'red'; // Atrasada
+            }
+            return 'black'; // Default color
+        }
+
         return {
             checklist_id,
             checklists,
@@ -199,7 +253,10 @@ export default {
             deletePlanes,
             createPlane,
             viewPdfPlane,
-            canCreatePlane, canViewPlane
+            canCreatePlane, canViewPlane,
+            getStatus, // Expondo o método
+            getStatusColor, // Expondo o método
+            ageInMonths
         }
     }
 }
@@ -207,7 +264,6 @@ export default {
 
 <style scoped>
 .customColumn {
-    width: 120px;
     white-space: nowrap;
 }
 

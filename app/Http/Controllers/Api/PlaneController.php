@@ -31,7 +31,6 @@ class PlaneController
         $planes = Plane::where('kid_id', $id)
             ->where('checklist_id', $checklist_id)
             ->orderBy('id', 'DESC')->get();
-
         return PlaneResource::collection($planes);
     }
 

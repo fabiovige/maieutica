@@ -70,6 +70,13 @@ class ChecklistController extends Controller
                                 </a></li>';
                     }
 
+                    // Adiciona o botão de avaliação se o usuário tiver permissão de preencher checklists (fill)
+                    if ($user->can('fill checklists')) {
+                        $html .= '<li><a class="dropdown-item" href="'.route('kids.show', [$data->kid->id]).'">
+                                    <i class="bi bi-check2-square"></i> Planos
+                                </a></li>';
+                    }
+
                 $html .= '</ul></div>';
 
                 return $html;

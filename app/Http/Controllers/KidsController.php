@@ -157,7 +157,10 @@ class KidsController extends Controller
 
             $checklists = $kid->checklists()->orderBy('created_at', 'DESC')->get();
             $kid->months = $kid->months;
-            //$kid->profession = $kid->user->name;
+
+            $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
+            $ageInMonths = $birthdate->diffInMonths(Carbon::now());
+
             $data = [
                 'kid' => $kid,
                 'profession' => $kid->professional->name,
@@ -166,6 +169,7 @@ class KidsController extends Controller
                 'level' => $checklists[0]->level,
                 'countChecklists' => $kid->checklists()->count(),
                 'countPlanes' => $kid->planes()->count(),
+                'ageInMonths' => $ageInMonths,
             ];
 
             return view('kids.show', $data);

@@ -25,7 +25,7 @@
                     @if ($checklists->count())
                         <nav>
                             <div class="nav nav-tabs" id="nav-tab-checklist" role="tablist">
-                                <button class="nav-link active" id="nav-profile-tab" data-bs-toggle="tab"
+                                <!--<button class="nav-link active" id="nav-profile-tab" data-bs-toggle="tab"
                                     data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile"
                                     aria-selected="true">Perfil</button>
                                 <button class="nav-link" id="nav-charts-tab" data-bs-toggle="tab"
@@ -33,14 +33,14 @@
                                     aria-selected="false">Gráficos</button>
                                 <button class="nav-link" id="nav-checklist-tab" data-bs-toggle="tab"
                                     data-bs-target="#nav-checklist" type="button" role="tab"
-                                    aria-controls="nav-checklist" aria-selected="false">Checklist</button>
+                                    aria-controls="nav-checklist" aria-selected="false">Checklist</button>-->
                                 <button class="nav-link" id="nav-plane-tab" data-bs-toggle="tab" data-bs-target="#nav-plane"
                                     type="button" role="tab" aria-controls="nav-plane"
                                     aria-selected="false">Plano</button>
                             </div>
                         </nav>
                         <div class="tab-content" id="nav-tabContent-checklist">
-                            <div class="tab-pane fade show active" id="nav-profile" role="tabpanel"
+                            <!--<div class="tab-pane fade show" id="nav-profile" role="tabpanel"
                                 aria-labelledby="nav-profile-tab">
 
                                 {{-- <Dashboard user="{{ auth()->user()->id }}"></Dashboard> --}}
@@ -63,12 +63,13 @@
                                 aria-labelledby="nav-checklist-tab">
                                 <Checklists :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}">
                                 </Checklists>
-                            </div>
-                            <div class="tab-pane fade" id="nav-plane" role="tabpanel" aria-labelledby="nav-plane-tab">
+                            </div>-->
+                            <div class="tab-pane fade show active" id="nav-plane" role="tabpanel" aria-labelledby="nav-plane-tab">
                                 <Planes
                                     :checklists="{{ $checklists }}"
                                     :checklist_id="{{ $checklist_id }}"
                                     :kid_id="{{ $kid->id }}"
+                                    :age-in-months="{{ $ageInMonths }}"
                                     :can-create-plane="{{ Auth::user()->can('create planes') }}"
                                     :can-view-plane="{{ Auth::user()->can('view planes') }}"
                                 ></Planes>
