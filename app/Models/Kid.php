@@ -20,6 +20,10 @@ class Kid extends BaseModel
         'photo'
     ];
 
+    protected $casts = [
+        'birth_date' => 'datetime',
+    ];
+
     // Adicionando o Scope Local
     public function scopeForProfessional(Builder $query)
     {

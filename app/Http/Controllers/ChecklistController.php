@@ -23,7 +23,9 @@ class ChecklistController extends Controller
         $message = label_case('Index Checklists ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::debug($message);
 
-        return view('checklists.index');
+        $checklists = Checklist::getChecklists()->get();
+
+        return view('checklists.index', compact('checklists'));
     }
 
     public function index_data()

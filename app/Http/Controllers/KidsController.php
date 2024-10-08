@@ -29,8 +29,8 @@ class KidsController extends Controller
     {
         $message = label_case('Index Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::debug($message);
-
-        return view('kids.index');
+        $kids = Kid::getKids();
+        return view('kids.index', compact('kids'));
     }
 
     public function index_data()
@@ -139,7 +139,10 @@ class KidsController extends Controller
         }
     }
 
-    public function show(Kid $kid)
+    public function show(Kid $kid){
+
+    }
+    public function showPlane(Kid $kid, $checklistId = null)
     {
         $this->authorize('view', $kid);
 
@@ -161,10 +164,17 @@ class KidsController extends Controller
             $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
             $ageInMonths = $birthdate->diffInMonths(Carbon::now());
 
+            if ($checklistId) {
+                $checklist = Checklist::findOrFail($checklistId);
+            } else {
+                $checklist = $checklists[0];
+            }
+
             $data = [
                 'kid' => $kid,
                 'profession' => $kid->professional->name,
                 'checklists' => $checklists,
+                'checklist' => $checklist,
                 'checklist_id' => $checklists[0]->id,
                 'level' => $checklists[0]->level,
                 'countChecklists' => $kid->checklists()->count(),
@@ -182,10 +192,10 @@ class KidsController extends Controller
         }
     }
 
-    public function edit(Kid $kid)
+    public function edit($id)
     {
+        $kid = Kid::findOrFail($id);
         $this->authorize('update', $kid);
-
         try {
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);

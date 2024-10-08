@@ -4,16 +4,21 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('kids.index') }}">Crianças</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Gerenciar</li>
+            <li class="breadcrumb-item"><a href="{{ route('checklists.index') }}">Checklists</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Planos</li>
         </ol>
     </nav>
 @endsection
 
 @section('content')
     <div class="row">
-        <div class="col-md-12 ">
-            <h5>{{ $kid->name }} - {{ $kid->FullNameMonths }}</h5>
+        <div class="col-md-12 d-flex justify-content-between">
+            <div>
+                <h5>{{ $kid->name }} - {{ $kid->FullNameMonths }}</h5>
+            </div>
+            <div>
+                <h5>Checklist: {{ $checklist->id }} - {{ $checklist->created_at->format('d/m/Y')}}</h5>
+            </div>
         </div>
     </div>
 
