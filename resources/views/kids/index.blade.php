@@ -64,12 +64,21 @@
                                 Ações
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item" href="{{ route('kids.edit', $kid->id) }}"><i class="bi bi-pencil"></i> Editar</a></li>
+                                @can('view kids')
+                                    <li><a class="dropdown-item" href="{{ route('kids.eye', $kid->id) }}"><i class="bi bi-eye"></i> Visualizar</a></li>
+                                @endcan
+
+                                @can('edit kids')
+                                    <li><a class="dropdown-item" href="{{ route('kids.edit', $kid->id) }}"><i class="bi bi-pencil"></i> Editar</a></li>
+                                @endcan
+
+                                @can('view checklists')
                                 <li>
                                     <a class="dropdown-item" href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 1, 'checklist' => null]) }}">
                                         <i class="bi bi-check2-square"></i> Análise Geral
                                     </a>
                                 </li>
+                                @endcan
                             </ul>
                         </div>
                     </td>

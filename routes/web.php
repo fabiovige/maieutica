@@ -28,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
     // kids
     Route::get('kids/{id}/pdfplane', [KidsController::class, 'pdfPlane'])->name('kids.pdfplane');
     Route::get('kids/{kid}/show-plane{checklistId?}', [KidsController::class, 'showPlane'])->name('kids.showPlane');
+    Route::get('kids/{kid}/eye', [KidsController::class, 'eyeKid'])->name('kids.eye');
     Route::post('kids/{kid}/upload-photo', [KidsController::class, 'uploadPhoto'])->name('kids.upload.photo');
     Route::resource('kids', KidsController::class);
 

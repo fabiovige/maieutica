@@ -175,7 +175,7 @@ class UserController extends Controller
                 'neighborhood' => $request->bairro,
                 'city' => $request->cidade,
                 'state' => $request->estado,
-                'password' => bcrypt('2024@mudar'), // Ou você pode gerar uma senha aleatória
+                'password' => bcrypt('password'), // Ou você pode gerar uma senha aleatória
                 'role_id' => 3, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
                 'created_by' => auth()->user()->id,
                 'allow' => (bool) isset($request->allow),

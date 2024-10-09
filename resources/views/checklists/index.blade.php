@@ -44,11 +44,14 @@
                                         Ações
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        @can('view checklists')
+                                            <li><a class="dropdown-item" href="{{ route('checklists.show', $checklist->id) }}"><i class="bi bi-eye"></i> Visualizar</a></li>
+                                        @endcan
                                         @can('edit checklists')
                                             <li><a class="dropdown-item" href="{{ route('checklists.edit', $checklist->id) }}"><i class="bi bi-pencil"></i> Anotações</a></li>
                                         @endcan
                                         @can('fill checklists')
-                                            <li><a class="dropdown-item" href="{{ route('checklists.fill', $checklist->id) }}"><i class="bi bi-check2-square"></i> Aplicar avaliação</a></li>
+                                            <li><a class="dropdown-item" href="{{ route('checklists.fill', $checklist->id) }}"><i class="bi bi-check2-square"></i> Avaliação</a></li>
                                         @endcan
                                         @can('fill checklists')
                                             <li><a class="dropdown-item" href="{{ route('kids.showPlane', $checklist->kid->id) }}"><i class="bi bi-check2-square"></i> Planos</a></li>
