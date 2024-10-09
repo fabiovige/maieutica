@@ -1,4 +1,4 @@
-git tag -a 1.2.3 -m "Release 1.2.3 - Correção da permissão do botão editar"
+git tag -a 1.2.3 -m "Release 1.2.4 - Ajuste das permissões no usuário"
 
 git push --tags
 
@@ -14,3 +14,8 @@ php artisan queue:listen --queue=emails --verbose
 ######################
 ssh -p 65002 u350247040@154.49.247.137
 
+
+########################
+CRON
+
+/usr/bin/php /home/u350247040/domains/hotpink-shark-117733.hostingersite.com/public_html/artisan queue:work --queue=emails --verbose
