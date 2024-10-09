@@ -98,7 +98,7 @@
                                 <div class="row mt-2">
                                     <label>Papél</label>
                                     @foreach($roles as $role)
-                                        <div class="col-6 py-2">
+                                        <div class="col-4 py-2">
                                             <div class="card @if($user->hasRole($role->name)) bg-warning bg-opacity-25 @endif ">
                                                 <div class="card-header">
                                                     <div class="custom-control custom-checkbox">

@@ -82,7 +82,7 @@
                         {{-- papeis --}}
                         <div class="row">
                             @foreach ($roles as $role)
-                                <div class="col-6 py-2">
+                                <div class="col-4 py-2">
                                     <div class="card">
                                         <div class="card-header">
                                             <div class="custom-control custom-checkbox">
