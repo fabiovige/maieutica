@@ -233,6 +233,48 @@ class KidsController extends Controller
         }
     }
 
+    public function eyeKid($id)
+    {
+        $kid = Kid::findOrFail($id);
+        $this->authorize('view', $kid);
+
+        try {
+            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::info($message);
+
+            // Verificando se o papel 'pais' existe, caso contrário lançar exceção
+            $parentRole = SpatieRole::where('name', 'pais')->first();
+            if (!$parentRole) {
+                throw new Exception("O papel 'pais' não existe no sistema.");
+            }
+
+            // Verificando se o papel 'professional' existe, caso contrário lançar exceção
+            $professionalRole = SpatieRole::where('name', 'professional')->first();
+            if (!$professionalRole) {
+                throw new Exception("O papel 'professional' não existe no sistema.");
+            }
+
+            // Buscando usuários com o papel 'pais'
+            $responsibles = User::whereHas('roles', function ($query) {
+                $query->where('name', 'pais');
+            })->get();
+
+            // Buscando usuários com o papel 'professional'
+            $professions = User::whereHas('roles', function ($query) {
+                $query->where('name', 'professional');
+            })->get();
+
+
+            return view('kids.eye', compact('kid', 'responsibles', 'professions'));
+        } catch (Exception $e) {
+            flash($e->getMessage())->warning();
+            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
+
+            return redirect()->back();
+        }
+    }
+
     public function update(KidRequest $request, Kid $kid)
     {
         // Verifica se o usuário está autorizado a atualizar o registro

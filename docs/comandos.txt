@@ -1,4 +1,4 @@
-git tag -a 1.2.0 -m "Release 1.2.1 - Adicionado foto da crianças"
+git tag -a 1.2.2 -m "Release 1.2.2 - Tela de visualização dos dados da crianças"
 
 git push --tags
 
