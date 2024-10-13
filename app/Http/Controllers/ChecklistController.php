@@ -103,7 +103,7 @@ class ChecklistController extends Controller
 
         $message = label_case('Create Checklist ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
-        $kids = Kid::all('id', 'name');
+        $kids = Kid::getKids();
 
         return view('checklists.create', compact('kids'));
     }

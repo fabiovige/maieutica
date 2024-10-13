@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\CompetencesController;
 use App\Http\Controllers\KidsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -38,6 +39,11 @@ Route::middleware(['auth'])->group(function () {
     // users
     Route::get('users/{id}/pdf', [UserController::class, 'pdf'])->name('users.pdf');
     Route::resource('users', UserController::class);
+
+    // competences
+    Route::get('/competences/domains-by-level/{level_id}', [CompetencesController::class, 'getDomainsByLevel'])->name('competences.domainsByLevel');
+    Route::get('/competences/clear-filters', [CompetencesController::class, 'clearFilters'])->name('competences.clearFilters');
+    Route::resource('competences', CompetencesController::class);
 
 });
 
