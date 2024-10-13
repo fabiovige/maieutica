@@ -36,4 +36,12 @@
                href="{{ route('roles.index') }}">Permissões</a>
         </li>
     @endcan
+
+    @can('list competences')
+        <li class="nav-item">
+            <a class="nav-link @if (request()->is('competences*')) active @endif"
+               aria-current="page"
+               href="{{ route('competences.index') }}">Competências</a>
+        </li>
+    @endcan
 </ul>

@@ -54,6 +54,10 @@ class RoleAndPermissionSeeder extends Seeder
             'remove checklists',
             'fill checklists',
 
+            // Competences
+            'list competences',
+            'edit competences',
+            
             // Permissões Adicionais
             'manage dashboard',
         ];
@@ -103,6 +107,10 @@ class RoleAndPermissionSeeder extends Seeder
             'remove checklists',
             'fill checklists',
 
+            // Competences
+            'list competences',
+            'edit competences',
+            
             // Permissões Adicionais
             'manage dashboard',
         ]);
@@ -125,6 +133,10 @@ class RoleAndPermissionSeeder extends Seeder
             'create planes',
             'edit planes',
             'remove planes',
+
+            // Competences
+            'list competences',
+            'edit competences',
         ]);
 
         // Pais tem permissões limitadas aos seus filhos e checklists

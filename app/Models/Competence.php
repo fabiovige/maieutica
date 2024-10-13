@@ -14,7 +14,12 @@ class Competence extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['level', 'domain_id', 'code', 'description', 'description_detail'];
+    protected $fillable = ['level', 'domain_id', 'code', 'description', 'description_detail', 'percentil_25', 'percentil_50', 'percentil_75', 'percentil_90'];
+
+    public function level(): BelongsTo
+    {
+        return $this->belongsTo(Level::class);
+    }
 
     public function domain(): BelongsTo
     {
