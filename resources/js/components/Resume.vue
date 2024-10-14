@@ -9,8 +9,10 @@
             {{ kid.FullNameMonths }}
             <img :src="getKidPhotoUrl(kid.photo)" :alt="kid.name" width="150" class="rounded-img">
 
-            <h5 class="my-3">{{ kid.name }}</h5>
-            <p class="text-muted mb-1"> {{ kid.months }} meses {{ kid.birth_date }} - Cod. {{ kid.id }}</p>
+            <h5 class="mt-3">{{ kid.name }}</h5>
+            <p class="text-muted mb-1"> 
+              Dt. Nasc. {{ kid.birth_date }} ( {{ months }} meses )
+            </p>
             <div class="d-flex justify-content-center mt-3">
                 <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Checklist - {{ checklist }}</span>
                 <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Plano - {{ plane }}</span>
@@ -75,7 +77,7 @@ export default {
         responsible: Object,
         professional: Object,
         checklist: Number,
-        plane: Number,
+        months: Number,
     },
   setup(props) {
     const fullPage = ref(true);
@@ -84,6 +86,7 @@ export default {
     const professional = ref(props.professional);
     const checklist = ref(props.checklist);
     const plane = ref(props.plane);
+    const months = ref(props.months);
 
     onMounted(() => {});
 
@@ -100,7 +103,8 @@ export default {
     return {
       kid,checklist, plane,
       responsible, professional,
-      fullPage,getKidPhotoUrl
+      fullPage,getKidPhotoUrl,
+      months
     };
   },
 };
