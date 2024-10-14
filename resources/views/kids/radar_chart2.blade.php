@@ -15,12 +15,14 @@
 <div class="row" id="app">
     <div class="row">
         <div class="col-md-4">
+            
             <Resume
                 :responsible="{{ $kid->responsible()->first() }}"
                 :professional="{{ $kid->professional()->first() }}"
                 :kid="{{ $kid }}"
                 :checklist="{{ $kid->checklists()->count() }}"
                 :plane="{{ $kid->planes()->count() }}"
+                :months="{{ $kid->months }}"
             >
             </Resume>
 

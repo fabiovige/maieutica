@@ -18,11 +18,11 @@
                 <div class="d-flex justify-content-between">
                     <h2>{{ $domain->name }} ({{ $domain->initial }})</h2>
                     <h2>Nível {{ $levelId }}</h2>
-                </div>            
+                </div>
             </div>
 
     <div class="row" id="app">
-        <div class="row">    
+        <div class="row">
             <div class="col-md-5">
 
                 <Resume
@@ -31,6 +31,7 @@
                     :kid="{{ $kid }}"
                     :checklist="{{ $kid->checklists()->count() }}"
                     :plane="{{ $kid->planes()->count() }}"
+                    :months="{{ $kid->months }}"
                 >
                 </Resume>
 
@@ -46,20 +47,21 @@
                 <p><strong>Checklist de Comparação:</strong> Não disponível</p>
                 @endif
             </div>
-            <div class="col-md-7">
+            <div class="col-md-7 justify-content-center">
                 <canvas id="radarChartCompetences" width="200" height="200"></canvas>
-            </div>            
+            </div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
-            <div class="d-flex justify-content-between">  
+            <div class="d-flex justify-content-between">
             <h3>Habilidades e Percentis</h3>
             <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => $levelId, $previousChecklist->id]) }}" class="btn btn-secondary">Voltar</a>
             </div>
-            
-            <table class="table table-bordered mt-4">
+
+            <div class="table-responsive">
+                <table class="table table-bordered mt-4">
                 <thead>
                     <tr>
                         <th>Código</th>
@@ -113,6 +115,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
 
     </div>

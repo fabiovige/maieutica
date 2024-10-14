@@ -13,7 +13,7 @@
 @section('content')
 
 <div class="row d-flex justify-content-center" id="app">
-    <div class="col-md-3 mt-3">
+    <div class="col-md-6 mt-3">
         <div class="mt-3 centered-column">
             <Resumekid :user="{{ $kid->first() }}"
                         :kid="{{ $kid }}"
