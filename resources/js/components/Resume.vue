@@ -4,7 +4,12 @@
       <div class="">
         <h3>Informações da Criança</h3>
         <div class="card mb-4">
-          <div class="card-body text-center">
+                  <div 
+            class="card-body shadown text-center"   
+            :class="{ 'mousePointer': checklist > 0, 'disabled': checklist === 0 }"          
+            @click.prevent="checklist > 0 ? selectKid() : null"
+        >
+
 
             {{ kid.FullNameMonths }}
             <img :src="getKidPhotoUrl(kid.photo)" :alt="kid.name" width="150" class="rounded-img">
@@ -14,8 +19,16 @@
               Dt. Nasc. {{ kid.birth_date }} ( {{ months }} meses )
             </p>
             <div class="d-flex justify-content-center mt-3">
-                <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Checklist - {{ checklist }}</span>
-                <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Plano - {{ plane }}</span>
+                <span 
+                    :class="['badge ms-2', checklist > 0 ? 'bg-primary' : 'bg-info']"
+                >
+                    <i class="bi bi-check"></i> Checklist - {{ checklist }}
+                </span>
+                <span 
+                    :class="['badge ms-2', checklist > 0 ? 'bg-primary' : 'bg-info']"
+                >
+                    <i class="bi bi-check"></i> Plano - {{ plane }}
+                </span>
             </div>
           </div>
         </div>
@@ -90,6 +103,10 @@ export default {
 
     onMounted(() => {});
 
+    function selectKid() {
+        window.location.href = "/analysis/" + this.kid.id + "/level/1";
+    }
+    
     function getKidPhotoUrl(photo) {
             if (photo) {
                 return `/storage/${photo}`;
@@ -104,9 +121,18 @@ export default {
       kid,checklist, plane,
       responsible, professional,
       fullPage,getKidPhotoUrl,
-      months
+      months, selectKid
     };
   },
 };
 </script>
-<style lang="" scoped></style>
+
+<style scoped>
+.mousePointer {
+    cursor: pointer;
+}
+
+.mousePointer:hover {
+    background: #f8f9fa;
+}
+</style>
