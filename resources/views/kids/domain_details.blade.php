@@ -15,53 +15,52 @@
 
 @section('content')
 <div class="col-md-12">
-                <div class="d-flex justify-content-between">
-                    <h2>{{ $domain->name }} ({{ $domain->initial }})</h2>
-                    <h2>Nível {{ $levelId }}</h2>
-                </div>
-            </div>
+    <div class="d-flex justify-content-between">
+        <h2>{{ $domain->name }} ({{ $domain->initial }})</h2>
+        <h2>Nível {{ $levelId }}</h2>
+    </div>
+</div>
 
-    <div class="row" id="app">
-        <div class="row">
-            <div class="col-md-5">
+<div class="row" id="app">
+    <div class="row">
+        <div class="col-md-5">
 
-                <Resume
-                    :responsible="{{ $kid->responsible()->first() }}"
-                    :professional="{{ $kid->professional()->first() }}"
-                    :kid="{{ $kid }}"
-                    :checklist="{{ $kid->checklists()->count() }}"
-                    :plane="{{ $kid->planes()->count() }}"
-                    :months="{{ $kid->months }}"
-                >
-                </Resume>
+            <Resume
+                :responsible="{{ $kid->responsible()->first() }}"
+                :professional="{{ $kid->professional()->first() }}"
+                :kid="{{ $kid }}"
+                :checklist="{{ $kid->checklists()->count() }}"
+                :plane="{{ $kid->planes()->count() }}"
+                :months="{{ $kid->months }}">
+            </Resume>
 
-                @if($currentChecklist)
-                <p><strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id }} - {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
-                @else
-                <p><strong>Checklist Atual:</strong> Não disponível</p>
-                @endif
+            @if($currentChecklist)
+            <p><strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id }} - {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
+            @else
+            <p><strong>Checklist Atual:</strong> Não disponível</p>
+            @endif
 
-                @if($previousChecklist)
-                <p><strong>Checklist de Comparação:</strong> {{ $previousChecklist->name ?? 'Checklist ' . $previousChecklist->id }} - {{ $previousChecklist->created_at->format('d/m/Y') }}</p>
-                @else
-                <p><strong>Checklist de Comparação:</strong> Não disponível</p>
-                @endif
-            </div>
-            <div class="col-md-7 justify-content-center">
-                <canvas id="radarChartCompetences" width="200" height="200"></canvas>
-            </div>
+            @if($previousChecklist)
+            <p><strong>Checklist de Comparação:</strong> {{ $previousChecklist->name ?? 'Checklist ' . $previousChecklist->id }} - {{ $previousChecklist->created_at->format('d/m/Y') }}</p>
+            @else
+            <p><strong>Checklist de Comparação:</strong> Não disponível</p>
+            @endif
+        </div>
+        <div class="col-md-7 justify-content-center">
+            <canvas id="radarChartCompetences" width="200" height="200"></canvas>
         </div>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between">
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between">
             <h3>Habilidades e Percentis</h3>
             <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => $levelId, $previousChecklist->id]) }}" class="btn btn-secondary">Voltar</a>
-            </div>
+        </div>
 
-            <div class="table-responsive">
-                <table class="table table-bordered mt-4">
+        <div class="table-responsive">
+            <table class="table table-bordered mt-4">
                 <thead>
                     <tr>
                         <th>Código</th>
@@ -115,10 +114,10 @@
                     @endforeach
                 </tbody>
             </table>
-            </div>
         </div>
-
     </div>
+
+</div>
 
 
 
@@ -190,66 +189,112 @@
         }
     });
 
-     // Dados da idade da criança passado pelo backend
-     document.addEventListener('DOMContentLoaded', function() {
+    // Dados da idade da criança passado pelo backend
+    document.addEventListener('DOMContentLoaded', function() {
         @foreach($radarDataCompetences as $competenceData)
-            const ctx{{ $loop->index }} = document.getElementById('percentilChart-{{ $loop->index }}').getContext('2d');
-            new Chart(ctx{{ $loop->index }}, {
-                type: 'bar',
-                data: {
-                    labels: ['25%', '50%', '75%', '90%'], // Percentis no eixo X
-                    datasets: [
-                        {
-                            label: 'Percentis',
-                            data: [{{ $competenceData['percentil_25'] }}, {{ $competenceData['percentil_50'] }}, {{ $competenceData['percentil_75'] }}, {{ $competenceData['percentil_90'] }}],
-                            backgroundColor: 'rgba(255, 159, 64, 0.6)',
-                            borderColor: 'rgba(255, 159, 64, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Idade da Criança',
-                            data: [
-                                {{ $ageInMonths < $competenceData['percentil_50'] ? $ageInMonths : 'null' }},
-                                {{ $ageInMonths >= $competenceData['percentil_50'] && $ageInMonths < $competenceData['percentil_75'] ? $ageInMonths : 'null' }},
-                                {{ $ageInMonths >= $competenceData['percentil_75'] && $ageInMonths < $competenceData['percentil_90'] ? $ageInMonths : 'null' }},
-                                {{ $ageInMonths >= $competenceData['percentil_90'] ? $ageInMonths : 'null' }}
-                            ],
-                            type: 'bar', // Definimos como linha ou ponto
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                            fill: true,
-                            borderWidth: 2,
-                            pointRadius: 5, // Aumenta o tamanho do ponto
-                            pointBackgroundColor: 'rgba(54, 162, 235, 1)', // Cor do ponto
-                            maxBarThickness: 40 // Aumenta a espessura da barra
-                        }
-                    ]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Idade (meses)'
+        const ctx {
+            {
+                $loop - > index
+            }
+        } = document.getElementById('percentilChart-{{ $loop->index }}').getContext('2d');
+        new Chart(ctx {
+            {
+                $loop - > index
+            }
+        }, {
+            type: 'bar',
+            data: {
+                labels: ['25%', '50%', '75%', '90%'], // Percentis no eixo X
+                datasets: [{
+                        label: 'Percentis',
+                        data: [{
+                            {
+                                $competenceData['percentil_25']
+                            }
+                        }, {
+                            {
+                                $competenceData['percentil_50']
+                            }
+                        }, {
+                            {
+                                $competenceData['percentil_75']
+                            }
+                        }, {
+                            {
+                                $competenceData['percentil_90']
+                            }
+                        }],
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Idade da Criança',
+                        data: [{
+                                {
+                                    $ageInMonths < $competenceData['percentil_50'] ? $ageInMonths : 'null'
+                                }
                             },
-                            ticks: {
-                                callback: function(value) {
-                                    return value + ' meses'; // Exibe a idade em meses no eixo Y
-                                },
-                                stepSize: 1, // Define um passo de 5 meses para o eixo Y
-                                max: Math.max({{ $competenceData['percentil_90'] }}, {{ $ageInMonths }}) + 10 // Ajusta o limite máximo do gráfico para garantir que a linha da idade caiba
+                            {
+                                {
+                                    $ageInMonths >= $competenceData['percentil_50'] && $ageInMonths < $competenceData['percentil_75'] ? $ageInMonths : 'null'
+                                }
+                            },
+                            {
+                                {
+                                    $ageInMonths >= $competenceData['percentil_75'] && $ageInMonths < $competenceData['percentil_90'] ? $ageInMonths : 'null'
+                                }
+                            },
+                            {
+                                {
+                                    $ageInMonths >= $competenceData['percentil_90'] ? $ageInMonths : 'null'
+                                }
                             }
+                        ],
+                        type: 'bar', // Definimos como linha ou ponto
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 5, // Aumenta o tamanho do ponto
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)', // Cor do ponto
+                        maxBarThickness: 40 // Aumenta a espessura da barra
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Idade (meses)'
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Percentis'
-                            }
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' meses'; // Exibe a idade em meses no eixo Y
+                            },
+                            stepSize: 1, // Define um passo de 5 meses para o eixo Y
+                            max: Math.max({
+                                {
+                                    $competenceData['percentil_90']
+                                }
+                            }, {
+                                {
+                                    $ageInMonths
+                                }
+                            }) + 10 // Ajusta o limite máximo do gráfico para garantir que a linha da idade caiba
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Percentis'
                         }
                     }
                 }
-            });
+            }
+        });
         @endforeach
     });
 </script>

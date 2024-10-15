@@ -1,4 +1,4 @@
-git tag -a 1.2.5 -m "Release 1.2.5 - gerenciamento dos percentis"
+git tag -a 1.2.7 -m "Release 1.2.7 - correção de card na home qdo checklist for 0"
 
 git push --tags
 
