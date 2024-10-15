@@ -1,4 +1,4 @@
-git tag -a 1.2.7 -m "Release 1.2.7 - correção de card na home qdo checklist for 0"
+git tag -a 1.2.8 -m "Release 1.2.8 - habilita link qdo a criança tiver checklist"
 
 git push --tags
 
