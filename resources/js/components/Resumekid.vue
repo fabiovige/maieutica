@@ -1,14 +1,26 @@
 <template>
     <div class="card my-2">
-        <div class="card-body shadown text-center mousePointer" @click.prevent="selectKid()">
+        <div 
+            class="card-body shadown text-center"   
+            :class="{ 'mousePointer': checklist > 0, 'disabled': checklist === 0 }"          
+            @click.prevent="checklist > 0 ? selectKid() : null"
+        >
 
             <img :src="getKidPhotoUrl(kid.photo)" :alt="kid.name" width="150" class="rounded-img">
 
             <h5 class="mt-2">{{ kid.name }}</h5>
             <div class="text-muted my-2">Dt Nasc {{ kid.birth_date }} ({{ kid.months }} meses)</div>
             <div class="d-flex justify-content-center my-2">
-                <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Checklist - {{ checklist }}</span>
-                <span class="badge bg-primary ms-2"><i class="bi bi-check"></i> Plano - {{ plane }}</span>
+                <span 
+                    :class="['badge ms-2', checklist > 0 ? 'bg-primary' : 'bg-info']"
+                >
+                    <i class="bi bi-check"></i> Checklist - {{ checklist }}
+                </span>
+                <span 
+                    :class="['badge ms-2', checklist > 0 ? 'bg-primary' : 'bg-info']"
+                >
+                    <i class="bi bi-check"></i> Plano - {{ plane }}
+                </span>
             </div>
         </div>
     </div>
