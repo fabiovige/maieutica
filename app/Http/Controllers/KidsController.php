@@ -32,7 +32,7 @@ class KidsController extends Controller
         $kids = Kid::getKids();
         return view('kids.index', compact('kids'));
     }
-
+/*
     public function index_data()
     {
         $data = Kid::getKids();
@@ -89,7 +89,7 @@ class KidsController extends Controller
             //->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
-
+*/
     public function create()
     {
         $this->authorize('create', Kid::class);
@@ -1495,5 +1495,150 @@ class KidsController extends Controller
         } else {
             return 0; // Não Avaliado
         }
+    }
+
+    public function overview($kidId, $levelId = null, $checklistId = null)
+    {
+        // Obter a criança pelo ID
+        $kid = Kid::findOrFail($kidId);
+
+        // Calcular a idade da criança em meses
+        $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
+        $ageInMonths = $birthdate->diffInMonths(Carbon::now());
+
+        // Obter o checklist atual (mais recente)
+        $currentChecklist = Checklist::where('kid_id', $kidId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        // Verificar se existe um checklist atual
+        if (!$currentChecklist) {
+            throw new Exception('Nenhum checklist encontrado!');
+        }
+
+        // Obter o checklist de comparação, se um ID foi fornecido
+        $previousChecklist = $checklistId ? Checklist::find($checklistId) : null;
+
+        // Obter todos os checklists para o combobox, excluindo o atual
+        $allChecklists = Checklist::where('kid_id', $kidId)
+            ->where('id', '<>', $currentChecklist->id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Obter os níveis disponíveis (assumindo que os níveis vão de 1 ao nível atual)
+        $levels = [];
+        for ($i = 1; $i <= $currentChecklist->level; $i++) {
+            $levels[] = $i;
+        }
+
+        // Obter os domínios
+        if ($levelId) {
+            // Obter os domínios para o nível selecionado
+            $domainLevels = DB::table('domain_level')
+                ->where('level_id', $levelId)
+                ->pluck('domain_id');
+            $domains = Domain::whereIn('id', $domainLevels)->get();
+        } else {
+            // Obter todos os domínios
+            $domains = Domain::all();
+        }
+
+        // Preparar os dados por domínio
+        $domainData = [];
+        $totalItemsTested = 0;
+        $totalItemsValid = 0;
+        $totalItemsInvalid = 0;
+        $totalItemsTotal = 0;
+        $itemsInvalid = 0;
+
+        foreach ($domains as $domain) {
+            // Obter as competências do domínio
+            $competences = Competence::where('domain_id', $domain->id)
+                ->when($levelId, function ($query, $levelId) {
+                    return $query->where('level_id', $levelId);
+                })
+                ->get();
+
+            $itemsTotal = $competences->count();
+
+            // Contar os itens válidos (adquiridos) para a criança através do checklist
+            $itemsValid = 0;
+
+            // Obter as avaliações do checklist atual para as competências selecionadas
+            $currentEvaluations = DB::table('checklist_competence')
+                ->where('checklist_id', $currentChecklist->id)
+                ->where('note','<>', 0)
+                ->whereIn('competence_id', $competences->pluck('id'))
+                ->select('competence_id', 'note')
+                ->get()
+                ->keyBy('competence_id');
+
+            $itemsTested = $currentEvaluations->count();
+                
+            foreach ($competences as $competence) {
+                $evaluation = $currentEvaluations->get($competence->id);
+
+                if ($evaluation && $evaluation->note == 3) { // note 3 significa 'Adquirido'
+                    $itemsValid++;
+                }
+            }
+
+            $percentage = $itemsTested > 0 ? ($itemsValid / $itemsTested) * 100 : 0;
+            $itemsInvalid = $itemsTested - $itemsValid;
+
+            $domainData[] = [
+                'code' => $domain->id,
+                'name' => $domain->name,
+                'initial' => $domain->initial,
+                'itemsTested' => $itemsTested,
+                'itemsValid' => $itemsValid,
+                'itemsInvalid' => $itemsInvalid,
+                'itemsTotal' => $itemsTotal,
+                'percentage' => round($percentage, 2)
+            ];
+
+            $totalItemsTested += $itemsTested;
+            $totalItemsValid += $itemsValid;
+            $totalItemsInvalid += $itemsInvalid;
+            $totalItemsTotal += $itemsTotal;
+        }
+
+        // Calcular o percentual total
+        $totalPercentage = $totalItemsTested > 0 ? ($totalItemsValid / $totalItemsTested) * 100 : 0;
+
+        // Calcular a idade de desenvolvimento
+        $developmentalAgeInMonths = $ageInMonths * ($totalPercentage / 100);
+        $delayInMonths = $ageInMonths - $developmentalAgeInMonths;
+
+        // Identificar áreas frágeis (exemplo: percentuais abaixo de 50%)
+        $weakAreas = array_filter($domainData, function ($domain) {
+            return $domain['percentage'] < 100;
+        });
+
+        // Ordenar as áreas frágeis do menor para o maior percentual
+        usort($weakAreas, function ($a, $b) {
+            return $a['percentage'] <=> $b['percentage'];
+        });
+
+        // Passar os dados para a view
+        return view('kids.overview', compact(
+            'kid',
+            'ageInMonths',
+            'domainData',
+            'totalItemsTested',
+            'totalItemsValid',
+            'totalItemsInvalid',
+            'totalItemsTotal',
+            'totalPercentage',
+            'developmentalAgeInMonths',
+            'delayInMonths',
+            'weakAreas',
+            'currentChecklist',
+            'previousChecklist',
+            'allChecklists',
+            'levelId',
+            'levels',
+            'domains'
+        ));
     }
 }

@@ -1,6 +1,6 @@
 {
-    "/js/app.js": "/js/app.js?id=f243061198865bede2b5901c197d9852",
-    "/css/app.css": "/css/app.css?id=83e276ff0674ae94cdd5063c55ad0db7",
+    "/js/app.js": "/js/app.js?id=20c83ea1367d3c0ab55ef02748b67005",
+    "/css/app.css": "/css/app.css?id=a46d7c7b2855994553f0e70455c4e6b0",
     "/images/logo_login.png": "/images/logo_login.png?id=86440ed52e88ac0dc8ae1cfee047b70a",
     "/images/logo_login_transparente.png": "/images/logo_login_transparente.png?id=0802c54f9cd07e28972e27f67fcfdba7",
     "/images/vendor/jquery-ui/themes/base/ui-icons_444444_256x240.png": "/images/vendor/jquery-ui/themes/base/ui-icons_444444_256x240.png?id=bed10eb948aa66a924e32f2022f0b7c1",
@@ -58,7 +58,5 @@
     "/vendor/datatable/pt-BR.json": "/vendor/datatable/pt-BR.json?id=677d05c409cc0410a808c6d3a3951b12",
     "/vendor/datatable/responsive.bootstrap5.js": "/vendor/datatable/responsive.bootstrap5.js?id=eaf53c7428250d95227f80c2a3c96ddf",
     "/vendor/datatable/responsive.bootstrap5.min.css": "/vendor/datatable/responsive.bootstrap5.min.css?id=3a4613a6d489c5f597f5211c4c30661a",
-    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd",
-    "/js/app.min.js": "/js/app.min.js?id=f243061198865bede2b5901c197d9852",
-    "/css/app.min.css": "/css/app.min.css?id=83e276ff0674ae94cdd5063c55ad0db7"
+    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd"
 }

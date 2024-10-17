@@ -75,10 +75,15 @@
                                 @can('view checklists')
                                 <li>
                                     <a class="dropdown-item" href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 1, 'checklist' => null]) }}">
-                                        <i class="bi bi-check2-square"></i> Análise Geral
+                                        <i class="bi bi-clipboard-data"></i> Comparativo
                                     </a>
                                 </li>
                                 @endcan
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('kids.overview', ['kidId' => $kid->id]) }}">
+                                        <i class="bi bi-bar-chart"></i> Desenvolvimento
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </td>
