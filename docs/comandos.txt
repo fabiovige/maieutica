@@ -1,4 +1,4 @@
-git tag -a 1.2.8 -m "Release 1.2.8 - habilita link qdo a criança tiver checklist"
+git tag -a 1.2.9 -m "Release 1.2.9 - tela de desenvolvimento"
 
 git push --tags
 

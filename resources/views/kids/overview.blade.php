@@ -618,24 +618,7 @@ const actions = [
 ];
 
 
-    // Evento para redirecionar ao selecionar o checklist no combobox
-    document.getElementById('comparisonChecklistId').addEventListener('change', function() {
-        var comparisonChecklistId = this.value;
-        if (comparisonChecklistId) {
-            var url = "{{ url('kids/overview/' . $kid->id . '/level/' . $levelId) }}/" + comparisonChecklistId;
-            window.location.href = url;
-        }
-    });
-
-    // Evento para redirecionar ao selecionar o nível no combobox
-    document.getElementById('comparisonLevelId').addEventListener('change', function() {
-        var comparisonLevelId = this.value;
-        var comparisonChecklistId = document.getElementById('comparisonChecklistId').value || "{{ $currentChecklist->id }}";
-        if (comparisonChecklistId && comparisonLevelId) {
-            var url = "{{ url('kids/overview') }}/" + "{{ $kid->id }}" + "/level/" + comparisonLevelId + "/" + comparisonChecklistId;
-            window.location.href = url;
-        }
-    });
+   
 
     function changeLevel(selectedLevel) {
         var kidId = {{ $kid->id }};
