@@ -167,8 +167,6 @@
 <script type="text/javascript">
     var ctxBar = document.getElementById('barChart').getContext('2d');
     var ctxRadar = document.getElementById('radarChart').getContext('2d');
-    //var ctxRadarItems = document.getElementById('radarChartItems').getContext('2d');    
-    //var ctxBarItems = document.getElementById('barChartItems').getContext('2d');
     var ctxBarItems2 = document.getElementById('barChartItems2').getContext('2d');
 
     var domainLabels = @json(array_column($domainData, 'name'));
@@ -200,7 +198,7 @@
             }]
         },
         options: {
-            indexAxis: 'y', // Barras horizontais
+            indexAxis: 'y',
             scales: {
                 x: {
                     beginAtZero: true,
@@ -244,7 +242,7 @@
                     meta.data.forEach(function(bar, index) {
                         var data = dataset.data[index];
                         ctx.save();
-                        ctx.fillStyle = 'black'; // Cor do texto
+                        ctx.fillStyle = 'black';
                         ctx.font = '12px sans-serif';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -273,19 +271,19 @@
                 {
                     label: 'Percentual de Habilidades Adquiridas',
                     data: domainPercentages,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Blue fill
-                    borderColor: 'rgba(54, 162, 235, 1)', // Blue line
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
                     pointBackgroundColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 2
                 },
                 {
                     label: 'Percentual Esperado (100%)',
                     data: fullPercentages,
-                    backgroundColor: 'rgba(0, 0, 0, 0)', // Transparent fill
-                    borderColor: 'rgba(255, 99, 132, 1)', // Red line
+                    backgroundColor: 'rgba(0, 0, 0, 0)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
                     pointBackgroundColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 2,
-                    tension: 0.4 // Suaviza a linha
+                    tension: 0.4
                 }
             ]
         },
@@ -330,38 +328,36 @@ const data = {
     {
       label: 'Total Itens',
       data: domainItemsTotal,
-      backgroundColor: 'rgba(255, 159, 64, 0.6)', // Laranja
+      backgroundColor: 'rgba(255, 159, 64, 0.6)',
       borderColor: 'rgba(255, 159, 64, 1)',
       borderWidth: 1
     },
     {
       label: 'Itens Testados',
       data: domainItemsTested,
-      backgroundColor: 'rgba(54, 162, 235, 0.6)', // Azul
+      backgroundColor: 'rgba(54, 162, 235, 0.6)',
       borderColor: 'rgba(54, 162, 235, 1)',
       borderWidth: 1
     },
     {
       label: 'Itens Válidos',
       data: domainItemsValid,
-      backgroundColor: 'rgba(75, 192, 192, 0.6)', // Verde
+      backgroundColor: 'rgba(75, 192, 192, 0.6)',
       borderColor: 'rgba(75, 192, 192, 1)',
       borderWidth: 1
     },
     {
       label: 'Itens Inválidos',
       data: domainItemsInvalid,
-      //backgroundColor: 'rgba(75, 192, 192, 0.6)', // Verde
-      //borderColor: 'rgba(75, 192, 192, 1)',
       borderWidth: 1
     },
     {
       label: 'Percentual (%)',
       data: domainPercentages,
-      backgroundColor: 'rgba(153, 102, 255, 0.6)', // Roxo
+      backgroundColor: 'rgba(153, 102, 255, 0.6)',
       borderColor: 'rgba(153, 102, 255, 1)',
       borderWidth: 1,
-      type: 'line', // Exibir como linha
+      type: 'line',
       yAxisID: 'y1',
       fill: false
     }
@@ -374,7 +370,7 @@ const config = {
   data: data,
   options: {
     responsive: true,
-    indexAxis: 'x', // 'x' para barras verticais
+    indexAxis: 'x',
     plugins: {
       title: {
         display: true,
@@ -417,11 +413,11 @@ const config = {
           drawTicks: TICKS,
           color: function(context) {
             if (context.tick.value > 0) {
-              return 'rgba(0, 255, 0, 0.3)'; // Verde para valores positivos
+              return 'rgba(0, 255, 0, 0.3)';
             } else if (context.tick.value < 0) {
-              return 'rgba(255, 0, 0, 0.3)'; // Vermelho para valores negativos
+              return 'rgba(255, 0, 0, 0.3)';
             }
-            return '#000000'; // Preto para zero
+            return '#000000';
           },
         },
         ticks: {
@@ -441,7 +437,7 @@ const config = {
         },
         grid: {
           display: DISPLAY,
-          drawOnChartArea: false, // Não desenhar linhas de grade para o eixo secundário
+          drawOnChartArea: false,
           drawTicks: TICKS
         },
         ticks: {
