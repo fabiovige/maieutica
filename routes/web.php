@@ -28,7 +28,7 @@ Route::middleware(['auth'])->group(function () {
 
     // kids
     Route::get('kids/{kidId}/overview', [KidsController::class, 'overview'])->name('kids.overview');
-    Route::get('kids/{kidId}/level/{levelId}/overview', [KidsController::class, 'overview'])->name('kids.overview');
+    Route::get('kids/{kidId}/level/{levelId}/overview', [KidsController::class, 'overview'])->name('kids.overview.level');
 
     Route::get('kids/{id}/pdfplane', [KidsController::class, 'pdfPlane'])->name('kids.pdfplane');
     Route::get('kids/{kid}/show-plane{checklistId?}', [KidsController::class, 'showPlane'])->name('kids.showPlane');

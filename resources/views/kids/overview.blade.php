@@ -80,15 +80,17 @@
     </div>
     
     <div class="row mt-3">
-        <div class="col-md-7">
+        <div class="col-md-8">
             <!-- Tabela de Detalhes por Domínio -->
             <h3>Domínios</h3>
             <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Domínio</th>
+                        <th>Total Itens</th>
                         <th>Itens Testados</th>
                         <th>Itens Válidos</th>
+                        <th>Itens Inválidos</th>
                         <th>Percentual(%)</th>
                     </tr>
                 </thead>
@@ -96,13 +98,17 @@
                     @foreach($domainData as $domain)
                     <tr>
                         <td>{{ $domain['name'] }}</td>
+
+                        <td>{{ $domain['itemsTotal'] }}</td>
                         <td>{{ $domain['itemsTested'] }}</td>
                         <td>{{ $domain['itemsValid'] }}</td>
+                        <td>{{ $domain['itemsInvalid'] }}</td>
                         <td>{{ $domain['percentage'] }}%</td>
                     </tr>
                     @endforeach
                     <tr>
                         <th>Total</th>
+                        <th>{{ $totalItemsTotal }}</th>
                         <th>{{ $totalItemsTested }}</th>
                         <th>{{ $totalItemsValid }}</th>
                         <th>{{ round($totalPercentage, 2) }}%</th>
@@ -110,7 +116,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-4">
             <!-- Áreas Frágeis -->
             <h3>Áreas Frágeis</h3>
             @if(count($weakAreas) > 0)
@@ -143,10 +149,11 @@
         </div>
     </div>
 
+
     <div class="row">
         <div class="col-md-12">
             <!-- Novo Gráfico de Barras para Itens Testados e Válidos por Domínio -->
-            <canvas id="barChartItems" width="400" height="200"></canvas>
+            <canvas id="barChartItems2" width="400" height="200"></canvas>
         </div>
     </div>
 
@@ -162,13 +169,16 @@
     var ctxBar = document.getElementById('barChart').getContext('2d');
     var ctxRadar = document.getElementById('radarChart').getContext('2d');
     //var ctxRadarItems = document.getElementById('radarChartItems').getContext('2d');    
-    var ctxBarItems = document.getElementById('barChartItems').getContext('2d');
+    //var ctxBarItems = document.getElementById('barChartItems').getContext('2d');
+    var ctxBarItems2 = document.getElementById('barChartItems2').getContext('2d');
 
     var domainLabels = @json(array_column($domainData, 'name'));
     var domainPercentages = @json(array_column($domainData, 'percentage'));
 
     var domainItemsTested = @json(array_column($domainData, 'itemsTested'));
     var domainItemsValid = @json(array_column($domainData, 'itemsValid'));
+    var domainItemsInvalid = @json(array_column($domainData, 'itemsInvalid'));
+    var domainItemsTotal = @json(array_column($domainData, 'itemsTotal'));
 
     var barColors = domainPercentages.map(function(percentage) {
         return percentage < 70 ? 'rgba(255, 99, 132, 0.6)' : 'rgba(75, 192, 192, 0.6)';
@@ -308,51 +318,84 @@
         }
     });
 
-    // radarChartItems
-    /*var radarChartItems = new Chart(ctxRadarItems, {
-        type: 'radar',
+    // barChartItems
+    /*
+    var barChartItems = new Chart(ctxBarItems, {
+        type: 'bar',
         data: {
             labels: domainLabels,
             datasets: [
                 {
+                    label: 'Total Itens',
+                    data: domainItemsTotal,
+                    //backgroundColor: 'rgba(255, 159, 64, 0.6)', // Preenchimento laranja
+                    //borderColor: 'rgba(255, 159, 64, 1)',        // Borda laranja
+                    borderWidth: 1
+                },
+                {
                     label: 'Itens Testados',
                     data: domainItemsTested,
-                    backgroundColor: 'rgba(255, 159, 64, 0.2)', // Preenchimento laranja
-                    borderColor: 'rgba(255, 159, 64, 1)', // Linha laranja
-                    pointBackgroundColor: 'rgba(255, 159, 64, 1)',
-                    borderWidth: 2
+                    //backgroundColor: 'rgba(255, 159, 64, 0.6)', // Preenchimento laranja
+                    //borderColor: 'rgba(255, 159, 64, 1)',        // Borda laranja
+                    borderWidth: 1
                 },
                 {
                     label: 'Itens Válidos',
                     data: domainItemsValid,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Preenchimento verde-água
-                    borderColor: 'rgba(75, 192, 192, 1)', // Linha verde-água
-                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
-                    tension: 0.4 // Suaviza a linha
+                    //backgroundColor: 'rgba(75, 192, 192, 0.6)', // Preenchimento verde-água
+                    //borderColor: 'rgba(75, 192, 192, 1)',        // Borda verde-água
+                    borderWidth: 1
+                },
+                {
+                    label: 'Percentual (%)',
+                    data: domainPercentages,
+                    //backgroundColor: 'rgba(153, 102, 255, 0.6)', // Roxo
+                    //borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1,
+                    type: 'bar',
+                    yAxisID: 'y1'
                 }
             ]
         },
         options: {
+            indexAxis: 'x', // 'x' para barras verticais, 'y' para barras horizontais
             scales: {
-                r: {
+                x: {
+                    stacked: false, // Altere para 'true' para barras empilhadas
+                    title: {
+                        display: true,
+                        text: 'Domínios'
+                    }
+                },
+                y: {
                     beginAtZero: true,
                     ticks: {
-                        stepSize: 25,
-                        precision: 0,
-                        callback: function(value) {
-                            if (Number.isInteger(value)) {
-                                return value;
-                            }
-                        }
+                        stepSize: 5,
+                        precision: 0
                     },
-                    grid: {
-                        color: 'rgba(200, 200, 200, 0.2)'
-                    },
-                    angleLines: {
-                        color: 'rgba(200, 200, 200, 0.2)'
+                    title: {
+                        display: true,
+                        text: 'Número de Itens'
                     }
-                }
+                },
+                y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            stepSize: 10,
+                            max: 100
+                        },
+                        grid: {
+                            drawOnChartArea: false // Remove as linhas de grade do eixo secundário
+                        },
+                        title: {
+                            display: true,
+                            text: 'Percentual (%)'
+                        }
+                    }
             },
             plugins: {
                 legend: {
@@ -361,145 +404,218 @@
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return context.parsed.r;
+                            return context.dataset.label + ': ' + context.parsed.y;
                         }
                     }
                 }
             }
-        }
+        },
+        plugins: [{
+            afterDatasetsDraw: function(chart) {
+                var ctx = chart.ctx;
+
+                chart.data.datasets.forEach(function(dataset, i) {
+                    var meta = chart.getDatasetMeta(i);
+                    meta.data.forEach(function(bar, index) {
+                        var data = dataset.data[index];
+                        ctx.save();
+
+                        // Definir cor do texto com base na cor da barra para melhor contraste
+                        ctx.fillStyle = 'black'; // Você pode ajustar a cor conforme necessário
+                        ctx.font = '12px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+
+                        var position = bar.tooltipPosition();
+
+                        if (chart.options.indexAxis === 'y') {
+                            // Para barras horizontais
+                            var xPos = position.x;
+                            var yPos = position.y;
+                        } else {
+                            // Para barras verticais
+                            var xPos = position.x;
+                            var yPos = position.y - 5; // Ajuste a posição vertical conforme necessário
+                        }
+
+                        // Desenhar o valor da barra
+                        ctx.fillText(data, xPos, yPos);
+
+                        // Se for o dataset de 'Itens Válidos', desenhar o percentual
+                        if (dataset.label === 'Itens Válidos') {
+                            var percentage = domainPercentages[index];
+                            // Ajustar a posição para não sobrepor o valor
+                            var percentageYPos = yPos - 15; // Ajuste conforme necessário
+                            //ctx.fillText(percentage + '%', xPos, percentageYPos);
+                        }
+
+                        ctx.restore();
+                    });
+                });
+            }
+        }]
     });
     */
 
-    // barChartItems
-// barChartItems
-var barChartItems = new Chart(ctxBarItems, {
-    type: 'bar',
-    data: {
-        labels: domainLabels,
-        datasets: [
-            {
-                label: 'Itens Testados',
-                data: domainItemsTested,
-                backgroundColor: 'rgba(255, 159, 64, 0.6)', // Preenchimento laranja
-                borderColor: 'rgba(255, 159, 64, 1)',        // Borda laranja
-                borderWidth: 1
-            },
-            {
-                label: 'Itens Válidos',
-                data: domainItemsValid,
-                backgroundColor: 'rgba(75, 192, 192, 0.6)', // Preenchimento verde-água
-                borderColor: 'rgba(75, 192, 192, 1)',        // Borda verde-água
-                borderWidth: 1
-            },
-            {
-                    label: 'Percentual (%)',
-                    data: domainPercentages,
-                    backgroundColor: 'rgba(153, 102, 255, 0.6)', // Roxo
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1,
-                    type: 'bar',
-                    yAxisID: 'y1'
-                }
-        ]
+// Configurações para a grade
+const DISPLAY = true;
+const BORDER = true;
+const CHART_AREA = true;
+const TICKS = true;
+
+// Configuração dos dados
+const data = {
+  labels: domainLabels,
+  datasets: [
+    {
+      label: 'Total Itens',
+      data: domainItemsTotal,
+      backgroundColor: 'rgba(255, 159, 64, 0.6)', // Laranja
+      borderColor: 'rgba(255, 159, 64, 1)',
+      borderWidth: 1
     },
-    options: {
-        indexAxis: 'x', // 'x' para barras verticais, 'y' para barras horizontais
-        scales: {
-            x: {
-                stacked: false, // Altere para 'true' para barras empilhadas
-                title: {
-                    display: true,
-                    text: 'Domínios'
-                }
-            },
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 5,
-                    precision: 0
-                },
-                title: {
-                    display: true,
-                    text: 'Número de Itens'
-                }
-            },
-            y1: {
-                    beginAtZero: true,
-                    position: 'right',
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        },
-                        stepSize: 10,
-                        max: 100
-                    },
-                    grid: {
-                        drawOnChartArea: false // Remove as linhas de grade do eixo secundário
-                    },
-                    title: {
-                        display: true,
-                        text: 'Percentual (%)'
-                    }
-                }
+    {
+      label: 'Itens Testados',
+      data: domainItemsTested,
+      backgroundColor: 'rgba(54, 162, 235, 0.6)', // Azul
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 1
+    },
+    {
+      label: 'Itens Válidos',
+      data: domainItemsValid,
+      backgroundColor: 'rgba(75, 192, 192, 0.6)', // Verde
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1
+    },
+    {
+      label: 'Itens Inválidos',
+      data: domainItemsInvalid,
+      //backgroundColor: 'rgba(75, 192, 192, 0.6)', // Verde
+      //borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1
+    },
+    {
+      label: 'Percentual (%)',
+      data: domainPercentages,
+      backgroundColor: 'rgba(153, 102, 255, 0.6)', // Roxo
+      borderColor: 'rgba(153, 102, 255, 1)',
+      borderWidth: 1,
+      type: 'line', // Exibir como linha
+      yAxisID: 'y1',
+      fill: false
+    }
+  ]
+};
+
+// Configuração do gráfico
+const config = {
+  type: 'bar',
+  data: data,
+  options: {
+    responsive: true,
+    indexAxis: 'x', // 'x' para barras verticais
+    plugins: {
+      title: {
+        display: true,
+        text: 'Análise de Domínios'
+      },
+      legend: {
+        position: 'top'
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return context.dataset.label + ': ' + context.parsed.y;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        border: {
+          display: BORDER
         },
-        plugins: {
-            legend: {
-                position: 'top'
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        return context.dataset.label + ': ' + context.parsed.y;
-                    }
-                }
+        grid: {
+          display: DISPLAY,
+          drawOnChartArea: CHART_AREA,
+          drawTicks: TICKS,
+        },
+        title: {
+          display: true,
+          text: 'Domínios'
+        }
+      },
+      y: {
+        beginAtZero: true,
+        border: {
+          display: BORDER
+        },
+        grid: {
+          display: DISPLAY,
+          drawOnChartArea: CHART_AREA,
+          drawTicks: TICKS,
+          color: function(context) {
+            if (context.tick.value > 0) {
+              return 'rgba(0, 255, 0, 0.3)'; // Verde para valores positivos
+            } else if (context.tick.value < 0) {
+              return 'rgba(255, 0, 0, 0.3)'; // Vermelho para valores negativos
             }
+            return '#000000'; // Preto para zero
+          },
+        },
+        ticks: {
+          stepSize: 25,
+          precision: 0
+        },
+        title: {
+          display: true,
+          text: 'Número de Itens'
         }
-    },
-    plugins: [{
-        afterDatasetsDraw: function(chart) {
-            var ctx = chart.ctx;
-
-            chart.data.datasets.forEach(function(dataset, i) {
-                var meta = chart.getDatasetMeta(i);
-                meta.data.forEach(function(bar, index) {
-                    var data = dataset.data[index];
-                    ctx.save();
-
-                    // Definir cor do texto com base na cor da barra para melhor contraste
-                    ctx.fillStyle = 'black'; // Você pode ajustar a cor conforme necessário
-                    ctx.font = '12px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'bottom';
-
-                    var position = bar.tooltipPosition();
-
-                    if (chart.options.indexAxis === 'y') {
-                        // Para barras horizontais
-                        var xPos = position.x;
-                        var yPos = position.y;
-                    } else {
-                        // Para barras verticais
-                        var xPos = position.x;
-                        var yPos = position.y - 5; // Ajuste a posição vertical conforme necessário
-                    }
-
-                    // Desenhar o valor da barra
-                    ctx.fillText(data, xPos, yPos);
-
-                    // Se for o dataset de 'Itens Válidos', desenhar o percentual
-                    if (dataset.label === 'Itens Válidos') {
-                        var percentage = domainPercentages[index];
-                        // Ajustar a posição para não sobrepor o valor
-                        var percentageYPos = yPos - 15; // Ajuste conforme necessário
-                        //ctx.fillText(percentage + '%', xPos, percentageYPos);
-                    }
-
-                    ctx.restore();
-                });
-            });
+      },
+      y1: {
+        beginAtZero: true,
+        position: 'right',
+        border: {
+          display: BORDER
+        },
+        grid: {
+          display: DISPLAY,
+          drawOnChartArea: false, // Não desenhar linhas de grade para o eixo secundário
+          drawTicks: TICKS
+        },
+        ticks: {
+          callback: function(value) {
+            return value + '%';
+          },
+          stepSize: 10,
+          max: 100
+        },
+        title: {
+          display: true,
+          text: 'Percentual (%)'
         }
-    }]
-});
+      }
+    }
+  }
+};
+
+// Criação do gráfico
+const barChartItems2 = new Chart(
+  document.getElementById('barChartItems2'), // Substitua 'myChart' pelo ID do seu canvas
+  config
+);
+
+// Ações (opcional)
+const actions = [
+  {
+    name: 'Atualizar Dados',
+    handler(chart) {
+      // Implemente a lógica para atualizar os dados aqui
+      chart.update();
+    }
+  }
+];
 
 
     // Evento para redirecionar ao selecionar o checklist no combobox

@@ -32,7 +32,7 @@ class KidsController extends Controller
         $kids = Kid::getKids();
         return view('kids.index', compact('kids'));
     }
-
+/*
     public function index_data()
     {
         $data = Kid::getKids();
@@ -89,7 +89,7 @@ class KidsController extends Controller
             //->orderColumns(['id'], '-:column $1')
             ->make(true);
     }
-
+*/
     public function create()
     {
         $this->authorize('create', Kid::class);
@@ -1547,6 +1547,9 @@ class KidsController extends Controller
         $domainData = [];
         $totalItemsTested = 0;
         $totalItemsValid = 0;
+        $totalItemsInvalid = 0;
+        $totalItemsTotal = 0;
+        $itemsInvalid = 0;
 
         foreach ($domains as $domain) {
             // Obter as competências do domínio
@@ -1556,7 +1559,7 @@ class KidsController extends Controller
                 })
                 ->get();
 
-            $itemsTested = $competences->count();
+            $itemsTotal = $competences->count();
 
             // Contar os itens válidos (adquiridos) para a criança através do checklist
             $itemsValid = 0;
@@ -1564,11 +1567,14 @@ class KidsController extends Controller
             // Obter as avaliações do checklist atual para as competências selecionadas
             $currentEvaluations = DB::table('checklist_competence')
                 ->where('checklist_id', $currentChecklist->id)
+                ->where('note','<>', 0)
                 ->whereIn('competence_id', $competences->pluck('id'))
                 ->select('competence_id', 'note')
                 ->get()
                 ->keyBy('competence_id');
 
+            $itemsTested = $currentEvaluations->count();
+                
             foreach ($competences as $competence) {
                 $evaluation = $currentEvaluations->get($competence->id);
 
@@ -1578,6 +1584,7 @@ class KidsController extends Controller
             }
 
             $percentage = $itemsTested > 0 ? ($itemsValid / $itemsTested) * 100 : 0;
+            $itemsInvalid = $itemsTested - $itemsValid;
 
             $domainData[] = [
                 'code' => $domain->id,
@@ -1585,11 +1592,15 @@ class KidsController extends Controller
                 'initial' => $domain->initial,
                 'itemsTested' => $itemsTested,
                 'itemsValid' => $itemsValid,
+                'itemsInvalid' => $itemsInvalid,
+                'itemsTotal' => $itemsTotal,
                 'percentage' => round($percentage, 2)
             ];
 
             $totalItemsTested += $itemsTested;
             $totalItemsValid += $itemsValid;
+            $totalItemsInvalid += $itemsInvalid;
+            $totalItemsTotal += $itemsTotal;
         }
 
         // Calcular o percentual total
@@ -1616,6 +1627,8 @@ class KidsController extends Controller
             'domainData',
             'totalItemsTested',
             'totalItemsValid',
+            'totalItemsInvalid',
+            'totalItemsTotal',
             'totalPercentage',
             'developmentalAgeInMonths',
             'delayInMonths',
