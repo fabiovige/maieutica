@@ -382,13 +382,22 @@ class ChecklistController extends Controller
             // Somar os itens testados e válidos
             $totalItemsTested += $itemsTested;
             $totalItemsValid += $itemsValid;
+
+            $domainData[] = [
+                'itemsTested' => $itemsTested,
+                'itemsValid' => $itemsValid,
+            ];
         }
 
-        // Calcular o percentual total
-        $totalPercentage = $totalItemsTested > 0 ? ($totalItemsValid / $totalItemsTested) * 100 : 0;
-
-        // Retornar o percentual total arredondado
-        return round($totalPercentage, 2);
+        // percentual total te dos os dominios
+        $totalPercentageGeral = 0;
+        $totalDomains = count($domainData);
+        foreach ($domainData as $domain) {
+            $percentage = $domain['itemsTested'] > 0 ? ($domain['itemsValid'] / $domain['itemsTested']) * 100 : 0;
+            $totalPercentageGeral += $percentage;
+        }
+        $averagePercentage = round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0 , 2); 
+        return $averagePercentage;
     }
 
 }

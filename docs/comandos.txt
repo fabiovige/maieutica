@@ -1,4 +1,4 @@
-git tag -a 1.2.11 -m "Release 1.2.10 - melhorias no acesso ao cheklists e adicionado progressbar"
+git tag -a 1.2.11 -m "Release 1.2.11 - melhorias no acesso ao cheklists, adicionado progressbar e correção da media geral"
 
 git push --tags
 
