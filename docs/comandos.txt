@@ -1,4 +1,4 @@
-git tag -a 1.2.9 -m "Release 1.2.9 - tela de desenvolvimento"
+git tag -a 1.2.10 -m "Release 1.2.10 - adicionado barra de progresso"
 
 git push --tags
 
