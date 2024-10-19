@@ -6,9 +6,12 @@ use App\Http\Requests\ChecklistRequest;
 use App\Models\Checklist;
 use App\Models\ChecklistRegister;
 use App\Models\Competence;
+use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
 use Carbon\Carbon;
+use DB;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -16,16 +19,25 @@ use Yajra\DataTables\DataTables;
 
 class ChecklistController extends Controller
 {
-    public function index()
-    {
+    public function index(Request $request)
+    {        
         $this->authorize('viewAny', Checklist::class);
 
         $message = label_case('Index Checklists ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::debug($message);
 
-        $checklists = Checklist::getChecklists()->get();
-
-        return view('checklists.index', compact('checklists'));
+        $queryChecklists = Checklist::getChecklists();
+        $kid = null;
+        if($request->kidId) {
+            $kid = Kid::findOrFail($request->kidId);
+            $queryChecklists->where('kid_id', $request->kidId);
+        }
+        $checklists = $queryChecklists->orderBy('id', 'DESC')->get();
+        
+        foreach ($checklists as $key => $checklist) {
+            $checklists[$key]->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
+        }
+        return view('checklists.index', compact('checklists', 'kid'));
     }
 
     public function index_data()
@@ -324,4 +336,59 @@ class ChecklistController extends Controller
             return redirect()->back();
         }
     }
+
+
+    public function percentualDesenvolvimento($checklistId)
+    {
+        // Obter o checklist pelo ID
+        $currentChecklist = Checklist::findOrFail($checklistId);
+
+        // Verificar se o checklist foi encontrado
+        if (!$currentChecklist) {
+            throw new Exception('Checklist não encontrado!');
+        }
+
+        // Obter todos os domínios
+        $domains = Domain::all();
+
+        // Variáveis para calcular o percentual de progresso
+        $totalItemsTested = 0;
+        $totalItemsValid = 0;
+
+        foreach ($domains as $domain) {
+            // Obter todas as competências do domínio
+            $competences = Competence::where('domain_id', $domain->id)->get();
+
+            // Obter as avaliações do checklist atual para as competências selecionadas
+            $currentEvaluations = DB::table('checklist_competence')
+                ->where('checklist_id', $currentChecklist->id)
+                ->where('note', '<>', 0) // Considera apenas as avaliações com nota
+                ->whereIn('competence_id', $competences->pluck('id'))
+                ->select('competence_id', 'note')
+                ->get()
+                ->keyBy('competence_id');
+
+            $itemsTested = $currentEvaluations->count();
+
+            $itemsValid = 0;
+            foreach ($competences as $competence) {
+                $evaluation = $currentEvaluations->get($competence->id);
+
+                if ($evaluation && $evaluation->note == 3) { // note 3 significa 'Adquirido'
+                    $itemsValid++;
+                }
+            }
+
+            // Somar os itens testados e válidos
+            $totalItemsTested += $itemsTested;
+            $totalItemsValid += $itemsValid;
+        }
+
+        // Calcular o percentual total
+        $totalPercentage = $totalItemsTested > 0 ? ($totalItemsValid / $totalItemsTested) * 100 : 0;
+
+        // Retornar o percentual total arredondado
+        return round($totalPercentage, 2);
+    }
+
 }

@@ -1,9 +1,7 @@
 <template>
     <div class="card my-2">
         <div 
-            class="card-body shadown text-center"   
-            :class="{ 'mousePointer': checklist > 0, 'disabled': checklist === 0 }"          
-            @click.prevent="checklist > 0 ? selectKid() : null"
+            class="card-body shadown text-center"                    
         >
 
             <img :src="getKidPhotoUrl(kid.photo)" :alt="kid.name" width="150" class="rounded-img">
@@ -11,15 +9,14 @@
             <h5 class="mt-2">{{ kid.name }}</h5>
             <div class="text-muted my-2">Dt Nasc {{ kid.birth_date }} ({{ kid.months }} meses)</div>
             <div class="d-flex justify-content-center my-2">
-                <span 
-                    :class="['badge ms-2', checklist > 0 ? 'bg-primary' : 'bg-info']"
-                >
-                    <i class="bi bi-check"></i> Checklist - {{ checklist }}
+                <span class="badge ms-2 bg-primary mousePointer" @click.prevent="checklist > 0 ? selectKid('checklists?kidId=' + kid.id) : null">
+                    <i class="bi bi-lis-check"></i> Checklists
                 </span>
-                <span 
-                    :class="['badge ms-2', checklist > 0 ? 'bg-primary' : 'bg-info']"
-                >
-                    <i class="bi bi-check"></i> Plano - {{ plane }}
+                <span class="badge ms-2 bg-info mousePointer" @click.prevent="checklist > 0 ? selectKid('analysis/' + kid.id + '/level/1') : null">
+                    <i class="bi bi-clipboard-data"></i> Comparativo
+                </span>
+                <span class="badge ms-2 bg-secondary mousePointer" @click.prevent="checklist > 0 ? selectKid('kids/' + kid.id + '/overview') : null">
+                    <i class="bi bi-bar-chart"></i> Desenvolvimento
                 </span>
             </div>
         </div>
@@ -46,8 +43,8 @@ export default {
         onMounted(() => {
         });
 
-        function selectKid() {
-            window.location.href = "/analysis/" + this.kid.id + "/level/1";
+        function selectKid(url) {
+            window.location.href = url
         }
 
         function getKidPhotoUrl(photo) {

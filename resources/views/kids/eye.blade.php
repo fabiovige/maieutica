@@ -196,7 +196,7 @@
 
             <div class="card-footer d-flex justify-content-center mt-3">
                 @can('create kids')
-                <x-button icon="check" name="Atualizar dados da criança" type="submit" class="primary"></x-button>
+                    <x-button icon="check" name="Atualizar dados da criança" type="submit" class="primary"></x-button>
                 @endcan
             </div>
 
