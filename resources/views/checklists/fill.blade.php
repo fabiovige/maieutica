@@ -4,8 +4,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('checklists.index') }}">Checklist</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Gerenciar</li>
+            <li class="breadcrumb-item"><a href="{{ route('checklists.index',['kidId'=>$kid->id]) }}">Checklists</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Avaliação</li>
         </ol>
     </nav>
 @endsection

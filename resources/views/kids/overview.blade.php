@@ -13,29 +13,36 @@
 @section('content')
 
 <div class="row" id="app">
-    <div class="row">
-        <div class="col-md-6">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-4">
 
             <Resume :responsible="{{ $kid->responsible()->first() }}"
                 :professional="{{ $kid->professional()->first() }}" :kid="{{ $kid }}"
                 :checklist="{{ $kid->checklists()->count() }}" :plane="{{ $kid->planes()->count() }}"
                 :months="{{ $ageInMonths }}">
             </Resume>
-
-
-
         </div>
-        <div class="col-md-6">
+    </div>
 
-            <h3>Checklists</h3>
+    <div class="row my-5">
+        <div>
+            <h3>Progresso Geral</h3>
+            <div class="progress" role="progressbar" aria-label="{{ $kid->name }}" aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100" style="height: 30px">
+                <div class="progress-bar progress-bar-striped" style="width: {{$averagePercentage}}%">{{$averagePercentage}}%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-12 col-lg-3 mt-2 mx-auto">
+            <h3>Desenvolvimento</h3>
             @if($currentChecklist)
             <p><strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id }} -
                 {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
             @else
             <p><strong>Checklist Atual:</strong> Não disponível</p>
             @endif
-
-            <h3>Idade de Desenvolvimento</h3>
+            
             <p><strong>Idade Cronológica:</strong> {{ $ageInMonths }} meses</p>
             <p><strong>Idade de Desenvolvimento:</strong> {{ round($developmentalAgeInMonths, 0) }} meses</p>
             <p><strong>Atraso:</strong> {{ round($delayInMonths, 0) }} meses</p>
@@ -51,6 +58,10 @@
                 </select>
             </div>
         </div>
+
+        <div class="col-12 col-md-12 col-lg-9 mt-2 mx-auto">
+            <canvas id="barChart" width="400" height="200"></canvas>
+        </div>
     </div>
 
     <div class="row">
@@ -59,12 +70,7 @@
         </div>
     </div>
 
-    <div class="row mt-3 d-flex justify-content-center">
-        <div class="col-md-12">
-            <h3>Avaliação</h3>
-            <canvas id="barChart" width="400" height="200"></canvas>
-        </div>
-    </div>
+
 
     <div class="row mt-3">
         <div class="col-md-12">
