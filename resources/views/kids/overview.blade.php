@@ -103,7 +103,15 @@
                         <td>{{ $domain['itemsTested'] }}</td>
                         <td>{{ $domain['itemsValid'] }}</td>
                         <td>{{ $domain['itemsInvalid'] }}</td>
-                        <td>{{ $domain['percentage'] }}%</td>
+                        <td>
+                        
+                            <div class="progress" role="progressbar" aria-label="{{ $domain['name'] }}" aria-valuenow="{{ $domain['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: {{$domain['percentage']}}%"></div>
+                            </div>
+
+                                
+                            {{ $domain['percentage'] }}%
+                        </td>
                     </tr>
                     @endforeach
                     <tr>
@@ -111,7 +119,8 @@
                         <th>{{ $totalItemsTotal }}</th>
                         <th>{{ $totalItemsTested }}</th>
                         <th>{{ $totalItemsValid }}</th>
-                        <th>{{ round($totalPercentage, 2) }}%</th>
+                        <th>{{ round($totalPercentage, 2) }}%
+                        </th>
                     </tr>
                 </tbody>
             </table>
@@ -131,7 +140,12 @@
                     @foreach($weakAreas as $area)
                     <tr>
                         <td>{{ $area['name'] }}</td>
-                        <td>{{ $area['percentage'] }}%</td>
+                        <td>
+                            <div class="progress" role="progressbar" aria-label="{{ $area['name'] }}" aria-valuenow="{{ $area['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: {{$area['percentage']}}%"></div>
+                            </div>
+                            {{ $area['percentage'] }}%
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
