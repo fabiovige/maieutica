@@ -20,17 +20,16 @@
 
 @section('content')
     <div class="row" id="app">
-        <div class="col-md-12">
-            
-                @if (isset($kid))
-
-                    <Resume :responsible="{{ $kid->responsible()->first() }}"
-                        :professional="{{ $kid->professional()->first() }}" :kid="{{ $kid }}"
-                        :checklist="{{ $kid->checklists()->count() }}" :plane="{{ $kid->planes()->count() }}"
-                        :months="{{ $kid->months }}">
-                    </Resume>
-
-                @endif
+        <div class="col-md-4">            
+            @if (isset($kid))
+                <Resume :responsible="{{ $kid->responsible()->first() }}"
+                    :professional="{{ $kid->professional()->first() }}" :kid="{{ $kid }}"
+                    :checklist="{{ $kid->checklists()->count() }}" :plane="{{ $kid->planes()->count() }}"
+                    :months="{{ $kid->months }}">
+                </Resume>
+            @endif
+        </div>
+        <div class="col-md-8 mt-2">       
             <h3>Checklists</h3>
             <table class="table table-bordered table-hover">
                 <thead>

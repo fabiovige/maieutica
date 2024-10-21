@@ -1,4 +1,4 @@
-git tag -a 1.2.13 -m "Release 1.2.13 - melhorias no gráfico de barras do desenvolvimento"
+git tag -a 1.2.14 -m "Release 1.2.14 - ajuste na diagramação na lista de checklists"
 
 git push --tags
 
