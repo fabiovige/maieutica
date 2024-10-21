@@ -1,4 +1,4 @@
-git tag -a 1.2.11 -m "Release 1.2.11 - melhorias no acesso ao cheklists, adicionado progressbar e correção da media geral"
+git tag -a 1.2.11.1 -m "Release 1.2.12 - removido coluna checklists da lista de crianças"
 
 git push --tags
 
