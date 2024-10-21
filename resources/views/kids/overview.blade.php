@@ -174,7 +174,7 @@
         <div class="col-md-12">
             <canvas id="barChartItems2" width="400" height="200"></canvas>
         </div>
-    </div>-->
+    </div>
 
 </div>
 
@@ -369,7 +369,9 @@ const data = {
     {
       label: 'Itens Inválidos',
       data: domainItemsInvalid,
-      borderWidth: 1
+      borderWidth: 1,
+      borderColor: 'rgba(255, 0, 0, 1)', // Cor da borda vermelha
+      backgroundColor: 'rgba(255, 0, 0, 0.5)' // Cor de fundo vermelha com transparência
     },
     {
       label: 'Percentual (%)',
