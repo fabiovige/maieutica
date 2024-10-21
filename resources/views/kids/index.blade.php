@@ -28,7 +28,6 @@
                     <th>Foto</th>
                     <th>Nome</th>
                     <th>Data de nascimento</th>
-                    <th>Checklists</th>
                     <th>Profissional</th>
                     <th>Responsáveis</th>
                     <th></th>
@@ -51,11 +50,6 @@
                     </td>
                     <td>{{ $kid->name }}</td>
                     <td>{{ $kid->birth_date }}</td>
-                    <td>
-                        <a href="{{ route('checklists.index', ['kid_id' => $kid->id]) }}">
-                            Ver checklists
-                        </a>
-                    </td>
                     <td>{{ $kid->professional->name ?? 'N/A' }}</td>
                     <td>{{ $kid->responsible->name ?? 'N/A' }}</td>
                     <td>
