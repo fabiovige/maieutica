@@ -70,6 +70,7 @@
                 <label for="comparisonLevelId">Selecionar um nível para comparação:</label>
                 <select name="comparisonLevelId" id="comparisonLevelId" class="form-control">
                     <option value="">-- Selecione --</option>
+                    <option value="0"  {{ ($levelId == 0) ? ' selected ' : '' }}>Todos os níveis</option>
                     @foreach($levels as $level)
                     <option value="{{ $level }}"
                         {{ ($levelId == $level) ? ' selected ' : '' }}>

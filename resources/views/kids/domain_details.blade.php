@@ -17,7 +17,9 @@
 <div class="col-md-12">
                 <div class="d-flex justify-content-between">
                     <h2>{{ $domain->name }} ({{ $domain->initial }})</h2>
-                    <h2>Nível {{ $levelId }}</h2>
+                    <h2>
+                        {{ $levelId === 0 ? 'Todos os níveis' : 'Nível ' . $levelId }}
+                    </h2>
                 </div>
             </div>
 
@@ -64,7 +66,7 @@
                 <table class="table table-bordered mt-4">
                 <thead>
                     <tr>
-                        <th>Código</th>
+                        <td></td>
                         <th>Competência</th>
                         <th nowrap>Status Atual</th>
                         <th nowrap>Status Anterior</th>
@@ -74,7 +76,7 @@
                 <tbody>
                     @foreach($radarDataCompetences as $competenceData)
                     <tr>
-                        <td>{{ $competenceData['competence'] }}</td>
+                        <td nowrap>{{ $competenceData['domain_initial'] }} Nível: {{ $competenceData['level'] }} Item: {{ $competenceData['competence'] }}</td>
                         <td>{{ $competenceData['description'] ?? '' }}</td>
                         <td nowrap>
                             @if($competenceData['currentStatusValue'] === 1)
@@ -132,7 +134,12 @@
 <script>
     // Dados para o Gráfico de Radar
     var ctxRadarCompetences = document.getElementById('radarChartCompetences').getContext('2d');
-    var radarLabelsCompetences = @json(array_column($radarDataCompetences, 'competence'));
+    //var radarLabelsCompetences = @json(array_column($radarDataCompetences, 'competence'));
+    // Concatenar 'domain_initials' com 'competence' para os rótulos
+    var radarLabelsCompetences = @json(array_map(function($item) {
+        return  $item['domain_initial'] . ' Nível: ' . $item['level'] . ' Item: ' . $item['competence'];
+    }, $radarDataCompetences));
+
 
     var radarDataCurrent = @json(array_map(function($item) {
         return $item['currentStatusValue'] ?? 0;

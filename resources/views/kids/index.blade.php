@@ -73,7 +73,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 1, 'checklist' => null]) }}">
+                                    <a class="dropdown-item" href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0, 'checklist' => null]) }}">
                                         <i class="bi bi-clipboard-data"></i> Comparativo
                                     </a>
                                 </li>

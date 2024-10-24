@@ -1165,7 +1165,7 @@ class KidsController extends Controller
 
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
-
+        
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
         $ageInMonths = $birthdate->diffInMonths(Carbon::now());
@@ -1178,6 +1178,7 @@ class KidsController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
+            
         // Obter o checklist de comparação, se um ID foi fornecido
         if ($checklistId) {
             $previousChecklist = Checklist::find($checklistId);
@@ -1185,10 +1186,17 @@ class KidsController extends Controller
             $previousChecklist = null;
         }
 
+        if($levelId==0){
+            $levelId = [1,2,3,4];
+        } else {
+            $levelId = [$levelId];
+        }
+        
         // Obter as competências do domínio e nível selecionados
         $competences = Competence::where('domain_id', $domainId)
-            ->where('level_id', $levelId)
+            ->whereIn('level_id', $levelId)
             ->get();
+
 
         // Preparar os dados para as avaliações de ambos os checklists
         $radarDataCompetences = [];
@@ -1316,6 +1324,8 @@ class KidsController extends Controller
             }
             
             $radarDataCompetences[] = [
+                'level' => $competence->level_id,
+                'domain_initial' => $competence->domain->initial, // Nova chave adicionada
                 'competence' => $competence->code,
                 'description' => $competence->description,
                 'currentStatusValue' => $currentStatusValue,
@@ -1328,6 +1338,11 @@ class KidsController extends Controller
                 'percentil_75' => $competence->percentil_75,
                 'percentil_90' => $competence->percentil_90
             ];
+        }
+        if(is_array($levelId) && count($levelId) > 1) {
+            $levelId = 0;
+        } else {
+            $levelId = $levelId[0];
         }
 
         // Retornar a view com os dados do radar detalhado
@@ -1350,49 +1365,58 @@ class KidsController extends Controller
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
         $ageInMonths = $birthdate->diffInMonths(Carbon::now());
-
         // Obter os domínios para o nível selecionado
-        $domainLevels = DB::table('domain_level')->where('level_id', $levelId)->pluck('domain_id');
+        if($levelId==0){
+            $levelId = [1,2,3,4];
+        } else {
+            $levelId = [$levelId];
+        }
+        $domainLevels = DB::table('domain_level')->whereIn('level_id', $levelId)->pluck('domain_id');
+        
         $domains = Domain::whereIn('id', $domainLevels)->get();
-
         // Obter o checklist atual (mais recente)
         $currentChecklist = Checklist::where('kid_id', $kidId)
-            ->orderBy('id', 'desc')
-            ->first();
-
+        ->orderBy('id', 'desc')
+        ->first();
+        
         // Verificar se existe um checklist atual
         if (!$currentChecklist) {
             // Tratar o caso em que não há checklists para a criança
             throw new ('Nenhum checklist encontrado!');
         }
-
+        
         // Obter o checklist de comparação, se um ID foi fornecido
         if ($checklistId) {
             $previousChecklist = Checklist::find($checklistId);
         } else {
             $previousChecklist = null;
         }
-
+        
         // Obter todos os checklists para o combobox, excluindo o atual
         $allChecklists = Checklist::where('kid_id', $kidId)
             ->where('id', '<>', $currentChecklist->id)
             ->orderBy('id', 'desc')
             ->get();
-
+        
+            
         // Obter os dois checklists mais recentes da criança
         $checklists = Checklist::where('kid_id', $kidId)
             ->orderBy('created_at', 'desc')
             ->take(2)
             ->get();
-
+            
         // Preparar os dados para o radar geral por domínios
         $radarDataDomains = [];
         $levels = [];
+        
+            
         foreach ($domains as $domain) {
             // Obter as competências do domínio e nível selecionados
             $competences = Competence::where('domain_id', $domain->id)
-                ->where('level_id', $levelId)
+                ->whereIn('level_id', $levelId)
                 ->get();
+
+                
 
             // Inicializar as médias como null
             $currentAverage = null;
@@ -1465,8 +1489,16 @@ class KidsController extends Controller
                 $levels[$i] = $i;
             }
         }
+        
+
         $countPlanes = 1;
         $countChecklists = Checklist::where('kid_id', $kidId)->count();
+        
+        if(is_array($levelId) && count($levelId) > 1) {
+            $levelId = 0;
+        } else {
+            $levelId = $levelId[0];
+        }
 
         // Retornar a view com os dados do radar geral
         return view('kids.radar_chart2', compact(
