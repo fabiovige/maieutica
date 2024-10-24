@@ -14,28 +14,14 @@
 
 <div class="row" id="app">
     <div class="row d-flex justify-content-center">
-        <div class="col-md-4">
-
+        <div class="col-12 col-md-12 col-lg-6 mx-auto">
             <Resume :responsible="{{ $kid->responsible()->first() }}"
                 :professional="{{ $kid->professional()->first() }}" :kid="{{ $kid }}"
                 :checklist="{{ $kid->checklists()->count() }}" :plane="{{ $kid->planes()->count() }}"
                 :months="{{ $ageInMonths }}">
             </Resume>
         </div>
-    </div>
-
-    <div class="row my-5">
-        <div>
-            <h3>Progresso Geral</h3>
-            <div class="progress" role="progressbar" aria-label="{{ $kid->name }}" aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100" style="height: 30px">
-                <div class="progress-bar progress-bar-striped" style="width: {{$averagePercentage}}%">{{$averagePercentage}}%</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12 col-md-12 col-lg-3 mt-2 mx-auto">
-            <h3>Desenvolvimento</h3>
+        <div class="col-12 col-md-12 col-lg-6">
             @if($currentChecklist)
             <p><strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id }} -
                 {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
@@ -47,41 +33,49 @@
             <p><strong>Idade de Desenvolvimento:</strong> {{ round($developmentalAgeInMonths, 0) }} meses</p>
             <p><strong>Atraso:</strong> {{ round($delayInMonths, 0) }} meses</p>
 
+            
+            <label for="levelSelect">Selecionar Nível:</label>
+            <select id="levelSelect" class="form-control" onchange="changeLevel(this.value)">
+                <option value="" {{ is_null($levelId) ? 'selected' : '' }}>Todos os Níveis</option>
+                @foreach($levels as $level)
+                <option value="{{ $level }}" {{ ($levelId==$level) ? 'selected' : '' }}>Nível {{ $level }}</option>
+                @endforeach
+            </select>
+            
+        </div>
+    </div>
 
-            <div class="form-group">
-                <label for="levelSelect">Selecionar Nível:</label>
-                <select id="levelSelect" class="form-control" onchange="changeLevel(this.value)">
-                    <option value="" {{ is_null($levelId) ? 'selected' : '' }}>Todos os Níveis</option>
-                    @foreach($levels as $level)
-                    <option value="{{ $level }}" {{ ($levelId==$level) ? 'selected' : '' }}>Nível {{ $level }}</option>
-                    @endforeach
-                </select>
+    <div class="row mt-4">
+        <div class="col-12 col-md-12 col-lg-12">       
+            <h3>Progresso Geral</h3>
+            <div class="progress" role="progressbar" aria-label="{{ $kid->name }}" aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100" style="height: 30px">
+                <div class="progress-bar progress-bar-striped" style="width: {{$averagePercentage}}%">{{$averagePercentage}}%</div>
             </div>
         </div>
+    </div>
 
-        <div class="col-12 col-md-12 col-lg-9 mt-2 mx-auto">
-            <canvas id="barChart" width="400" height="200"></canvas>
+    <div class="row mt-4">
+        <div class="col-md-12 d-flex justify-content-start">
+            <h3>{{ $levelId ? 'Nível ' . $levelId: 'Todos os Níveis'}}</h2>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-12 d-flex justify-content-center">
-            <h2>{{ $levelId ? 'Nível ' . $levelId: 'Todos os Níveis'}}</h2>
+        <div class="col-12 col-md-12 col-lg-12">            
+            <canvas id="barChart" height="250"></canvas>
         </div>
     </div>
 
-
-
-    <div class="row mt-3">
-        <div class="col-md-12">
+    <div class="row mt-4">
+        <div class="col-12 col-md-12 col-lg-12">
             <h3>Gráfico de radar da avaliação</h3>
             <canvas id="radarChart" width="400" height="200"></canvas>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-12">
-            <h2>Análise geral dos itens</h2>
+        <div class="col-12 col-md-12 col-lg-12">
+            <h3>Análise geral dos itens</h3>
         </div>
     </div>
     
@@ -163,16 +157,16 @@
         </div>
     </div>
 
-    <div class="row mt-3">
+    <div class="row mt-5">
         <div class="col-md-12">
-            <h2>Representação gráfica da análise geral</h2>
+            <h3>Representação gráfica da análise geral</h3>
         </div>
     </div>
 
 
     <div class="row">
-        <div class="col-md-12">
-            <canvas id="barChartItems2" width="400" height="200"></canvas>
+        <div class="col-12 col-md-12 col-lg-12 mt-2">
+            <canvas id="barChartItems2" height="200"></canvas>
         </div>
     </div>
 
