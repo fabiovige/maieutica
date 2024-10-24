@@ -1,4 +1,4 @@
-git tag -a 1.2.14 -m "Release 1.2.14 - ajuste na diagramação na lista de checklists"
+git tag -a 1.2.15 -m "Release 1.2.15 - todos os níveis adicionado ao comportamento"
 
 git push --tags
 
