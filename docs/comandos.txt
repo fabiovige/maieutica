@@ -1,4 +1,4 @@
-git tag -a 1.2.15 -m "Release 1.2.15 - todos os níveis adicionado ao comportamento"
+git tag -a 1.2.16 -m "Release 1.2.16 - ajustes de responsividade na tela de desenvolvimento"
 
 git push --tags
 

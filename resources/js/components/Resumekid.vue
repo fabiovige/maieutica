@@ -12,7 +12,7 @@
                 <span class="badge ms-2 bg-primary mousePointer" @click.prevent="checklist > 0 ? selectKid('checklists?kidId=' + kid.id) : null">
                     <i class="bi bi-lis-check"></i> Checklists
                 </span>
-                <span class="badge ms-2 bg-info mousePointer" @click.prevent="checklist > 0 ? selectKid('analysis/' + kid.id + '/level/1') : null">
+                <span class="badge ms-2 bg-info mousePointer" @click.prevent="checklist > 0 ? selectKid('analysis/' + kid.id + '/level/0') : null">
                     <i class="bi bi-clipboard-data"></i> Comparativo
                 </span>
                 <span class="badge ms-2 bg-secondary mousePointer" @click.prevent="checklist > 0 ? selectKid('kids/' + kid.id + '/overview') : null">
