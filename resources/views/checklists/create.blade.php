@@ -43,7 +43,7 @@
                                         <select class="form-select @error('level') is-invalid @enderror" aria-label="level" name="level">
                                             <option value="">-- selecione --</option>
                                             @foreach(\App\Models\Checklist::LEVEL as $key => $value)
-                                                <option value="{{ $key }}" @if(old('level') == $key ) selected @endif> {{ \App\Models\Checklist::LEVEL[$key] }} </option>
+                                                <option value="{{ $key }}" @if(4 == $key ) selected @endif> {{ \App\Models\Checklist::LEVEL[$key] }} </option>
                                             @endforeach
                                         </select>
                                         @error('level')
