@@ -71,4 +71,6 @@ Route::get('logs', function () {
 //Route::get('/teste',  [KidsController::class, 'teste'])->name('kids.teste');
 //Route::get('/teste/{kidId}/level/{levelId}', [KidsController::class, 'showRadarChart'])->name('kids.radarChart');
 Route::get('/analysis/{kidId}/level/{levelId}/{checklist?}', [KidsController::class, 'showRadarChart2'])->name('kids.radarChart2');
-Route::get('//{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
+Route::get('//{kidId}/level/{level"Id}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
+// routes/web.php
+Route::post('/kids/{kidId}/overview/generate-pdf', [KidsController::class, 'generatePdf'])->name('kids.generatePdf');
