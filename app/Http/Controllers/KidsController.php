@@ -1723,7 +1723,7 @@ class KidsController extends Controller
 
         // Definir o caminho para o logo
         $logoPath = public_path('images/logo_login.png');
-        $pdf->Ln(30);
+        $pdf->Ln(10);
         // Verificar se o arquivo existe
         if (file_exists($logoPath)) {
             // Definir a largura do logo
@@ -1737,12 +1737,32 @@ class KidsController extends Controller
         }
 
         // Adicionar espaço após o logo
-        $pdf->Ln(50);
+        $pdf->Ln(40);
 
         // Definir o título do PDF
-        $pdf->SetFont('helvetica', 'B', 22);
-        $pdf->Cell(0, 10, 'Prontuário da Criança', 0, 1, 'C');
+        $pdf->SetFont('helvetica', '', 22);
+        $pdf->Cell(0, 10, 'Prontuário de desenvolvimento', 0, 1, 'C');
         $pdf->Ln(10);
+
+        // **Adicionar a foto da criança**
+        // Obter o caminho da foto da criança
+        $photoPath = storage_path( 'app/public/' . $kid->photo);
+        //dd($photoPath);
+        // Verificar se o arquivo existe
+        if (file_exists($photoPath)) {
+            // Definir a largura da foto
+            $photoWidth = 50; // Ajuste conforme necessário
+            // Obter a largura da página
+            $pageWidth = $pdf->getPageWidth();
+            // Calcular a posição X para centralizar
+            $x = round(($pageWidth - $photoWidth) / 2, 0 );
+            // Adicionar a foto da criança
+            //dd($x);
+            $pdf->Image($photoPath, 80, null, $photoWidth, $photoWidth, '', '', 'C', false, 72);
+            // Adicionar espaço após a foto
+            $pdf->Ln(60);
+        }
+
         // Adicionar as informações principais (por exemplo, nome da criança e idade)
         $pdf->SetFont('helvetica', '', 12);
 
@@ -1774,26 +1794,31 @@ class KidsController extends Controller
         $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(10);
 
-        $pdf->SetFont('helvetica', '', 12);
+        $pdf->SetFont('helvetica', '', 14);
         
         $txt = 'Profissional: ' . $kid->professional->name;
-        $pdf->Cell(0, 2, $txt, 0, 1, 'L');
+        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
+        $pdf->Ln(1);
 
         $txt = 'Responsável: ' . $kid->responsible->name;
-        $pdf->Cell(0, 2, $txt, 0, 1, 'L');
+        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
+        $pdf->Ln(1);
 
         $txt = 'Desenvolvimento: ' . round($data['developmentalAgeInMonths'], 0) . ' meses';
-        $pdf->Cell(0, 2, $txt, 0, 1, 'L');
+        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
+        $pdf->Ln(1);
 
         $txt = 'Atraso: ' . round($data['delayInMonths'], 0) . ' meses';
-        $pdf->Cell(0, 2, $txt, 0, 1, 'L');
+        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
+        $pdf->Ln(1);
 
-        $pdf->Cell(0, 2, $periodAvaliable, 0, 1, 'L');
+        $pdf->Cell(0, 2, $periodAvaliable, 0, 1, 'C');
+        $pdf->Ln(1);
 
-        $pdf->Ln(20);
-        $txt2 = "Esta avaliação foi composta pelo instrumento Checklist Curriculum Denver. Mantivemos como base de aferição o Nível III do Checklist Curriculum Denver para efeitos de comparação em relação ao próprio desenvolvimento de " . $kid->name . ". Os resultados estão ilustrados abaixo:";
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->MultiCell(0, 5, $txt2, 0, 'L', 0, 1);
+        //$pdf->Ln(20);
+        //$txt2 = "Esta avaliação foi composta pelo instrumento Checklist Curriculum Denver. Mantivemos como base de aferição o Nível III do Checklist Curriculum Denver para efeitos de comparação em relação ao próprio desenvolvimento de " . $kid->name . ". Os resultados estão ilustrados abaixo:";
+        //$pdf->SetFont('helvetica', '', 12);
+        //$pdf->MultiCell(0, 5, $txt2, 0, 'L', 0, 1);
 
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 14, '', 'C');

@@ -1,4 +1,4 @@
-git tag -a 1.2.17 -m "Release 1.2.17 - gera pdf para o prontuátio"
+git tag -a 1.2.18 -m "Release 1.2.18 - adicionado foto ao pdf"
 
 git push --tags
 
