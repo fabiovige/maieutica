@@ -21,19 +21,32 @@
                 :months="{{ $ageInMonths }}">
             </Resume>
         </div>
-        <div class="col-12 col-md-12 col-lg-6">
-            @if($currentChecklist)
-            <p><strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id }} -
-                {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
-            @else
-            <p><strong>Checklist Atual:</strong> Não disponível</p>
-            @endif
-            
-            <p><strong>Idade Cronológica:</strong> {{ $ageInMonths }} meses</p>
-            <p><strong>Idade de Desenvolvimento:</strong> {{ round($developmentalAgeInMonths, 0) }} meses</p>
-            <p><strong>Atraso:</strong> {{ round($delayInMonths, 0) }} meses</p>
+        <div class="col-12 col-md-12 col-lg-6 mt-2">
+            <div class="text-center fs-5">
+                @if($currentChecklist)
+                <p><strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id
+                    }} -
+                    {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
+                @else
+                <p><strong>Checklist Atual:</strong> Não disponível</p>
+                @endif
 
-            
+                <p><strong>Idade Cronológica:</strong> {{ $ageInMonths }} meses</p>
+                <p><strong>Idade de Desenvolvimento:</strong> {{ round($developmentalAgeInMonths, 0) }} meses</p>
+                <p><strong>Atraso:</strong> {{ round($delayInMonths, 0) }} meses</p>
+
+                <p><button id="generatePdfBtn" class="btn btn-primary mt-3">Gerar Prontuário</button></p>
+
+            </div>
+
+            <form id="pdfForm" action="{{ route('kids.generatePdf', ['kidId' => $kid->id, 'levelId' => $levelId]) }}"
+                method="POST" style="display: none;" target="_blank">
+                @csrf
+                <input type="hidden" name="barChartImage" id="barChartImageInput">
+                <input type="hidden" name="radarChartImage" id="radarChartImageInput">
+                <input type="hidden" name="barChartItems2Image" id="barChartItems2ImageInput">
+            </form>
+
             <label for="levelSelect">Selecionar Nível:</label>
             <select id="levelSelect" class="form-control" onchange="changeLevel(this.value)">
                 <option value="" {{ is_null($levelId) ? 'selected' : '' }}>Todos os Níveis</option>
@@ -41,15 +54,17 @@
                 <option value="{{ $level }}" {{ ($levelId==$level) ? 'selected' : '' }}>Nível {{ $level }}</option>
                 @endforeach
             </select>
-            
+
         </div>
     </div>
 
     <div class="row mt-4">
-        <div class="col-12 col-md-12 col-lg-12">       
+        <div class="col-12 col-md-12 col-lg-12">
             <h3>Progresso Geral</h3>
-            <div class="progress" role="progressbar" aria-label="{{ $kid->name }}" aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100" style="height: 30px">
-                <div class="progress-bar progress-bar-striped" style="width: {{$averagePercentage}}%">{{$averagePercentage}}%</div>
+            <div class="progress" role="progressbar" aria-label="{{ $kid->name }}"
+                aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100" style="height: 30px">
+                <div class="progress-bar progress-bar-striped" style="width: {{$averagePercentage}}%">
+                    {{$averagePercentage}}%</div>
             </div>
         </div>
     </div>
@@ -61,8 +76,8 @@
     </div>
 
     <div class="row">
-        <div class="col-12 col-md-12 col-lg-12">            
-            <canvas id="barChart" height="250"></canvas>
+        <div class="col-12 col-md-12 col-lg-12">
+            <canvas id="barChart" height="200"></canvas>
         </div>
     </div>
 
@@ -78,7 +93,7 @@
             <h3>Análise geral dos itens</h3>
         </div>
     </div>
-    
+
     <div class="row mt-3">
         <div class="col-md-8">
             <!-- Tabela de Detalhes por Domínio -->
@@ -104,12 +119,13 @@
                         <td>{{ $domain['itemsValid'] }}</td>
                         <td>{{ $domain['itemsInvalid'] }}</td>
                         <td>
-                        
-                            <div class="progress" role="progressbar" aria-label="{{ $domain['name'] }}" aria-valuenow="{{ $domain['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+
+                            <div class="progress" role="progressbar" aria-label="{{ $domain['name'] }}"
+                                aria-valuenow="{{ $domain['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
                                 <div class="progress-bar" style="width: {{$domain['percentage']}}%"></div>
                             </div>
 
-                                
+
                             {{ $domain['percentage'] }}%
                         </td>
                     </tr>
@@ -141,8 +157,9 @@
                     <tr>
                         <td>{{ $area['name'] }}</td>
                         <td>
-                            <div class="progress" role="progressbar" aria-label="{{ $area['name'] }}" aria-valuenow="{{ $area['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
-                                <div class="progress-bar" style="width: {{$area['percentage']}}%"></div>
+                            <div class="progress" role="progressbar" aria-label="{{ $area['name'] }}"
+                                aria-valuenow="{{ $area['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar bg-warning" style="width: {{$area['percentage']}}%"></div>
                             </div>
                             {{ $area['percentage'] }}%
                         </td>
@@ -508,6 +525,35 @@ const actions = [
         // Redirecionar para a URL construída
         window.location.href = url;
     }
+
+
+    // Função para capturar as imagens dos gráficos
+    function getChartImages() {
+        var barChartCanvas = document.getElementById('barChart');
+        var radarChartCanvas = document.getElementById('radarChart');
+        var barChartItems2Canvas = document.getElementById('barChartItems2');
+
+        var barChartImage = barChartCanvas.toDataURL('image/png');
+        var radarChartImage = radarChartCanvas.toDataURL('image/png');
+        var barChartItems2Image = barChartItems2Canvas.toDataURL('image/png');
+
+        return {
+            barChartImage: barChartImage,
+            radarChartImage: radarChartImage,
+            barChartItems2Image: barChartItems2Image
+        };
+    }
+
+    // Evento para o botão de gerar PDF
+    document.getElementById('generatePdfBtn').addEventListener('click', function() {
+        var images = getChartImages();
+        document.getElementById('barChartImageInput').value = images.barChartImage;
+        document.getElementById('radarChartImageInput').value = images.radarChartImage;
+        document.getElementById('barChartItems2ImageInput').value = images.barChartItems2Image;
+
+        document.getElementById('pdfForm').submit();
+    });
+
 </script>
 
 @endpush

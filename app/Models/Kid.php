@@ -57,6 +57,12 @@ class Kid extends BaseModel
         return $this->hasMany(Plane::class);
     }
 
+    // Se você precisa de um checklist "atual" baseado em uma regra (como o mais recente)
+    public function currentChecklist()
+    {
+        return $this->hasOne(Checklist::class)->latest();
+    }
+
     public function getBirthDateAttribute($value)
     {
         return Carbon::createFromFormat('Y-m-d', $value)->format('d/m/Y');

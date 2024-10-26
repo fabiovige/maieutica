@@ -19,12 +19,19 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Request;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role as SpatieRole;
+use App\Services\OverviewService;
 
 class KidsController extends Controller
 {
+    protected $overviewService;
+
+    public function __construct(OverviewService $overviewService)
+    {
+        $this->overviewService = $overviewService;
+    }
+
     public function index()
     {
         $message = label_case('Index Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -32,7 +39,7 @@ class KidsController extends Controller
         $kids = Kid::getKids();
         return view('kids.index', compact('kids'));
     }
-/*
+    /*
     public function index_data()
     {
         $data = Kid::getKids();
@@ -139,9 +146,7 @@ class KidsController extends Controller
         }
     }
 
-    public function show(Kid $kid){
-
-    }
+    public function show(Kid $kid) {}
     public function showPlane(Kid $kid, $checklistId = null)
     {
         $this->authorize('view', $kid);
@@ -396,10 +401,6 @@ class KidsController extends Controller
                     $etapas = 'Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____';
                     $pdf->Write(0, $etapas, '', 0, 'L', true);
                 }
-                //                ++$countDomain;
-                //                if ($countDomain < $totalDomain) {
-                //                    $pdf->AddPage();
-                //                }
             }
 
             $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
@@ -410,7 +411,6 @@ class KidsController extends Controller
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-            dd($e->getMessage());
 
             flash(self::MSG_NOT_FOUND)->warning();
 
@@ -1165,7 +1165,7 @@ class KidsController extends Controller
 
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
-        
+
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
         $ageInMonths = $birthdate->diffInMonths(Carbon::now());
@@ -1178,7 +1178,7 @@ class KidsController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
-            
+
         // Obter o checklist de comparação, se um ID foi fornecido
         if ($checklistId) {
             $previousChecklist = Checklist::find($checklistId);
@@ -1186,12 +1186,12 @@ class KidsController extends Controller
             $previousChecklist = null;
         }
 
-        if($levelId==0){
-            $levelId = [1,2,3,4];
+        if ($levelId == 0) {
+            $levelId = [1, 2, 3, 4];
         } else {
             $levelId = [$levelId];
         }
-        
+
         // Obter as competências do domínio e nível selecionados
         $competences = Competence::where('domain_id', $domainId)
             ->whereIn('level_id', $levelId)
@@ -1289,7 +1289,7 @@ class KidsController extends Controller
                     $statusColor = 'red';
                 }
             } elseif ($currentStatusValue === 1) {
-                
+
                 // Incapaz ou não avaliado
                 if ($ageInMonths < $competence->percentil_25) {
                     $status = 'Dentro do esperado'; // Incapaz, mas ainda dentro da faixa esperada (<25%)
@@ -1322,7 +1322,7 @@ class KidsController extends Controller
             } else {
                 $percentComplete = 90 + (($ageInMonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
             }
-            
+
             $radarDataCompetences[] = [
                 'level' => $competence->level_id,
                 'domain_initial' => $competence->domain->initial, // Nova chave adicionada
@@ -1339,7 +1339,7 @@ class KidsController extends Controller
                 'percentil_90' => $competence->percentil_90
             ];
         }
-        if(is_array($levelId) && count($levelId) > 1) {
+        if (is_array($levelId) && count($levelId) > 1) {
             $levelId = 0;
         } else {
             $levelId = $levelId[0];
@@ -1366,57 +1366,57 @@ class KidsController extends Controller
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
         $ageInMonths = $birthdate->diffInMonths(Carbon::now());
         // Obter os domínios para o nível selecionado
-        if($levelId==0){
-            $levelId = [1,2,3,4];
+        if ($levelId == 0) {
+            $levelId = [1, 2, 3, 4];
         } else {
             $levelId = [$levelId];
         }
         $domainLevels = DB::table('domain_level')->whereIn('level_id', $levelId)->pluck('domain_id');
-        
+
         $domains = Domain::whereIn('id', $domainLevels)->get();
         // Obter o checklist atual (mais recente)
         $currentChecklist = Checklist::where('kid_id', $kidId)
-        ->orderBy('id', 'desc')
-        ->first();
-        
+            ->orderBy('id', 'desc')
+            ->first();
+
         // Verificar se existe um checklist atual
         if (!$currentChecklist) {
             // Tratar o caso em que não há checklists para a criança
             throw new ('Nenhum checklist encontrado!');
         }
-        
+
         // Obter o checklist de comparação, se um ID foi fornecido
         if ($checklistId) {
             $previousChecklist = Checklist::find($checklistId);
         } else {
             $previousChecklist = null;
         }
-        
+
         // Obter todos os checklists para o combobox, excluindo o atual
         $allChecklists = Checklist::where('kid_id', $kidId)
             ->where('id', '<>', $currentChecklist->id)
             ->orderBy('id', 'desc')
             ->get();
-        
-            
+
+
         // Obter os dois checklists mais recentes da criança
         $checklists = Checklist::where('kid_id', $kidId)
             ->orderBy('created_at', 'desc')
             ->take(2)
             ->get();
-            
+
         // Preparar os dados para o radar geral por domínios
         $radarDataDomains = [];
         $levels = [];
-        
-            
+
+
         foreach ($domains as $domain) {
             // Obter as competências do domínio e nível selecionados
             $competences = Competence::where('domain_id', $domain->id)
                 ->whereIn('level_id', $levelId)
                 ->get();
 
-                
+
 
             // Inicializar as médias como null
             $currentAverage = null;
@@ -1489,12 +1489,12 @@ class KidsController extends Controller
                 $levels[$i] = $i;
             }
         }
-        
+
 
         $countPlanes = 1;
         $countChecklists = Checklist::where('kid_id', $kidId)->count();
-        
-        if(is_array($levelId) && count($levelId) > 1) {
+
+        if (is_array($levelId) && count($levelId) > 1) {
             $levelId = 0;
         } else {
             $levelId = $levelId[0];
@@ -1529,7 +1529,7 @@ class KidsController extends Controller
         }
     }
 
-    public function overview($kidId, $levelId = null, $checklistId = null)
+    public function overviewOld($kidId, $levelId = null, $checklistId = null)
     {
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
@@ -1599,14 +1599,14 @@ class KidsController extends Controller
             // Obter as avaliações do checklist atual para as competências selecionadas
             $currentEvaluations = DB::table('checklist_competence')
                 ->where('checklist_id', $currentChecklist->id)
-                ->where('note','<>', 0)
+                ->where('note', '<>', 0)
                 ->whereIn('competence_id', $competences->pluck('id'))
                 ->select('competence_id', 'note')
                 ->get()
                 ->keyBy('competence_id');
 
             $itemsTested = $currentEvaluations->count();
-                
+
             foreach ($competences as $competence) {
                 $evaluation = $currentEvaluations->get($competence->id);
 
@@ -1642,11 +1642,11 @@ class KidsController extends Controller
             $percentage = $domain['itemsTested'] > 0 ? ($domain['itemsValid'] / $domain['itemsTested']) * 100 : 0;
             $totalPercentageGeral += $percentage;
         }
-        $averagePercentage = round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0 , 2);        
+        $averagePercentage = round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0, 2);
 
         // Calcular o percentual total
         $totalPercentage = $totalItemsTested > 0 ? ($totalItemsValid / $totalItemsTested) * 100 : 0;
-        
+
         // Calcular a idade de desenvolvimento
         $developmentalAgeInMonths = $ageInMonths * ($totalPercentage / 100);
         $delayInMonths = $ageInMonths - $developmentalAgeInMonths;
@@ -1682,5 +1682,219 @@ class KidsController extends Controller
             'domains',
             'averagePercentage'
         ));
+    }
+
+    public function overview($kidId, $levelId = null, $checklistId = null)
+    {
+        // Usando o serviço para obter os dados
+        $data = $this->overviewService->getOverviewData($kidId, $levelId, $checklistId);
+
+        // Retornar a view com os dados processados
+        return view('kids.overview', $data);
+    }
+
+    public function generatePdf(HttpRequest $request, $kidId, $levelId = null)
+    {
+        // Reutilizar o serviço para obter os dados da visão geral
+        $data = $this->overviewService->getOverviewData($kidId, $levelId);
+
+        // Obter as imagens dos gráficos enviadas no request
+        $barChartImage = $request->input('barChartImage');
+        $radarChartImage = $request->input('radarChartImage');
+        $barChartItems2Image = $request->input('barChartItems2Image');
+
+        $kid = Kid::findOrFail($kidId);
+        $currentChecklist = $kid->currentChecklist;
+        
+        $createdAt = Carbon::parse($currentChecklist->created_at)->format('d/m/Y');
+    
+        // Obter a data atual formatada
+        $currentDate = Carbon::now()->format('d/m/Y');
+        
+        // Montar a saída
+        $periodAvaliable = "Período de avaliação: {$createdAt} até {$currentDate}";
+        
+        
+        // Criar uma nova instância do PDF
+        $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        // Adicionar uma página
+        $pdf->AddPage();
+
+        // Definir o caminho para o logo
+        $logoPath = public_path('images/logo_login.png');
+        $pdf->Ln(30);
+        // Verificar se o arquivo existe
+        if (file_exists($logoPath)) {
+            // Definir a largura do logo
+            $logoWidth = 60; // Ajuste conforme necessário
+            // Obter a largura da página
+            $pageWidth = $pdf->getPageWidth();
+            // Calcular a posição X para centralizar
+            $x = ($pageWidth - $logoWidth) / 2;
+            // Adicionar o logo
+            $pdf->Image($logoPath, $x, '', $logoWidth, '', 'PNG');
+        }
+
+        // Adicionar espaço após o logo
+        $pdf->Ln(50);
+
+        // Definir o título do PDF
+        $pdf->SetFont('helvetica', 'B', 22);
+        $pdf->Cell(0, 10, 'Prontuário da Criança', 0, 1, 'C');
+        $pdf->Ln(10);
+        // Adicionar as informações principais (por exemplo, nome da criança e idade)
+        $pdf->SetFont('helvetica', '', 12);
+
+        $preferences = [
+            'HideToolbar' => true,
+            'HideMenubar' => true,
+            'HideWindowUI' => true,
+            'FitWindow' => true,
+            'CenterWindow' => true,
+            'DisplayDocTitle' => true,
+            'NonFullScreenPageMode' => 'UseNone', // UseNone, UseOutlines, UseThumbs, UseOC
+            'ViewArea' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
+            'ViewClip' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
+            'PrintArea' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
+            'PrintClip' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
+            'PrintScaling' => 'AppDefault', // None, AppDefault
+            'Duplex' => 'DuplexFlipLongEdge', // Simplex, DuplexFlipShortEdge, DuplexFlipLongEdge
+            'PickTrayByPDFSize' => true,
+            'PrintPageRange' => [1, 1, 2, 3],
+            'NumCopies' => 2,
+        ];
+        $pdf->setViewerPreferences($preferences);
+
+        $pdf->SetFont('helvetica', '', 18);
+        $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(2);
+
+        $pdf->SetFont('helvetica', '', 14);
+        $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(10);
+
+        $pdf->SetFont('helvetica', '', 12);
+        
+        $txt = 'Profissional: ' . $kid->professional->name;
+        $pdf->Cell(0, 2, $txt, 0, 1, 'L');
+
+        $txt = 'Responsável: ' . $kid->responsible->name;
+        $pdf->Cell(0, 2, $txt, 0, 1, 'L');
+
+        $txt = 'Desenvolvimento: ' . round($data['developmentalAgeInMonths'], 0) . ' meses';
+        $pdf->Cell(0, 2, $txt, 0, 1, 'L');
+
+        $txt = 'Atraso: ' . round($data['delayInMonths'], 0) . ' meses';
+        $pdf->Cell(0, 2, $txt, 0, 1, 'L');
+
+        $pdf->Cell(0, 2, $periodAvaliable, 0, 1, 'L');
+
+        $pdf->Ln(20);
+        $txt2 = "Esta avaliação foi composta pelo instrumento Checklist Curriculum Denver. Mantivemos como base de aferição o Nível III do Checklist Curriculum Denver para efeitos de comparação em relação ao próprio desenvolvimento de " . $kid->name . ". Os resultados estão ilustrados abaixo:";
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->MultiCell(0, 5, $txt2, 0, 'L', 0, 1);
+
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', '', 14, '', 'C');
+
+        $pdf->Cell(0, 10, 'Relatório de Visão Geral da Criança', 0, 1, 'C');
+        $this->addChartToPdf($pdf, $barChartImage, 'Gráfico de Barras: Percentual de Habilidades', 170);
+
+        $pdf->AddPage();
+        $this->addChartToPdf($pdf, $radarChartImage, 'Gráfico de Radar: Análise de Competências', 170);
+
+        $pdf->AddPage();
+        $this->addChartToPdf($pdf, $barChartItems2Image, 'Análise Geral dos Itens', 170);
+
+
+        // Adicionar tabela de domínios
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->Cell(0, 10, 'Domínios Avaliados', 0, 1, 'C');
+
+        $pdf->SetFont('courier', '', 10);
+        $html = '<table border="1" cellpadding="3" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+            <thead>
+                <tr>
+                    <th style="bold; background-color: #f2f2f2;" nowrap="nowrap">Domínio</th>
+                    <th style="bold; background-color: #f2f2f2;">Total Itens</th>
+                    <th style="bold; background-color: #f2f2f2;">Itens Testados</th>
+                    <th style="bold; background-color: #f2f2f2;">Itens Válidos</th>
+                    <th style="bold; background-color: #f2f2f2;">Itens Inválidos</th>
+                    <th style="bold; background-color: #f2f2f2;">Percentual (%)</th>
+                </tr>
+            </thead>
+            <tbody>';
+
+        foreach ($data['domainData'] as $domain) {
+            $html .= '<tr>
+                <td nowrap="nowrap">' . $domain['name'] . '</td>
+                <td style="text-align: center;">' . $domain['itemsTotal'] . '</td>
+                <td style="text-align: center;">' . $domain['itemsTested'] . '</td>
+                <td style="text-align: center;">' . $domain['itemsValid'] . '</td>
+                <td style="text-align: center;">' . $domain['itemsInvalid'] . '</td>
+                <td style="text-align: center;"> (' . $domain['percentage'] . '%)</td>
+            </tr>';
+        }
+
+        $html .= '</tbody></table>';
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        // Adicionar tabela de Áreas Frágeis
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->Cell(0, 10, 'Áreas Frágeis', 0, 1, 'C');
+
+        $pdf->SetFont('courier', '', 10);
+
+        $html = '<table border="1" cellpadding="3" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="white-space: nowrap; font-weight: bold; background-color: #f2f2f2;">Domínio</th>
+                            <th style="white-space: nowrap; font-weight: bold; background-color: #f2f2f2;">Percentual (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+
+        foreach ($data['weakAreas'] as $domain) {
+
+            $html .= '<tr>
+                <td style="white-space: nowrap;">' . $domain['name'] . '</td>
+                <td style="text-align: center; white-space: nowrap;"> (' . $domain['percentage'] . '%)</td>
+            </tr>';
+        }
+
+        $html .= '</tbody></table>';
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        // Gerar o PDF e retorná-lo como resposta
+        return response($pdf->Output('overview.pdf', 'S'), 200)
+            ->header('Content-Type', 'application/pdf');
+    }
+
+    // Método auxiliar para adicionar gráficos ao PDF
+    private function addChartToPdf($pdf, $imageData, $title, $width = null, $height = null)
+    {
+        if ($imageData) {
+            // Decodificar a imagem base64
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
+
+            // Criar um arquivo temporário para a imagem
+            $tempImagePath = tempnam(sys_get_temp_dir(), 'chart') . '.png';
+            file_put_contents($tempImagePath, $imageData);
+
+            // Adicionar título
+            $pdf->Ln(10);
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->Cell(0, 10, $title, 0, 1, 'C');
+
+            // Adicionar imagem com as dimensões especificadas
+            $pdf->Image($tempImagePath, '', '', $width, $height, 'PNG');
+
+            // Remover o arquivo temporário
+            unlink($tempImagePath);
+        }
     }
 }
