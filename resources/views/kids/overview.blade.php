@@ -22,7 +22,7 @@
             </Resume>
         </div>
         <div class="col-12 col-md-12 col-lg-6 mt-2">
-            <div class="text-center fs-4">
+            <div class="text-center fs-5">
                 @if($currentChecklist)
                 <p><strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id
                     }} -
@@ -77,7 +77,7 @@
 
     <div class="row">
         <div class="col-12 col-md-12 col-lg-12">
-            <canvas id="barChart" height="250"></canvas>
+            <canvas id="barChart" height="200"></canvas>
         </div>
     </div>
 
@@ -159,7 +159,7 @@
                         <td>
                             <div class="progress" role="progressbar" aria-label="{{ $area['name'] }}"
                                 aria-valuenow="{{ $area['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
-                                <div class="progress-bar" style="width: {{$area['percentage']}}%"></div>
+                                <div class="progress-bar bg-warning" style="width: {{$area['percentage']}}%"></div>
                             </div>
                             {{ $area['percentage'] }}%
                         </td>
