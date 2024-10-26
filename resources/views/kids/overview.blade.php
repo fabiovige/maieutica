@@ -35,7 +35,7 @@
                 <p><strong>Idade de Desenvolvimento:</strong> {{ round($developmentalAgeInMonths, 0) }} meses</p>
                 <p><strong>Atraso:</strong> {{ round($delayInMonths, 0) }} meses</p>
 
-                <p><button id="generatePdfBtn" class="btn btn-primary mt-3">Gerar Prontuário</button></p>
+                <p><button id="generatePdfBtn" class="btn btn-primary mt-3"><i class="bi bi-filetype-pdf"></i> Gerar PDF</button></p>
 
             </div>
 
