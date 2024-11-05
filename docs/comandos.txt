@@ -1,4 +1,4 @@
-git tag -a 1.2.18 -m "Release 1.2.18 - adicionado foto ao pdf"
+git tag -a 1.2.19 -m "Release 1.2.19 - correção de rota"
 
 git push --tags
 
