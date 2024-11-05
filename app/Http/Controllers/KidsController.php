@@ -1500,20 +1500,23 @@ class KidsController extends Controller
             $levelId = $levelId[0];
         }
 
+
+        $data = [
+            'kid' => $kid,
+            'ageInMonths' => $ageInMonths,
+            'levelId' => $levelId,
+            'radarDataDomains' => $radarDataDomains,
+            'domains' => $domains,
+            'currentChecklist' => $currentChecklist,
+            'previousChecklist' => $previousChecklist,
+            'allChecklists' => $allChecklists,
+            'levels' => $levels,
+            'countChecklists' => $countChecklists,
+            'countPlanes' => $countPlanes, 
+        ];
+
         // Retornar a view com os dados do radar geral
-        return view('kids.radar_chart2', compact(
-            'kid',
-            'ageInMonths',
-            'levelId',
-            'radarDataDomains',
-            'domains',
-            'currentChecklist',
-            'previousChecklist',
-            'allChecklists',
-            'levels',
-            'countChecklists',
-            'countPlanes'
-        ));
+        return view('kids.radar_chart2', $data);
     }
 
     private function getStatusValue($note)
