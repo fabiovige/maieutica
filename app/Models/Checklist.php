@@ -50,6 +50,25 @@ class Checklist extends Model
         return $this->hasMany(Plane::class);  // Um checklist pode ter vários planes
     }
 
+    public function getSituationLabelAttribute()
+    {
+        return self::SITUATION[$this->situation] ?? 'Desconhecido';
+    }
+    protected static function booted()
+    {
+        parent::booted();
+
+        static::creating(function ($checklist) {
+            // Antes de criar o novo checklist, fechar os anteriores do mesmo kid
+            Checklist::where('kid_id', $checklist->kid_id)
+                ->where('situation', 'a') // Apenas se estiver aberto
+                ->update(['situation' => 'f']);
+
+            // Garantir que o novo checklist esteja com situação 'a'
+            $checklist->situation = 'a';
+        });
+    }
+
     public static function calculatePercentage($request)
     {
         $queryBuilder = DB::table('checklist_competence AS cc')

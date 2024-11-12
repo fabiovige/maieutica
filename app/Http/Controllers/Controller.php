@@ -16,6 +16,8 @@ class Controller extends BaseController
 
     public $paginate = 15;
 
+    public const MSG_CLONE_SUCCESS = 'Checklist clonado com sucesso.';
+    public const MSG_CLONE_ERROR = 'Não foi possível clonar o checklist.';
     public const MSG_UPDATE_SUCCESS = 'Registro atualizado com sucesso.';
     public const MSG_CREATE_SUCCESS = 'Registro criado com sucesso.';
     public const MSG_DELETE_SUCCESS = 'Registro removido com sucesso.';

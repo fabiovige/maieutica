@@ -20,22 +20,23 @@
 
 @section('content')
     <div class="row" id="app">
-        <div class="col-md-4">            
-            @if (isset($kid))
+        @if (isset($kid))
+            <div class="col-md-4">                       
                 <Resume :responsible="{{ $kid->responsible()->first() }}"
                     :professional="{{ $kid->professional()->first() }}" :kid="{{ $kid }}"
                     :checklist="{{ $kid->checklists()->count() }}" :plane="{{ $kid->planes()->count() }}"
                     :months="{{ $kid->months }}">
                 </Resume>
-            @endif
-        </div>
-        <div class="col-md-8 mt-2">       
+            </div>
+        @endif
+        <div class="{{ isset($kid) ? 'col-md-8' : 'col-md-12' }} mt-2">       
             <h3>Checklists</h3>
             <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th>Checklist ID</th>
                         @if (!isset($kid))<th>Criança</th>@endif
+                        <th>Status</th>
                         <th>Data de criação</th>
                         <th>Média Geral do Desenvolvimento</th>
                         <th style="width: 100px;"></th>
@@ -46,6 +47,7 @@
                         <tr>
                             <td>{{ $checklist->id }}</td>
                             @if (!isset($kid))<td>{{ $checklist->kid->name }}</td>@endif
+                            <td>{{ $checklist->situation_label }}</td>
                             <td>{{ $checklist->created_at }}</td>
                             <td>
                             
@@ -70,6 +72,9 @@
                                         @can('fill checklists')
                                             <li><a class="dropdown-item" href="{{ route('kids.showPlane', $checklist->kid->id) }}"><i class="bi bi-check2-square"></i> Planos</a></li>
                                         @endcan
+                                        @can('create checklists')
+                                        <li><a class="dropdown-item" href="{{ route('checklists.clonar', $checklist->id) }}"><i class="bi bi-copy"></i> Clocar</a></li>
+                                    @endcan
                                     </ul>
                                 </div>
                             </td>
@@ -78,5 +83,84 @@
                 </tbody>
             </table>
         </div>
+        @if (isset($kid))
+            <div class="col-md-4">
+            </div>
+            <div class="{{ isset($kid) ? 'col-md-8' : 'col-md-12' }} mt-2">
+                <canvas id="barChart" width="400" height="300"></canvas>
+            </div>
+        @endif
     </div>
 @endsection
+
+@push("scripts")
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript">
+
+var ctxBar = document.getElementById('barChart').getContext('2d');
+
+var labels = @json($checklists->pluck('id')); // IDs dos checklists como labels
+
+var data = @json($checklists->pluck('developmentPercentage')); // Percentuais de desenvolvimento
+
+var barChart = new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Média Geral do Desenvolvimento (%)',
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)', // Azul para as barras
+                borderColor: 'rgba(54, 162, 235, 1)', // Azul para bordas das barras
+                borderWidth: 1,
+                type: 'bar'
+            },
+            {
+                label: 'Linha de Desenvolvimento',
+                data: data,
+                borderColor: 'rgba(255, 99, 132, 1)', // Vermelho para a linha
+                borderWidth: 2,
+                fill: false,
+                type: 'line',
+                tension: 0.3 // Suaviza a linha
+            }
+        ]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                suggestedMin: 0,
+                suggestedMax: 100,
+                title: {
+                    display: true,
+                    text: 'Percentual de Desenvolvimento (%)'
+                },
+                ticks: {
+                    stepSize: 10
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Checklists'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+
+</script>
+
+@endpush

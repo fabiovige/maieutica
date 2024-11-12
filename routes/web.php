@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ChecklistRegisterController;
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\CompetencesController;
 use App\Http\Controllers\KidsController;
@@ -24,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('checklists/{id}/chart', [ChecklistController::class, 'chart'])->name('checklists.chart');
     Route::get('checklists/{id}/fill', [ChecklistController::class, 'fill'])->name('checklists.fill');
     Route::get('checklists/register', [ChecklistController::class, 'register'])->name('checklists.register');
+    Route::get('checklists/{id}/clonar', [ChecklistController::class, 'clonarChecklist'])->name('checklists.clonar');
     Route::resource('checklists', ChecklistController::class);
 
     // kids
@@ -47,6 +49,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/competences/domains-by-level/{level_id}', [CompetencesController::class, 'getDomainsByLevel'])->name('competences.domainsByLevel');
     Route::get('/competences/clear-filters', [CompetencesController::class, 'clearFilters'])->name('competences.clearFilters');
     Route::resource('competences', CompetencesController::class);
+
+
 
 });
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ChecklistRequest;
 use App\Models\Checklist;
+use App\Models\ChecklistCompetence;
 use App\Models\ChecklistRegister;
 use App\Models\Competence;
 use App\Models\Domain;
@@ -32,10 +33,10 @@ class ChecklistController extends Controller
             $kid = Kid::findOrFail($request->kidId);
             $queryChecklists->where('kid_id', $request->kidId);
         }
-        $checklists = $queryChecklists->orderBy('id', 'DESC')->get();
+        $checklists = $queryChecklists->orderBy('id','ASC')->get();
         
-        foreach ($checklists as $key => $checklist) {
-            $checklists[$key]->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
+        foreach ($checklists as $key1 => $checklist1) {
+            $checklists[$key1]->developmentPercentage = $this->percentualDesenvolvimento($checklist1->id);
         }
         return view('checklists.index', compact('checklists', 'kid'));
     }
@@ -284,6 +285,8 @@ class ChecklistController extends Controller
             Log::info($message);
             $checklist = Checklist::findOrFail($id);
             $data = [
+                'is_admin' => auth()->user()->isAdmin(),
+                'situation' => $checklist->situation,
                 'checklist_id' => $id,
                 'level_id' => $checklist->level,
                 'created_at' => $checklist->created_at->format('d/m/Y').' Cod. '.$id,
@@ -398,6 +401,63 @@ class ChecklistController extends Controller
         }
         $averagePercentage = round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0 , 2); 
         return $averagePercentage;
+    }
+
+    public function clonarChecklist($id) {
+        if (!auth()->user()->can('create checklists')) {
+            flash('Você não tem permissão para clonar checklists.')->warning();
+            return redirect()->route('checklists.index');
+        }
+        try {
+            DB::beginTransaction();
+            $checklistAtual = Checklist::findOrFail($id);
+            
+            $data = [];
+            $data['kid_id'] = $checklistAtual->kid_id; 
+            $data['situation'] = 'a'; 
+            $data['level'] = $checklistAtual->level;
+            $data['created_by'] = Auth::id();
+
+            // checklist
+            $checklist = Checklist::create($data);
+            
+            // Plane
+            $plane = Plane::create([
+                'kid_id' => $checklistAtual->kid_id,
+                'checklist_id' => $checklist->id,
+                'created_by' => Auth::id(),
+            ]);
+
+            // levels
+            $arrLevel = [];
+            for ($i = 1; $i <= $data['level']; $i++) {
+                $arrLevel[] = $i;
+            }
+
+            foreach ($arrLevel as $c => $level) {
+                $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();                
+                $notes = [];
+                foreach ($components as $c => $competence_id) {
+                    $chechlistCompetente = ChecklistCompetence::where('checklist_id', $checklistAtual->id)->where('competence_id', $competence_id)->first();
+                    $notes[$competence_id] = ['note' => $chechlistCompetente['note']];
+                }
+                $checklist->competences()->syncWithoutDetaching($notes);
+            }
+
+            DB::commit();
+            flash(self::MSG_CLONE_SUCCESS)->success();
+
+            return redirect()->route('checklists.index', ['kidId' => $checklistAtual->kid_id]);            
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            $message = label_case('Fill Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+
+            log($message, $e->getMessage());
+            flash(self::MSG_CLONE_ERROR)->success();
+            return redirect()->route('checklists.index');   
+        }
     }
 
 }

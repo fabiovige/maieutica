@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Checklist;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
 class ChecklistPolicy
 {
@@ -69,9 +70,20 @@ class ChecklistPolicy
      */
     public function update(User $user, Checklist $checklist): bool
     {
+        if ($checklist->situation === 'f' && !$user->hasRole('admin')) {
+            return false;
+        }
+    
+        // Se o usuário for admin, permitir
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
         // Permite atualizar se o usuário é o criador do checklist
-        return $user->can('edits checklists') &&
-           ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id);
+        return $user->can('edits checklists') && 
+                ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id)
+                ? Response::allow()
+                : Response::deny('Você não tem permissão para atualizar este checklist.');
     }
 
     /**
