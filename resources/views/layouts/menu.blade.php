@@ -21,6 +21,14 @@
     </li>
     @endcan
 
+    @can('list checklists')
+    <li class="nav-item">
+        <a class="nav-link @if (request()->is('checklists*')) active @endif"
+           aria-current="page"
+           href="{{ route('checklists.index') }}">Checklists</a>
+    </li>
+    @endcan
+
     @can('list roles')
         <li class="nav-item">
             <a class="nav-link @if (request()->is('roles*')) active @endif"

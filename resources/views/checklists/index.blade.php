@@ -20,22 +20,23 @@
 
 @section('content')
     <div class="row" id="app">
-        <div class="col-md-4">            
-            @if (isset($kid))
+        @if (isset($kid))
+            <div class="col-md-4">                       
                 <Resume :responsible="{{ $kid->responsible()->first() }}"
                     :professional="{{ $kid->professional()->first() }}" :kid="{{ $kid }}"
                     :checklist="{{ $kid->checklists()->count() }}" :plane="{{ $kid->planes()->count() }}"
                     :months="{{ $kid->months }}">
                 </Resume>
-            @endif
-        </div>
-        <div class="col-md-8 mt-2">       
+            </div>
+        @endif
+        <div class="{{ isset($kid) ? 'col-md-8' : 'col-md-12' }} mt-2">       
             <h3>Checklists</h3>
             <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th>Checklist ID</th>
                         @if (!isset($kid))<th>Criança</th>@endif
+                        <th>Status</th>
                         <th>Data de criação</th>
                         <th>Média Geral do Desenvolvimento</th>
                         <th style="width: 100px;"></th>
@@ -46,6 +47,7 @@
                         <tr>
                             <td>{{ $checklist->id }}</td>
                             @if (!isset($kid))<td>{{ $checklist->kid->name }}</td>@endif
+                            <td>{{ $checklist->situation_label }}</td>
                             <td>{{ $checklist->created_at }}</td>
                             <td>
                             
@@ -70,6 +72,9 @@
                                         @can('fill checklists')
                                             <li><a class="dropdown-item" href="{{ route('kids.showPlane', $checklist->kid->id) }}"><i class="bi bi-check2-square"></i> Planos</a></li>
                                         @endcan
+                                        @can('create checklists')
+                                        <li><a class="dropdown-item" href="{{ route('checklists.clonar', $checklist->id) }}"><i class="bi bi-copy"></i> Clocar</a></li>
+                                    @endcan
                                     </ul>
                                 </div>
                             </td>
@@ -78,11 +83,13 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-md-4">
-        </div>
-        <div class="col-md-8">
-            <canvas id="barChart" width="400" height="200"></canvas>
-        </div>
+        @if (isset($kid))
+            <div class="col-md-4">
+            </div>
+            <div class="{{ isset($kid) ? 'col-md-8' : 'col-md-12' }} mt-2">
+                <canvas id="barChart" width="400" height="300"></canvas>
+            </div>
+        @endif
     </div>
 @endsection
 

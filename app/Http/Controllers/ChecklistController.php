@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ChecklistRequest;
 use App\Models\Checklist;
+use App\Models\ChecklistCompetence;
 use App\Models\ChecklistRegister;
 use App\Models\Competence;
 use App\Models\Domain;
@@ -398,6 +399,63 @@ class ChecklistController extends Controller
         }
         $averagePercentage = round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0 , 2); 
         return $averagePercentage;
+    }
+
+    public function clonarChecklist($id) {
+        if (!auth()->user()->can('create checklists')) {
+            flash('Você não tem permissão para clonar checklists.')->warning();
+            return redirect()->route('checklists.index');
+        }
+        try {
+            DB::beginTransaction();
+            $checklistAtual = Checklist::findOrFail($id);
+            
+            $data = [];
+            $data['kid_id'] = $checklistAtual->kid_id; 
+            $data['situation'] = 'a'; 
+            $data['level'] = $checklistAtual->level;
+            $data['created_by'] = Auth::id();
+
+            // checklist
+            $checklist = Checklist::create($data);
+            
+            // Plane
+            $plane = Plane::create([
+                'kid_id' => $checklistAtual->kid_id,
+                'checklist_id' => $checklist->id,
+                'created_by' => Auth::id(),
+            ]);
+
+            // levels
+            $arrLevel = [];
+            for ($i = 1; $i <= $data['level']; $i++) {
+                $arrLevel[] = $i;
+            }
+
+            foreach ($arrLevel as $c => $level) {
+                $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();                
+                $notes = [];
+                foreach ($components as $c => $competence_id) {
+                    $chechlistCompetente = ChecklistCompetence::where('checklist_id', $checklistAtual->id)->where('competence_id', $competence_id)->first();
+                    $notes[$competence_id] = ['note' => $chechlistCompetente['note']];
+                }
+                $checklist->competences()->syncWithoutDetaching($notes);
+            }
+
+            DB::commit();
+            flash(self::MSG_CLONE_SUCCESS)->success();
+
+            return redirect()->route('checklists.index', ['kidId' => $checklistAtual->kid_id]);            
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            $message = label_case('Fill Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+
+            log($message, $e->getMessage());
+            flash(self::MSG_CLONE_ERROR)->success();
+            return redirect()->route('checklists.index');   
+        }
     }
 
 }
