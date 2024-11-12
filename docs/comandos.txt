@@ -1,4 +1,4 @@
-git tag -a 1.2.19 -m "Release 1.2.19 - correção de rota"
+git tag -a 1.2.20 -m "Release 1.2.20 - congelamento de checklist fechado e clone de checklist"
 
 git push --tags
 
