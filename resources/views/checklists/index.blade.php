@@ -78,5 +78,82 @@
                 </tbody>
             </table>
         </div>
+        <div class="col-md-4">
+        </div>
+        <div class="col-md-8">
+            <canvas id="barChart" width="400" height="200"></canvas>
+        </div>
     </div>
 @endsection
+
+@push("scripts")
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript">
+
+var ctxBar = document.getElementById('barChart').getContext('2d');
+
+var labels = @json($checklists->pluck('id')); // IDs dos checklists como labels
+
+var data = @json($checklists->pluck('developmentPercentage')); // Percentuais de desenvolvimento
+
+var barChart = new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Média Geral do Desenvolvimento (%)',
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)', // Azul para as barras
+                borderColor: 'rgba(54, 162, 235, 1)', // Azul para bordas das barras
+                borderWidth: 1,
+                type: 'bar'
+            },
+            {
+                label: 'Linha de Desenvolvimento',
+                data: data,
+                borderColor: 'rgba(255, 99, 132, 1)', // Vermelho para a linha
+                borderWidth: 2,
+                fill: false,
+                type: 'line',
+                tension: 0.3 // Suaviza a linha
+            }
+        ]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                suggestedMin: 0,
+                suggestedMax: 100,
+                title: {
+                    display: true,
+                    text: 'Percentual de Desenvolvimento (%)'
+                },
+                ticks: {
+                    stepSize: 10
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Checklists'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+
+</script>
+
+@endpush

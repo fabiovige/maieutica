@@ -32,10 +32,10 @@ class ChecklistController extends Controller
             $kid = Kid::findOrFail($request->kidId);
             $queryChecklists->where('kid_id', $request->kidId);
         }
-        $checklists = $queryChecklists->orderBy('id', 'DESC')->get();
+        $checklists = $queryChecklists->orderBy('id','ASC')->get();
         
-        foreach ($checklists as $key => $checklist) {
-            $checklists[$key]->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
+        foreach ($checklists as $key1 => $checklist1) {
+            $checklists[$key1]->developmentPercentage = $this->percentualDesenvolvimento($checklist1->id);
         }
         return view('checklists.index', compact('checklists', 'kid'));
     }
