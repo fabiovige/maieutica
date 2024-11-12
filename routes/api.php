@@ -38,6 +38,7 @@ Route::get('planes/showbykids/{kid_id}/{checklist_id}', [PlaneController::class,
 Route::apiResource('planes', PlaneController::class);
 
 // checklistregisters
+Route::post('/checklistregisters/single', [ChecklistRegisterController::class, 'storeSingle']);
 Route::get('checklistregisters/progressbar/{checklist_id}/{level_id}', [ChecklistRegisterController::class, 'progressbar'])->name('api.checklistregisters.progressbar');
 Route::apiResource('checklistregisters', ChecklistRegisterController::class);
 

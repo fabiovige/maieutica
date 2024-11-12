@@ -1,4 +1,4 @@
-import { ref, inject } from 'vue'
+import { inject, ref } from 'vue'
 
 export default function useChecklistRegisters() {
 
@@ -60,11 +60,28 @@ export default function useChecklistRegisters() {
             })
     }
 
+    const storeChecklistRegisterSingle = async (data) => {
+        checkIsLoading.value = true;
+        await axios.post('/api/checklistregisters/single', data)
+            .then(response => {
+                getProgressBar(data.checklist_id, data.totalLevel);
+            })
+            .catch(error => {
+                if (error.response?.data) {
+                    // Trate erros aqui, se necessário
+                }
+            })
+            .finally(() => {
+                checkIsLoading.value = false;
+            });
+    };
+
     return {
         getChecklistRegister,
         storeChecklistRegister,
         getProgressBar,
         progressbar,
-        checkIsLoading
+        checkIsLoading,
+        storeChecklistRegisterSingle,
     }
 }

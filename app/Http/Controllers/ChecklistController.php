@@ -285,6 +285,8 @@ class ChecklistController extends Controller
             Log::info($message);
             $checklist = Checklist::findOrFail($id);
             $data = [
+                'is_admin' => auth()->user()->isAdmin(),
+                'situation' => $checklist->situation,
                 'checklist_id' => $id,
                 'level_id' => $checklist->level,
                 'created_at' => $checklist->created_at->format('d/m/Y').' Cod. '.$id,
