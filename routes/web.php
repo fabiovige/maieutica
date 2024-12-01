@@ -33,6 +33,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('kids/{kidId}/level/{levelId}/overview', [KidsController::class, 'overview'])->name('kids.overview.level');
 
     Route::get('kids/{id}/pdfplane', [KidsController::class, 'pdfPlane'])->name('kids.pdfplane');
+    Route::get('kids/pdfplaneauto/{id}/{checklistId}/{note}', [KidsController::class, 'pdfPlaneAuto'])->name('kids.pdfplaneauto');
+    Route::get('kids/pdfplaneauto/{id}/{checklistId}/{note}/view', [KidsController::class, 'pdfPlaneAutoView'])->name('kids.pdfplaneautoview');
     Route::get('kids/{kid}/show-plane{checklistId?}', [KidsController::class, 'showPlane'])->name('kids.showPlane');
     Route::get('kids/{kid}/eye', [KidsController::class, 'eyeKid'])->name('kids.eye');
     Route::post('kids/{kid}/upload-photo', [KidsController::class, 'uploadPhoto'])->name('kids.upload.photo');
@@ -50,7 +52,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/competences/clear-filters', [CompetencesController::class, 'clearFilters'])->name('competences.clearFilters');
     Route::resource('competences', CompetencesController::class);
 
-
+    // plane automatic
+    Route::get('kid/plane-automatic/{kidId}/{checklistId}', [App\Http\Controllers\PlaneAutomaticController::class, 'index'])->name('kid.plane-automatic');
 
 });
 
@@ -75,6 +78,6 @@ Route::get('logs', function () {
 //Route::get('/teste',  [KidsController::class, 'teste'])->name('kids.teste');
 //Route::get('/teste/{kidId}/level/{levelId}', [KidsController::class, 'showRadarChart'])->name('kids.radarChart');
 Route::get('/analysis/{kidId}/level/{levelId}/{checklist?}', [KidsController::class, 'showRadarChart2'])->name('kids.radarChart2');
-Route::get('//{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
+Route::get('/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
 // routes/web.php
 Route::post('/kids/{kidId}/overview/generate-pdf', [KidsController::class, 'generatePdf'])->name('kids.generatePdf');

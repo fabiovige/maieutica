@@ -1,0 +1,59 @@
+/* Cards de Status de Avaliação */
+.card {
+    border: none;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 1rem;
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    background: #f8f9fa;
+    font-size: 1.5rem;
+    color: #0d6efd;
+}
+
+.card h6 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #212529;
+    margin: 0;
+}
+
+.text-muted.small {
+    font-size: 0.8rem;
+}
+
+/* Cores específicas para cada status */
+.card:nth-child(1) .card-icon { /* Não observado */
+    background: #fff3cd;
+    color: #856404;
+}
+
+.card:nth-child(2) .card-icon { /* Mais ou menos */
+    background: #cce5ff;
+    color: #004085;
+}
+
+.card:nth-child(3) .card-icon { /* Difícil de obter */
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.card:nth-child(4) .card-icon { /* Consistente */
+    background: #d4edda;
+    color: #155724;
+}

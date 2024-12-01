@@ -46,9 +46,9 @@
                         </td>
                         <td class="customColumn">
                             <h5 v-if="competence.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
-                            <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Incapaz</span></h5>
-                            <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Em processo</span></h5>
-                            <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Adquirido</span></h5>
+                            <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Difícil de obter</span></h5>
+                            <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Mais ou menos</span></h5>
+                            <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Consistente</span></h5>
                         </td>
                     </tr>
                     </tbody>
@@ -120,9 +120,9 @@
                                             </div>
                                             <div>
                                                 <h5 v-if="competence.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
-                                                <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Incapaz</span></h5>
-                                                <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Em processo</span></h5>
-                                                <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Adquirido</span></h5>                                            
+                                                <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Difícil de obter</span></h5>
+                                                <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Mais ou menos</span></h5>
+                                                <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Consistente</span></h5>                                            
                                             </div>
                                         </div>
                                     </td>

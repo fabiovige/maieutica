@@ -109,4 +109,33 @@ class Checklist extends Model
 
         return $query;
     }
+
+    public function getStatusAvaliation($checklistId)
+    {
+        return DB::table('checklist_competence')
+            ->select(
+                DB::raw('COUNT(competence_id) as total_competences'),
+                'note',
+                DB::raw("CASE
+                    WHEN note = 0 THEN 'Não observado'
+                    WHEN note = 1 THEN 'Mais ou menos'
+                    WHEN note = 2 THEN 'Difícil de obter'
+                    WHEN note = 3 THEN 'Consistente'
+                END as note_description")
+            )
+            ->where('checklist_id', $checklistId)
+            ->groupBy('note')
+            ->get();
+    }
+
+    public static function getCompetencesByNote($checklistId, $note)
+    {
+        return DB::table('checklist_competence as cc')
+            ->join('competences as c', 'c.id', '=', 'cc.competence_id')
+            ->join('domains as d', 'd.id', '=', 'c.domain_id')
+            ->select('c.id', 'd.name as domain_name', 'c.level_id', 'c.description')
+            ->where('cc.checklist_id', $checklistId)
+            ->where('cc.note', $note)
+            ->get();
+    }
 }

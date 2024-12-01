@@ -13,7 +13,7 @@ class Plane extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['kid_id', 'checklist_id','created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['kid_id', 'checklist_id','created_by'];
 
     protected $casts = [
         'created_at' => 'datetime:d/m/Y',

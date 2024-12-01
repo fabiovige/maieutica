@@ -80,22 +80,22 @@
                         <td>{{ $competenceData['description'] ?? '' }}</td>
                         <td nowrap>
                             @if($competenceData['currentStatusValue'] === 1)
-                            Incapaz
+                            Difícil de obter
                             @elseif($competenceData['currentStatusValue'] === 2)
-                            Em Processo
+                            Mais ou menos
                             @elseif($competenceData['currentStatusValue'] === 3)
-                            Adquirido
+                            Consistente
                             @else
                             Não Avaliado
                             @endif
                         </td>
                         <td nowrap>
                             @if($competenceData['previousStatusValue'] === 1)
-                            Incapaz
+                            Difícil de obter
                             @elseif($competenceData['previousStatusValue'] === 2)
-                            Em Processo
+                            Mais ou menos
                             @elseif($competenceData['previousStatusValue'] === 3)
-                            Adquirido
+                            Consistente
                             @else
                             Não Avaliado
                             @endif
@@ -186,9 +186,9 @@
                         stepSize: 1,
                         callback: function(value) {
                             if (value === 0) return 'Não Avaliado';
-                            if (value === 1) return 'Incapaz';
-                            if (value === 2) return 'Em Processo';
-                            if (value === 3) return 'Adquirido';
+                            if (value === 1) return 'Difícil de obter';
+                            if (value === 2) return 'Mais ou menos';
+                            if (value === 3) return 'Consistente';
                             return value;
                         }
                     }

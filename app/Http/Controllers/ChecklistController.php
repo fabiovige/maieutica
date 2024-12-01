@@ -21,7 +21,7 @@ use Yajra\DataTables\DataTables;
 class ChecklistController extends Controller
 {
     public function index(Request $request)
-    {        
+    {
         $this->authorize('viewAny', Checklist::class);
 
         $message = label_case('Index Checklists ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
@@ -34,10 +34,11 @@ class ChecklistController extends Controller
             $queryChecklists->where('kid_id', $request->kidId);
         }
         $checklists = $queryChecklists->orderBy('id','ASC')->get();
-        
+
         foreach ($checklists as $key1 => $checklist1) {
             $checklists[$key1]->developmentPercentage = $this->percentualDesenvolvimento($checklist1->id);
         }
+
         return view('checklists.index', compact('checklists', 'kid'));
     }
 
@@ -377,7 +378,7 @@ class ChecklistController extends Controller
             foreach ($competences as $competence) {
                 $evaluation = $currentEvaluations->get($competence->id);
 
-                if ($evaluation && $evaluation->note == 3) { // note 3 significa 'Adquirido'
+                if ($evaluation && $evaluation->note == 3) { // note 3 significa 'Consistente'
                     $itemsValid++;
                 }
             }
@@ -399,7 +400,7 @@ class ChecklistController extends Controller
             $percentage = $domain['itemsTested'] > 0 ? ($domain['itemsValid'] / $domain['itemsTested']) * 100 : 0;
             $totalPercentageGeral += $percentage;
         }
-        $averagePercentage = round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0 , 2); 
+        $averagePercentage = round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0 , 2);
         return $averagePercentage;
     }
 
@@ -411,16 +412,16 @@ class ChecklistController extends Controller
         try {
             DB::beginTransaction();
             $checklistAtual = Checklist::findOrFail($id);
-            
+
             $data = [];
-            $data['kid_id'] = $checklistAtual->kid_id; 
-            $data['situation'] = 'a'; 
+            $data['kid_id'] = $checklistAtual->kid_id;
+            $data['situation'] = 'a';
             $data['level'] = $checklistAtual->level;
             $data['created_by'] = Auth::id();
 
             // checklist
             $checklist = Checklist::create($data);
-            
+
             // Plane
             $plane = Plane::create([
                 'kid_id' => $checklistAtual->kid_id,
@@ -435,7 +436,7 @@ class ChecklistController extends Controller
             }
 
             foreach ($arrLevel as $c => $level) {
-                $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();                
+                $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();
                 $notes = [];
                 foreach ($components as $c => $competence_id) {
                     $chechlistCompetente = ChecklistCompetence::where('checklist_id', $checklistAtual->id)->where('competence_id', $competence_id)->first();
@@ -447,7 +448,7 @@ class ChecklistController extends Controller
             DB::commit();
             flash(self::MSG_CLONE_SUCCESS)->success();
 
-            return redirect()->route('checklists.index', ['kidId' => $checklistAtual->kid_id]);            
+            return redirect()->route('checklists.index', ['kidId' => $checklistAtual->kid_id]);
 
         } catch (Exception $e) {
             DB::rollBack();
@@ -456,7 +457,7 @@ class ChecklistController extends Controller
 
             log($message, $e->getMessage());
             flash(self::MSG_CLONE_ERROR)->success();
-            return redirect()->route('checklists.index');   
+            return redirect()->route('checklists.index');
         }
     }
 
