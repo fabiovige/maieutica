@@ -25,7 +25,7 @@
 
     <div class="row" id="app">
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-4">
 
                 <Resume
                     :responsible="{{ $kid->responsible()->first() }}"
@@ -49,7 +49,7 @@
                 <p><strong>Checklist de Comparação:</strong> Não disponível</p>
                 @endif
             </div>
-            <div class="col-md-7 justify-content-center">
+            <div class="col-md-8 justify-content-center">
                 <canvas id="radarChartCompetences" width="200" height="200"></canvas>
             </div>
         </div>
