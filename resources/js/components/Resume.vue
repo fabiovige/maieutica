@@ -1,19 +1,13 @@
 <template>
-  <div>
-    <div class="row py-2">
-      <div class="">
-        <h3>Informações da Criança</h3>
-        <div class="card mb-4">
-          <div class="card-body shadown text-center" >
-            {{ kid.FullNameMonths }}
-            <img :src="getKidPhotoUrl(kid.photo)" :alt="kid.name" width="150" class="rounded-img">
-            <h5 class="mt-3">{{ kid.name }}</h5>
-            <p class="text-muted mb-1"> 
-              Dt. Nasc. {{ kid.birth_date }} ( {{ months }} meses )
-            </p>
-          </div>
-        </div>
-      </div>
+  <h3>Informações da Criança</h3>
+  <div class="card mb-4">
+    <div class="card-body shadown text-center">
+      {{ kid.FullNameMonths }}
+      <img :src="getKidPhotoUrl(kid.photo)" :alt="kid.name" width="150" class="rounded-img">
+      <h5 class="mt-3">{{ kid.name }}</h5>
+      <p class="text-muted mb-1">
+        Dt. Nasc. {{ kid.birth_date }} ( {{ months }} meses )
+      </p>
     </div>
   </div>
 </template>
@@ -25,12 +19,12 @@ import "vue3-loading-overlay/dist/vue3-loading-overlay.css";
 export default {
   name: "Resume",
   props: {
-        kid: Object,
-        responsible: Object,
-        professional: Object,
-        checklist: Number,
-        months: Number,
-    },
+    kid: Object,
+    responsible: Object,
+    professional: Object,
+    checklist: Number,
+    months: Number,
+  },
   setup(props) {
     const fullPage = ref(true);
     const kid = ref(props.kid);
@@ -40,26 +34,26 @@ export default {
     const plane = ref(props.plane);
     const months = ref(props.months);
 
-    onMounted(() => {});
+    onMounted(() => { });
 
     function selectKid() {
-        window.location.href = "/analysis/" + this.kid.id + "/level/1";
+      window.location.href = "/analysis/" + this.kid.id + "/level/1";
     }
-    
-    function getKidPhotoUrl(photo) {
-            if (photo) {
-                return `/storage/${photo}`;
-            }
 
-            // Gera um número aleatório entre 1 e 13
-            const randomAvatarNumber = Math.floor(Math.random() * 13) + 1;
-            return `/storage/kids_avatars/avatar${randomAvatarNumber}.png`; // Usa um avatar aleatório de 1 a 13
-        }
+    function getKidPhotoUrl(photo) {
+      if (photo) {
+        return `/storage/${photo}`;
+      }
+
+      // Gera um número aleatório entre 1 e 13
+      const randomAvatarNumber = Math.floor(Math.random() * 13) + 1;
+      return `/storage/kids_avatars/avatar${randomAvatarNumber}.png`; // Usa um avatar aleatório de 1 a 13
+    }
 
     return {
-      kid,checklist, plane,
+      kid, checklist, plane,
       responsible, professional,
-      fullPage,getKidPhotoUrl,
+      fullPage, getKidPhotoUrl,
       months, selectKid
     };
   },
@@ -68,10 +62,10 @@ export default {
 
 <style scoped>
 .mousePointer {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .mousePointer:hover {
-    background: #f8f9fa;
+  background: #f8f9fa;
 }
 </style>

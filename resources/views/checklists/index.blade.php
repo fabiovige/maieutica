@@ -60,6 +60,7 @@
                                     </td>
                                     <td>
                                         <div class="dropdown">
+                                            @can('edit checklists')
                                             <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
                                                     id="dropdownMenuButton"
                                                     data-bs-toggle="dropdown"
@@ -67,6 +68,7 @@
                                                     {{ $checklist->situation_label !== 'Aberto' ? 'disabled' : '' }}>
                                                 Ações
                                             </button>
+                                            @endcan
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                                 @if($checklist->situation_label === 'Aberto')
                                                     @can('edit checklists')

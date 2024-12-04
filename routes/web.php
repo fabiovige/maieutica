@@ -34,7 +34,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('kids/{id}/pdfplane', [KidsController::class, 'pdfPlane'])->name('kids.pdfplane');
     Route::get('kids/pdfplaneauto/{id}/{checklistId}/{note}', [KidsController::class, 'pdfPlaneAuto'])->name('kids.pdfplaneauto');
-    Route::get('kids/pdfplaneauto/{id}/{checklistId}/{note}/view', [KidsController::class, 'pdfPlaneAutoView'])->name('kids.pdfplaneautoview');
+    Route::get('kids/pdfplaneautoview/{id}/{checklistId}/{planeId}', [KidsController::class, 'pdfPlaneAutoView'])->name('kids.pdfplaneautoview');
     Route::get('kids/{kid}/show-plane{checklistId?}', [KidsController::class, 'showPlane'])->name('kids.showPlane');
     Route::get('kids/{kid}/eye', [KidsController::class, 'eyeKid'])->name('kids.eye');
     Route::post('kids/{kid}/upload-photo', [KidsController::class, 'uploadPhoto'])->name('kids.upload.photo');

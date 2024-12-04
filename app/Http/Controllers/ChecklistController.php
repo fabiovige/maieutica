@@ -29,14 +29,20 @@ class ChecklistController extends Controller
 
         $queryChecklists = Checklist::getChecklists();
         $kid = null;
-        if($request->kidId) {
-            $kid = Kid::findOrFail($request->kidId);
-            $queryChecklists->where('kid_id', $request->kidId);
+        if($request->kidId || auth()->user()->hasRole('pais')) {
+
+            if($request->kidId){
+                $kid = Kid::findOrFail($request->kidId);
+                $queryChecklists->where('kid_id', $request->kidId);
+            } elseif(auth()->user()->hasRole('pais')) {
+                $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
+                $queryChecklists->whereIn('kid_id', $kids);
+            }
         }
         $checklists = $queryChecklists->orderBy('id','ASC')->get();
 
-        foreach ($checklists as $key1 => $checklist1) {
-            $checklists[$key1]->developmentPercentage = $this->percentualDesenvolvimento($checklist1->id);
+        foreach ($checklists as $checklist) {
+            $checklist->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
         }
 
         return view('checklists.index', compact('checklists', 'kid'));

@@ -364,7 +364,7 @@ class KidsController extends Controller
 
             $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'));
+            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'), $plane->name);
 
             $totalDomain = count($arr);
             $countDomain = 1;
@@ -437,20 +437,22 @@ class KidsController extends Controller
             // criar o plane
             $dataCreatePlane = [
                 'kid_id' => $kid->id, // Usar o id do modelo encontrado
+                'name' => Plane::NOTES_DESCRIPTION[$note],
                 'checklist_id' => $checklist->id, // Usar o id do modelo encontrado
                 'created_by' => auth()->user()->id,
             ];
 
             // Criar o plane dentro de uma transação
-            DB::beginTransaction();
-            try {
+
+
+            $existingPlane = Plane::where('kid_id', $kid->id)->where('checklist_id', $checklist->id)->where('is_active', true)->first();
+            if ($existingPlane) {
+                //throw new Exception('Já existe um plano ativo para esta criança.');
+                $plane = $existingPlane;
+            } else {
                 $plane = Plane::create($dataCreatePlane);
-                DB::commit();
-            } catch (\Exception $e) {
-                DB::rollBack();
-                Log::error('Erro ao criar plane: ' . $e->getMessage());
-                throw new Exception('Erro ao criar o plano: ' . $e->getMessage());
             }
+
 
             // get kid
             $nameKid = $kid->name;
@@ -471,6 +473,99 @@ class KidsController extends Controller
 
             // get competences do plane
             $competences = $plane->competences()->get();
+
+            foreach ($competences as $c => $competence) {
+                $initial = $competence->domain()->first()->initial;
+                $arr[$initial]['domain'] = $competence->domain()->first();
+                $arr[$initial]['competences'][] = $competence;
+            }
+
+            $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'), $plane->name);
+
+            $totalDomain = count($arr);
+            $countDomain = 1;
+
+            foreach ($arr as $initial => $v) {
+                $countCompetences = 1;
+                $pdf->AddPage();
+
+                $pdf->Ln(5);
+                $pdf->SetFont('helvetica', 'B', 14);
+
+                // Domain
+                $domain = $v['domain']->name;
+                $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
+
+                foreach ($v['competences'] as $k => $competence) {
+
+                    if ($countCompetences == 8) {
+                        $pdf->AddPage();
+                        $countCompetences = 1;
+                    }
+                    $countCompetences++;
+
+                    $pdf->Ln(5);
+                    $pdf->SetFont('helvetica', 'B', 10);
+                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
+                    $pdf->Ln(5);
+                    $pdf->Write(0, $txt, '', 0, 'L', true);
+
+                    $pdf->Ln(1);
+                    $pdf->SetFont('helvetica', 'I', 8);
+                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
+
+                    $pdf->Ln(4);
+                    $pdf->SetFont('helvetica', '', 9);
+                    $etapas = 'Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____';
+                    $pdf->Write(0, $etapas, '', 0, 'L', true);
+                }
+            }
+
+            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
+        } catch (Exception $e) {
+            Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
+            flash($e->getMessage())->error();
+            return redirect()->back();
+        }
+    }
+
+    public function pdfPlaneAutoView($kidId, $checklislId, $planeId)
+    {
+        try {
+            // Primeiro, verificar se o kid existe
+            $kid = Kid::findOrFail($kidId);
+
+            // Verificar se o checklist existe
+            $checklist = Checklist::findOrFail($checklislId);
+
+            // Verificar se o checklist pertence ao kid
+            if ($checklist->kid_id != $kidId) {
+                throw new Exception('Este checklist não pertence a esta criança.');
+            }
+
+            // obter o plane
+            $plane = Plane::findOrFail($planeId);
+
+            // verificar se o plane pertence ao checklist
+            if ($plane->checklist_id != $checklist->id) {
+                throw new Exception('Este plano não pertence a este checklist.');
+            }
+
+            // get kid
+            $nameKid = $kid->name;
+            $therapist = $kid->professional->name;
+            $date = $plane->first()->created_at;
+            $arr = [];
+
+            // get competences do plane
+            $competences = $plane->competences()->get();
+
+            // verificar se existe competencias
+            if (count($competences) == 0) {
+                throw new Exception('Não existem competências para este plano.');
+            }
 
             foreach ($competences as $c => $competence) {
                 $initial = $competence->domain()->first()->initial;
@@ -529,7 +624,7 @@ class KidsController extends Controller
         }
     }
 
-    private function preferences(&$pdf, $kid, $therapist, $plane_id, $date)
+    private function preferences(&$pdf, $kid, $therapist, $plane_id, $date, $planeName)
     {
         $preferences = [
             'HideToolbar' => true,
@@ -552,21 +647,28 @@ class KidsController extends Controller
 
         $pdf->setViewerPreferences($preferences);
         $pdf->AddPage();
+
         $pdf->SetFont('helvetica', '', 18);
-        $pdf->Cell(0, 75, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
-        $pdf->SetFont('helvetica', '', 12);
-        $txt = 'Profissional: ' . $therapist . ',  Data: ' . $date;
-        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
+        $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
+
+        $pdf->SetFont('helvetica', '', 14);
+        $pdf->Write(0, 'Profissional: '.$therapist, '', 0, 'C', true, 0, false, false, 0);
+
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Write(0, 'Data: '.$date, '', 0, 'C', true, 0, false, false, 0);
+
         $pdf->Ln(15);
-        $pdf->SetFont('helvetica', '', 18);
+        $pdf->SetFont('helvetica', '', 14);
         $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(2);
 
-        $pdf->SetFont('helvetica', '', 11);
+        $pdf->SetFont('helvetica', '', 10);
         $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(3);
 
-        $pdf->SetFont('helvetica', '', 14);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Write(0, '('.$planeName.')', '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(3);
     }
 
     public function uploadPhoto(HttpRequest $request, Kid $kid)
@@ -1860,7 +1962,7 @@ class KidsController extends Controller
 
         // **Adicionar a foto da criança**
         // Obter o caminho da foto da criança
-        $photoPath = storage_path( 'app/public/' . $kid->photo);
+        $photoPath = storage_path('app/public/' . $kid->photo);
         //dd($photoPath);
         // Verificar se o arquivo existe
         if (file_exists($photoPath)) {
@@ -1869,7 +1971,7 @@ class KidsController extends Controller
             // Obter a largura da página
             $pageWidth = $pdf->getPageWidth();
             // Calcular a posição X para centralizar
-            $x = round(($pageWidth - $photoWidth) / 2, 0 );
+            $x = round(($pageWidth - $photoWidth) / 2, 0);
             // Adicionar a foto da criança
             //dd($x);
             $pdf->Image($photoPath, 80, null, $photoWidth, $photoWidth, '', '', 'C', false, 72);

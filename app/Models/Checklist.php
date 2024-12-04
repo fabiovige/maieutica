@@ -104,7 +104,7 @@ class Checklist extends Model
             $query->whereHas('kid', function ($q) {
                 $q->where('responsible_id', auth()->user()->id);
             })
-                ->with(['kid']);
+            ->with(['kid']);
         }
 
         return $query;
