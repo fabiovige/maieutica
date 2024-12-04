@@ -44,3 +44,5 @@ Route::apiResource('checklistregisters', ChecklistRegisterController::class);
 
 // charts
 Route::get('charts/percentage', [ChartController::class, 'percentage'])->name('api.charts.percentage');
+
+Route::get('checklists/{checklist}/competences/{note}', [App\Http\Controllers\Api\ChecklistController::class, 'getCompetencesByNote']);

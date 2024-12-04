@@ -167,9 +167,9 @@
                         stepSize: 1,
                         callback: function(value) {
                             if (value === 0) return 'Não Avaliado';
-                            if (value === 1) return 'Incapaz';
-                            if (value === 2) return 'Em Processo';
-                            if (value === 3) return 'Adquirido';
+                            if (value === 1) return 'Difícil de obter';
+                            if (value === 2) return 'Mais ou menos';
+                            if (value === 3) return 'Consistente';
                             return value;
                         }
                     }
@@ -193,9 +193,9 @@
                     ticks: {
                         stepSize: 1,
                         callback: function(value) {
-                            if (value === 1) return 'Incapaz';
-                            if (value === 2) return 'Em Processo';
-                            if (value === 3) return 'Adquirido';
+                            if (value === 1) return 'Difícil de obter';
+                            if (value === 2) return 'Mais ou menos';
+                            if (value === 3) return 'Consistente';
                             return value;
                         }
                     },

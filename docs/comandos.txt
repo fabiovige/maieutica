@@ -1,4 +1,4 @@
-git tag -a 1.2.20 -m "Release 1.2.20 - congelamento de checklist fechado e clone de checklist"
+git tag -a 1.3.0 -m "Release 1.3.0 - implementação de plano automático"
 
 git push --tags
 

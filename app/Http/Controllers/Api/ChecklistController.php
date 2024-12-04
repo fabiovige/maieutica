@@ -6,6 +6,7 @@ use App\Http\Resources\ChecklistResource;
 use App\Models\Checklist;
 use App\Models\Competence;
 use App\Models\Level;
+use Illuminate\Support\Facades\DB;
 
 class ChecklistController
 {
@@ -35,5 +36,11 @@ class ChecklistController
         }
 
         return $arrCompetences;
+    }
+
+    public function getCompetencesByNote($checklistId, $note)
+    {
+        $competences = Checklist::getCompetencesByNote($checklistId, $note);
+        return response()->json($competences);
     }
 }

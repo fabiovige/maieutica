@@ -26,11 +26,11 @@
                 <td>{{ $result['competence'] }}</td>
                 <td>
                     @if($result['note'] === 1)
-                        N (Incapaz)
+                        N (Difícil de obter)
                     @elseif($result['note'] === 2)
                         P (Parcial)
                     @elseif($result['note'] === 3)
-                        A (Adquirido)
+                        A (Consistente)
                     @elseif($result['note'] === 0)
                         X (Não Observado)
                     @else
@@ -72,9 +72,9 @@
                     ticks: {
                         stepSize: 1,
                         callback: function(value) {
-                            if (value === 1) return 'Incapaz';
-                            if (value === 2) return 'Em processo';
-                            if (value === 3) return 'Adquirido';
+                            if (value === 1) return 'Difícil de obter';
+                            if (value === 2) return 'Mais ou menos';
+                            if (value === 3) return 'Consistente';
                             return value;
                         }
                     }

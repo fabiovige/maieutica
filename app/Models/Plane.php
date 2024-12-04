@@ -13,7 +13,14 @@ class Plane extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['kid_id', 'checklist_id','created_by', 'updated_by', 'deleted_by'];
+    const NOTES_DESCRIPTION = [
+        0 => 'Não observado',
+        1 => 'Mais ou menos',
+        2 => 'Difícil de obter',
+        3 => 'Consistente'
+    ];
+
+    protected $fillable = ['kid_id', 'checklist_id', 'created_by', 'name', 'is_active'];
 
     protected $casts = [
         'created_at' => 'datetime:d/m/Y',
