@@ -12,13 +12,14 @@
 
 @section('content')
     <div class="card">
-        <div class="card-header d-flex justify-content-end">
-            @can('create checklists')
+        @can('create checklists')
+            <div class="card-header d-flex justify-content-end">
+
                 <a href="{{ route('checklists.create') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus"></i> Cadastrar novo checklist
                 </a>
-            @endcan
-        </div>
+            </div>
+        @endcan
         <div class="card-body">
             <div class="row" id="app">
                 @if (isset($kid))
@@ -40,7 +41,7 @@
                                 <th>Status</th>
                                 <th>Data de criação</th>
                                 <th>Média Geral do Desenvolvimento</th>
-                                <th style="width: 100px;"></th>
+                                @can('edit checklists')<th style="width: 100px;"></th>@endcan
                             </tr>
                         </thead>
                         <tbody>
@@ -58,6 +59,7 @@
 
                                         {{ $checklist->developmentPercentage }}%
                                     </td>
+                                    @can('edit checklists')
                                     <td>
                                         <div class="dropdown">
                                             @can('edit checklists')
@@ -98,6 +100,7 @@
                                             </ul>
                                         </div>
                                     </td>
+                                    @endcan
                                 </tr>
                             @endforeach
                         </tbody>

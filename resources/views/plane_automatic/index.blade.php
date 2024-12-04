@@ -80,11 +80,6 @@
                                     <i class="bi bi-eye"></i> Visualizar Plano
                                 </a>
                             </div>
-                            <div>
-                                <a id="generatePlanBtn" href="{{ route('kids.pdfplaneauto', ['id' => $kid->id, 'checklistId' => $checklist->id, 'note' => $status->note]) }}" class="btn btn-danger btn-lg" target="_blank">
-                                    <i class="bi bi-x-circle"></i> Encerrar Plano
-                                </a>
-                            </div>
 
                         </div>
 

@@ -445,7 +445,7 @@ class KidsController extends Controller
             // Criar o plane dentro de uma transação
 
 
-            $existingPlane = Plane::where('kid_id', $kid->id)->where('checklist_id', $checklist->id)->where('is_active', true)->first();
+            $existingPlane = Plane::where('kid_id', $kid->id)->where('checklist_id', $checklist->id)->where('is_active', true)->where('name', $dataCreatePlane['name'])->first();
             if ($existingPlane) {
                 //throw new Exception('Já existe um plano ativo para esta criança.');
                 $plane = $existingPlane;
