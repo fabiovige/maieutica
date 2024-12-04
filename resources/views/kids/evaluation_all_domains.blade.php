@@ -15,8 +15,8 @@
         <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $statusGeral == 'Atrasado' ? '100%' : '0%' }};">
             Atrasado
         </div>
-        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $statusGeral == 'Em processo' ? '100%' : '0%' }};">
-            Em processo
+        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $statusGeral == 'Mais ou menos' ? '100%' : '0%' }};">
+            Mais ou menos
         </div>
         <div class="progress-bar bg-success" role="progressbar" style="width: {{ $statusGeral == 'Adiantado' ? '100%' : '0%' }};">
             Adiantado
@@ -47,11 +47,11 @@
                     <td>{{ $competence['competence'] }}</td>
                     <td>
                         @if($competence['note'] === 1)
-                            N (Incapaz)
+                            N (Difícil de obter)
                         @elseif($competence['note'] === 2)
                             P (Parcial)
                         @elseif($competence['note'] === 3)
-                            A (Adquirido)
+                            A (Consistente)
                         @elseif($competence['note'] === 0)
                             X (Não Observado)
                         @else
@@ -95,9 +95,9 @@
                         ticks: {
                             stepSize: 1,
                             callback: function(value) {
-                                if (value === 1) return 'N (Incapaz)';
+                                if (value === 1) return 'N (Difícil de obter)';
                                 if (value === 2) return 'P (Parcial)';
-                                if (value === 3) return 'A (Adquirido)';
+                                if (value === 3) return 'A (Consistente)';
                                 return value;
                             }
                         }
@@ -111,7 +111,7 @@
             'Adiantada': 0,
             'Dentro do esperado': 0,
             'Atrasada': 0,
-            'Incapaz': 0,
+            'Difícil de obter': 0,
             'Não Observado': 0,
             'Não Avaliada': 0
         };
@@ -131,7 +131,7 @@
                         '#28a745', // Adiantada - Verde
                         '#17a2b8', // Dentro do esperado - Azul claro
                         '#dc3545', // Atrasada - Vermelho
-                        '#ffc107', // Incapaz - Amarelo
+                        '#ffc107', // Difícil de obter - Amarelo
                         '#6c757d', // Não Observado - Cinza
                         '#343a40', // Não Avaliada - Cinza Escuro
                     ]

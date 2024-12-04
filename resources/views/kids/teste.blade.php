@@ -111,11 +111,11 @@
                                 } else {
                                     switch(context.parsed.y) {
                                         case 0:
-                                            return label + ': N (Não adquirido)';
+                                            return label + ': N (Não Consistente)';
                                         case 1:
                                             return label + ': P (Parcial)';
                                         case 2:
-                                            return label + ': A (Adquirido)';
+                                            return label + ': A (Consistente)';
                                         default:
                                             return label + ': ' + context.parsed.y;
                                     }

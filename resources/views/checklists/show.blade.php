@@ -32,6 +32,26 @@
         </div>
     </div>
 
+    <div class="row">
+        @foreach($checklist->getStatusAvaliation($checklist->id) as $status)
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $status->note_description }}</h5>
+                        <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-clipboard-check"></i>
+                            </div>
+                            <div class="ps-3">
+                                <h6>{{ $status->total_competences }}</h6>
+                                <span class="text-muted small">competências</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
 
     @include('includes.information-register', [
         'data' => $checklist,

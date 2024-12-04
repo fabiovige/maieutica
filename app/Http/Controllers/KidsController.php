@@ -6,6 +6,7 @@ use App\Http\Requests\KidRequest;
 use App\Jobs\SendKidUpdateJob;
 use App\Models\Checklist;
 use App\Models\Competence;
+use App\Models\CompetencePlane;
 use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role as SpatieRole;
 use App\Services\OverviewService;
+use Psy\VersionUpdater\Checker;
 
 class KidsController extends Controller
 {
@@ -362,7 +364,7 @@ class KidsController extends Controller
 
             $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'));
+            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'), $plane->name);
 
             $totalDomain = count($arr);
             $countDomain = 1;
@@ -418,7 +420,211 @@ class KidsController extends Controller
         }
     }
 
-    private function preferences(&$pdf, $kid, $therapist, $plane_id, $date)
+    public function pdfPlaneAuto($kidId, $checklislId, $note)
+    {
+        try {
+            // Primeiro, verificar se o kid existe
+            $kid = Kid::findOrFail($kidId);
+
+            // Verificar se o checklist existe
+            $checklist = Checklist::findOrFail($checklislId);
+
+            // Verificar se o checklist pertence ao kid
+            if ($checklist->kid_id != $kidId) {
+                throw new Exception('Este checklist não pertence a esta criança.');
+            }
+
+            // criar o plane
+            $dataCreatePlane = [
+                'kid_id' => $kid->id, // Usar o id do modelo encontrado
+                'name' => Plane::NOTES_DESCRIPTION[$note],
+                'checklist_id' => $checklist->id, // Usar o id do modelo encontrado
+                'created_by' => auth()->user()->id,
+            ];
+
+            // Criar o plane dentro de uma transação
+
+
+            $existingPlane = Plane::where('kid_id', $kid->id)->where('checklist_id', $checklist->id)->where('is_active', true)->where('name', $dataCreatePlane['name'])->first();
+            if ($existingPlane) {
+                //throw new Exception('Já existe um plano ativo para esta criança.');
+                $plane = $existingPlane;
+            } else {
+                $plane = Plane::create($dataCreatePlane);
+            }
+
+
+            // get kid
+            $nameKid = $kid->name;
+            $therapist = $kid->professional->name;
+            $date = $plane->first()->created_at;
+            $arr = [];
+
+            // get competences por nota
+            $competencesNotes = Checklist::getCompetencesByNote($checklist->id, $note)->pluck('id')->toArray();
+
+            // verifica se existe competencias
+            if (count($competencesNotes) == 0) {
+                throw new Exception('Não existem competências para este checklist e nota.');
+            }
+
+            // se exite competentes adiciona a competence_plane
+            $plane->competences()->sync($competencesNotes);
+
+            // get competences do plane
+            $competences = $plane->competences()->get();
+
+            foreach ($competences as $c => $competence) {
+                $initial = $competence->domain()->first()->initial;
+                $arr[$initial]['domain'] = $competence->domain()->first();
+                $arr[$initial]['competences'][] = $competence;
+            }
+
+            $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'), $plane->name);
+
+            $totalDomain = count($arr);
+            $countDomain = 1;
+
+            foreach ($arr as $initial => $v) {
+                $countCompetences = 1;
+                $pdf->AddPage();
+
+                $pdf->Ln(5);
+                $pdf->SetFont('helvetica', 'B', 14);
+
+                // Domain
+                $domain = $v['domain']->name;
+                $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
+
+                foreach ($v['competences'] as $k => $competence) {
+
+                    if ($countCompetences == 8) {
+                        $pdf->AddPage();
+                        $countCompetences = 1;
+                    }
+                    $countCompetences++;
+
+                    $pdf->Ln(5);
+                    $pdf->SetFont('helvetica', 'B', 10);
+                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
+                    $pdf->Ln(5);
+                    $pdf->Write(0, $txt, '', 0, 'L', true);
+
+                    $pdf->Ln(1);
+                    $pdf->SetFont('helvetica', 'I', 8);
+                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
+
+                    $pdf->Ln(4);
+                    $pdf->SetFont('helvetica', '', 9);
+                    $etapas = 'Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____';
+                    $pdf->Write(0, $etapas, '', 0, 'L', true);
+                }
+            }
+
+            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
+        } catch (Exception $e) {
+            Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
+            flash($e->getMessage())->error();
+            return redirect()->back();
+        }
+    }
+
+    public function pdfPlaneAutoView($kidId, $checklislId, $planeId)
+    {
+        try {
+            // Primeiro, verificar se o kid existe
+            $kid = Kid::findOrFail($kidId);
+
+            // Verificar se o checklist existe
+            $checklist = Checklist::findOrFail($checklislId);
+
+            // Verificar se o checklist pertence ao kid
+            if ($checklist->kid_id != $kidId) {
+                throw new Exception('Este checklist não pertence a esta criança.');
+            }
+
+            // obter o plane
+            $plane = Plane::findOrFail($planeId);
+
+            // verificar se o plane pertence ao checklist
+            if ($plane->checklist_id != $checklist->id) {
+                throw new Exception('Este plano não pertence a este checklist.');
+            }
+
+            // get kid
+            $nameKid = $kid->name;
+            $therapist = $kid->professional->name;
+            $date = $plane->first()->created_at;
+            $arr = [];
+
+            // get competences do plane
+            $competences = $plane->competences()->get();
+
+            // verificar se existe competencias
+            if (count($competences) == 0) {
+                throw new Exception('Não existem competências para este plano.');
+            }
+
+            foreach ($competences as $c => $competence) {
+                $initial = $competence->domain()->first()->initial;
+                $arr[$initial]['domain'] = $competence->domain()->first();
+                $arr[$initial]['competences'][] = $competence;
+            }
+
+            $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'));
+
+            $totalDomain = count($arr);
+            $countDomain = 1;
+
+            foreach ($arr as $initial => $v) {
+                $countCompetences = 1;
+                $pdf->AddPage();
+
+                $pdf->Ln(5);
+                $pdf->SetFont('helvetica', 'B', 14);
+
+                // Domain
+                $domain = $v['domain']->name;
+                $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
+
+                foreach ($v['competences'] as $k => $competence) {
+
+                    if ($countCompetences == 8) {
+                        $pdf->AddPage();
+                        $countCompetences = 1;
+                    }
+                    $countCompetences++;
+
+                    $pdf->Ln(5);
+                    $pdf->SetFont('helvetica', 'B', 10);
+                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
+                    $pdf->Ln(5);
+                    $pdf->Write(0, $txt, '', 0, 'L', true);
+
+                    $pdf->Ln(1);
+                    $pdf->SetFont('helvetica', 'I', 8);
+                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
+
+                    $pdf->Ln(4);
+                    $pdf->SetFont('helvetica', '', 9);
+                    $etapas = 'Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____';
+                    $pdf->Write(0, $etapas, '', 0, 'L', true);
+                }
+            }
+
+            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
+        } catch (Exception $e) {
+            Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
+            flash('Erro ao gerar o plano: ' . $e->getMessage())->error();
+            return redirect()->back();
+        }
+    }
+
+    private function preferences(&$pdf, $kid, $therapist, $plane_id, $date, $planeName)
     {
         $preferences = [
             'HideToolbar' => true,
@@ -441,21 +647,28 @@ class KidsController extends Controller
 
         $pdf->setViewerPreferences($preferences);
         $pdf->AddPage();
+
         $pdf->SetFont('helvetica', '', 18);
-        $pdf->Cell(0, 75, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
-        $pdf->SetFont('helvetica', '', 12);
-        $txt = 'Profissional: ' . $therapist . ',  Data: ' . $date;
-        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
+        $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
+
+        $pdf->SetFont('helvetica', '', 14);
+        $pdf->Write(0, 'Profissional: '.$therapist, '', 0, 'C', true, 0, false, false, 0);
+
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Write(0, 'Data: '.$date, '', 0, 'C', true, 0, false, false, 0);
+
         $pdf->Ln(15);
-        $pdf->SetFont('helvetica', '', 18);
+        $pdf->SetFont('helvetica', '', 14);
         $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(2);
 
-        $pdf->SetFont('helvetica', '', 11);
+        $pdf->SetFont('helvetica', '', 10);
         $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(3);
 
-        $pdf->SetFont('helvetica', '', 14);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Write(0, '('.$planeName.')', '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(3);
     }
 
     public function uploadPhoto(HttpRequest $request, Kid $kid)
@@ -560,8 +773,8 @@ class KidsController extends Controller
             $status = '';
 
             if ($note == 1) {
-                // Incapaz
-                $status = 'Incapaz';
+                // Difícil de obter
+                $status = 'Difícil de obter';
             } elseif ($note == 2) {
                 // Parcial - verificar percentis
                 if ($ageInMonths < $competence->percentil_25) {
@@ -572,7 +785,7 @@ class KidsController extends Controller
                     $status = 'Atrasada';
                 }
             } elseif ($note == 3) {
-                // Adquirido - verificar percentis
+                // Consistente - verificar percentis
                 if ($ageInMonths < $competence->percentil_25) {
                     $status = 'Adiantada';
                 } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_75) {
@@ -612,7 +825,7 @@ class KidsController extends Controller
             if ($mediaNotas < 2) {
                 $statusGeral = 'Atrasada';
             } elseif ($mediaNotas >= 2 && $mediaNotas < 3) {
-                $statusGeral = 'Em processo';
+                $statusGeral = 'Mais ou menos';
             } elseif ($mediaNotas == 3) {
                 $statusGeral = 'Adiantada';
             } else {
@@ -701,8 +914,8 @@ class KidsController extends Controller
                     $status = '';
 
                     if ($note == 1) {
-                        // Incapaz
-                        $status = 'Incapaz';
+                        // Difícil de obter
+                        $status = 'Difícil de obter';
                     } elseif ($note == 2) {
                         // Parcial - verificar percentis
                         if ($ageInMonths < $competence->percentil_25) {
@@ -713,7 +926,7 @@ class KidsController extends Controller
                             $status = 'Atrasada';
                         }
                     } elseif ($note == 3) {
-                        // Adquirido - verificar percentis
+                        // Consistente - verificar percentis
                         if ($ageInMonths < $competence->percentil_25) {
                             $status = 'Adiantada';
                         } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_75) {
@@ -771,7 +984,7 @@ class KidsController extends Controller
             if ($overallAverage < 2) {
                 $statusGeral = 'Atrasado';
             } elseif ($overallAverage >= 2 && $overallAverage < 3) {
-                $statusGeral = 'Em processo';
+                $statusGeral = 'Mais ou menos';
             } elseif ($overallAverage == 3) {
                 $statusGeral = 'Adiantado';
             } else {
@@ -831,8 +1044,8 @@ class KidsController extends Controller
                     // Determinar o status com base na nota e nos percentis
                     $status = '';
                     if ($note == 1) {
-                        // N - Incapaz
-                        $status = 'Incapaz';
+                        // N - Difícil de obter
+                        $status = 'Difícil de obter';
                     } elseif ($note == 2) {
                         // P - Parcial, verificar com base nos percentis
                         if ($ageInMonths < $competence->percentil_25) {
@@ -843,7 +1056,7 @@ class KidsController extends Controller
                             $status = 'Atrasada';  // A criança está parcial, mas já passou da faixa esperada
                         }
                     } elseif ($note == 3) {
-                        // A - Adquirido, verificar com base nos percentis
+                        // A - Consistente, verificar com base nos percentis
                         if ($ageInMonths < $competence->percentil_25) {
                             $status = 'Adiantada';  // A criança adquiriu a competência antes do esperado
                         } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_75) {
@@ -872,7 +1085,7 @@ class KidsController extends Controller
             // Calcular a média geral se houver avaliações
             if ($numCompetencias > 0) {
                 $media = $somaResultados / $numCompetencias;
-                $statusGeral = $media < 2 ? 'Em processo' : 'Adquirido';
+                $statusGeral = $media < 2 ? 'Mais ou menos' : 'Consistente';
             } else {
                 $media = null;
                 $statusGeral = 'Sem Avaliações';
@@ -1253,74 +1466,74 @@ class KidsController extends Controller
             // Analisar com base nos percentis e status
             // Aplicar a lógica para todos os percentis
             if ($currentStatusValue === 3) {
-                // Adquirido
+                // Consistente
                 if ($ageInMonths < $competence->percentil_25) {
-                    $status = 'Adiantada'; // Adquirido antes do esperado
+                    $status = 'Adiantada'; // Consistente antes do esperado
                     $statusColor = 'blue';
                 } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
-                    $status = 'Adiantada'; // Adquirido entre 25% e 50%, ainda adiantada
+                    $status = 'Adiantada'; // Consistente entre 25% e 50%, ainda adiantada
                     $statusColor = 'blue';
                 } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
-                    $status = 'Dentro do esperado'; // Adquirido dentro da faixa normal (50% - 75%)
+                    $status = 'Dentro do esperado'; // Consistente dentro da faixa normal (50% - 75%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
-                    $status = 'Dentro do esperado'; // Adquirido dentro da faixa normal (75% - 90%)
+                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
+                    $status = 'Dentro do esperado'; // Consistente dentro da faixa normal (75% - 90%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
-                    $status = 'Dentro do esperado'; // Adquirido depois do percentil 90, mas adquirido
+                } elseif ($ageInmonths >= $competence->percentil_90) {
+                    $status = 'Dentro do esperado'; // Consistente depois do percentil 90, mas Consistente
                     $statusColor = 'orange';
                 }
             } elseif ($currentStatusValue === 2) {
-                // Em processo
-                if ($ageInMonths < $competence->percentil_25) {
-                    $status = 'Dentro do esperado'; // Em processo, mas ainda dentro da faixa esperada (<25%)
+                // Mais ou menos
+                if ($ageInmonths < $competence->percentil_25) {
+                    $status = 'Dentro do esperado'; // Mais ou menos, mas ainda dentro da faixa esperada (<25%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
-                    $status = 'Dentro do esperado'; // Em processo entre 25% e 50%
+                } elseif ($ageInmonths >= $competence->percentil_25 && $ageInmonths < $competence->percentil_50) {
+                    $status = 'Dentro do esperado'; // Mais ou menos entre 25% e 50%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
-                    $status = 'Dentro do esperado'; // Em processo entre 50% e 75%
+                } elseif ($ageInmonths >= $competence->percentil_50 && $ageInmonths < $competence->percentil_75) {
+                    $status = 'Dentro do esperado'; // Mais ou menos entre 50% e 75%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
-                    $status = 'Dentro do esperado'; // Em processo entre 75% e 90%
+                } elseif ($ageInmonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
+                    $status = 'Dentro do esperado'; // Mais ou menos entre 75% e 90%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
-                    $status = 'Atrasada'; // Em processo após o percentil 90, deveria ter adquirido
+                } elseif ($ageInmonths >= $competence->percentil_90) {
+                    $status = 'Atrasada'; // Mais ou menos após o percentil 90, deveria ter Consistente
                     $statusColor = 'red';
                 }
             } elseif ($currentStatusValue === 1) {
 
-                // Incapaz ou não avaliado
-                if ($ageInMonths < $competence->percentil_25) {
-                    $status = 'Dentro do esperado'; // Incapaz, mas ainda dentro da faixa esperada (<25%)
+                // Difícil de obter ou não avaliado
+                if ($ageInmonths < $competence->percentil_25) {
+                    $status = 'Dentro do esperado'; // Difícil de obter, mas ainda dentro da faixa esperada (<25%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
-                    $status = 'Atrasada'; // Incapaz entre 25% e 50%
+                } elseif ($ageInmonths >= $competence->percentil_25 && $ageInmonths < $competence->percentil_50) {
+                    $status = 'Atrasada'; // Difícil de obter entre 25% e 50%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
-                    $status = 'Atrasada'; // Incapaz entre 50% e 75%
+                } elseif ($ageInmonths >= $competence->percentil_50 && $ageInmonths < $competence->percentil_75) {
+                    $status = 'Atrasada'; // Difícil de obter entre 50% e 75%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
-                    $status = 'Atrasada'; // Incapaz entre 75% e 90%
+                } elseif ($ageInmonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
+                    $status = 'Atrasada'; // Difícil de obter entre 75% e 90%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
-                    $status = 'Atrasada'; // Incapaz após o percentil 90, deveria ter adquirido
+                } elseif ($ageInmonths >= $competence->percentil_90) {
+                    $status = 'Atrasada'; // Difícil de obter após o percentil 90, deveria ter Consistente
                     $statusColor = 'red';
                 }
             }
 
             // Determinar o progresso em termos de percentil
             $percentComplete = 0;
-            if ($ageInMonths < $competence->percentil_25) {
-                $percentComplete = ($ageInMonths / $competence->percentil_25) * 25;
-            } elseif ($ageInMonths < $competence->percentil_50) {
-                $percentComplete = 25 + (($ageInMonths - $competence->percentil_25) / ($competence->percentil_50 - $competence->percentil_25)) * 25;
-            } elseif ($ageInMonths < $competence->percentil_75) {
-                $percentComplete = 50 + (($ageInMonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
-            } elseif ($ageInMonths < $competence->percentil_90) {
-                $percentComplete = 75 + (($ageInMonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
+            if ($ageInmonths < $competence->percentil_25) {
+                $percentComplete = ($ageInmonths / $competence->percentil_25) * 25;
+            } elseif ($ageInmonths < $competence->percentil_50) {
+                $percentComplete = 25 + (($ageInmonths - $competence->percentil_25) / ($competence->percentil_50 - $competence->percentil_25)) * 25;
+            } elseif ($ageInmonths < $competence->percentil_75) {
+                $percentComplete = 50 + (($ageInmonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
+            } elseif ($ageInmonths < $competence->percentil_90) {
+                $percentComplete = 75 + (($ageInmonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
             } else {
-                $percentComplete = 90 + (($ageInMonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
+                $percentComplete = 90 + (($ageInmonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
             }
 
             $radarDataCompetences[] = [
@@ -1512,7 +1725,7 @@ class KidsController extends Controller
             'allChecklists' => $allChecklists,
             'levels' => $levels,
             'countChecklists' => $countChecklists,
-            'countPlanes' => $countPlanes, 
+            'countPlanes' => $countPlanes,
         ];
 
         // Retornar a view com os dados do radar geral
@@ -1522,11 +1735,11 @@ class KidsController extends Controller
     private function getStatusValue($note)
     {
         if ($note == 1) {
-            return 1; // Incapaz
+            return 1; // Difícil de obter
         } elseif ($note == 2) {
-            return 2; // Em Processo
+            return 2; // Mais ou menos
         } elseif ($note == 3) {
-            return 3; // Adquirido
+            return 3; // Consistente
         } else {
             return 0; // Não Avaliado
         }
@@ -1596,7 +1809,7 @@ class KidsController extends Controller
 
             $itemsTotal = $competences->count();
 
-            // Contar os itens válidos (adquiridos) para a criança através do checklist
+            // Contar os itens válidos (Consistentes) para a criança através do checklist
             $itemsValid = 0;
 
             // Obter as avaliações do checklist atual para as competências selecionadas
@@ -1613,7 +1826,7 @@ class KidsController extends Controller
             foreach ($competences as $competence) {
                 $evaluation = $currentEvaluations->get($competence->id);
 
-                if ($evaluation && $evaluation->note == 3) { // note 3 significa 'Adquirido'
+                if ($evaluation && $evaluation->note == 3) { // note 3 significa 'Consistente'
                     $itemsValid++;
                 }
             }
@@ -1708,16 +1921,16 @@ class KidsController extends Controller
 
         $kid = Kid::findOrFail($kidId);
         $currentChecklist = $kid->currentChecklist;
-        
+
         $createdAt = Carbon::parse($currentChecklist->created_at)->format('d/m/Y');
-    
+
         // Obter a data atual formatada
         $currentDate = Carbon::now()->format('d/m/Y');
-        
+
         // Montar a saída
         $periodAvaliable = "Período de avaliação: {$createdAt} até {$currentDate}";
-        
-        
+
+
         // Criar uma nova instância do PDF
         $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
@@ -1749,7 +1962,7 @@ class KidsController extends Controller
 
         // **Adicionar a foto da criança**
         // Obter o caminho da foto da criança
-        $photoPath = storage_path( 'app/public/' . $kid->photo);
+        $photoPath = storage_path('app/public/' . $kid->photo);
         //dd($photoPath);
         // Verificar se o arquivo existe
         if (file_exists($photoPath)) {
@@ -1758,7 +1971,7 @@ class KidsController extends Controller
             // Obter a largura da página
             $pageWidth = $pdf->getPageWidth();
             // Calcular a posição X para centralizar
-            $x = round(($pageWidth - $photoWidth) / 2, 0 );
+            $x = round(($pageWidth - $photoWidth) / 2, 0);
             // Adicionar a foto da criança
             //dd($x);
             $pdf->Image($photoPath, 80, null, $photoWidth, $photoWidth, '', '', 'C', false, 72);
@@ -1798,7 +2011,7 @@ class KidsController extends Controller
         $pdf->Ln(10);
 
         $pdf->SetFont('helvetica', '', 14);
-        
+
         $txt = 'Profissional: ' . $kid->professional->name;
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
