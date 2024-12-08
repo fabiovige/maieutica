@@ -112,7 +112,7 @@ $form-check-inline-margin-end: 1rem;
 }
 
 .content-box .form-box {
-    width: 70%;
+    width: 90%;
 }
 
 .content-box .form-box .ul {
@@ -232,6 +232,22 @@ $form-check-inline-margin-end: 1rem;
     font-size: 22px;
     border-bottom: 4px solid #4aa4ee;
 }
+
+@media (min-width:869px) {
+    .container-login .content-box .form-box .remember{
+        flex-wrap: wrap;
+    }
+    .container-login .content-box .form-box .remember a{
+        margin-top: 20px;
+    }
+    .container-login .content-box .form-box{
+        width: 100%;
+        padding: 20px;
+        background: #fff;
+        margin: 20px;
+    }
+}
+
 @media (max-width:868px) {
     .container-login .img-box{
         display: none;
@@ -241,20 +257,25 @@ $form-check-inline-margin-end: 1rem;
     }
     .container-login .content-box .form-box{
         width: 100%;
-        padding: 40px;
+        padding: 20px;
         background: white;
-        margin: 50px;
+        margin: 30px;
     }
     .container-login .content-box .form-box h3{
         margin: 30px 0 10px;
     }
 }
-@media (max-width:450px) {
+@media (max-width:500px) {
     .container-login .content-box .form-box .remember{
         flex-wrap: wrap;
     }
     .container-login .content-box .form-box .remember a{
         margin-top: 20px;
     }
-
+    .container-login .content-box .form-box{
+        width: 100%;
+        padding: 10px;
+        background: #fff;
+        margin: 20px;
+    }
 }
