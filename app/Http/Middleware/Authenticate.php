@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class Authenticate extends Middleware
 {
@@ -15,6 +16,11 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
+        Log::warning('Authenticate Middleware', ['request' => $request->path()]);
+
+        // Adicionando log para verificar se a condição está sendo avaliada
+        Log::warning('Expecting JSON: ' . ($request->expectsJson() ? 'Yes' : 'No'));
+
         if (! $request->expectsJson()) {
             return route('login');
         }

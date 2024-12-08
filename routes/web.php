@@ -1,23 +1,78 @@
 <?php
 
-use App\Http\Controllers\Api\ChecklistRegisterController;
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\CompetencesController;
 use App\Http\Controllers\KidsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Models\User;
+use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('home.index');
+Route::get('/auth/google/redirect', function () {
+    return Socialite::driver('google')->redirect();
+});
 
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('home.index');
+// Google Auth
+Route::get('/auth/google/callback', function () {
+    $user = Socialite::driver('google')->user();
+
+    $existingUser = User::where('email', $user->getEmail())->first();
+
+    if (!$existingUser) {
+        return redirect()->route('login')->withErrors(['email' => 'Falha na autenticação.']);
+    }
+
+    $data = [
+        'provider_id' => $user->getId(),
+        'provider_email' => $user->getEmail(),
+        'provider_avatar' => $user->getAvatar(),
+    ];
+
+    $existingUser->update($data);
+
+    Auth::loginUsingId($existingUser->id);
+
+    return redirect()->route('home.index');
+});
+
+// Login
+Route::post('/autenticacao', function (HttpRequest $request) {
+
+    $credentials = $request->only('email', 'password');
+
+    if (Auth::attempt($credentials)) {
+        return redirect()->route('home.index');
+    }
+
+    return redirect()->route('login-novo')->withErrors(['email' => 'Credenciais inválidas']);
+
+})->name('autenticacao');
+
+// Login View
+Route::get('/login-novo', function () {
+    return view('layouts.guest2');
+})->name('login-novo');
+
+// Home
+Route::get('/', function () {
+    if (!Auth::check()) {
+        return redirect()->route('login-novo');
+    } else {
+        return redirect()->route('home.index');
+    }
+});
+
+// Logout
+Route::post('/sair', function () {
+    Auth::logout();
+    return redirect()->route('login-novo');
+})->name('sair');
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->middleware(['auth'])->name('home.index');
 
 Route::middleware(['auth'])->group(function () {
 

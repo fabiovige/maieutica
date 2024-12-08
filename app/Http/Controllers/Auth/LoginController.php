@@ -42,6 +42,22 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    public function login(Request $request) {
+
+        $request->validate([
+            $this->username() => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if (Auth::attempt($request->only($this->username(), 'password'))) {
+            return redirect()->intended($this->redirectPath());
+        }
+
+        throw ValidationException::withMessages([
+            $this->username() => [trans('auth.failed')],
+        ]);
+    }
+
     protected function authenticated(Request $request, $user)
     {
         Log::alert(label_case('Autenticado').' | User: '.auth()->user()->name.' (ID: '.auth()->user()->id.')');
@@ -49,7 +65,7 @@ class LoginController extends Controller
 
         // se user acesso bloqueado
         if (Auth::user()->allow == false) {
-            
+
             $this->guard()->logout();
 
             $request->session()->invalidate();

@@ -25,7 +25,7 @@
                         <div class="row">
 
                             @foreach ($kids as $kid)
-                                <div class="col-12 col-md-6 col-lg-6 col-xl-4">
+                                <div class="col-12 col-md-6 col-lg-4 col-xl-4">
                                     <Resumekid :user="{{ $kid->first() }}"
                                         :kid="{{ $kid }}"
                                         :checklist="{{ $countChecklists[$kid->id] }}"

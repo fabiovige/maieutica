@@ -24,7 +24,7 @@
     <div class="pagewrap">
 
         @include('layouts.navbar')
-        <main class="py-2">
+        <main class="py-2" style="margin-bottom: 70px;">
             <div class="container">
                 <div class="row mt-1">
                     <div class="col-md-6 text-start">
@@ -40,16 +40,16 @@
             </div>
         </main>
         <footer>
-            <div class="container">
-                <div class="row py-4 d-flex justify-content-between">
+            <div class="container-fluid" style="background-color: #d7e2ec; height: 40px; position: fixed; bottom: 0; width: 100%;">
+                <div class="row py-2 d-flex justify-content-between align-items-center">
                     <div class="col-auto">
-                        <p class="small mb-0 mt-4">
+                        <p class="small mb-0">
                             &copy; {{ now()->format('Y') }} {{ config('app.name') }} - {{ config('app.description') }}
                         </p>
                     </div>
                     <div class="col-auto">
-                        <p class="small mb-0 mt-4 text-right">
-                            versão: {{ config('app.version') }}
+                        <p class="small mb-0 text-right">
+                            <span class="badge text-bg-secondary">versão: {{ config('app.version') }}</span>
                         </p>
                     </div>
                 </div>

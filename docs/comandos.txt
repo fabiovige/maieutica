@@ -1,4 +1,4 @@
-git tag -a 1.3.0 -m "Release 1.3.0 - implementação de plano automático"
+git tag -a 1.4.0 -m "Release 1.4.0 - nova tela de login)"
 
 git push --tags
 
