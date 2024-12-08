@@ -33,6 +33,9 @@ class User extends Authenticatable
         'neighborhood',
         'city',
         'state',
+        'provider_id',
+        'provider_email',
+        'provider_avatar',
     ];
 
     protected $hidden = [

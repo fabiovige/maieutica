@@ -1,6 +1,12 @@
 {
-    "/js/app.js": "/js/app.js?id=db2292cd601743d527658b4066af39db",
-    "/css/app.css": "/css/app.css?id=74a256f03429cf3118035244ca70578c",
+    "/js/app.js": "/js/app.js?id=b3bee71c1be650b28dbbe79ea666172d",
+    "/css/app.css": "/css/app.css?id=2c60c7f7bd1db6ec16f145d3df461cdb",
+    "/images/bg-grande-maieutica.png": "/images/bg-grande-maieutica.png?id=fbe50f7ee4106d357e5aeac67518b3d9",
+    "/images/login_bg.svg": "/images/login_bg.svg?id=b321dda7dce5c651e56b2b43dc185add",
+    "/images/login_bg2.svg": "/images/login_bg2.svg?id=d0dbfe2af0c45e7975f6aec07fce4493",
+    "/images/login_bg3.svg": "/images/login_bg3.svg?id=3beae0083c7f26b6d35d3de18ad3f1aa",
+    "/images/login_bg4.svg": "/images/login_bg4.svg?id=584c15529a04f71082597d3f41246fa0",
+    "/images/login_bg5.svg": "/images/login_bg5.svg?id=47667248970dc2c0e4e74527e7f228e1",
     "/images/logo_login.png": "/images/logo_login.png?id=86440ed52e88ac0dc8ae1cfee047b70a",
     "/images/logo_login_transparente.png": "/images/logo_login_transparente.png?id=0802c54f9cd07e28972e27f67fcfdba7",
     "/images/vendor/jquery-ui/themes/base/ui-icons_444444_256x240.png": "/images/vendor/jquery-ui/themes/base/ui-icons_444444_256x240.png?id=bed10eb948aa66a924e32f2022f0b7c1",
@@ -58,7 +64,5 @@
     "/vendor/datatable/pt-BR.json": "/vendor/datatable/pt-BR.json?id=677d05c409cc0410a808c6d3a3951b12",
     "/vendor/datatable/responsive.bootstrap5.js": "/vendor/datatable/responsive.bootstrap5.js?id=eaf53c7428250d95227f80c2a3c96ddf",
     "/vendor/datatable/responsive.bootstrap5.min.css": "/vendor/datatable/responsive.bootstrap5.min.css?id=3a4613a6d489c5f597f5211c4c30661a",
-    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd",
-    "/js/app.min.js": "/js/app.min.js?id=db2292cd601743d527658b4066af39db",
-    "/css/app.min.css": "/css/app.min.css?id=74a256f03429cf3118035244ca70578c"
+    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd"
 }
