@@ -1,4 +1,4 @@
-git tag -a 1.4.0 -m "Release 1.4.0 - nova tela de login)"
+git tag -a 1.4.0 -m "Release 1.4.0 - nova tela de login"
 
 git push --tags
 
