@@ -1,36 +1,41 @@
 @extends('layouts.guest')
 
 @section('content')
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
+
+
+                    <div style="text-align: center; margin-bottom: 70px;">
+                        <img src="{{ asset('images/logo_login.png') }} "
+                                class="elevation-0"
+                                alt="{{ config('app.name') }}"
+                                width="160px"
+                            />
+                    </div>
 
                     <form method="POST" action="{{ route('password.email') }}">
                         @csrf
-
-                        <div class="row mb-3">
-                            <label for="email" class="col-form-label text-md-start">Seu e-mail</label>
-
-                            <div class="">
-                                <input id="email" type="email"
-                                       class="form-control " name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-                            </div>
+                        <div class="col-md-12 d-flex align-items-center justify-content-center">
+                            @if (session('status'))
+                                <div class="alert alert-success" role="alert">
+                                    {{ session('status') }}
+                                </div>
+                            @endif
                         </div>
 
-                        <div class="row mb-0">
-                            <div class="d-flex justify-content-center">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Send Password Reset Link') }}
-                                </button>
-                            </div>
+                        <div class="input-box">
+                            <span>E-mail</span>
+                            <input type="email" name="email" required autocomplete="email" autofocus>
+                        </div>
+
+                        <div class="input-box d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary">
+                                {{ __('Send Password Reset Link') }}
+                            </button>
                         </div>
                     </form>
 
-                    <p class="text-muted small text-center mb-0 mt-4">
-                        {{ config('app.name') }} - {{ config('app.description') }}
-                        <br>
-                        &copy; 2021 - {{ now()->format('Y') }}
-                    </p>
+                    <div class="d-flex flex-column align-items-center">
+                        <span class="small text-muted text-center">
+                            Todos os direitos reservados. {{ config('app.name') }} - {{ config('app.description') }}.
+                        </span>
+                    </div>
 @endsection

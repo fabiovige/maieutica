@@ -19,8 +19,9 @@
         <div class="img-box">
         </div>
         <div class="content-box">
-            GUEST
-            @yield('content')
+            <div class="form-box">
+                @yield('content')
+            </div>
         </div>
     </div>
 </body>
