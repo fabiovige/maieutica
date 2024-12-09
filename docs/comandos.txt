@@ -1,4 +1,4 @@
-git tag -a 1.4.1 -m "Release 1.4.1 - ajuste css login"
+git tag -a 1.4.2 -m "Release 1.4.2 - ajuste nas telas de esqueceu a senha"
 
 git push --tags
 

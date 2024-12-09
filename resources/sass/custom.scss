@@ -1,0 +1,6 @@
+@import '~bootstrap/scss/bootstrap';
+
+// Sobrescreve a propriedade específica
+// Use a mesma classe ou seletor que o Bootstrap usa
+// Exemplo: se você quiser alterar o font-weight
+$display-font-weight: 700; // Defina o peso da fonte que você deseja
