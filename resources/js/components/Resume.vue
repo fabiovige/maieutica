@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { getKidPhotoUrl } from '@/utils/photoUtils';
 import { onMounted, ref } from "vue";
 import "vue3-loading-overlay/dist/vue3-loading-overlay.css";
 
@@ -38,16 +39,6 @@ export default {
 
     function selectKid() {
       window.location.href = "/analysis/" + this.kid.id + "/level/1";
-    }
-
-    function getKidPhotoUrl(photo) {
-      if (photo) {
-        return `/storage/${photo}`;
-      }
-
-      // Gera um número aleatório entre 1 e 13
-      const randomAvatarNumber = Math.floor(Math.random() * 13) + 1;
-      return `/storage/kids_avatars/avatar${randomAvatarNumber}.png`; // Usa um avatar aleatório de 1 a 13
     }
 
     return {

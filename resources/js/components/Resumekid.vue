@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { getKidPhotoUrl } from '@/utils/photoUtils';
 import { onMounted, ref } from "vue";
 
 export default {
@@ -55,16 +56,6 @@ export default {
 
         function selectKid(url) {
             window.location.href = url
-        }
-
-        function getKidPhotoUrl(photo) {
-            if (photo) {
-                return `/storage/${photo}`;
-            }
-
-            // Gera um número aleatório entre 1 e 13
-            const randomAvatarNumber = Math.floor(Math.random() * 13) + 1;
-            return `/storage/kids_avatars/avatar${randomAvatarNumber}.png`; // Usa um avatar aleatório de 1 a 13
         }
 
         return {
