@@ -2,7 +2,7 @@
 /public/hot
 /public/storage
 /storage/*
-!/storage/app/public
+!/storage/app/public/kids_avatars
 /vendor
 .php-cs-fixer.cache
 .env
