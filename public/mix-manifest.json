@@ -1,9 +1,12 @@
 {
-    "/js/app.js": "/js/app.js?id=157e1bc60b5df621cfa4d9dfe3dad0e9",
-    "/css/app.css": "/css/app.css?id=837b9b9c4c18d579915aeb762b898afa",
+    "/js/app.js": "/js/app.js?id=c2494ce198c03860ee0cb25b59b774d4",
+    "/css/app.css": "/css/app.css?id=24f722cdb620008a33ae69b1bfef40db",
     "/images/bg-grande-maieutica.png": "/images/bg-grande-maieutica.png?id=fbe50f7ee4106d357e5aeac67518b3d9",
+    "/images/kids/67714aad4909f.png": "/images/kids/67714aad4909f.png?id=911ae86d4ad11988363bbb9f7091e04e",
+    "/images/kids/677152c54b0dc.png": "/images/kids/677152c54b0dc.png?id=dfe12f8101c6edad0e11342d37fb0d6e",
+    "/images/kids/6776ab629e244.png": "/images/kids/6776ab629e244.png?id=ffbf3b989d12c6bc14c2cbdf594ad662",
     "/images/login_bg.svg": "/images/login_bg.svg?id=b321dda7dce5c651e56b2b43dc185add",
-    "/images/login_bg2.svg": "/images/login_bg2.svg?id=d0dbfe2af0c45e7975f6aec07fce4493",
+    "/images/login_bg2.svg": "/images/login_bg2.svg?id=95b1a423a8f5674c4bc5dbc1d2331a80",
     "/images/login_bg3.svg": "/images/login_bg3.svg?id=3beae0083c7f26b6d35d3de18ad3f1aa",
     "/images/login_bg4.svg": "/images/login_bg4.svg?id=584c15529a04f71082597d3f41246fa0",
     "/images/login_bg5.svg": "/images/login_bg5.svg?id=47667248970dc2c0e4e74527e7f228e1",
@@ -65,6 +68,6 @@
     "/vendor/datatable/responsive.bootstrap5.js": "/vendor/datatable/responsive.bootstrap5.js?id=eaf53c7428250d95227f80c2a3c96ddf",
     "/vendor/datatable/responsive.bootstrap5.min.css": "/vendor/datatable/responsive.bootstrap5.min.css?id=3a4613a6d489c5f597f5211c4c30661a",
     "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd",
-    "/js/app.min.js": "/js/app.min.js?id=157e1bc60b5df621cfa4d9dfe3dad0e9",
-    "/css/app.min.css": "/css/app.min.css?id=837b9b9c4c18d579915aeb762b898afa"
+    "/js/app.min.js": "/js/app.min.js?id=c2494ce198c03860ee0cb25b59b774d4",
+    "/css/app.min.css": "/css/app.min.css?id=24f722cdb620008a33ae69b1bfef40db"
 }

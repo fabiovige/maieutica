@@ -39,11 +39,9 @@
                     <td>{{ $kid->id }}</td>
                     <td>
                         @php
+                        $photoUrl = '';
                         if ($kid->photo) {
-                        $photoUrl = asset('storage/' . $kid->photo);
-                        } else {
-                        $randomAvatarNumber = rand(1, 13);
-                        $photoUrl = asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png');
+                            $photoUrl = asset('images/kids/' . $kid->photo);
                         }
                         @endphp
                         <img src="{{ $photoUrl }}" class="rounded-img" style="width: 50px; height: 50px;">
@@ -58,9 +56,6 @@
                                 Ações
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                @can('view kids')
-                                    <li><a class="dropdown-item" href="{{ route('kids.eye', $kid->id) }}"><i class="bi bi-eye"></i> Visualizar</a></li>
-                                @endcan
 
                                 @can('edit kids')
                                     <li><a class="dropdown-item" href="{{ route('kids.edit', $kid->id) }}"><i class="bi bi-pencil"></i> Editar</a></li>

@@ -17,13 +17,13 @@
         <div class="mt-3 centered-column">
             @if($kid->photo)
                 <!-- Exibe a foto da criança se ela tiver uma -->
-                <img src="{{ asset('storage/' . $kid->photo) }}" alt="Foto da criança" width="150" class="rounded-img">
+                <img src="{{ asset('images/kids/' . $kid->photo) }}" alt="Foto da criança" class="rounded-img">
             @else
                 <!-- Exibe um avatar aleatório se não houver foto -->
                 @php
                     $randomAvatarNumber = rand(1, 13); // Gera um número aleatório entre 1 e 13
                 @endphp
-                <img src="{{ asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png') }}" alt="Avatar aleatório" width="150" class="rounded-img">
+                <img src="{{ asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png') }}" alt="Avatar aleatório" class="rounded-img">
             @endif
         </div>
     </div>

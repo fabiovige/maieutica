@@ -1,4 +1,4 @@
-git tag -a 1.4.2 -m "Release 1.4.2 - ajuste nas telas de esqueceu a senha"
+git tag -a 1.4.3 -m "Release 1.4.3 - ajuste no carregamento das imagens"
 
 git push --tags
 
@@ -19,3 +19,7 @@ ssh -p 65002 u350247040@154.49.247.137
 CRON
 
 /usr/bin/php /home/u350247040/domains/hotpink-shark-117733.hostingersite.com/public_html/artisan queue:work --queue=emails --verbose
+
+#######################
+
+php artisan db:seed
