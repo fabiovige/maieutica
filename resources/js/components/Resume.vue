@@ -3,7 +3,7 @@
   <div class="card mb-4">
     <div class="card-body shadown text-center">
       {{ kid.FullNameMonths }}
-      <img :src="getKidPhotoUrl(kid.photo)" :alt="kid.name" width="150" class="rounded-img">
+      <img :src="getKidPhotoUrl(kid.photo)" :alt="kid.name" class="rounded-img">
       <h5 class="mt-3">{{ kid.name }}</h5>
       <p class="text-muted mb-1">
         Dt. Nasc. {{ kid.birth_date }} ( {{ months }} meses )

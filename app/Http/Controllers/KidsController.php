@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role as SpatieRole;
 use App\Services\OverviewService;
+use Illuminate\Support\Facades\File;
 use Psy\VersionUpdater\Checker;
 
 class KidsController extends Controller
@@ -683,15 +684,32 @@ class KidsController extends Controller
 
         try {
             // Remove a foto anterior se houver uma
-            if ($kid->photo) {
-                Storage::disk('public')->delete($kid->photo);
-            }
+            //if ($kid->photo) {
+            //    Storage::disk('public')->delete($kid->photo);
+            //}
 
             // Armazena a nova foto
-            $photoPath = $request->file('photo')->store('kids_photos', 'public');
+            //$photoPath = $request->file('photo')->store('kids_photos', 'public');
+
+            // Obtém o arquivo
+            $file = $request->file('photo');
+
+            // Define o caminho para salvar a imagem
+            $destinationPath = public_path('images/kids');
+
+            // Garante que o diretório existe
+            if (!File::exists($destinationPath)) {
+                File::makeDirectory($destinationPath, 0755, true, true);
+            }
+
+            // Define o nome único para o arquivo
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Move o arquivo para o diretório desejado
+            $file->move($destinationPath, $fileName);
 
             // Atualiza o caminho da foto no banco de dados
-            $kid->update(['photo' => $photoPath]);
+            $kid->update(['photo' => $fileName]);
 
             // Confirma a transação
             DB::commit();
