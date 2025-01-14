@@ -1,4 +1,4 @@
-git tag -a 1.4.3 -m "Release 1.4.3 - ajuste no carregamento das imagens"
+git tag -a 1.4.4 -m "Release 1.4.4 - removido botão google"
 
 git push --tags
 

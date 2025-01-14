@@ -68,9 +68,6 @@
                 </form>
                 <hr>
                 <div class="d-flex flex-column align-items-center">
-                    <a href="{{ url('/auth/google/redirect') }}" class="btn btn-primary mb-3">
-                        <i class="bi bi-google"></i> Entrar com o Google
-                    </a>
                     <span class="small text-muted text-center">
                         Todos os direitos reservados. {{ config('app.name') }} - {{ config('app.description') }}.
                     </span>
