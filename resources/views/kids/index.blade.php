@@ -34,7 +34,7 @@
                             <th>Responsável</th>
                             <th>Data Nasc.</th>
                             <th>Idade</th>
-                            <th class="text-center">Ações</th>
+                            <th class="text-center" style="width: 100px;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -18,66 +18,18 @@ class UserController extends Controller
 {
     public function __construct() {}
 
+
     public function index()
     {
-        $this->authorize('viewAny', User::class);
+        $this->authorize('view kids');
+        // Buscar crianças com paginação (15 por página)
+        $users = User::query()
+            ->orderBy('name')
+            ->paginate(2);
 
-        $message = label_case('list users ') . ' | User:' . auth()->user()->name . '(ID: ' . auth()->user()->id . ') ';
-        Log::info($message);
-
-
-        $user = auth()->user();
-        return view('users.index');
+        return view('users.index', compact('users'));
     }
 
-    public function index_data()
-    {
-
-        /*if (auth()->user()->isSuperAdmin()) {
-            $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
-        } else {
-            $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
-            $data->where('created_by', '=', auth()->user()->id);
-        }*/
-
-        $data = User::select('id', 'name', 'email', 'type', 'allow');
-
-        return Datatables::of($data)
-
-            ->addColumn('action', function ($data) {
-                if (request()->user()->can('update users') || request()->user()->can('create users')) {
-                    $html = '<a class="btn btn-sm btn-secondary" href="' . route('users.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a>';
-
-                    return $html;
-                }
-            })
-
-            ->editColumn('name', function ($data) {
-                return $data->name;
-            })
-
-            ->editColumn('role', function ($data) {
-                return '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> ' . $data->getRoleNames()->first() ?? '' . ' </span>';
-            })
-
-            ->editColumn('email', function ($data) {
-                return $data->email;
-            })
-
-            ->editColumn('allow', function ($data) {
-
-                if ($data->allow) {
-                    $html = '<span class="badge bg-primary"><i class="bi bi-emoji-smile"></i> Sim </span>';
-                } else {
-                    $html = '<span class="badge bg-info"><i class="bi bi-emoji-frown"></i> Não </span>';
-                }
-
-                return $html;
-            })
-            ->rawColumns(['name', 'role', 'type', 'allow', 'action'])
-            ->orderColumns(['id'], '-:column $1')
-            ->make(true);
-    }
 
     public function edit($id)
     {
@@ -85,15 +37,6 @@ class UserController extends Controller
         $this->authorize('update', $user);
 
         try {
-            //$user = User::findOrFail($id);
-
-            /*if (auth()->user()->isSuperAdmin()) {
-                $roles = Role::all();
-            } elseif (auth()->user()->isAdmin()) {
-                $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
-            } else {
-                $roles = Role::where('created_by', '=', Auth::id())->get();
-            }*/
 
             $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 

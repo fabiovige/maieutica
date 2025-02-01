@@ -49,68 +49,11 @@ class KidsController extends Controller
                 return $query->where('responsible_id', auth()->user()->id);
             })
             ->orderBy('name')
-            ->paginate(15);
+            ->paginate(2);
 
         return view('kids.index', compact('kids'));
     }
-    /*
-    public function index_data()
-    {
-        $data = Kid::getKids();
 
-        return Datatables::of($data)
-            ->addColumn('action', function ($data) {
-
-                if (request()->user()->can('edit kids')) {
-
-                    $html = '<div class="dropdown">';
-                    $html .= '<button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">';
-                    $html .= '<li><a class="dropdown-item" href="' . route('kids.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a></li>';
-
-                    if ($data->checklists()->count() > 0) {
-                        $html .= '<li><a class="dropdown-item" href="' . route('kids.radarChart2', ['kidId' => $data->id, 'levelId' => 1, 'checklist' => null])
-                        . '"><i class="bi bi-check2-square"></i> Análise Geral</a></li>';
-                    }
-
-                    $html .= '</ul></div>';
-
-                    return $html;
-                }
-            })
-            ->editColumn('photo', function ($data) {
-                // Verifica se a criança tem uma foto. Se não tiver, gera um avatar aleatório.
-                if ($data->photo) {
-                    $photoUrl = asset('storage/' . $data->photo);
-                } else {
-                    $randomAvatarNumber = rand(1, 13); // Gera um número aleatório entre 1 e 13
-                    $photoUrl = asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png');
-                }
-
-                $html = '<img src="' . $photoUrl . '" class="rounded-img" style="width: 50px; height: 50px;">';
-                return $html;
-            })
-            ->editColumn('name', function ($data) {
-                return $data->name;
-            })
-            ->editColumn('birth_date', function ($data) {
-                return $data->birth_date . ' (' . $data->months . ' meses)';
-            })
-            ->editColumn('checklists', function ($data) {
-                return '<span class="badge bg-success"><i class="bi bi-check"></i> ' . $data->checklists->count() . ' Checklist(s) </span>';
-            })
-            ->editColumn('profession_id', function ($data) {
-                // Exibe o nome do professional ou 'Não atribuído' caso não tenha um professional
-                return $data->professional ? $data->professional->name : 'Não atribuído';
-            })
-            ->editColumn('responsible_id', function ($data) {
-                // Exibe o nome do responsável ou 'Não atribuído' caso não tenha um responsável
-                return $data->responsible ? $data->responsible->name : 'Não atribuído';
-            })
-            ->rawColumns(['photo', 'name', 'checklists', 'responsible', 'action'])
-            //->orderColumns(['id'], '-:column $1')
-            ->make(true);
-    }
-*/
     public function create()
     {
         $this->authorize('create', Kid::class);

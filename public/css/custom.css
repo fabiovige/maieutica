@@ -60,7 +60,7 @@ main {
 /* Footer */
 .footer-wrapper {
     background-color: #d7e2ec;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(0, 0, 0, 0.03);
     position: fixed;
     bottom: 0;
     width: 100%;
