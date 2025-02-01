@@ -47,6 +47,38 @@
                                 <td>{{ $kid->age ?? 'N/D' }}</td>
                                 <td class="text-center">
                                     <div class="btn-group gap-2" role="group">
+                                        @can('view kids')
+                                            <button type="button"
+                                                    onclick="window.location.href='{{ route('kids.overview', $kid->id) }}'"
+                                                    class="btn btn-info"
+                                                    title="Comparativo">
+                                                <i class="bi bi-bar-chart"></i>
+                                            </button>
+                                            <button type="button"
+                                                    onclick="window.location.href='{{ route('analysis.level', ['id' => $kid->id, 'level' => 0]) }}'"
+                                                    class="btn btn-warning"
+                                                    title="Análise">
+                                                <i class="bi bi-graph-down"></i>
+                                            </button>
+                                            <button type="button"
+                                                    onclick="window.location.href='{{ route('kids.overview', $kid->id) }}'"
+                                                    class="btn btn-dark"
+                                                    title="Desenvolvimento">
+                                                <i class="bi bi-graph-up-arrow"></i>
+                                            </button>
+                                            <button type="button"
+                                                    onclick="window.location.href='{{ route('checklists', ['kidId' => $kid->id]) }}'"
+                                                    class="btn btn-success"
+                                                    title="Checklist">
+                                                <i class="bi bi-check2-square"></i>
+                                            </button>
+                                            <button type="button"
+                                                    onclick="window.location.href='{{ route('kids.development', $kid->id) }}'"
+                                                    class="btn btn-primary"
+                                                    title="Desenvolvimento">
+                                                <i class="bi bi-graph-up"></i>
+                                            </button>
+                                        @endcan
                                         @can('edit kids')
                                             <button type="button"
                                                     onclick="window.location.href='{{ route('kids.edit', $kid->id) }}'"
