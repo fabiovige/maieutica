@@ -49,7 +49,7 @@ class KidsController extends Controller
                 return $query->where('responsible_id', auth()->user()->id);
             })
             ->orderBy('name')
-            ->paginate(2);
+            ->paginate(15);
 
         return view('kids.index', compact('kids'));
     }
