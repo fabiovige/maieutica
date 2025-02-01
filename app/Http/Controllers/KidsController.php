@@ -37,9 +37,20 @@ class KidsController extends Controller
 
     public function index()
     {
-        $message = label_case('Index Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::debug($message);
-        $kids = Kid::getKids();
+        $this->authorize('view kids');
+
+        if (request()->ajax()) {
+            return $this->index_data();
+        }
+
+        // Buscar crianças com paginação (15 por página)
+        $kids = Kid::query()
+            ->when(auth()->user()->hasRole('pais'), function ($query) {
+                return $query->where('responsible_id', auth()->user()->id);
+            })
+            ->orderBy('name')
+            ->paginate(15);
+
         return view('kids.index', compact('kids'));
     }
     /*
@@ -950,9 +961,9 @@ class KidsController extends Controller
             } elseif ($ageInMonths < $competence->percentil_75) {
                 $percentComplete = 50 + (($ageInMonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
             } elseif ($ageInMonths < $competence->percentil_90) {
-                $percentComplete = 75 + (($ageInMonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
+                $percentComplete = 75 + (($ageInmonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
             } else {
-                $percentComplete = 90 + (($ageInMonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
+                $percentComplete = 90 + (($ageInmonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
             }
 
             $radarDataCompetences[] = [

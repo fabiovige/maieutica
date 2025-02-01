@@ -20,8 +20,15 @@ class Kid extends BaseModel
         'photo'
     ];
 
+    protected $dates = [
+        'birth_date',
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
     protected $casts = [
-        'birth_date' => 'datetime',
+        'birth_date' => 'date'
     ];
 
     // Adicionando o Scope Local
@@ -63,14 +70,110 @@ class Kid extends BaseModel
         return $this->hasOne(Checklist::class)->latest();
     }
 
+    public function getAgeAttribute()
+    {
+        if (!$this->birth_date) {
+            return null;
+        }
+
+        try {
+            $birthDate = Carbon::parse($this->getRawOriginal('birth_date'));
+            $now = Carbon::now();
+
+            $years = $birthDate->diffInYears($now);
+            $months = $birthDate->diffInMonths($now) % 12;
+
+            if ($years > 0) {
+                return $years . 'a ' . $months . 'm';
+            }
+
+            return $months . ' meses';
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     public function getBirthDateAttribute($value)
     {
-        return Carbon::createFromFormat('Y-m-d', $value)->format('d/m/Y');
+        if (!$value) {
+            return null;
+        }
+        try {
+            return Carbon::parse($value)->format('d/m/Y');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     public function setBirthDateAttribute($value)
     {
-        $this->attributes['birth_date'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+        if (!$value) {
+            $this->attributes['birth_date'] = null;
+            return;
+        }
+
+        try {
+            if (str_contains($value, '/')) {
+                $date = Carbon::createFromFormat('d/m/Y', $value);
+            } else {
+                $date = Carbon::parse($value);
+            }
+            $this->attributes['birth_date'] = $date->format('Y-m-d');
+        } catch (\Exception $e) {
+            $this->attributes['birth_date'] = null;
+        }
+    }
+
+    public function getMonthsAttribute()
+    {
+        if (!$this->birth_date) {
+            return null;
+        }
+
+        try {
+            $birthDate = Carbon::parse($this->getRawOriginal('birth_date'));
+            return $birthDate->diffInMonths(Carbon::now());
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function getFullNameMonthsAttribute()
+    {
+        if (!$this->birth_date) {
+            return null;
+        }
+
+        try {
+            $birthDate = Carbon::parse($this->getRawOriginal('birth_date'));
+            $month = $birthDate->diffInMonths(Carbon::now());
+            $formattedDate = $birthDate->format('d/m/Y');
+
+            return 'Cod. '. $this->id . ' - ' . ' Nascido em: ' . $formattedDate . ' (' . $month . ' meses)';
+        } catch (\Exception $e) {
+            return 'Data inválida';
+        }
+    }
+
+    public function getInitialsAttribute()
+    {
+        $name = trim($this->name);
+        if (empty($name)) {
+            return 'NA';
+        }
+
+        $words = array_filter(explode(' ', $name));
+
+        if (count($words) >= 2) {
+            // Primeira letra do primeiro e último nome
+            return mb_strtoupper(
+                mb_substr($words[0], 0, 1) .
+                mb_substr(end($words), 0, 1)
+            );
+        }
+
+        // Se for apenas um nome, pega as duas primeiras letras
+        return mb_strtoupper(mb_substr($name, 0, 2));
     }
 
     public static function boot()
@@ -99,22 +202,5 @@ class Kid extends BaseModel
         }
 
         return $query->get();
-    }
-
-    public function getMonthsAttribute()
-    {
-        $now = Carbon::now();
-        $dt = Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d');
-
-        return $now->diffInMonths($dt);
-    }
-
-    public function getFullNameMonthsAttribute()
-    {
-        $now = Carbon::now();
-        $dt = Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d');
-        $month = $now->diffInMonths($dt);
-
-        return 'Cod. '. $this->id . ' - ' . ' Nascido em: ' . $this->birth_date . ' (' . $month . ' meses)';
     }
 }
