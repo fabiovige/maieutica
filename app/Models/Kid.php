@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 
-class Kid extends BaseModel
+class Kid extends Model
 {
     protected $fillable = [
         'name',
         'birth_date',
-        'profession_id',
         'responsible_id',
         'created_by',
         'updated_by',
@@ -28,12 +28,12 @@ class Kid extends BaseModel
     public function scopeForProfessional(Builder $query)
     {
         if (Auth::check() && Auth::user()->hasRole('professional')) {
-            return $query->where('profession_id', Auth::id());
+            return $query->whereHas('professionals', function ($q) {
+                $q->where('users.id', Auth::id());
+            });
         }
-
         return $query;
     }
-
 
     // Relacionamento com o responsável (ROLE_PAIS)
     public function responsible()
@@ -88,14 +88,16 @@ class Kid extends BaseModel
         $query = Kid::query();
 
         if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
-            $query->with(['professional', 'responsible', 'checklists']);
+            $query->with(['professionals', 'responsible', 'checklists']);
         } else if (auth()->user()->hasRole('professional')) {
-            $query->where('profession_id', auth()->user()->id)
-                ->whereOr('created_by', auth()->user()->id)
-                ->with(['professional', 'responsible', 'checklists']);
+            $query->whereHas('professionals', function ($q) {
+                $q->where('users.id', auth()->id());
+            })
+            ->orWhere('created_by', auth()->user()->id)
+            ->with(['professionals', 'responsible', 'checklists']);
         } else if (auth()->user()->hasRole('pais')) {
             $query->where('responsible_id', auth()->user()->id)
-                ->with(['professional', 'responsible', 'checklists']);
+                ->with(['professionals', 'responsible', 'checklists']);
         }
 
         return $query->get();
@@ -116,5 +118,57 @@ class Kid extends BaseModel
         $month = $now->diffInMonths($dt);
 
         return 'Cod. '. $this->id . ' - ' . ' Nascido em: ' . $this->birth_date . ' (' . $month . ' meses)';
+    }
+
+    /**
+     * Os profissionais associados a esta criança
+     */
+    public function professionals()
+    {
+        return $this->belongsToMany(User::class, 'kid_professional')
+            ->withPivot('is_primary')
+            ->withTimestamps();
+    }
+
+    /**
+     * O profissional principal desta criança
+     */
+    public function primaryProfessional()
+    {
+        return $this->belongsToMany(User::class, 'kid_professional')
+            ->withPivot('is_primary')
+            ->wherePivot('is_primary', true)
+            ->first();
+    }
+
+    /**
+     * Atribui profissionais a esta criança
+     */
+    public function assignProfessionals(array $professionalIds, $primaryProfessionalId = null)
+    {
+        $sync = [];
+        foreach ($professionalIds as $id) {
+            $sync[$id] = ['is_primary' => ($id == $primaryProfessionalId)];
+        }
+
+        return $this->professionals()->sync($sync);
+    }
+
+    /**
+     * Adiciona um profissional a esta criança
+     */
+    public function addProfessional($professionalId, $isPrimary = false)
+    {
+        return $this->professionals()->attach($professionalId, [
+            'is_primary' => $isPrimary
+        ]);
+    }
+
+    /**
+     * Remove um profissional desta criança
+     */
+    public function removeProfessional($professionalId)
+    {
+        return $this->professionals()->detach($professionalId);
     }
 }

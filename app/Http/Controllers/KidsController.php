@@ -21,17 +21,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
-use Spatie\Permission\Models\Role as SpatieRole;
+use Spatie\Permission\Models\Role;
 use App\Services\OverviewService;
 use Illuminate\Support\Facades\File;
 use Psy\VersionUpdater\Checker;
+use App\Interfaces\Services\KidServiceInterface;
 
 class KidsController extends Controller
 {
+    protected $kidService;
     protected $overviewService;
 
-    public function __construct(OverviewService $overviewService)
-    {
+    public function __construct(
+        KidServiceInterface $kidService,
+        OverviewService $overviewService
+    ) {
+        $this->kidService = $kidService;
         $this->overviewService = $overviewService;
     }
 
@@ -39,67 +44,11 @@ class KidsController extends Controller
     {
         $message = label_case('Index Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::debug($message);
-        $kids = Kid::getKids();
+
+        $kids = $this->kidService->getKids();
         return view('kids.index', compact('kids'));
     }
-    /*
-    public function index_data()
-    {
-        $data = Kid::getKids();
 
-        return Datatables::of($data)
-            ->addColumn('action', function ($data) {
-
-                if (request()->user()->can('edit kids')) {
-
-                    $html = '<div class="dropdown">';
-                    $html .= '<button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">';
-                    $html .= '<li><a class="dropdown-item" href="' . route('kids.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a></li>';
-
-                    if ($data->checklists()->count() > 0) {
-                        $html .= '<li><a class="dropdown-item" href="' . route('kids.radarChart2', ['kidId' => $data->id, 'levelId' => 1, 'checklist' => null])
-                        . '"><i class="bi bi-check2-square"></i> Análise Geral</a></li>';
-                    }
-
-                    $html .= '</ul></div>';
-
-                    return $html;
-                }
-            })
-            ->editColumn('photo', function ($data) {
-                // Verifica se a criança tem uma foto. Se não tiver, gera um avatar aleatório.
-                if ($data->photo) {
-                    $photoUrl = asset('storage/' . $data->photo);
-                } else {
-                    $randomAvatarNumber = rand(1, 13); // Gera um número aleatório entre 1 e 13
-                    $photoUrl = asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png');
-                }
-
-                $html = '<img src="' . $photoUrl . '" class="rounded-img" style="width: 50px; height: 50px;">';
-                return $html;
-            })
-            ->editColumn('name', function ($data) {
-                return $data->name;
-            })
-            ->editColumn('birth_date', function ($data) {
-                return $data->birth_date . ' (' . $data->months . ' meses)';
-            })
-            ->editColumn('checklists', function ($data) {
-                return '<span class="badge bg-success"><i class="bi bi-check"></i> ' . $data->checklists->count() . ' Checklist(s) </span>';
-            })
-            ->editColumn('profession_id', function ($data) {
-                // Exibe o nome do professional ou 'Não atribuído' caso não tenha um professional
-                return $data->professional ? $data->professional->name : 'Não atribuído';
-            })
-            ->editColumn('responsible_id', function ($data) {
-                // Exibe o nome do responsável ou 'Não atribuído' caso não tenha um responsável
-                return $data->responsible ? $data->responsible->name : 'Não atribuído';
-            })
-            ->rawColumns(['photo', 'name', 'checklists', 'responsible', 'action'])
-            //->orderColumns(['id'], '-:column $1')
-            ->make(true);
-    }
-*/
     public function create()
     {
         $this->authorize('create', Kid::class);
@@ -107,44 +56,33 @@ class KidsController extends Controller
         $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
-        return view('kids.create');
+        // Buscar todos os usuários com role 'professional'
+        $professionals = User::whereHas('roles', function($q) {
+            $q->where('name', 'professional');
+        })->get();
+
+        // Buscar todos os usuários com role 'pais'
+        $responsibles = User::whereHas('roles', function($q) {
+            $q->where('name', 'pais');
+        })->get();
+
+        return view('kids.create', compact('professionals', 'responsibles'));
     }
 
     public function store(KidRequest $request)
     {
         $this->authorize('create', Kid::class);
 
-        DB::beginTransaction();
         try {
-            $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            $validatedData = $request->validated();
 
-
-            $kidData = [
-                'name' => $request->name,
-                'birth_date' => $request->birth_date,
-                'created_by' => auth()->user()->id,
-            ];
-
-            if (Auth::user()->hasRole('professional')) {
-                $kidData['profession_id'] = Auth::user()->id;
-            }
-
-            $kid = Kid::forProfessional()->create($kidData);
-
-            Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
+            $kid = $this->kidService->createKid($validatedData);
 
             flash(self::MSG_CREATE_SUCCESS)->success();
-
-            DB::commit();
-
             return redirect()->route('kids.index');
         } catch (Exception $e) {
-            DB::rollBack();
+            Log::error('Store Kids Error: ' . $e->getMessage());
             flash(self::MSG_CREATE_ERROR)->warning();
-            $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
             return redirect()->route('kids.index');
         }
     }
@@ -202,48 +140,50 @@ class KidsController extends Controller
 
     public function edit($id)
     {
-        $kid = Kid::findOrFail($id);
+        $kid = $this->kidService->findById($id);
         $this->authorize('update', $kid);
+
         try {
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            // Verificando se o papel 'pais' existe, caso contrário lançar exceção
-            $parentRole = SpatieRole::where('name', 'pais')->first();
+            // Verificando se o papel 'pais' existe
+            $parentRole = Role::where('name', 'pais')->first();
             if (!$parentRole) {
                 throw new Exception("O papel 'pais' não existe no sistema.");
             }
 
-            // Verificando se o papel 'professional' existe, caso contrário lançar exceção
-            $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (!$professionalRole) {
-                throw new Exception("O papel 'professional' não existe no sistema.");
-            }
-
             // Buscando usuários com o papel 'pais'
-            $responsibles = User::whereHas('roles', function ($query) {
-                $query->where('name', 'pais');
+            $responsibles = User::whereHas('roles', function($q) {
+                $q->where('name', 'pais');
             })->get();
 
             // Buscando usuários com o papel 'professional'
-            $professions = User::whereHas('roles', function ($query) {
-                $query->where('name', 'professional');
+            $professionals = User::whereHas('roles', function($q) {
+                $q->where('name', 'professional');
             })->get();
 
+            // Obtendo os IDs dos profissionais já associados
+            $selectedProfessionals = $kid->professionals->pluck('id')->toArray();
+            $primaryProfessionalId = $kid->primaryProfessional()?->id;
 
-            return view('kids.edit', compact('kid', 'responsibles', 'professions'));
+            return view('kids.edit', compact(
+                'kid',
+                'responsibles',
+                'professionals',
+                'selectedProfessionals',
+                'primaryProfessionalId'
+            ));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
+            Log::error('Update Kids ' . $e->getMessage());
             return redirect()->back();
         }
     }
 
     public function eyeKid($id)
     {
-        $kid = Kid::findOrFail($id);
+        $kid = $this->kidService->findById($id);
         $this->authorize('view', $kid);
 
         try {
@@ -251,13 +191,13 @@ class KidsController extends Controller
             Log::info($message);
 
             // Verificando se o papel 'pais' existe, caso contrário lançar exceção
-            $parentRole = SpatieRole::where('name', 'pais')->first();
+            $parentRole = Role::where('name', 'pais')->first();
             if (!$parentRole) {
                 throw new Exception("O papel 'pais' não existe no sistema.");
             }
 
             // Verificando se o papel 'professional' existe, caso contrário lançar exceção
-            $professionalRole = SpatieRole::where('name', 'professional')->first();
+            $professionalRole = Role::where('name', 'professional')->first();
             if (!$professionalRole) {
                 throw new Exception("O papel 'professional' não existe no sistema.");
             }
@@ -283,42 +223,19 @@ class KidsController extends Controller
         }
     }
 
-    public function update(KidRequest $request, Kid $kid)
+    public function update(KidRequest $request, $id)
     {
-        // Verifica se o usuário está autorizado a atualizar o registro
+        $kid = $this->kidService->findById($id);
         $this->authorize('update', $kid);
 
         try {
-            // Loga a tentativa de atualização
-            $message = label_case('Update Kids ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            $this->kidService->updateKid($kid, $request->validated());
 
-            // Coleta os dados do request
-            $data = $request->all();
-
-            // Removida a verificação de papel 'isProfessional'
-            // O tratamento para usuários profissionais será feito futuramente
-
-            // Atualiza os dados da criança
-            $kid->update($data);
-
-            // Opcional: Disparar job de atualização de criança
-            // SendKidUpdateJob::dispatch($kid)->onQueue('emails');
-
-            // Mensagem de sucesso
             flash(self::MSG_UPDATE_SUCCESS)->success();
-
-            // Redireciona para a página de edição
             return redirect()->route('kids.edit', $kid->id);
         } catch (Exception $e) {
-            // Loga o erro em caso de falha
-            $message = label_case('Update Kids Error' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            // Mensagem de erro
+            Log::error('Update Kids Error: ' . $e->getMessage());
             flash(self::MSG_UPDATE_ERROR)->warning();
-
-            // Redireciona de volta para a página anterior
             return redirect()->back();
         }
     }
@@ -331,7 +248,7 @@ class KidsController extends Controller
             Log::info($message);
 
 
-            $kid->delete();
+            $this->kidService->deleteKid($kid);
             flash(self::MSG_DELETE_SUCCESS)->success();
 
             return redirect()->route('kids.index');
@@ -351,7 +268,7 @@ class KidsController extends Controller
         try {
             $plane = Plane::findOrFail($id);
             $kid_id = $plane->kid()->first()->id;
-            $kid = Kid::findOrFail($kid_id);
+            $kid = $this->kidService->findById($kid_id);
             $nameKid = $plane->kid()->first()->name;
             $therapist = $kid->professional->name;
             $date = $plane->first()->created_at;
@@ -425,7 +342,7 @@ class KidsController extends Controller
     {
         try {
             // Primeiro, verificar se o kid existe
-            $kid = Kid::findOrFail($kidId);
+            $kid = $this->kidService->findById($kidId);
 
             // Verificar se o checklist existe
             $checklist = Checklist::findOrFail($checklislId);
@@ -536,7 +453,7 @@ class KidsController extends Controller
     {
         try {
             // Primeiro, verificar se o kid existe
-            $kid = Kid::findOrFail($kidId);
+            $kid = $this->kidService->findById($kidId);
 
             // Verificar se o checklist existe
             $checklist = Checklist::findOrFail($checklislId);
@@ -733,7 +650,7 @@ class KidsController extends Controller
     public function showRadarChart($kidId, $levelId)
     {
         // Obter a criança pelo ID
-        $kid = Kid::findOrFail($kidId);
+        $kid = $this->kidService->findById($kidId);
 
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
@@ -796,7 +713,7 @@ class KidsController extends Controller
         //dd($kidId, $levelId, $domainId, $checklistId);
 
         // Obter a criança pelo ID
-        $kid = Kid::findOrFail($kidId);
+        $kid = $this->kidService->findById($kidId);
 
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
@@ -907,35 +824,35 @@ class KidsController extends Controller
                 if ($ageInMonths < $competence->percentil_25) {
                     $status = 'Dentro do esperado'; // Mais ou menos, mas ainda dentro da faixa esperada (<25%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
+                } elseif ($ageInmonths >= $competence->percentil_25 && $ageInmonths < $competence->percentil_50) {
                     $status = 'Dentro do esperado'; // Mais ou menos entre 25% e 50%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                } elseif ($ageInmonths >= $competence->percentil_50 && $ageInmonths < $competence->percentil_75) {
                     $status = 'Dentro do esperado'; // Mais ou menos entre 50% e 75%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
                     $status = 'Dentro do esperado'; // Mais ou menos entre 75% e 90%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_90) {
                     $status = 'Atrasada'; // Mais ou menos após o percentil 90, deveria ter Consistente
                     $statusColor = 'red';
                 }
             } elseif ($currentStatusValue === 1) {
 
                 // Difícil de obter ou não avaliado
-                if ($ageInMonths < $competence->percentil_25) {
+                if ($ageInmonths < $competence->percentil_25) {
                     $status = 'Dentro do esperado'; // Difícil de obter, mas ainda dentro da faixa esperada (<25%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
+                } elseif ($ageInmonths >= $competence->percentil_25 && $ageInmonths < $competence->percentil_50) {
                     $status = 'Atrasada'; // Difícil de obter entre 25% e 50%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                } elseif ($ageInmonths >= $competence->percentil_50 && $ageInmonths < $competence->percentil_75) {
                     $status = 'Atrasada'; // Difícil de obter entre 50% e 75%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
                     $status = 'Atrasada'; // Difícil de obter entre 75% e 90%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_90) {
                     $status = 'Atrasada'; // Difícil de obter após o percentil 90, deveria ter Consistente
                     $statusColor = 'red';
                 }
@@ -943,16 +860,16 @@ class KidsController extends Controller
 
             // Determinar o progresso em termos de percentil
             $percentComplete = 0;
-            if ($ageInMonths < $competence->percentil_25) {
-                $percentComplete = ($ageInMonths / $competence->percentil_25) * 25;
-            } elseif ($ageInMonths < $competence->percentil_50) {
-                $percentComplete = 25 + (($ageInMonths - $competence->percentil_25) / ($competence->percentil_50 - $competence->percentil_25)) * 25;
-            } elseif ($ageInMonths < $competence->percentil_75) {
-                $percentComplete = 50 + (($ageInMonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
-            } elseif ($ageInMonths < $competence->percentil_90) {
-                $percentComplete = 75 + (($ageInMonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
+            if ($ageInmonths < $competence->percentil_25) {
+                $percentComplete = ($ageInmonths / $competence->percentil_25) * 25;
+            } elseif ($ageInmonths < $competence->percentil_50) {
+                $percentComplete = 25 + (($ageInmonths - $competence->percentil_25) / ($competence->percentil_50 - $competence->percentil_25)) * 25;
+            } elseif ($ageInmonths < $competence->percentil_75) {
+                $percentComplete = 50 + (($ageInmonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
+            } elseif ($ageInmonths < $competence->percentil_90) {
+                $percentComplete = 75 + (($ageInmonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
             } else {
-                $percentComplete = 90 + (($ageInMonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
+                $percentComplete = 90 + (($ageInmonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
             }
 
             $radarDataCompetences[] = [
@@ -992,7 +909,7 @@ class KidsController extends Controller
     public function showRadarChart2($kidId, $levelId, $checklistId = null)
     {
         // Obter a criança pelo ID
-        $kid = Kid::findOrFail($kidId);
+        $kid = $this->kidService->findById($kidId);
 
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
@@ -1167,7 +1084,7 @@ class KidsController extends Controller
     public function overviewOld($kidId, $levelId = null, $checklistId = null)
     {
         // Obter a criança pelo ID
-        $kid = Kid::findOrFail($kidId);
+        $kid = $this->kidService->findById($kidId);
 
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
@@ -1338,7 +1255,7 @@ class KidsController extends Controller
         $radarChartImage = $request->input('radarChartImage');
         $barChartItems2Image = $request->input('barChartItems2Image');
 
-        $kid = Kid::findOrFail($kidId);
+        $kid = $this->kidService->findById($kidId);
         $currentChecklist = $kid->currentChecklist;
 
         $createdAt = Carbon::parse($currentChecklist->created_at)->format('d/m/Y');

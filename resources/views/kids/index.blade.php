@@ -21,35 +21,42 @@
 <div class="row">
     <div class="col-md-12 ">
         <h3>Crianças</h3>
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Foto</th>
+                    <th>Id</th>
                     <th>Nome</th>
-                    <th>Data de nascimento</th>
-                    <th>Profissional</th>
-                    <th>Responsáveis</th>
-                    <th></th>
+                    <th>Data de Nascimento</th>
+                    <th>Idade (meses)</th>
+                    <th>Profissionais</th>
+                    <th>Responsável</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($kids as $kid)
-                <tr class="centered-column-vertically">
+                <tr>
                     <td>{{ $kid->id }}</td>
-                    <td>
-                        @php
-                        $photoUrl = '';
-                        if ($kid->photo) {
-                            $photoUrl = asset('images/kids/' . $kid->photo);
-                        }
-                        @endphp
-                        <img src="{{ $photoUrl }}" class="rounded-img" style="width: 50px; height: 50px;">
-                    </td>
                     <td>{{ $kid->name }}</td>
                     <td>{{ $kid->birth_date }}</td>
-                    <td>{{ $kid->professional->name ?? 'N/A' }}</td>
-                    <td>{{ $kid->responsible->name ?? 'N/A' }}</td>
+                    <td>{{ $kid->months }}</td>
+                    <td>
+                        @if($kid->professionals->count() > 0)
+                            @foreach($kid->professionals as $professional)
+                                <div>
+                                    {{ $professional->name }}
+                                    @if($professional->pivot->is_primary)
+                                        <span class="badge bg-primary">Principal</span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        @else
+                            <span class="text-muted">Sem profissionais</span>
+                        @endif
+                    </td>
+                    <td>
+                        {{ $kid->responsible ? $kid->responsible->name : 'Não cadastrado' }}
+                    </td>
                     <td>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">

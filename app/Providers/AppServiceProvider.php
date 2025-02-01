@@ -11,6 +11,10 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use App\Interfaces\Repositories\KidRepositoryInterface;
+use App\Interfaces\Services\KidServiceInterface;
+use App\Repositories\KidRepository;
+use App\Services\KidService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->isLocal()) {
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
+
+        $this->app->bind(KidRepositoryInterface::class, KidRepository::class);
+        $this->app->bind(KidServiceInterface::class, KidService::class);
     }
 
     /**

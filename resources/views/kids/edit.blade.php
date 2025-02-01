@@ -77,9 +77,10 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group">
+                            <!-- Nome e Data de Nascimento -->
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label for="name">Nome completo da criança</label> <br>
+                                    <label for="name">Nome completo da criança</label>
                                     <input class="form-control @error('name') is-invalid @enderror" type="text" name="name" value="{{ old('name') ?? $kid->name }}">
                                     @error('name')
                                     <div class="invalid-feedback">
@@ -88,7 +89,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="birth_date">Data de nascimento</label> <br>
+                                    <label for="birth_date">Data de nascimento</label>
                                     <input class="form-control datepicker @error('birth_date') is-invalid @enderror" type="text" name="birth_date" value="{{ old('birth_date') ?? $kid->birth_date }}">
                                     @error('birth_date')
                                     <div class="invalid-feedback">
@@ -97,48 +98,45 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mt-3">
-                                    <label for="profession_id">Professional</label> <br>
-                                    <select class="form-select @error('profession_id') is-invalid @enderror" aria-label="profession_id" name="profession_id" @if(auth()->user()->isProfessional()) disabled @endif>
-                                        <option value="">-- selecione --</option>
-                                        @foreach($professions as $profession)
-                                            <option value="{{ $profession->id }}" @if(old('profession_id') == $profession->id || $profession->id == $kid->profession_id  ) selected @endif> {{ $profession->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('profession_id')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
+
+                            <!-- Seleção de Profissionais -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="professionals" class="form-label">Profissionais</label>
+                                        <select name="professionals[]" id="professionals" class="form-control select2" multiple>
+                                            @foreach($professionals as $professional)
+                                                <option value="{{ $professional->id }}"
+                                                    {{ in_array($professional->id, $selectedProfessionals) ? 'selected' : '' }}>
+                                                    {{ $professional->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                    @enderror
                                 </div>
-                                <div class="col-md-6 mt-3">
-                                    <label for="responsible_id">Pais ou responsável</label> <br>
-                                    <select class="form-select @error('responsible_id') is-invalid @enderror"
-                                    aria-label="responsible_id" name="responsible_id">
-                                        <option value="">-- selecione --</option>
-                                        @foreach($responsibles as $responsible)
-                                            <option value="{{ $responsible->id }}"
-                                                @if(old('responsible_id') == $responsible->id || $responsible->id == $kid->responsible_id  ) selected @endif>
-                                                {{ $responsible->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('responsible_id')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="responsible_id" class="form-label">Responsável</label>
+                                        <select name="responsible_id" id="responsible_id" class="form-control select2">
+                                            <option value="">Selecione um responsável</option>
+                                            @foreach($responsibles as $responsible)
+                                                <option value="{{ $responsible->id }}"
+                                                    {{ $kid->responsible_id == $responsible->id ? 'selected' : '' }}>
+                                                    {{ $responsible->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                    @enderror
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- DADOS OS PAIS -->
+                <!-- Informações do Responsável -->
                 <div class="row">
                     <div class="col-md-12 mt-3">
-                        <h3>Dados do responsável</h3>
+                        <h3>Dados do responsável atual</h3>
                     </div>
                 </div>
                 <div class="card">
@@ -177,44 +175,45 @@
                     </div>
                 </div>
 
-                <!-- DADOS DO professional -->
+                <!-- Informações dos Profissionais -->
                 <div class="row">
                     <div class="col-md-12 mt-3">
-                        <h3>Dados do professional</h3>
+                        <h3>Profissionais atuais</h3>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">
-                        Id: {{ $kid->professional ? $kid->professional->id : 'Não cadastrado' }}
-                    </div>
                     <div class="card-body">
-                        @if ($kid->professional)
-                        <div class="row">
-                            <div class="col-md-12">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Id</th>
-                                            <th>Nome</th>
-                                            <th>E-mail</th>
-                                            <th>Telefone</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $kid->professional->id }}</td>
-                                            <td>{{ $kid->professional->name }}</td>
-                                            <td>{{ $kid->professional->email }}</td>
-                                            <td>{{ $kid->professional->phone }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        @if ($kid->professionals->count() > 0)
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Id</th>
+                                                <th>Nome</th>
+                                                <th>E-mail</th>
+                                                <th>Telefone</th>
+                                                <th>Principal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($kid->professionals as $professional)
+                                                <tr>
+                                                    <td>{{ $professional->id }}</td>
+                                                    <td>{{ $professional->name }}</td>
+                                                    <td>{{ $professional->email }}</td>
+                                                    <td>{{ $professional->phone }}</td>
+                                                    <td>{{ $professional->pivot->is_primary ? 'Sim' : 'Não' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
                         @else
-                        <div class="alert alert-warning" role="alert">
-                            Não há professional cadastrado
-                        </div>
+                            <div class="alert alert-warning" role="alert">
+                                Não há profissionais cadastrados
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -232,4 +231,34 @@
     @include('includes.information-register', ['data' => $kid, 'action' => 'kids.destroy', 'can' => 'remove kids'])
 
 @endsection
+
+@push('after-scripts')
+<script>
+$(document).ready(function() {
+    // Inicializar Select2
+    $('.select2').select2();
+
+    // Atualizar opções do profissional principal baseado na seleção múltipla
+    $('#professionals').on('change', function() {
+        var selectedProfessionals = $(this).val();
+        var primarySelect = $('#primary_professional_id');
+        var currentPrimary = primarySelect.val();
+
+        // Limpar e recriar opções
+        primarySelect.empty().append('<option value="">Selecione um profissional principal</option>');
+
+        selectedProfessionals.forEach(function(proId) {
+            var proName = $('#professionals option[value="' + proId + '"]').text();
+            var option = new Option(proName, proId, false, proId == currentPrimary);
+            primarySelect.append(option);
+        });
+
+        // Se o profissional principal atual não está mais na lista de selecionados
+        if (!selectedProfessionals.includes(currentPrimary)) {
+            primarySelect.val('').trigger('change');
+        }
+    });
+});
+</script>
+@endpush
 

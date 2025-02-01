@@ -48,6 +48,44 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="professionals" class="form-label">Profissionais</label>
+                                    <select name="professionals[]" id="professionals" class="form-control select2" multiple>
+                                        @foreach($professionals as $professional)
+                                            <option value="{{ $professional->id }}">{{ $professional->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="primary_professional_id" class="form-label">Profissional Principal</label>
+                                    <select name="primary_professional_id" id="primary_professional_id" class="form-control select2">
+                                        <option value="">Selecione um profissional principal</option>
+                                        @foreach($professionals as $professional)
+                                            <option value="{{ $professional->id }}">{{ $professional->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="responsible_id" class="form-label">Responsável</label>
+                                    <select name="responsible_id" id="responsible_id" class="form-control select2">
+                                        <option value="">Selecione um responsável</option>
+                                        @foreach($responsibles as $responsible)
+                                            <option value="{{ $responsible->id }}">{{ $responsible->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -59,4 +97,27 @@
         </div>
     </div>
 @endsection
+
+@push('after-scripts')
+<script>
+$(document).ready(function() {
+    // Inicializar Select2 para seleção múltipla
+    $('.select2').select2();
+
+    // Atualizar opções do profissional principal baseado na seleção múltipla
+    $('#professionals').on('change', function() {
+        var selectedProfessionals = $(this).val();
+        var primarySelect = $('#primary_professional_id');
+
+        // Limpar e recriar opções
+        primarySelect.empty().append('<option value="">Selecione um profissional principal</option>');
+
+        selectedProfessionals.forEach(function(proId) {
+            var proName = $('#professionals option[value="' + proId + '"]').text();
+            primarySelect.append(new Option(proName, proId));
+        });
+    });
+});
+</script>
+@endpush
 

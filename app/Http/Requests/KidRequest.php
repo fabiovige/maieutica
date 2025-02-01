@@ -23,42 +23,14 @@ class KidRequest extends FormRequest
      */
     public function rules()
     {
-        switch ($this->method()) {
-            case 'GET':
-            case 'DELETE':
-                return [
-                    'id' => 'required|exists:kids,id',
-                ];
-
-            case 'POST':
-                return [
-                    'name' => 'required|min:3|max:100',
-                    'birth_date' => 'required|date_format:"d/m/Y"',
-                    'profession_id' => 'nullable|exists:users,id',
-                    'responsible_id' => 'nullable|exists:users,id',
-
-                    // validação do responsavel
-                    //'responsible_name' => 'required|min:3|max:100',
-                    //'email' => 'required|string|email|max:150|unique:users,email',
-                    //'phone' => 'required|min:3|max:100',
-                ];
-
-            case 'PUT':
-                return [
-                    'name' => 'required|min:4|max:50',
-                    'birth_date' => 'required|date_format:"d/m/Y"',
-                    'profession_id' => 'nullable|exists:users,id',
-                    'responsible_id' => 'nullable|exists:users,id',
-
-                    // validação do responsavel
-                    /*'responsible_name' => 'required|min:3|max:100',
-                    'email' => 'required|string|email|max:150|unique:users,email,' . $this->route('kid')->id,
-                    'phone' => 'required|min:3|max:100',*/
-                ];
-
-            default:
-                break;
-        }
+        return [
+            'name' => 'required|string|max:255',
+            'birth_date' => 'required|date_format:d/m/Y',
+            'professionals' => 'nullable|array',
+            'professionals.*' => 'exists:users,id',
+            'primary_professional_id' => 'nullable|exists:users,id',
+            'responsible_id' => 'nullable|exists:users,id',
+        ];
     }
 
     public function attributes()
@@ -66,7 +38,8 @@ class KidRequest extends FormRequest
         return [
             'name' => 'Nome',
             'birth_date' => 'Data de nascimento',
-            'profession_id' => 'Professional responsável',
+            'professionals' => 'Profissionais',
+            'primary_professional_id' => 'Profissional principal',
             'responsible_name' => 'Nome do responsável',
         ];
     }
@@ -74,7 +47,11 @@ class KidRequest extends FormRequest
     public function messages()
     {
         return [
-            'date_format' => 'Data de nascimento inválida',
+            'name.required' => 'O nome é obrigatório',
+            'birth_date.required' => 'A data de nascimento é obrigatória',
+            'birth_date.date_format' => 'A data deve estar no formato dd/mm/aaaa',
+            'professionals.*.exists' => 'Um ou mais profissionais selecionados são inválidos',
+            'primary_professional_id.exists' => 'O profissional principal selecionado é inválido',
         ];
     }
 }
