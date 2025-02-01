@@ -23,51 +23,18 @@ class KidRequest extends FormRequest
      */
     public function rules()
     {
-        switch ($this->method()) {
-            case 'GET':
-            case 'DELETE':
-                return [
-                    'id' => 'required|exists:kids,id',
-                ];
-
-            case 'POST':
-                return [
-                    'name' => 'required|min:3|max:100',
-                    'birth_date' => 'required|date_format:"d/m/Y"',
-                    'profession_id' => 'nullable|exists:users,id',
-                    'responsible_id' => 'nullable|exists:users,id',
-
-                    // validação do responsavel
-                    //'responsible_name' => 'required|min:3|max:100',
-                    //'email' => 'required|string|email|max:150|unique:users,email',
-                    //'phone' => 'required|min:3|max:100',
-                ];
-
-            case 'PUT':
-                return [
-                    'name' => 'required|min:4|max:50',
-                    'birth_date' => 'required|date_format:"d/m/Y"',
-                    'profession_id' => 'nullable|exists:users,id',
-                    'responsible_id' => 'nullable|exists:users,id',
-
-                    // validação do responsavel
-                    /*'responsible_name' => 'required|min:3|max:100',
-                    'email' => 'required|string|email|max:150|unique:users,email,' . $this->route('kid')->id,
-                    'phone' => 'required|min:3|max:100',*/
-                ];
-
-            default:
-                break;
-        }
+        return [
+            'name' => 'required|string|max:255',
+            'age' => 'required|integer|min:0',
+            // Adicione outras regras conforme necessário
+        ];
     }
 
     public function attributes()
     {
         return [
-            'name' => 'Nome',
-            'birth_date' => 'Data de nascimento',
-            'profession_id' => 'Professional responsável',
-            'responsible_name' => 'Nome do responsável',
+            'name' => 'nome',
+            'age' => 'idade',
         ];
     }
 

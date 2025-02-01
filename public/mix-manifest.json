@@ -1,6 +1,6 @@
 {
-    "/js/app.js": "/js/app.js?id=c2494ce198c03860ee0cb25b59b774d4",
-    "/css/app.css": "/css/app.css?id=24f722cdb620008a33ae69b1bfef40db",
+    "/js/app.js": "/js/app.js?id=125ae8024215a7659f2340448d3e0a44",
+    "/css/app.css": "/css/app.css?id=476e50b010b5584b2b207ff5f0d8cd40",
     "/images/bg-grande-maieutica.png": "/images/bg-grande-maieutica.png?id=fbe50f7ee4106d357e5aeac67518b3d9",
     "/images/kids/67714aad4909f.png": "/images/kids/67714aad4909f.png?id=911ae86d4ad11988363bbb9f7091e04e",
     "/images/kids/677152c54b0dc.png": "/images/kids/677152c54b0dc.png?id=dfe12f8101c6edad0e11342d37fb0d6e",
@@ -67,7 +67,5 @@
     "/vendor/datatable/pt-BR.json": "/vendor/datatable/pt-BR.json?id=677d05c409cc0410a808c6d3a3951b12",
     "/vendor/datatable/responsive.bootstrap5.js": "/vendor/datatable/responsive.bootstrap5.js?id=eaf53c7428250d95227f80c2a3c96ddf",
     "/vendor/datatable/responsive.bootstrap5.min.css": "/vendor/datatable/responsive.bootstrap5.min.css?id=3a4613a6d489c5f597f5211c4c30661a",
-    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd",
-    "/js/app.min.js": "/js/app.min.js?id=c2494ce198c03860ee0cb25b59b774d4",
-    "/css/app.min.css": "/css/app.min.css?id=24f722cdb620008a33ae69b1bfef40db"
+    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd"
 }

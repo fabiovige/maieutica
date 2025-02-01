@@ -13,10 +13,17 @@ use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
 
 use Spatie\Permission\Models\Role as SpatieRole;
+use App\Services\UserService;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function __construct() {}
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
 
     public function index()
     {
@@ -25,14 +32,12 @@ class UserController extends Controller
         $message = label_case('list users ') . ' | User:' . auth()->user()->name . '(ID: ' . auth()->user()->id . ') ';
         Log::info($message);
 
-
-        $user = auth()->user();
-        return view('users.index');
+        $users = $this->userService->getAllUsers();
+        return view('users.index', compact('users'));
     }
 
     public function index_data()
     {
-
         /*if (auth()->user()->isSuperAdmin()) {
             $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
         } else {
@@ -156,59 +161,8 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        $this->authorize('create', User::class);
-
-        DB::beginTransaction();
-        try {
-            $data = $request->all();
-            $data['type'] = (! isset($request->type)) ? User::TYPE_I : $data['type'];
-
-            // cadastra user com role_id = 3 (pais)
-            $userData = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'postal_code' => $request->cep,
-                'street' => $request->logradouro,
-                'number' => $request->numero,
-                'complement' => $request->complemento,
-                'neighborhood' => $request->bairro,
-                'city' => $request->cidade,
-                'state' => $request->estado,
-                'password' => bcrypt('password'), // Ou você pode gerar uma senha aleatória
-                'role_id' => 3, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
-                'created_by' => auth()->user()->id,
-                'allow' => (bool) isset($request->allow),
-                'type' => $data['type'],
-            ];
-
-            $user = User::create($userData);
-            Log::info('User created: ' . $user->id . ' created by: ' . auth()->user()->id);
-
-
-            $role = SpatieRole::find($data['role_id']);
-            $user->syncRoles([]);
-            $user->assignRole($role->name);
-            $user->save();
-
-            DB::commit();
-
-            flash(self::MSG_CREATE_SUCCESS)->success();
-
-            $message = label_case('Create User ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::notice($message);
-
-            return redirect()->route('users.index');
-        } catch (Exception $e) {
-
-            DB::rollBack();
-
-            $message = label_case('Create User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            flash(self::MSG_CREATE_ERROR)->warning();
-            return redirect()->back();
-        }
+        $this->userService->createUser($request->validated());
+        return redirect()->route('users.index');
     }
 
     public function update(UserRequest $request, $id)
