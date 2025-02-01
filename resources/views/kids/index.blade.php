@@ -46,61 +46,34 @@
                                 <td>{{ $kid->birth_date ?? 'N/D' }}</td>
                                 <td>{{ $kid->age ?? 'N/D' }}</td>
                                 <td class="text-center">
-                                    <div class="btn-group gap-2" role="group">
-                                        @can('view kids')
-                                            <button type="button"
-                                                    onclick="window.location.href='{{ route('kids.overview', $kid->id) }}'"
-                                                    class="btn btn-info"
-                                                    title="Comparativo">
-                                                <i class="bi bi-bar-chart"></i>
-                                            </button>
-                                            <button type="button"
-                                                    onclick="window.location.href='{{ route('analysis.level', ['id' => $kid->id, 'level' => 0]) }}'"
-                                                    class="btn btn-warning"
-                                                    title="Análise">
-                                                <i class="bi bi-graph-down"></i>
-                                            </button>
-                                            <button type="button"
-                                                    onclick="window.location.href='{{ route('kids.overview', $kid->id) }}'"
-                                                    class="btn btn-dark"
-                                                    title="Desenvolvimento">
-                                                <i class="bi bi-graph-up-arrow"></i>
-                                            </button>
-                                            <button type="button"
-                                                    onclick="window.location.href='{{ route('checklists', ['kidId' => $kid->id]) }}'"
-                                                    class="btn btn-success"
-                                                    title="Checklist">
-                                                <i class="bi bi-check2-square"></i>
-                                            </button>
-                                            <button type="button"
-                                                    onclick="window.location.href='{{ route('kids.development', $kid->id) }}'"
-                                                    class="btn btn-primary"
-                                                    title="Desenvolvimento">
-                                                <i class="bi bi-graph-up"></i>
-                                            </button>
-                                        @endcan
-                                        @can('edit kids')
-                                            <button type="button"
-                                                    onclick="window.location.href='{{ route('kids.edit', $kid->id) }}'"
-                                                    class="btn btn-secondary"
-                                                    title="Editar">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                        @endcan
-                                        @can('remove kids')
-                                            <form action="{{ route('kids.destroy', $kid->id) }}"
-                                                  method="POST"
-                                                  style="display: contents;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                        class="btn btn-danger"
-                                                        onclick="return confirm('Tem certeza que deseja excluir?')"
-                                                        title="Excluir">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        @endcan
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Ações
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+                                            @can('edit kids')
+                                                <li><a class="dropdown-item" href="{{ route('kids.edit', $kid->id) }}"><i class="bi bi-pencil"></i> Editar</a></li>
+                                            @endcan
+
+                                            @can('view checklists')
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('checklists.index', ['kidId' => $kid->id]) }}">
+                                                    <i class="bi bi-card-checklist"></i> Checklists
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0, 'checklist' => null]) }}">
+                                                    <i class="bi bi-clipboard-data"></i> Comparativo
+                                                </a>
+                                            </li>
+                                            @endcan
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('kids.overview', ['kidId' => $kid->id]) }}">
+                                                    <i class="bi bi-bar-chart"></i> Desenvolvimento
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </td>
                             </tr>
