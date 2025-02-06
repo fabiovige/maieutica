@@ -23,8 +23,44 @@
 
 @section('content')
 <div class="row justify-content-center">
-    <div class="col-md-12">
-        <form action="{{ route('kids.update', $kid->id) }}" method="POST" enctype="multipart/form-data">
+    <div class="col-12">
+        <!-- Card de Upload de Imagem -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        @if($kid->photo)
+                            <img src="{{ asset($kid->photo) }}"
+                                 class="rounded-circle"
+                                 width="100" height="100"
+                                 alt="{{ $kid->name }}">
+                        @else
+                            <div class="avatar-circle" style="width: 100px; height: 100px; font-size: 2em;">
+                                {{ substr($kid->name, 0, 2) }}
+                            </div>
+                        @endif
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Foto da Criança</h5>
+                        <form action="{{ route('kids.upload.photo', $kid->id) }}"
+                              method="POST"
+                              enctype="multipart/form-data"
+                              class="d-flex align-items-center">
+                            @csrf
+                            <input type="file"
+                                   name="photo"
+                                   class="form-control form-control-sm me-2 @error('photo') is-invalid @enderror"
+                                   accept="image/*">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                Salvar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form action="{{ route('kids.update', $kid->id) }}" method="POST" id="kidForm">
             @csrf
             @method('PUT')
 
@@ -87,18 +123,6 @@
                                 <input type="text" class="form-control datepicker @error('birth_date') is-invalid @enderror"
                                        id="birth_date" name="birth_date" value="{{ old('birth_date', $kid->birth_date) }}" required>
                                 @error('birth_date')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="photo" class="form-label">Foto</label>
-                                <input type="file" class="form-control @error('photo') is-invalid @enderror"
-                                       id="photo" name="photo" accept="image/*">
-                                <div class="form-text">Tamanho máximo: 1MB. Formatos aceitos: JPG, PNG, GIF.</div>
-                                @error('photo')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -198,7 +222,7 @@
                     <a href="{{ route('kids.index') }}" class="btn btn-secondary">
                         <i class="bi bi-x-lg"></i> Cancelar
                     </a>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" form="kidForm">
                         <i class="bi bi-check-lg"></i> Salvar
                     </button>
                 </div>
@@ -210,7 +234,12 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function(){
+    // Debug do formulário
+    $('#kidForm').on('submit', function(e) {
+        console.log('Form submitted');
+    });
+
     // Quando um checkbox de profissional é alterado
     document.querySelectorAll('input[name="professionals[]"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {

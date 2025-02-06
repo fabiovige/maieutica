@@ -257,35 +257,28 @@ class KidsController extends Controller
 
     public function update(KidRequest $request, Kid $kid)
     {
-        // Verifica se o usuário está autorizado a atualizar o registro
-        $this->authorize('update', $kid);
-
         try {
-            // Loga a tentativa de atualização
-            $message = label_case('Update Kids ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            DB::beginTransaction();
+            $validated = $request->validated();
 
-            // Coleta os dados do request
-            $data = $request->all();
-
-            // Removida a verificação de papel 'isProfessional'
-            // O tratamento para usuários profissionais será feito futuramente
-
-            // Atualiza os dados da criança
-            $kid->update($data);
+            $kid->update([
+                'name' => $validated['name'],
+                'birth_date' => $validated['birth_date'],
+                'gender' => $validated['gender'],
+                'ethnicity' => $validated['ethnicity'],
+                'responsible_id' => $validated['responsible_id'],
+                'updated_by' => auth()->id()
+            ]);
 
             // Atualiza os profissionais
             if ($request->has('professionals')) {
                 $professionals = array_filter($request->professionals); // Remove valores vazios
                 if (!empty($professionals)) {
-                    // Pega o profissional principal do radio button
-                    $primaryProfessionalId = $request->input('primary_professional');
-
                     // Prepara os dados para sync
                     $syncData = [];
                     foreach ($professionals as $professionalId) {
                         $syncData[$professionalId] = [
-                            'is_primary' => $professionalId == $primaryProfessionalId
+                            'is_primary' => false
                         ];
                     }
 
@@ -300,21 +293,14 @@ class KidsController extends Controller
             // Opcional: Disparar job de atualização de criança
             // SendKidUpdateJob::dispatch($kid)->onQueue('emails');
 
-            // Mensagem de sucesso
-            flash(self::MSG_UPDATE_SUCCESS)->success();
-
-            // Redireciona para a página de edição
-            return redirect()->route('kids.edit', $kid->id);
-        } catch (Exception $e) {
-            // Loga o erro em caso de falha
-            $message = label_case('Update Kids Error' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            // Mensagem de erro
-            flash(self::MSG_UPDATE_ERROR)->warning();
-
-            // Redireciona de volta para a página anterior
-            return redirect()->back();
+            DB::commit();
+            flash('Criança atualizada com sucesso!')->success();
+            return redirect()->route('kids.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao atualizar criança: ' . $e->getMessage());
+            flash('Erro ao atualizar criança: ' . $e->getMessage())->error();
+            return redirect()->back()->withInput();
         }
     }
 
@@ -667,19 +653,20 @@ class KidsController extends Controller
         $pdf->Ln(3);
     }
 
-    public function uploadPhoto(Request $request, $id)
+    public function uploadPhoto(Request $request, Kid $kid)
     {
-        $request->validate([
-            'photo' => ['required', 'image', 'max:1024'], // max 1MB
-        ]);
-
         try {
-            $kid = Kid::findOrFail($id);
+            $request->validate([
+                'photo' => ['required', 'image', 'max:1024'], // max 1MB
+            ]);
 
             if ($request->hasFile('photo')) {
                 // Remove foto antiga se existir
-                if ($kid->photo && file_exists(public_path($kid->photo))) {
-                    unlink(public_path($kid->photo));
+                if ($kid->photo) {
+                    $oldPhotoPath = public_path('images/kids/' . $kid->photo);
+                    if (file_exists($oldPhotoPath)) {
+                        unlink($oldPhotoPath);
+                    }
                 }
 
                 // Cria o diretório se não existir
@@ -690,12 +677,11 @@ class KidsController extends Controller
 
                 // Salva nova foto
                 $file = $request->file('photo');
-                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $fileName = time() . '_' . $kid->id . '.' . $file->getClientOriginalExtension();
                 $file->move($path, $fileName);
 
                 // Salva o caminho relativo no banco
-                $kid->photo = 'images/kids/' . $fileName;
-                $kid->save();
+                $kid->update(['photo' => 'images/kids/' . $fileName]);
 
                 flash('Foto atualizada com sucesso!')->success();
                 Log::info('Foto da criança atualizada', [

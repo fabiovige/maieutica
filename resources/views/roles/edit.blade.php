@@ -5,19 +5,14 @@
 @endsection
 
 @section('breadcrumb-items')
-    <li class="breadcrumb-item active" aria-current="page">
-        <li class="breadcrumb-item"><a href="{{ route('roles.index')}}">Perfis</a></li>
-        <i class="bi bi-shield-lock"></i> Edição
-    </li>
-@endsection
-
-@section('actions')
-    @can('create roles')
-        <a href="{{ route('roles.create') }}" class="btn btn-primary">
-
-            <i class="bi bi-plus-lg"></i> Novo Perfil
+    <li class="breadcrumb-item">
+        <a href="{{ route('roles.index') }}">
+            <i class="bi bi-person-vcard"></i> Perfis
         </a>
-    @endcan
+    </li>
+    <li class="breadcrumb-item active">
+        <i class="bi bi-pencil"></i> Editar
+    </li>
 @endsection
 
 @section('content')

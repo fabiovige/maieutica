@@ -24,14 +24,13 @@ class KidRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'birth_date' => ['required', 'date_format:d/m/Y'],
-            'gender' => ['nullable', 'string', 'in:M,F'],
-            'ethnicity' => ['nullable', 'string', 'in:branco,pardo,negro,indigena,amarelo,multiracial,nao_declarado,outro'],
-            'professionals' => ['nullable', 'array'],
-            'professionals.*' => ['exists:users,id'],
-            'primary_professional' => ['required_with:professionals', 'exists:users,id'],
-            'responsible_id' => ['nullable', 'exists:users,id'],
+            'name' => 'required|string|max:255',
+            'birth_date' => 'required|string',
+            'gender' => 'required|in:M,F',
+            'ethnicity' => 'nullable|string|in:branco,pardo,negro,indigena,amarelo,multiracial,nao_declarado,outro',
+            'responsible_id' => 'nullable|exists:users,id',
+            'professionals' => 'nullable|array',
+            'professionals.*' => 'exists:users,id',
         ];
     }
 
@@ -40,8 +39,10 @@ class KidRequest extends FormRequest
         return [
             'name' => 'Nome',
             'birth_date' => 'Data de nascimento',
-            'profession_id' => 'Professional responsável',
-            'responsible_name' => 'Nome do responsável',
+            'gender' => 'Gênero',
+            'ethnicity' => 'Etnia',
+            'responsible_id' => 'Responsável',
+            'professionals' => 'Profissionais',
         ];
     }
 
@@ -50,9 +51,11 @@ class KidRequest extends FormRequest
         return [
             'name.required' => 'O nome é obrigatório',
             'birth_date.required' => 'A data de nascimento é obrigatória',
-            'birth_date.date_format' => 'A data de nascimento deve estar no formato dd/mm/aaaa',
-            'gender.in' => 'O sexo selecionado é inválido',
-            'ethnicity.in' => 'A etnia selecionada é inválida',
+            'gender.required' => 'O gênero é obrigatório',
+            'gender.in' => 'Gênero inválido',
+            'ethnicity.in' => 'Etnia inválida',
+            'responsible_id.exists' => 'Responsável inválido',
+            'professionals.*.exists' => 'Profissional inválido',
         ];
     }
 }

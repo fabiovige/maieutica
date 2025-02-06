@@ -43,17 +43,19 @@
                             <tr>
                                 <td class="text-center align-middle">{{ $kid->id }}</td>
                                 <td class="text-center align-middle">
-                                    @if($kid->photo && file_exists(public_path($kid->photo)))
-                                        <img src="{{ asset($kid->photo) }}"
-                                             alt="Foto de {{ $kid->name }}"
-                                             class="rounded-circle"
-                                             style="width: 40px; height: 40px; object-fit: cover;">
-                                    @else
-                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-                                             style="width: 40px; height: 40px;">
-                                           <i class="bi bi-person text-white"></i>
-                                        </div>
-                                    @endif
+                                    <div class="d-flex align-items-center">
+                                        @if($kid->photo)
+                                            <img src="{{ asset($kid->photo) }}"
+                                                 class="rounded-circle me-2"
+                                                 width="40" height="40"
+                                                 alt="{{ $kid->name }}">
+                                        @else
+                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
+                                                 style="width: 40px; height: 40px;">
+                                               <i class="bi bi-person text-white"></i>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="align-middle">{{ $kid->name }}</td>
                                 <td class="align-middle">{{ $kid->responsible->name ?? 'N/D' }}</td>

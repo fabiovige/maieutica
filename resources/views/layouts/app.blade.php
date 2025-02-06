@@ -58,6 +58,7 @@
 
         <main class="py-2">
             <div class="container">
+                @include('layouts.messages')
                 @include('flash::message')
                 @yield('content')
             </div>

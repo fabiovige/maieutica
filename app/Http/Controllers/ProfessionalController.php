@@ -8,6 +8,9 @@ use App\Models\Specialty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Notifications\WelcomeNotification;
+use App\Http\Requests\ProfessionalRequest;
 
 class ProfessionalController extends Controller
 {
@@ -56,13 +59,41 @@ class ProfessionalController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(ProfessionalRequest $request)
     {
         try {
             DB::beginTransaction();
 
-            // Lógica para criar profissional
-            // TODO: Implementar lógica completa
+            $validated = $request->validated();
+
+            // Criar o usuário
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'password' => bcrypt(Str::random(10)), // Senha temporária
+                'allow' => $request->has('allow'),
+                'created_by' => auth()->id()
+            ]);
+
+            // Atribuir role de profissional
+            $user->assignRole('professional');
+
+            // Criar o profissional
+            $professional = Professional::create([
+                'specialty_id' => $validated['specialty_id'],
+                'registration_number' => $validated['registration_number'],
+                'bio' => $validated['bio'],
+                'created_by' => auth()->id()
+            ]);
+
+            // Vincular usuário ao profissional
+            $professional->user()->attach($user->id);
+
+            // Enviar email com credenciais
+            $password = Str::random(10);
+            $user->update(['password' => bcrypt($password)]);
+            $user->notify(new WelcomeNotification($user, $password));
 
             DB::commit();
             flash('Profissional criado com sucesso.')->success();
