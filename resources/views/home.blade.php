@@ -13,37 +13,17 @@
 @endsection
 
 @section('content')
-    <div class="row mb-2 justify-content-center">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">{{ __('Dashboard') }}</div>
-
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    <div id="app">
-                        <div class="row">
-
-                            @foreach ($kids as $kid)
-                                <div class="col-12 col-md-6 col-lg-4 col-xl-4">
-                                    <Resumekid :user="{{ $kid->first() }}"
-                                        :kid="{{ $kid }}"
-                                        :checklist="{{ $countChecklists[$kid->id] }}"
-                                        :plane="{{ $countPlanes[$kid->id] }}"
-                                    >
-                                    </Resumekid>
-                                </div>
-                            @endforeach
-
-                        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Dashboard</h5>
                     </div>
-
+                    <div class="card-body">
+                        Bem-vindo ao sistema!
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
 @endsection

@@ -11,67 +11,37 @@ use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
-Auth::routes();
+// Rotas de Autenticação
+Route::middleware('guest')->group(function () {
+    Route::get('login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])
+        ->name('login');
 
-Route::get('/auth/google/redirect', function () {
-    return Socialite::driver('google')->redirect();
+    Route::post('login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
+
+    // Rotas de Reset de Senha
+    Route::get('password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
+        ->name('password.request');
+
+    Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
+        ->name('password.email');
+
+    Route::get('password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])
+        ->name('password.reset');
+
+    Route::post('password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])
+        ->name('password.update');
 });
 
-// Google Auth
-Route::get('/auth/google/callback', function () {
-    $user = Socialite::driver('google')->user();
+Route::post('logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+    ->name('logout')
+    ->middleware('auth');
 
-    $existingUser = User::where('email', $user->getEmail())->first();
-
-    if (!$existingUser) {
-        return redirect()->route('login')->withErrors(['email' => 'Falha na autenticação.']);
-    }
-
-    $data = [
-        'provider_id' => $user->getId(),
-        'provider_email' => $user->getEmail(),
-        'provider_avatar' => $user->getAvatar(),
-    ];
-
-    $existingUser->update($data);
-
-    Auth::loginUsingId($existingUser->id);
-
-    return redirect()->route('home.index');
-});
-
-// Login
-Route::post('/autenticacao', function (HttpRequest $request) {
-
-    $credentials = $request->only('email', 'password');
-
-    if (Auth::attempt($credentials)) {
-        return redirect()->route('home.index');
-    }
-
-    return redirect()->route('login-novo')->withErrors(['email' => 'Credenciais inválidas']);
-
-})->name('autenticacao');
-
-// Login View
-Route::get('/login-novo', function () {
-    return view('layouts.guest2');
-})->name('login-novo');
-
-// Home
+// Redirecionar raiz para login ou home
 Route::get('/', function () {
-    if (!Auth::check()) {
-        return redirect()->route('login-novo');
-    } else {
-        return redirect()->route('home.index');
-    }
+    return auth()->check()
+        ? redirect()->route('home.index')
+        : redirect()->route('login');
 });
-
-// Logout
-Route::post('/sair', function () {
-    Auth::logout();
-    return redirect()->route('login-novo');
-})->name('sair');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->middleware(['auth'])->name('home.index');
 
