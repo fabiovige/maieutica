@@ -1,3 +1,5 @@
+@inject('storage', 'Illuminate\Support\Facades\Storage')
+
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #d7e2ec;">
     <div class="container">
         <a class="navbar-brand" href="{{ route('home.index') }}">
@@ -68,8 +70,15 @@
 
                 <div class="d-flex align-items-center">
                     <div class="dropdown">
-                        <button class="btn btn-link text-dark text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i>
+                        <button class="btn btn-link text-dark text-decoration-none dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                            @if(auth()->user()->avatar && file_exists(public_path(auth()->user()->avatar)))
+                                <img src="{{ asset(auth()->user()->avatar) }}"
+                                     alt="Avatar"
+                                     class="rounded-circle me-2"
+                                     style="width: 32px; height: 32px; object-fit: cover;">
+                            @else
+                                <i class="bi bi-person-circle me-2"></i>
+                            @endif
                             {{ auth()->user()->name }} ({{ auth()->user()->roles->first()->name }})
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">

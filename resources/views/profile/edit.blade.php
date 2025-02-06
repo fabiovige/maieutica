@@ -12,6 +12,51 @@
 
 @section('content')
     <div class="row">
+        <!-- Adicionar antes dos outros cards -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Foto do Perfil</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            @if($user->avatar && file_exists(public_path($user->avatar)))
+                                <img src="{{ asset($user->avatar) }}"
+                                     alt="Avatar"
+                                     class="rounded-circle img-thumbnail mb-3"
+                                     style="width: 150px; height: 150px; object-fit: cover;">
+                            @else
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mb-3 mx-auto"
+                                     style="width: 150px; height: 150px;">
+                                    <i class="bi bi-person text-white" style="font-size: 4rem;"></i>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="col-md-9">
+                            <form action="{{ route('profile.avatar') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="avatar" class="form-label">Escolha uma nova foto</label>
+                                    <input type="file" class="form-control @error('avatar') is-invalid @enderror"
+                                           id="avatar" name="avatar" accept="image/*">
+                                    <div class="form-text">Tamanho máximo: 1MB. Formatos aceitos: JPG, PNG, GIF.</div>
+                                    @error('avatar')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-cloud-upload"></i> Atualizar Foto
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Dados Pessoais -->
         <div class="col-12 mb-4">
             <div class="card">
@@ -194,3 +239,5 @@
     });
 </script>
 @endpush
+
+@inject('storage', 'Illuminate\Support\Facades\Storage')
