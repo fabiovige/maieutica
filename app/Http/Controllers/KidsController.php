@@ -96,7 +96,7 @@ class KidsController extends Controller
 
             // Se o usuário for profissional, adiciona-o como profissional principal
             if (Auth::user()->hasRole('professional')) {
-                $kid->professionals()->attach(Auth::user()->id, [
+                $kid->professionals()->attach(Auth::user()->professional->id, [
                     'is_primary' => true,
                     'created_at' => now(),
                     'updated_at' => now()
@@ -171,9 +171,8 @@ class KidsController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit(Kid $kid)
     {
-        $kid = Kid::findOrFail($id);
         $this->authorize('update', $kid);
         try {
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -199,8 +198,7 @@ class KidsController extends Controller
             // Buscando usuários com o papel 'professional'
             $professions = User::whereHas('roles', function ($query) {
                 $query->where('name', 'professional');
-            })->get();
-
+            })->with(['professional.specialty'])->get();
 
             return view('kids.edit', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
@@ -873,7 +871,7 @@ class KidsController extends Controller
                 } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
                     $status = 'Adiantada'; // Consistente entre 25% e 50%, ainda adiantada
                     $statusColor = 'blue';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                } elseif ($ageInmonths < $competence->percentil_75) {
                     $status = 'Dentro do esperado'; // Consistente dentro da faixa normal (50% - 75%)
                     $statusColor = 'orange';
                 } elseif ($ageInmonths < $competence->percentil_90) {

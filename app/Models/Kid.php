@@ -67,10 +67,10 @@ class Kid extends BaseModel
         return $this->belongsTo(User::class, 'responsible_id');
     }
 
-    // Novo relacionamento many-to-many
+    // Novo relacionamento many-to-many com professionals
     public function professionals()
     {
-        return $this->belongsToMany(User::class, 'kid_professional')
+        return $this->belongsToMany(Professional::class, 'kid_professional')
                     ->withPivot('is_primary')
                     ->withTimestamps();
     }
@@ -78,7 +78,7 @@ class Kid extends BaseModel
     // Helper para manter compatibilidade com código existente
     public function professional()
     {
-        return $this->belongsToMany(User::class, 'kid_professional')
+        return $this->belongsToMany(Professional::class, 'kid_professional')
             ->withPivot('is_primary')
             ->wherePivot('is_primary', true)
             ->first();

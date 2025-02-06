@@ -126,13 +126,19 @@
                                                             <input type="checkbox"
                                                                    class="form-check-input"
                                                                    name="professionals[]"
-                                                                   value="{{ $profession->id }}"
+                                                                   value="{{ $profession->professional->first()->id }}"
                                                                    id="prof_{{ $profession->id }}"
-                                                                   {{ in_array($profession->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                                                   {{ in_array($profession->professional->first()->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}>
                                                         </div>
                                                         <div class="ms-3">
                                                             <label class="form-check-label" for="prof_{{ $profession->id }}">
                                                                 {{ $profession->name }}
+                                                                @if($profession->professional->first())
+                                                                    <small class="text-muted">
+                                                                        ({{ $profession->professional->first()->specialty->name }}
+                                                                        - CRM: {{ $profession->professional->first()->registration_number }})
+                                                                    </small>
+                                                                @endif
                                                             </label>
                                                         </div>
                                                         <div class="ms-auto">

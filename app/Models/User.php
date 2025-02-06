@@ -142,4 +142,14 @@ class User extends Authenticatable
                 ->where('created_by', '=', auth()->user()->id)->get();
         }
     }
+
+    public function professional()
+    {
+        return $this->belongsToMany(Professional::class, 'user_professional');
+    }
+
+    public function getSpecialtyAttribute()
+    {
+        return $this->professional->first()?->specialty;
+    }
 }

@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Kid;
 use App\Models\User;
+use App\Models\Professional;
+use App\Models\Specialty;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
@@ -11,74 +13,65 @@ class KidSeeder extends Seeder
 {
     public function run()
     {
-        // Criar roles se não existirem
-        $professionalRole = Role::firstOrCreate(['name' => 'professional']);
-        $parentRole = Role::firstOrCreate(['name' => 'pais']);
+        // Criar uma especialidade se não existir
+        $specialty = Specialty::firstOrCreate(
+            ['name' => 'Pediatria'],
+            [
+                'description' => 'Especialidade médica dedicada aos cuidados da criança e do adolescente',
+                'created_by' => 1
+            ]
+        );
 
-        // Criar alguns profissionais se não existirem
-        if (User::whereHas('roles', function($q) {
-            $q->where('name', 'professional');
-        })->count() == 0) {
-            for ($i = 0; $i < 3; $i++) {
-                $professional = User::create([
-                    'name' => fake()->name(),
-                    'email' => fake()->unique()->safeEmail(),
-                    'password' => bcrypt('password'),
-                    'created_by' => 1,
-                ]);
-                $professional->assignRole('professional');
-            }
-        }
+        // Criar usuário profissional se não existir
+        $professionalUser = User::firstOrCreate(
+            ['email' => 'professional@example.com'],
+            [
+                'name' => 'Dr. Professional',
+                'password' => bcrypt('password'),
+                'created_by' => 1
+            ]
+        );
+        $professionalUser->assignRole('professional');
 
-        // Criar alguns responsáveis se não existirem
-        if (User::whereHas('roles', function($q) {
-            $q->where('name', 'pais');
-        })->count() == 0) {
-            for ($i = 0; $i < 5; $i++) {
-                $parent = User::create([
-                    'name' => fake()->name(),
-                    'email' => fake()->unique()->safeEmail(),
-                    'password' => bcrypt('password'),
-                    'created_by' => 1,
-                ]);
-                $parent->assignRole('pais');
-            }
-        }
+        // Criar o registro professional
+        $professional = Professional::firstOrCreate(
+            ['registration_number' => 'CRM12345'],
+            [
+                'specialty_id' => $specialty->id,
+                'bio' => 'Médico pediatra com 10 anos de experiência',
+                'created_by' => 1
+            ]
+        );
 
-        // Obter profissionais e responsáveis
-        $professionals = User::whereHas('roles', function($q) {
-            $q->where('name', 'professional');
-        })->get();
+        // Associar usuário ao professional
+        $professional->user()->sync([$professionalUser->id]);
 
-        $responsibles = User::whereHas('roles', function($q) {
-            $q->where('name', 'pais');
-        })->get();
+        // Criar usuário responsável se não existir
+        $responsibleUser = User::firstOrCreate(
+            ['email' => 'responsible@example.com'],
+            [
+                'name' => 'Responsible Parent',
+                'password' => bcrypt('password'),
+                'created_by' => 1
+            ]
+        );
+        $responsibleUser->assignRole('pais');
 
-        // Criar crianças
-        for ($i = 0; $i < 10; $i++) {
-            $kid = Kid::create([
-                'name' => fake()->name(),
-                'birth_date' => fake()->date(),
-                'responsible_id' => $responsibles->random()->id,
-                'created_by' => 1,
-            ]);
+        // Criar a criança
+        $kid = Kid::create([
+            'name' => 'Test Kid',
+            'birth_date' => now()->subYears(5),
+            'gender' => 'M',
+            'ethnicity' => 'branco',
+            'responsible_id' => $responsibleUser->id,
+            'created_by' => 1
+        ]);
 
-            // Atribuir um profissional principal
-            $kid->professionals()->attach($professionals->random()->id, [
-                'is_primary' => true,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            // Chance de 30% de adicionar um segundo profissional
-            if (fake()->boolean(30) && $professionals->count() > 1) {
-                $secondProfessional = $professionals->except($kid->professionals->pluck('id')->toArray())->random();
-                $kid->professionals()->attach($secondProfessional->id, [
-                    'is_primary' => false,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
-            }
-        }
+        // Associar o profissional à criança
+        $kid->professionals()->attach($professional->id, [
+            'is_primary' => true,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
     }
 }
