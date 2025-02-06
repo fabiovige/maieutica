@@ -70,7 +70,7 @@
                     <div class="dropdown">
                         <button class="btn btn-link text-dark text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i>
-                            {{ auth()->user()->name }}
+                            {{ auth()->user()->name }} ({{ auth()->user()->roles->first()->name }})
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             @if(auth()->user()->can('edit profile'))
