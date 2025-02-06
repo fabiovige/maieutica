@@ -29,23 +29,37 @@
                 <table class="table table-bordered mt-3">
                     <thead>
                         <tr>
-                            <th style="width: 60px;" class="text-center">ID</th>
-                            <th>Nome</th>
-                            <th>Responsável</th>
-                            <th>Data Nasc.</th>
-                            <th>Idade</th>
-                            <th class="text-center" style="width: 100px;">Ações</th>
+                            <th style="width: 60px;" class="text-center align-middle">ID</th>
+                            <th style="width: 60px;" class="text-center align-middle">Foto</th>
+                            <th class="align-middle">Nome</th>
+                            <th class="align-middle">Responsável</th>
+                            <th class="align-middle">Data Nasc.</th>
+                            <th class="align-middle">Idade</th>
+                            <th class="text-center align-middle" style="width: 100px;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($kids as $kid)
                             <tr>
-                                <td class="text-center">{{ $kid->id }}</td>
-                                <td>{{ $kid->name }}</td>
-                                <td>{{ $kid->responsible->name ?? 'N/D' }}</td>
-                                <td>{{ $kid->birth_date ?? 'N/D' }}</td>
-                                <td>{{ $kid->age ?? 'N/D' }}</td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">{{ $kid->id }}</td>
+                                <td class="text-center align-middle">
+                                    @if($kid->photo && file_exists(public_path($kid->photo)))
+                                        <img src="{{ asset($kid->photo) }}"
+                                             alt="Foto de {{ $kid->name }}"
+                                             class="rounded-circle"
+                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                    @else
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
+                                             style="width: 40px; height: 40px;">
+                                           <i class="bi bi-person text-white"></i>
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="align-middle">{{ $kid->name }}</td>
+                                <td class="align-middle">{{ $kid->responsible->name ?? 'N/D' }}</td>
+                                <td class="align-middle">{{ $kid->birth_date ?? 'N/D' }}</td>
+                                <td class="align-middle">{{ $kid->age ?? 'N/D' }}</td>
+                                <td class="text-center align-middle">
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                                             Ações

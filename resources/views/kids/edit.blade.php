@@ -10,53 +10,65 @@
     </nav>
 @endsection
 
+@section('title')
+    Editar criança
+@endsection
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item"><a href="{{ route('kids.index') }}">Crianças</a></li>
+    <li class="breadcrumb-item active" aria-current="page">
+        <i class="bi bi-people"></i> Editar
+    </li>
+@endsection
+
+
 @section('content')
 
 <div class="row">
-    <div class="col-md-3 mt-3">
-        <div class="mt-3 centered-column">
-            @if($kid->photo)
-                <!-- Exibe a foto da criança se ela tiver uma -->
-                <img src="{{ asset('images/kids/' . $kid->photo) }}" alt="Foto da criança" class="rounded-img">
-            @else
-                <!-- Exibe um avatar aleatório se não houver foto -->
-                @php
-                    $randomAvatarNumber = rand(1, 13); // Gera um número aleatório entre 1 e 13
-                @endphp
-                <img src="{{ asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png') }}" alt="Avatar aleatório" class="rounded-img">
-            @endif
-        </div>
-    </div>
-
-
-    <div class="col-md-9 mt-3">
-        <div class="card">
+    <div class="col-md-12 mt-3">
+        <div class="card mb-3">
             <div class="card-header">
-                Atualizar Foto
+                <h5 class="card-title mb-0">Foto</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('kids.upload.photo', $kid->id) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group">
-                        <label for="photo">Escolha uma foto:</label>
-                        <input type="file" class="form-control @error('photo') is-invalid @enderror" name="photo" required>
-                        @error('photo')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        @if($kid->photo && file_exists(public_path($kid->photo)))
+                            <img src="{{ asset($kid->photo) }}"
+                                 alt="Foto de {{ $kid->name }}"
+                                 class="rounded-circle img-thumbnail mb-3"
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                        @else
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mb-3 mx-auto"
+                                 style="width: 150px; height: 150px;">
+                                <i class="bi bi-person text-white" style="font-size: 4rem;"></i>
+                            </div>
+                        @endif
                     </div>
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">Salvar Foto</button>
+                    <div class="col-md-9">
+                        <form action="{{ route('kids.upload.photo', $kid->id) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="photo" class="form-label">Escolher nova foto</label>
+                                <input type="file" class="form-control @error('photo') is-invalid @enderror"
+                                       id="photo" name="photo" accept="image/*">
+                                <div class="form-text">Tamanho máximo: 1MB. Formatos aceitos: JPG, PNG, GIF.</div>
+                                @error('photo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-cloud-upload"></i> Atualizar Foto
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
-
+                </div>
             </div>
         </div>
     </div>
-
 </div>
-
-
-
 
     <div class="row">
         <div class="col-md-12">

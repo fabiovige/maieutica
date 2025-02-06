@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+
 @section('breadcrumb')
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -8,6 +9,17 @@
             <li class="breadcrumb-item active" aria-current="page">Cadastrar</li>
         </ol>
     </nav>
+@endsection
+
+@section('title')
+    Cadastrar criança
+@endsection
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item"><a href="{{ route('kids.index') }}">Crianças</a></li>
+    <li class="breadcrumb-item active" aria-current="page">
+        <i class="bi bi-people"></i> Cadastrar
+    </li>
 @endsection
 
 @section('content')
@@ -19,11 +31,6 @@
                 @csrf
                 <input type="hidden" name="created_by" value="{{ auth()->id() }}">
                 <!-- DADOS DA CRIANÇA -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <h3>Dados da criança</h3>
-                    </div>
-                </div>
                 <div class="card">
                     <div class="card-body">
                         <div class="form-group">

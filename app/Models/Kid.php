@@ -11,13 +11,13 @@ class Kid extends BaseModel
     protected $fillable = [
         'name',
         'birth_date',
+        'photo',
         'profession_id',
         'responsible_id',
         'created_by',
         'updated_by',
         'deleted_by',
         'months',
-        'photo'
     ];
 
     protected $dates = [

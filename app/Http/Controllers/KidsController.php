@@ -15,7 +15,7 @@ use App\Models\User;
 use App\Util\MyPdf;
 use Auth;
 use Exception;
-use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -626,62 +626,49 @@ class KidsController extends Controller
         $pdf->Ln(3);
     }
 
-    public function uploadPhoto(HttpRequest $request, Kid $kid)
+    public function uploadPhoto(Request $request, $id)
     {
-        //$this->authorize('update', $kid);
-
         $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024',
+            'photo' => ['required', 'image', 'max:1024'], // max 1MB
         ]);
 
-        DB::beginTransaction();
-
         try {
-            // Remove a foto anterior se houver uma
-            //if ($kid->photo) {
-            //    Storage::disk('public')->delete($kid->photo);
-            //}
+            $kid = Kid::findOrFail($id);
 
-            // Armazena a nova foto
-            //$photoPath = $request->file('photo')->store('kids_photos', 'public');
+            if ($request->hasFile('photo')) {
+                // Remove foto antiga se existir
+                if ($kid->photo && file_exists(public_path($kid->photo))) {
+                    unlink(public_path($kid->photo));
+                }
 
-            // Obtém o arquivo
-            $file = $request->file('photo');
+                // Cria o diretório se não existir
+                $path = public_path('images/kids');
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
 
-            // Define o caminho para salvar a imagem
-            $destinationPath = public_path('images/kids');
+                // Salva nova foto
+                $file = $request->file('photo');
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move($path, $fileName);
 
-            // Garante que o diretório existe
-            if (!File::exists($destinationPath)) {
-                File::makeDirectory($destinationPath, 0755, true, true);
+                // Salva o caminho relativo no banco
+                $kid->photo = 'images/kids/' . $fileName;
+                $kid->save();
+
+                flash('Foto atualizada com sucesso!')->success();
+                Log::info('Foto da criança atualizada', [
+                    'kid_id' => $kid->id,
+                    'path' => $kid->photo
+                ]);
             }
 
-            // Define o nome único para o arquivo
-            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
-
-            // Move o arquivo para o diretório desejado
-            $file->move($destinationPath, $fileName);
-
-            // Atualiza o caminho da foto no banco de dados
-            $kid->update(['photo' => $fileName]);
-
-            // Confirma a transação
-            DB::commit();
-
-            // Retorna com sucesso
-            flash('Foto atualizada com sucesso!')->success();
-        } catch (\Exception $e) {
-            // Reverte a transação em caso de falha
-            DB::rollBack();
-
-            // Loga o erro
-            Log::error('Erro ao fazer upload da foto da criança: ' . $e->getMessage());
-
-            // Retorna mensagem de erro
-            flash('Houve um erro ao atualizar a foto. Por favor, tente novamente.')->error();
+            return redirect()->back();
+        } catch (Exception $e) {
+            Log::error('Erro ao atualizar foto: ' . $e->getMessage());
+            flash('Erro ao atualizar foto.')->error();
+            return redirect()->back();
         }
-
-        return redirect()->route('kids.edit', $kid->id);
     }
 
     public function showRadarChart($kidId, $levelId)
@@ -849,47 +836,47 @@ class KidsController extends Controller
                 } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
                     $status = 'Dentro do esperado'; // Consistente dentro da faixa normal (50% - 75%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
                     $status = 'Dentro do esperado'; // Consistente dentro da faixa normal (75% - 90%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_90) {
                     $status = 'Dentro do esperado'; // Consistente depois do percentil 90, mas Consistente
                     $statusColor = 'orange';
                 }
             } elseif ($currentStatusValue === 2) {
                 // Mais ou menos
-                if ($ageInMonths < $competence->percentil_25) {
+                if ($ageInmonths < $competence->percentil_25) {
                     $status = 'Dentro do esperado'; // Mais ou menos, mas ainda dentro da faixa esperada (<25%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
+                } elseif ($ageInmonths >= $competence->percentil_25 && $ageInmonths < $competence->percentil_50) {
                     $status = 'Dentro do esperado'; // Mais ou menos entre 25% e 50%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                } elseif ($ageInmonths >= $competence->percentil_50 && $ageInmonths < $competence->percentil_75) {
                     $status = 'Dentro do esperado'; // Mais ou menos entre 50% e 75%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
                     $status = 'Dentro do esperado'; // Mais ou menos entre 75% e 90%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_90) {
                     $status = 'Atrasada'; // Mais ou menos após o percentil 90, deveria ter Consistente
                     $statusColor = 'red';
                 }
             } elseif ($currentStatusValue === 1) {
 
                 // Difícil de obter ou não avaliado
-                if ($ageInMonths < $competence->percentil_25) {
+                if ($ageInmonths < $competence->percentil_25) {
                     $status = 'Dentro do esperado'; // Difícil de obter, mas ainda dentro da faixa esperada (<25%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
+                } elseif ($ageInmonths >= $competence->percentil_25 && $ageInmonths < $competence->percentil_50) {
                     $status = 'Atrasada'; // Difícil de obter entre 25% e 50%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                } elseif ($ageInmonths >= $competence->percentil_50 && $ageInmonths < $competence->percentil_75) {
                     $status = 'Atrasada'; // Difícil de obter entre 50% e 75%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
                     $status = 'Atrasada'; // Difícil de obter entre 75% e 90%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_90) {
                     $status = 'Atrasada'; // Difícil de obter após o percentil 90, deveria ter Consistente
                     $statusColor = 'red';
                 }
@@ -897,13 +884,13 @@ class KidsController extends Controller
 
             // Determinar o progresso em termos de percentil
             $percentComplete = 0;
-            if ($ageInMonths < $competence->percentil_25) {
-                $percentComplete = ($ageInMonths / $competence->percentil_25) * 25;
-            } elseif ($ageInMonths < $competence->percentil_50) {
-                $percentComplete = 25 + (($ageInMonths - $competence->percentil_25) / ($competence->percentil_50 - $competence->percentil_25)) * 25;
-            } elseif ($ageInMonths < $competence->percentil_75) {
-                $percentComplete = 50 + (($ageInMonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
-            } elseif ($ageInMonths < $competence->percentil_90) {
+            if ($ageInmonths < $competence->percentil_25) {
+                $percentComplete = ($ageInmonths / $competence->percentil_25) * 25;
+            } elseif ($ageInmonths < $competence->percentil_50) {
+                $percentComplete = 25 + (($ageInmonths - $competence->percentil_25) / ($competence->percentil_50 - $competence->percentil_25)) * 25;
+            } elseif ($ageInmonths < $competence->percentil_75) {
+                $percentComplete = 50 + (($ageInmonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
+            } elseif ($ageInmonths < $competence->percentil_90) {
                 $percentComplete = 75 + (($ageInmonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
             } else {
                 $percentComplete = 90 + (($ageInmonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
@@ -1282,7 +1269,7 @@ class KidsController extends Controller
         return view('kids.overview', $data);
     }
 
-    public function generatePdf(HttpRequest $request, $kidId, $levelId = null)
+    public function generatePdf(Request $request, $kidId, $levelId = null)
     {
         // Reutilizar o serviço para obter os dados da visão geral
         $data = $this->overviewService->getOverviewData($kidId, $levelId);
