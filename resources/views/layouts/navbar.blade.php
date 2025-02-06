@@ -73,13 +73,11 @@
                             {{ auth()->user()->name }} ({{ auth()->user()->roles->first()->name }})
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            @if(auth()->user()->can('edit profile'))
-                                <li>
-                                    <a href="{{ route('users.edit', auth()->id()) }}" class="dropdown-item">
-                                        <i class="bi bi-person"></i> Perfil
-                                    </a>
-                                </li>
-                            @endif
+                            <li>
+                                <a href="{{ route('profile.edit') }}" class="dropdown-item">
+                                    <i class="bi bi-person"></i> Meu Perfil
+                                </a>
+                            </li>
                             <li>
                                 <form method="POST" action="{{ route('sair') }}">
                                     @csrf

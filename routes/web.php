@@ -5,6 +5,7 @@ use App\Http\Controllers\CompetencesController;
 use App\Http\Controllers\KidsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 use App\Models\User;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Log;
@@ -109,6 +110,10 @@ Route::middleware(['auth'])->group(function () {
 
     // plane automatic
     Route::get('kid/plane-automatic/{kidId}/{checklistId}', [App\Http\Controllers\PlaneAutomaticController::class, 'index'])->name('kid.plane-automatic');
+
+    // profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
 });
 
