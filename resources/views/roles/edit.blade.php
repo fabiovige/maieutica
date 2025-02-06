@@ -1,13 +1,23 @@
 @extends('layouts.app')
 
-@section('breadcrumb')
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('roles.index') }}">Papéis</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Editar</li>
-        </ol>
-    </nav>
+@section('title')
+    Perfis
+@endsection
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item active" aria-current="page">
+        <li class="breadcrumb-item"><a href="{{ route('roles.index')}}">Perfis</a></li>
+        <i class="bi bi-shield-lock"></i> Edição
+    </li>
+@endsection
+
+@section('actions')
+    @can('create roles')
+        <a href="{{ route('roles.create') }}" class="btn btn-primary">
+
+            <i class="bi bi-plus-lg"></i> Novo Perfil
+        </a>
+    @endcan
 @endsection
 
 @section('content')

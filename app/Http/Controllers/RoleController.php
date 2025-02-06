@@ -25,37 +25,14 @@ class RoleController extends Controller
 
     public function index()
     {
-        $message = label_case('Index Role ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
+        $this->authorize('view roles');
 
-        return view('roles.index');
-    }
+        $roles = SpatieRole::query()
+            ->where('name', '!=', 'superadmin')
+            ->orderBy('name')
+            ->paginate(15);
 
-    public function index_data()
-    {
-        /*if (auth()->user()->isSuperAdmin()) {
-            $data = ModelsRole::select('id', 'name');
-        } else {
-            $data = Role::select('id', 'name')->where('created_by', '=', auth()->user()->id);
-        }
-        */
-
-        $data = SpatieRole::where('name', '!=', 'superadmin');
-
-        return Datatables::of($data)
-            ->addColumn('action', function ($data) {
-                if (request()->user()->can('edit roles')) {
-                    $html = '<a class="btn btn-sm btn-success" href="' . route('roles.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a>';
-
-                    return $html;
-                }
-            })
-            ->editColumn('name', function ($data) {
-                return $data->name;
-            })
-            ->rawColumns(['name', 'action'])
-            //->orderColumns(['id'], '-:column $1')
-            ->make(true);
+        return view('roles.index', compact('roles'));
     }
 
     public function create()

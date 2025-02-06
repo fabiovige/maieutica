@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('title')
     Usuários
 @endsection
@@ -18,6 +19,18 @@
 @endsection
 
 @section('content')
+    @if(config('app.debug'))
+        <div class="alert alert-info">
+            <p>Debug info:</p>
+            <ul>
+                <li>Total users: {{ $users->total() }}</li>
+                <li>Current page: {{ $users->currentPage() }}</li>
+                <li>Items per page: {{ $users->perPage() }}</li>
+                <li>User can view users: {{ auth()->user()->can('view users') ? 'Yes' : 'No' }}</li>
+            </ul>
+        </div>
+    @endif
+
     @if($users->isEmpty())
         <div class="alert alert-info">
             Nenhum usuário cadastrado.
@@ -41,30 +54,13 @@
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->roles->pluck('name')->implode(', ') }}</td>
                         <td class="text-center">
-                            <div class="btn-group gap-2" role="group">
-                                @can('edit users')
-                                    <button type="button"
-                                            onclick="window.location.href='{{ route('users.edit', $user->id) }}'"
-                                            class="btn btn-secondary"
-                                            title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                @endcan
-                                @can('remove users')
-                                    <form action="{{ route('users.destroy', $user->id) }}"
-                                          method="POST"
-                                          style="display: contents;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="btn btn-danger"
-                                                onclick="return confirm('Tem certeza que deseja excluir?')"
-                                                title="Excluir">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                @endcan
-                            </div>
+                            @can('edit users')
+                                <button type="button"
+                                        onclick="window.location.href='{{ route('users.edit', $user->id) }}'"
+                                        class="btn btn-sm btn-secondary">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+                            @endcan
                         </td>
                     </tr>
                 @endforeach

@@ -11,8 +11,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 use Spatie\Permission\Models\Role as SpatieRole;
+use App\Notifications\WelcomeNotification;
 
 class UserController extends Controller
 {
@@ -21,11 +24,14 @@ class UserController extends Controller
 
     public function index()
     {
-        $this->authorize('view kids');
-        // Buscar crianças com paginação (15 por página)
+        $this->authorize('view users');
+
         $users = User::query()
+            ->when(!auth()->user()->hasRole('superadmin'), function($query) {
+                $query->where('name', '!=', 'Super Admin');
+            })
             ->orderBy('name')
-            ->paginate(2);
+            ->paginate(15);
 
         return view('users.index', compact('users'));
     }
@@ -80,14 +86,6 @@ class UserController extends Controller
     public function create()
     {
         $this->authorize('create', User::class);
-        /*
-        if (auth()->user()->isSuperAdmin()) {
-            $roles = Role::all();
-        } elseif (auth()->user()->isAdmin()) {
-            $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
-        } else {
-            $roles = Role::where('created_by', '=', Auth::id())->get();
-        }*/
 
         $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 
@@ -106,7 +104,9 @@ class UserController extends Controller
             $data = $request->all();
             $data['type'] = (! isset($request->type)) ? User::TYPE_I : $data['type'];
 
-            // cadastra user com role_id = 3 (pais)
+            // Gera uma senha aleatória
+            $plainPassword = Str::random(8);
+
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
@@ -118,37 +118,34 @@ class UserController extends Controller
                 'neighborhood' => $request->bairro,
                 'city' => $request->cidade,
                 'state' => $request->estado,
-                'password' => bcrypt('password'), // Ou você pode gerar uma senha aleatória
-                'role_id' => 3, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
+                'password' => Hash::make($plainPassword),
+                'passwordView' => $plainPassword,
+                'role_id' => 3,
                 'created_by' => auth()->user()->id,
                 'allow' => (bool) isset($request->allow),
                 'type' => $data['type'],
             ];
 
             $user = User::create($userData);
-            Log::info('User created: ' . $user->id . ' created by: ' . auth()->user()->id);
 
+            // Envia o email de boas-vindas
+            $notification = new WelcomeNotification($user, $plainPassword);
+            $user->notify($notification);
 
+            // Atribui o papel (role)
             $role = SpatieRole::find($data['role_id']);
             $user->syncRoles([]);
             $user->assignRole($role->name);
-            $user->save();
 
             DB::commit();
 
             flash(self::MSG_CREATE_SUCCESS)->success();
-
-            $message = label_case('Create User ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::notice($message);
+            Log::notice('Usuário criado com sucesso. ID: ' . $user->id . ' Email: ' . $user->email);
 
             return redirect()->route('users.index');
         } catch (Exception $e) {
-
             DB::rollBack();
-
-            $message = label_case('Create User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
+            Log::error('Erro ao criar usuário: ' . $e->getMessage());
             flash(self::MSG_CREATE_ERROR)->warning();
             return redirect()->back();
         }

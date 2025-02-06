@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('title')
+    Dashboard
+@endsection
+
 @section('breadcrumb')
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
