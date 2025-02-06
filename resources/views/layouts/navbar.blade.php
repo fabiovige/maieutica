@@ -66,6 +66,14 @@
                             </a>
                         </li>
                     @endif
+
+                    @if(auth()->user()->can('view professionals'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('professionals.*') ? 'active' : '' }}" href="{{ route('professionals.index') }}">
+                                <i class="bi bi-person-badge"></i> Profissionais
+                            </a>
+                        </li>
+                    @endif
                 </ul>
 
                 <div class="d-flex align-items-center">

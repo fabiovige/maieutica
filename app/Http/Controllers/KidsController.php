@@ -198,7 +198,10 @@ class KidsController extends Controller
             // Buscando usuários com o papel 'professional'
             $professions = User::whereHas('roles', function ($query) {
                 $query->where('name', 'professional');
-            })->with(['professional.specialty'])->get();
+            })->with(['professional.specialty'])
+              ->whereHas('professional', function($query) {
+                  $query->whereNotNull('specialty_id');
+              })->get();
 
             return view('kids.edit', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {

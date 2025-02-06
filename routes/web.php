@@ -89,6 +89,8 @@ Route::middleware(['auth'])->group(function () {
 
     // professionals
     Route::resource('professionals', ProfessionalController::class);
+    Route::patch('professionals/{professional}/deactivate', [ProfessionalController::class, 'deactivate'])->name('professionals.deactivate');
+    Route::patch('professionals/{professional}/activate', [ProfessionalController::class, 'activate'])->name('professionals.activate');
 
 });
 

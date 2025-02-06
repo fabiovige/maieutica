@@ -10,6 +10,9 @@ class RoleAndPermissionSeeder extends Seeder
 {
     public function run()
     {
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         // Criação de Roles
         $superAdmin = Role::firstOrCreate(['name' => 'superadmin']);
         $admin = Role::firstOrCreate(['name' => 'admin']);
@@ -54,10 +57,19 @@ class RoleAndPermissionSeeder extends Seeder
             'remove checklists',
             'fill checklists',
 
+            // Professionals
+            'list professionals',
+            'view professionals',
+            'create professionals',
+            'edit professionals',
+            'remove professionals',
+            'activate professionals',
+            'deactivate professionals',
+
             // Competences
             'list competences',
             'edit competences',
-            
+
             // Permissões Adicionais
             'manage dashboard',
         ];
@@ -107,10 +119,19 @@ class RoleAndPermissionSeeder extends Seeder
             'remove checklists',
             'fill checklists',
 
+            // Professionals
+            'list professionals',
+            'view professionals',
+            'create professionals',
+            'edit professionals',
+            'remove professionals',
+            'activate professionals',
+            'deactivate professionals',
+
             // Competences
             'list competences',
             'edit competences',
-            
+
             // Permissões Adicionais
             'manage dashboard',
         ]);

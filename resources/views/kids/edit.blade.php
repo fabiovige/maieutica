@@ -126,9 +126,10 @@
                                                             <input type="checkbox"
                                                                    class="form-check-input"
                                                                    name="professionals[]"
-                                                                   value="{{ $profession->professional->first()->id }}"
+                                                                   value="{{ optional($profession->professional->first())->id }}"
                                                                    id="prof_{{ $profession->id }}"
-                                                                   {{ in_array($profession->professional->first()->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                                                   {{ optional($profession->professional->first())->id && in_array(optional($profession->professional->first())->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}
+                                                                   {{ !optional($profession->professional->first())->id ? 'disabled' : '' }}>
                                                         </div>
                                                         <div class="ms-3">
                                                             <label class="form-check-label" for="prof_{{ $profession->id }}">
@@ -137,6 +138,10 @@
                                                                     <small class="text-muted">
                                                                         ({{ $profession->professional->first()->specialty->name }}
                                                                         - CRM: {{ $profession->professional->first()->registration_number }})
+                                                                    </small>
+                                                                @else
+                                                                    <small class="text-danger">
+                                                                        (Perfil profissional não configurado)
                                                                     </small>
                                                                 @endif
                                                             </label>

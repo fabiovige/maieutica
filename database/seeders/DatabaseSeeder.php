@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             CompetenceSeeder::class,
             ChecklistSeeder::class,
             PlaneSeeder::class,
+            SpecialtySeeder::class,
         ]);
     }
 }
