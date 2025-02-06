@@ -28,7 +28,9 @@ class KidRequest extends FormRequest
             'birth_date' => ['required', 'date_format:d/m/Y'],
             'gender' => ['nullable', 'string', 'in:M,F'],
             'ethnicity' => ['nullable', 'string', 'in:branco,pardo,negro,indigena,amarelo,multiracial,nao_declarado,outro'],
-            'profession_id' => ['nullable', 'exists:users,id'],
+            'professionals' => ['nullable', 'array'],
+            'professionals.*' => ['exists:users,id'],
+            'primary_professional' => ['required_with:professionals', 'exists:users,id'],
             'responsible_id' => ['nullable', 'exists:users,id'],
         ];
     }

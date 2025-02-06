@@ -91,11 +91,14 @@ class KidsController extends Controller
                 'created_by' => auth()->user()->id,
             ];
 
-            if (Auth::user()->hasRole('professional')) {
-                $kidData['profession_id'] = Auth::user()->id;
-            }
-
             $kid = Kid::forProfessional()->create($kidData);
+
+            // Se o usuário for profissional, adiciona-o como profissional principal
+            if (Auth::user()->hasRole('professional')) {
+                $kid->professionals()->attach(Auth::user()->id, [
+                    'is_primary' => true
+                ]);
+            }
 
             Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
 
@@ -266,6 +269,29 @@ class KidsController extends Controller
 
             // Atualiza os dados da criança
             $kid->update($data);
+
+            // Atualiza os profissionais
+            if ($request->has('professionals')) {
+                $professionals = array_filter($request->professionals); // Remove valores vazios
+                if (!empty($professionals)) {
+                    // Pega o profissional principal do radio button
+                    $primaryProfessionalId = $request->input('primary_professional');
+
+                    // Prepara os dados para sync
+                    $syncData = [];
+                    foreach ($professionals as $professionalId) {
+                        $syncData[$professionalId] = [
+                            'is_primary' => $professionalId == $primaryProfessionalId
+                        ];
+                    }
+
+                    // Sincroniza os profissionais
+                    $kid->professionals()->sync($syncData);
+                } else {
+                    // Se não houver profissionais selecionados, remove todos
+                    $kid->professionals()->detach();
+                }
+            }
 
             // Opcional: Disparar job de atualização de criança
             // SendKidUpdateJob::dispatch($kid)->onQueue('emails');

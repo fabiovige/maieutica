@@ -115,19 +115,49 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="profession_id" class="form-label">Profissional</label>
-                                <select class="form-select @error('profession_id') is-invalid @enderror"
-                                        id="profession_id" name="profession_id">
-                                    <option value="">Selecione...</option>
-                                    @foreach($professions as $profession)
-                                        <option value="{{ $profession->id }}" {{ old('profession_id', $kid->profession_id) == $profession->id ? 'selected' : '' }}>
-                                            {{ $profession->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('profession_id')
+                                <label for="professionals" class="form-label">Profissionais</label>
+                                <div class="card">
+                                    <div class="card-body p-0">
+                                        <div class="list-group list-group-flush">
+                                            @foreach($professions as $profession)
+                                                <div class="list-group-item">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="form-check">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input"
+                                                                   name="professionals[]"
+                                                                   value="{{ $profession->id }}"
+                                                                   id="prof_{{ $profession->id }}"
+                                                                   {{ in_array($profession->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                                        </div>
+                                                        <div class="ms-3">
+                                                            <label class="form-check-label" for="prof_{{ $profession->id }}">
+                                                                {{ $profession->name }}
+                                                            </label>
+                                                        </div>
+                                                        <div class="ms-auto">
+                                                            <div class="form-check">
+                                                                <input type="radio"
+                                                                       class="form-check-input"
+                                                                       name="primary_professional"
+                                                                       value="{{ $profession->id }}"
+                                                                       {{ $kid->professionals->where('id', $profession->id)->where('pivot.is_primary', true)->count() ? 'checked' : '' }}
+                                                                       {{ !in_array($profession->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'disabled' : '' }}>
+                                                                <label class="form-check-label">Principal</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                                @error('professionals')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                <div class="form-text">
+                                    Selecione os profissionais e indique qual é o principal.
+                                </div>
                             </div>
                         </div>
 
@@ -166,4 +196,40 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quando um checkbox de profissional é alterado
+    document.querySelectorAll('input[name="professionals[]"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const professionalId = this.value;
+            const radioButton = document.querySelector(`input[name="primary_professional"][value="${professionalId}"]`);
+
+            // Habilita/desabilita o radio button correspondente
+            if (this.checked) {
+                radioButton.disabled = false;
+
+                // Se for o primeiro profissional selecionado, marca como principal
+                const checkedBoxes = document.querySelectorAll('input[name="professionals[]"]:checked');
+                if (checkedBoxes.length === 1) {
+                    radioButton.checked = true;
+                }
+            } else {
+                radioButton.disabled = true;
+                radioButton.checked = false;
+
+                // Se este era o principal, seleciona o primeiro disponível como principal
+                if (radioButton.checked) {
+                    const firstChecked = document.querySelector('input[name="professionals[]"]:checked');
+                    if (firstChecked) {
+                        document.querySelector(`input[name="primary_professional"][value="${firstChecked.value}"]`).checked = true;
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
+@endpush
 

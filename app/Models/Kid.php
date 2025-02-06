@@ -66,10 +66,24 @@ class Kid extends BaseModel
         return $this->belongsTo(User::class, 'responsible_id');
     }
 
-    // Relacionamento com o professional (ROLE_PROFESSION)
+    // Relacionamento antigo (manter temporariamente para compatibilidade)
     public function professional()
     {
         return $this->belongsTo(User::class, 'profession_id');
+    }
+
+    // Novo relacionamento many-to-many
+    public function professionals()
+    {
+        return $this->belongsToMany(User::class, 'kid_professional')
+                    ->withPivot('is_primary')
+                    ->withTimestamps();
+    }
+
+    // Helper para obter o profissional principal
+    public function primaryProfessional()
+    {
+        return $this->professionals()->wherePivot('is_primary', true)->first();
     }
 
     public function checklists()
