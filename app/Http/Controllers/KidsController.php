@@ -58,10 +58,20 @@ class KidsController extends Controller
     {
         $this->authorize('create', Kid::class);
 
+        // Buscar usuários com o papel 'professional'
+        $professions = User::whereHas('roles', function ($query) {
+            $query->where('name', 'professional');
+        })->get();
+
+        // Buscar usuários com o papel 'pais'
+        $responsibles = User::whereHas('roles', function ($query) {
+            $query->where('name', 'pais');
+        })->get();
+
         $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
-        return view('kids.create');
+        return view('kids.create', compact('professions', 'responsibles'));
     }
 
     public function store(KidRequest $request)
@@ -73,10 +83,11 @@ class KidsController extends Controller
             $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-
             $kidData = [
                 'name' => $request->name,
                 'birth_date' => $request->birth_date,
+                'gender' => $request->gender,
+                'ethnicity' => $request->ethnicity,
                 'created_by' => auth()->user()->id,
             ];
 
@@ -836,7 +847,7 @@ class KidsController extends Controller
                 } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
                     $status = 'Dentro do esperado'; // Consistente dentro da faixa normal (50% - 75%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
+                } elseif ($ageInmonths < $competence->percentil_90) {
                     $status = 'Dentro do esperado'; // Consistente dentro da faixa normal (75% - 90%)
                     $statusColor = 'orange';
                 } elseif ($ageInmonths >= $competence->percentil_90) {

@@ -12,6 +12,8 @@ class Kid extends BaseModel
         'name',
         'birth_date',
         'photo',
+        'gender',
+        'ethnicity',
         'profession_id',
         'responsible_id',
         'created_by',
@@ -29,6 +31,22 @@ class Kid extends BaseModel
 
     protected $casts = [
         'birth_date' => 'date'
+    ];
+
+    public const GENDERS = [
+        'M' => 'Masculino',
+        'F' => 'Feminino'
+    ];
+
+    public const ETHNICITIES = [
+        'branco' => 'Branco',
+        'pardo' => 'Pardo',
+        'negro' => 'Negro',
+        'indigena' => 'Indígena',
+        'amarelo' => 'Amarelo/Asiático',
+        'multiracial' => 'Multiracial',
+        'nao_declarado' => 'Não Declarado',
+        'outro' => 'Outro'
     ];
 
     // Adicionando o Scope Local
