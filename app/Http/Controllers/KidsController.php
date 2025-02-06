@@ -88,15 +88,18 @@ class KidsController extends Controller
                 'birth_date' => $request->birth_date,
                 'gender' => $request->gender,
                 'ethnicity' => $request->ethnicity,
+                'responsible_id' => $request->responsible_id,
                 'created_by' => auth()->user()->id,
             ];
 
-            $kid = Kid::forProfessional()->create($kidData);
+            $kid = Kid::create($kidData);
 
             // Se o usuário for profissional, adiciona-o como profissional principal
             if (Auth::user()->hasRole('professional')) {
                 $kid->professionals()->attach(Auth::user()->id, [
-                    'is_primary' => true
+                    'is_primary' => true,
+                    'created_at' => now(),
+                    'updated_at' => now()
                 ]);
             }
 

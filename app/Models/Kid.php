@@ -14,7 +14,6 @@ class Kid extends BaseModel
         'photo',
         'gender',
         'ethnicity',
-        'profession_id',
         'responsible_id',
         'created_by',
         'updated_by',
@@ -53,7 +52,9 @@ class Kid extends BaseModel
     public function scopeForProfessional(Builder $query)
     {
         if (Auth::check() && Auth::user()->hasRole('professional')) {
-            return $query->where('profession_id', Auth::id());
+            return $query->whereHas('professionals', function ($query) {
+                $query->where('users.id', Auth::id());
+            });
         }
 
         return $query;
@@ -66,12 +67,6 @@ class Kid extends BaseModel
         return $this->belongsTo(User::class, 'responsible_id');
     }
 
-    // Relacionamento antigo (manter temporariamente para compatibilidade)
-    public function professional()
-    {
-        return $this->belongsTo(User::class, 'profession_id');
-    }
-
     // Novo relacionamento many-to-many
     public function professionals()
     {
@@ -80,10 +75,13 @@ class Kid extends BaseModel
                     ->withTimestamps();
     }
 
-    // Helper para obter o profissional principal
-    public function primaryProfessional()
+    // Helper para manter compatibilidade com código existente
+    public function professional()
     {
-        return $this->professionals()->wherePivot('is_primary', true)->first();
+        return $this->belongsToMany(User::class, 'kid_professional')
+            ->withPivot('is_primary')
+            ->wherePivot('is_primary', true)
+            ->first();
     }
 
     public function checklists()
@@ -223,14 +221,17 @@ class Kid extends BaseModel
         $query = Kid::query();
 
         if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
-            $query->with(['professional', 'responsible', 'checklists']);
+            $query->with(['professionals', 'responsible', 'checklists']);
         } else if (auth()->user()->hasRole('professional')) {
-            $query->where('profession_id', auth()->user()->id)
-                ->whereOr('created_by', auth()->user()->id)
-                ->with(['professional', 'responsible', 'checklists']);
+            $query->where(function ($query) {
+                $query->whereHas('professionals', function ($q) {
+                    $q->where('users.id', auth()->user()->id);
+                })->orWhere('created_by', auth()->user()->id);
+            })
+            ->with(['professionals', 'responsible', 'checklists']);
         } else if (auth()->user()->hasRole('pais')) {
             $query->where('responsible_id', auth()->user()->id)
-                ->with(['professional', 'responsible', 'checklists']);
+                ->with(['professionals', 'responsible', 'checklists']);
         }
 
         return $query->get();
