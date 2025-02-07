@@ -797,6 +797,8 @@ class KidsController extends Controller
             ->whereIn('level_id', $levelId)
             ->get();
 
+        $ageInmonths = 0;
+
 
         // Preparar os dados para as avaliações de ambos os checklists
         $radarDataCompetences = [];
@@ -946,15 +948,19 @@ class KidsController extends Controller
         }
 
         // Retornar a view com os dados do radar detalhado
-        return view('kids.domain_details', compact(
-            'kid',
-            'ageInMonths',
-            'levelId',
-            'domain',
-            'radarDataCompetences',
-            'currentChecklist',
-            'previousChecklist'
-        ));
+        $data = [
+            'kid' => $kid,
+            'ageInMonths' => $ageInMonths,
+            'levelId' => $levelId,
+            'domain' => $domain,
+            'radarDataCompetences' => $radarDataCompetences,
+            'currentChecklist' => $currentChecklist,
+            'previousChecklist' => $previousChecklist
+        ];
+
+
+
+        return view('kids.domain_details', $data);
     }
 
     public function showRadarChart2($kidId, $levelId, $checklistId = null)
