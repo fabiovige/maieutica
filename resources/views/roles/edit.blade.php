@@ -76,7 +76,10 @@
                         </div>
                     </div>
 
-                    <div class="card-footer d-flex justify-content-end">
+                    <div class="card-footer d-flex justify-content-end gap-2">
+                        <a href="{{ route('roles.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </a>
                         <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                     </div>
 

@@ -1,13 +1,19 @@
 @extends('layouts.app')
 
-@section('breadcrumb')
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('checklists.index') }}">Checklists</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Editar</li>
-        </ol>
-    </nav>
+
+@section('title')
+    Editar Checklist
+@endsection
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item">
+        <a href="{{ route('checklists.index') }}">
+            <i class="bi bi-card-checklist"></i> Checklists
+        </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+        Editar
+    </li>
 @endsection
 
 @section('content')
@@ -61,8 +67,11 @@
                         </div>
 
                     </div>
-                    <div class="card-footer d-flex justify-content-center">
-                        <x-button icon="check" name="Atualizar checklist" type="submit" class="primary"></x-button>
+                    <div class="card-footer d-flex justify-content-end gap-2">
+                        <x-button icon="check" name="Salvar" type="submit" class="primary"></x-button>
+                        <a href="{{ route('checklists.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x"></i> Cancelar
+                        </a>
                     </div>
                 </div>
             </form>

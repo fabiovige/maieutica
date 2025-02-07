@@ -39,7 +39,7 @@ class ChecklistController extends Controller
                 $queryChecklists->whereIn('kid_id', $kids);
             }
         }
-        $checklists = $queryChecklists->orderBy('id','ASC')->get();
+        $checklists = $queryChecklists->orderBy('created_at','desc')->get();
 
         foreach ($checklists as $checklist) {
             $checklist->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);

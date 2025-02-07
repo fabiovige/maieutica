@@ -22,7 +22,8 @@ class ProfessionalController extends Controller
                     $q->where('name', 'professional');
                 });
             })
-            ->get();
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return view('professionals.index', compact('professionals'));
     }

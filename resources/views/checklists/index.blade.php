@@ -10,7 +10,6 @@
     </nav>
 @endsection
 
-
 @section('title')
     Checklists
 @endsection
@@ -19,14 +18,6 @@
     <li class="breadcrumb-item active" aria-current="page">
         <i class="bi bi-people"></i> Checklists
     </li>
-@endsection
-
-@section('actions')
-    @can('create checklists')
-        <a href="{{ route('checklists.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Novo Checklist
-        </a>
-    @endcan
 @endsection
 
 
@@ -43,9 +34,9 @@
                 </Resume>
             </div>
         @endif
-        <div class="{{ isset($kid) ? 'col-md-8' : 'col-md-12' }} mt-2">
-
-            <table class="table table-bordered table-hover">
+        <div class="{{ isset($kid) ? 'col-md-8' : 'col-md-12' }}">
+            <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mt-3">
                 <thead>
                     <tr>
                         <th style="width: 60px;">ID</th>
@@ -53,7 +44,7 @@
                         <th>Status</th>
                         <th>Data de criação</th>
                         <th>Média Geral do Desenvolvimento</th>
-                        @can('edit checklists')<th style="width: 100px;"></th>@endcan
+                        <th style="width: 100px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,7 +78,7 @@
                                         @if($checklist->situation_label === 'Aberto')
                                             @can('edit checklists')
                                                 <li><a class="dropdown-item" href="{{ route('checklists.edit', $checklist->id) }}">
-                                                    <i class="bi bi-pencil"></i> Anotações
+                                                    <i class="bi bi-pencil"></i> Editar
                                                 </a></li>
                                             @endcan
                                             @can('fill checklists')
@@ -117,6 +108,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
         @if (isset($kid))
             <div class="col-md-4">

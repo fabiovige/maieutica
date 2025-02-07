@@ -23,6 +23,7 @@
         <table class="table table-hover table-bordered align-middle mt-3">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Nome</th>
                     <th>Especialidade</th>
                     <th>Registro</th>
@@ -35,6 +36,7 @@
             <tbody>
                 @foreach($professionals as $professional)
                 <tr>
+                    <td>{{ $professional->id }}</td>
                     <td>
                         <div class="d-flex align-items-center">
                             @if($professional->user->first() && $professional->user->first()->avatar)
@@ -121,6 +123,9 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+    <div class="d-flex justify-content-end">
+        {{ $professionals->links() }}
     </div>
 @endsection
 

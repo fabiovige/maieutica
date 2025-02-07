@@ -26,7 +26,8 @@
                     Nenhuma criança cadastrada.
                 </div>
             @else
-                <table class="table table-bordered mt-3">
+                <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle mt-3">
                     <thead>
                         <tr>
                             <th style="width: 60px;" class="text-center align-middle">ID</th>
@@ -35,7 +36,7 @@
                             <th class="align-middle">Responsável</th>
                             <th class="align-middle">Data Nasc.</th>
                             <th class="align-middle">Idade</th>
-                            <th class="text-center align-middle" style="width: 100px;">Ações</th>
+                            <th width="200">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,7 +62,7 @@
                                 <td class="align-middle">{{ $kid->responsible->name ?? 'N/D' }}</td>
                                 <td class="align-middle">{{ $kid->birth_date ?? 'N/D' }}</td>
                                 <td class="align-middle">{{ $kid->age ?? 'N/D' }}</td>
-                                <td class="text-center align-middle">
+                                <td class="align-middle">
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                                             Ações
@@ -96,7 +97,7 @@
                         @endforeach
                     </tbody>
                 </table>
-
+                </div>
                 <div class="d-flex justify-content-end">
                     {{ $kids->links() }}
                 </div>
