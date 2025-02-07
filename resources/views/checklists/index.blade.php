@@ -33,12 +33,25 @@
 @section('actions')
     @can('create checklists')
         @if($kid)
-            <button onclick="createChecklist()" class="btn btn-primary">
-                <i class="bi bi-plus-lg"></i> Novo Checklist
+            <button onclick="createChecklist(this)" class="btn btn-primary">
+                <span class="d-flex align-items-center">
+                    <i class="bi bi-plus-lg me-1"></i>
+                    <span class="button-text">Novo Checklist</span>
+                </span>
             </button>
 
             <script>
-                function createChecklist() {
+                function createChecklist(button) {
+                    // Desabilita o botão e mostra loading
+                    button.disabled = true;
+                    const buttonContent = button.innerHTML;
+                    button.innerHTML = `
+                        <span class="d-flex align-items-center">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Criando...
+                        </span>
+                    `;
+
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     fetch("{{ route('checklists.store') }}", {
                         method: 'POST',
@@ -57,10 +70,16 @@
                         if (data.success) {
                             window.location.reload();
                         } else {
+                            // Restaura o botão em caso de erro
+                            button.disabled = false;
+                            button.innerHTML = buttonContent;
                             alert('Erro ao criar checklist: ' + (data.error || 'Erro desconhecido'));
                         }
                     })
                     .catch(error => {
+                        // Restaura o botão em caso de erro
+                        button.disabled = false;
+                        button.innerHTML = buttonContent;
                         alert('Erro ao criar checklist: ' + error.message);
                     });
                 }
