@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Análise Geral - {{ $kid->name }}
+    Comparativo - {{ $kid->name }}
 @endsection
 
 @section('breadcrumb-items')
@@ -14,7 +14,7 @@
         <a href="{{ route('kids.edit', $kid->id) }}">{{ $kid->name }}</a>
     </li>
     <li class="breadcrumb-item active" aria-current="page">
-        <i class="bi bi-clipboard-data"></i> Análise Geral
+        <i class="bi bi-clipboard-data"></i> Comparativo
     </li>
 @endsection
 
@@ -39,14 +39,6 @@
             @else
             <p><strong>Checklist de Comparação:</strong> Não disponível</p>
             @endif
-        </div>
-        <div class="col-md-8">
-            <canvas id="barChart" width="400" height="200"></canvas>
-        </div>
-    </div>
-    <div class="d-flex justify-content-between">
-        <div>
-
 
 
             <!-- filtros e dominios-->
@@ -85,6 +77,18 @@
             <p>Não há nível disponíveis para comparação.</p>
             @endif
             <!-- end filtros-->
+
+        </div>
+        <div class="col-md-8">
+            <canvas id="barChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between">
+        <div>
+
+
+
+
 
             <!-- dominios-->
             <h4 class="mt-3">Domínios</h4>
@@ -168,10 +172,10 @@
                     ticks: {
                         stepSize: 1,
                         callback: function(value) {
-                            if (value === 0) return 'Não Avaliado';
-                            if (value === 1) return 'Difícil de obter';
-                            if (value === 2) return 'Mais ou menos';
-                            if (value === 3) return 'Consistente';
+                            if (value === 0) return 'Não observado';
+                            if (value === 1) return 'Não desenvolvido';
+                            if (value === 2) return 'Em desenvolvimento';
+                            if (value === 3) return 'Desenvolvido';
                             return value;
                         }
                     }
@@ -188,16 +192,17 @@
         },
         options: {
             scales: {
-                y: { // Ajustamos o eixo Y para refletir os valores 1, 2 e 3
+                y: {
                     beginAtZero: true,
                     suggestedMin: 1,
                     suggestedMax: 3,
                     ticks: {
                         stepSize: 1,
                         callback: function(value) {
-                            if (value === 1) return 'Difícil de obter';
-                            if (value === 2) return 'Mais ou menos';
-                            if (value === 3) return 'Consistente';
+                            if (value === 0) return 'Não observado';
+                            if (value === 1) return 'Não desenvolvido';
+                            if (value === 2) return 'Em desenvolvimento';
+                            if (value === 3) return 'Desenvolvido';
                             return value;
                         }
                     },
