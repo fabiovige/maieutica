@@ -26,7 +26,6 @@
                     Nenhuma criança cadastrada.
                 </div>
             @else
-                <div class="table-responsive">
                 <table class="table table-hover table-bordered align-middle mt-3">
                     <thead>
                         <tr>
@@ -97,7 +96,6 @@
                         @endforeach
                     </tbody>
                 </table>
-                </div>
                 <div class="d-flex justify-content-end">
                     {{ $kids->links() }}
                 </div>

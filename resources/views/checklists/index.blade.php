@@ -198,31 +198,40 @@
 
 var ctxBar = document.getElementById('barChart').getContext('2d');
 
-var labels = @json($checklists->pluck('id')); // IDs dos checklists como labels
+// Formatar as datas dos checklists para labels
+var labels = @json($checklists->map(function($checklist) {
+    return [
+        'Checklist #' . $checklist->id,
+        $checklist->created_at->format('d/m/Y')
+    ];
+}));
 
 var data = @json($checklists->pluck('developmentPercentage')); // Percentuais de desenvolvimento
 
 var barChart = new Chart(ctxBar, {
     type: 'bar',
     data: {
-        labels: labels,
+        labels: labels.map(l => l[0] + '\n' + l[1]), // Mostra ID e data em duas linhas
         datasets: [
             {
                 label: 'Média Geral do Desenvolvimento (%)',
                 data: data,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)', // Azul para as barras
-                borderColor: 'rgba(54, 162, 235, 1)', // Azul para bordas das barras
+                backgroundColor: data.map(value => {
+                    if (value < 30) return 'rgba(220, 53, 69, 0.6)';      // Vermelho para baixo desenvolvimento
+                    if (value < 70) return 'rgba(255, 193, 7, 0.6)';      // Amarelo para médio desenvolvimento
+                    return 'rgba(40, 167, 69, 0.6)';                      // Verde para alto desenvolvimento
+                }),
                 borderWidth: 1,
                 type: 'bar'
             },
             {
                 label: 'Linha de Desenvolvimento',
                 data: data,
-                borderColor: 'rgba(255, 99, 132, 1)', // Vermelho para a linha
+                borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 2,
                 fill: false,
                 type: 'line',
-                tension: 0.3 // Suaviza a linha
+                tension: 0.3
             }
         ]
     },
@@ -243,7 +252,11 @@ var barChart = new Chart(ctxBar, {
             x: {
                 title: {
                     display: true,
-                    text: 'Checklists'
+                    text: 'Avaliações por Data'
+                },
+                ticks: {
+                    maxRotation: 45,
+                    minRotation: 45
                 }
             }
         },
@@ -251,6 +264,16 @@ var barChart = new Chart(ctxBar, {
             legend: {
                 display: true,
                 position: 'top'
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        if (context.dataset.type === 'bar') {
+                            return `Desenvolvimento: ${context.raw.toFixed(1)}%`;
+                        }
+                        return context.dataset.label + ': ' + context.raw.toFixed(1) + '%';
+                    }
+                }
             }
         },
         responsive: true,
@@ -259,20 +282,20 @@ var barChart = new Chart(ctxBar, {
 });
 
 // Preparar dados dos status
-const statusData = [
-    {{ $checklists->flatMap(function($checklist) {
-        return $checklist->competences->pluck('pivot.note');
-    })->filter(function($note) { return $note === 0; })->count() }}, // Não observado
-    {{ $checklists->flatMap(function($checklist) {
-        return $checklist->competences->pluck('pivot.note');
-    })->filter(function($note) { return $note === 1; })->count() }}, // Mais ou menos
-    {{ $checklists->flatMap(function($checklist) {
-        return $checklist->competences->pluck('pivot.note');
-    })->filter(function($note) { return $note === 2; })->count() }}, // Difícil
-    {{ $checklists->flatMap(function($checklist) {
-        return $checklist->competences->pluck('pivot.note');
-    })->filter(function($note) { return $note === 3; })->count() }}  // Consistente
-];
+@php
+    // Pegar apenas o último checklist
+    $lastChecklist = $checklists->first(); // Já está ordenado por created_at desc
+
+    // Contar as competências por nota
+    $statusData = [
+        $lastChecklist->competences->where('pivot.note', 0)->count(), // Não observado
+        $lastChecklist->competences->where('pivot.note', 1)->count(), // Mais ou menos
+        $lastChecklist->competences->where('pivot.note', 2)->count(), // Difícil
+        $lastChecklist->competences->where('pivot.note', 3)->count()  // Consistente
+    ];
+@endphp
+
+var statusData = @json($statusData);
 
 // Configuração do gráfico de status
 var ctxStatus = document.getElementById('statusChart').getContext('2d');
@@ -322,13 +345,22 @@ var statusChart = new Chart(ctxStatus, {
         },
         plugins: {
             legend: {
-                display: false  // Removido pois só temos um dataset
+                display: false
             },
             title: {
                 display: true,
-                text: 'Distribuição das Competências por Status',
+                text: 'Distribuição das Competências - Última Avaliação',
                 font: {
                     size: 16
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((context.raw / total) * 100).toFixed(1);
+                        return `${context.raw} competências (${percentage}%)`;
+                    }
                 }
             }
         },
