@@ -33,40 +33,46 @@
 
     <div class="row">
         <div class="col-md-12 mt-3">
-            <div class="d-flex justify-content-between">
-                <h2>{{ $domain->name }} ({{ $domain->initial }})</h2>
-                <h2>
-                    {{ $levelId === 0 ? 'Todos os níveis' : 'Nível ' . $levelId }}
-                </h2>
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">{{ $domain->name }} ({{ $domain->initial }})</h2>
+                <div class="d-flex align-items-center">
+                    <h2 class="mb-0 me-3">{{ $levelId === 0 ? 'Todos os níveis' : 'Nível ' . $levelId }}</h2>
+                    <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => $levelId, $previousChecklist->id]) }}"
+                       class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
+                </div>
             </div>
-
         </div>
     </div>
 
 
-
-
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-12 mb-4">
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Gráfico de Radar - Comparativo de Competências</h5>
+                    <div>
+                        @if ($currentChecklist)
+                            <small class="text-muted me-3">
+                                <strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id }} -
+                                {{ $currentChecklist->created_at->format('d/m/Y') }}
+                            </small>
+                        @endif
 
-
-            @if ($currentChecklist)
-                <p><strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id }} -
-                    {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
-            @else
-                <p><strong>Checklist Atual:</strong> Não disponível</p>
-            @endif
-
-            @if ($previousChecklist)
-                <p><strong>Checklist de Comparação:</strong>
-                    {{ $previousChecklist->name ?? 'Checklist ' . $previousChecklist->id }} -
-                    {{ $previousChecklist->created_at->format('d/m/Y') }}</p>
-            @else
-                <p><strong>Checklist de Comparação:</strong> Não disponível</p>
-            @endif
-        </div>
-        <div class="col-md-8 justify-content-center">
-            <canvas id="radarChartCompetences" width="200" height="200"></canvas>
+                        @if ($previousChecklist)
+                            <small class="text-muted">
+                                <strong>Checklist de Comparação:</strong>
+                                {{ $previousChecklist->name ?? 'Checklist ' . $previousChecklist->id }} -
+                                {{ $previousChecklist->created_at->format('d/m/Y') }}
+                            </small>
+                        @endif
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container d-flex justify-content-center align-items-center" style="position: relative; height:700px;">
+                        <canvas id="radarChartCompetences"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -98,22 +104,22 @@
                                 <td>{{ $competenceData['description'] ?? '' }}</td>
                                 <td nowrap>
                                     @if ($competenceData['currentStatusValue'] === 1)
-                                        Difícil de obter
+                                        Desenvolvido
                                     @elseif($competenceData['currentStatusValue'] === 2)
-                                        Mais ou menos
+                                        Em desenvolvimento
                                     @elseif($competenceData['currentStatusValue'] === 3)
-                                        Consistente
+                                        Não desenvolvido
                                     @else
                                         Não Avaliado
                                     @endif
                                 </td>
                                 <td nowrap>
                                     @if ($competenceData['previousStatusValue'] === 1)
-                                        Difícil de obter
+                                        Desenvolvido
                                     @elseif($competenceData['previousStatusValue'] === 2)
-                                        Mais ou menos
+                                        Em desenvolvimento
                                     @elseif($competenceData['previousStatusValue'] === 3)
-                                        Consistente
+                                        Não desenvolvido
                                     @else
                                         Não Avaliado
                                     @endif
@@ -200,9 +206,9 @@
                             stepSize: 1,
                             callback: function(value) {
                                 if (value === 0) return 'Não Avaliado';
-                                if (value === 1) return 'Difícil de obter';
-                                if (value === 2) return 'Mais ou menos';
-                                if (value === 3) return 'Consistente';
+                                if (value === 1) return 'Não Desenvolvido';
+                                if (value === 2) return 'Em Desenvolvimento';
+                                if (value === 3) return 'Desenvolvido';
                                 return value;
                             }
                         }
