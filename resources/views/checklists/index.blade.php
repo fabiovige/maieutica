@@ -299,20 +299,20 @@ var statusData = @json($statusData);
 
 // Configuração do gráfico de status
 var ctxStatus = document.getElementById('statusChart').getContext('2d');
-var statusLabels = ['Não observado', 'Mais ou menos', 'Difícil de obter', 'Consistente'];
+var statusLabels = ['Não observado', 'Em desenvolvimento', 'Não desenvolvido', 'Desenvolvido'];
 
 var statusColors = [
-    'rgba(108, 117, 125, 0.2)',
-    'rgba(255, 193, 7, 0.6)',
-    'rgba(220, 53, 69, 0.6)',
-    'rgba(40, 167, 69, 0.6)'
+    'rgba(108, 117, 125, 0.2)',  // Cinza para Não observado
+    'rgba(255, 193, 7, 0.6)',    // Amarelo para Em desenvolvimento
+    'rgba(220, 53, 69, 0.6)',    // Vermelho para Não desenvolvido
+    'rgba(40, 167, 69, 0.6)'     // Verde para Desenvolvido
 ];
 
 var statusBorders = [
-    'rgba(108, 117, 125, 1)',
-    'rgba(255, 193, 7, 1)',
-    'rgba(220, 53, 69, 1)',
-    'rgba(40, 167, 69, 1)'
+    'rgba(108, 117, 125, 1)',    // Cinza para Não observado
+    'rgba(255, 193, 7, 1)',      // Amarelo para Em desenvolvimento
+    'rgba(220, 53, 69, 1)',      // Vermelho para Não desenvolvido
+    'rgba(40, 167, 69, 1)'       // Verde para Desenvolvido
 ];
 
 var statusChart = new Chart(ctxStatus, {
@@ -349,7 +349,7 @@ var statusChart = new Chart(ctxStatus, {
             },
             title: {
                 display: true,
-                text: 'Distribuição das Competências - Última Avaliação',
+                text: 'Status de Desenvolvimento - Última Avaliação',
                 font: {
                     size: 16
                 }
@@ -359,7 +359,7 @@ var statusChart = new Chart(ctxStatus, {
                     label: function(context) {
                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
                         const percentage = ((context.raw / total) * 100).toFixed(1);
-                        return `${context.raw} competências (${percentage}%)`;
+                        return `${context.raw} habilidades (${percentage}%)`;
                     }
                 }
             }
