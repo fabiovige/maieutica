@@ -64,7 +64,7 @@ class Kid extends BaseModel
     // Relacionamento com o responsável (ROLE_PAIS)
     public function responsible()
     {
-        return $this->belongsTo(User::class, 'responsible_id');
+        return $this->belongsTo(User::class, 'responsible_id')->withDefault();
     }
 
     // Novo relacionamento many-to-many com professionals
@@ -73,15 +73,6 @@ class Kid extends BaseModel
         return $this->belongsToMany(Professional::class, 'kid_professional')
                     ->withPivot('is_primary')
                     ->withTimestamps();
-    }
-
-    // Helper para manter compatibilidade com código existente
-    public function professional()
-    {
-        return $this->belongsToMany(Professional::class, 'kid_professional')
-            ->withPivot('is_primary')
-            ->wherePivot('is_primary', true)
-            ->first();
     }
 
     public function checklists()

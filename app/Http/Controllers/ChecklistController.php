@@ -28,93 +28,23 @@ class ChecklistController extends Controller
         Log::debug($message);
 
         $queryChecklists = Checklist::getChecklists();
-        $kid = null;
-        if($request->kidId || auth()->user()->hasRole('pais')) {
+        $kid = $request->kidId ? Kid::findOrFail($request->kidId) : null;
 
-            if($request->kidId){
-                $kid = Kid::findOrFail($request->kidId);
+        if($request->kidId || auth()->user()->hasRole('pais')) {
+            if($kid){
                 $queryChecklists->where('kid_id', $request->kidId);
             } elseif(auth()->user()->hasRole('pais')) {
                 $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
                 $queryChecklists->whereIn('kid_id', $kids);
             }
         }
-        $checklists = $queryChecklists->orderBy('created_at','desc')->get();
+        $checklists = $queryChecklists->with('competences')->orderBy('created_at','desc')->get();
 
         foreach ($checklists as $checklist) {
             $checklist->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
         }
 
         return view('checklists.index', compact('checklists', 'kid'));
-    }
-
-    public function index_data()
-    {
-        /*
-        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
-            $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at');
-        } else {
-            $data = Checklist::with('kid')->select('id', 'level', 'situation', 'kid_id', 'created_at');
-            $data->where('created_by', '=', auth()->user()->id);
-        }
-        */
-
-        $data = Checklist::getChecklists();
-
-        return Datatables::of($data)
-            ->addColumn('action', function ($data) {
-                $user = request()->user();
-
-                $html = '<div class="dropdown">
-                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-gear"></i>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">';
-
-                    // Adiciona o botão de visualizar se o usuário tiver permissão de visualizar checklists
-                    /*if ($user->can('view checklists')) {
-                        $html .= '<li><a class="dropdown-item" href="'.route('checklists.show', $data->id).'">
-                                    <i class="bi bi-eye"></i> Visualizar
-                                </a></li>';
-                    }*/
-
-                    // Adiciona o botão de editar se o usuário tiver permissão de editar checklists
-                    if ($user->can('edit checklists')) {
-                        $html .= '<li><a class="dropdown-item" href="'.route('checklists.edit', $data->id).'">
-                                    <i class="bi bi-pencil"></i> Anotações
-                                </a></li>';
-                    }
-
-                    // Adiciona o botão de avaliação se o usuário tiver permissão de preencher checklists (fill)
-                    if ($user->can('fill checklists')) {
-                        $html .= '<li><a class="dropdown-item" href="'.route('checklists.fill', $data->id).'">
-                                    <i class="bi bi-check2-square"></i> Aplicar avaliação
-                                </a></li>';
-                    }
-
-                    // Adiciona o botão de avaliação se o usuário tiver permissão de preencher checklists (fill)
-                    if ($user->can('fill checklists')) {
-                        $html .= '<li><a class="dropdown-item" href="'.route('kids.show', [$data->kid->id]).'">
-                                    <i class="bi bi-check2-square"></i> Planos
-                                </a></li>';
-                    }
-
-                $html .= '</ul></div>';
-
-                return $html;
-            })
-            ->editColumn('kid_id', function ($data) {
-                return $data->kid->name;
-            })
-            ->editColumn('level', function ($data) {
-                return $data->level;
-            })
-            ->editColumn('created_at', function ($data) {
-                return Carbon::createFromFormat('Y-m-d H:i:s', $data->created_at)->format('d/m/Y');
-            })
-            ->rawColumns(['kid_id', 'level', 'created_at', 'situation', 'action'])
-            ->orderColumns(['id'], '-:column $1')
-            ->make(true);
     }
 
     public function create()
@@ -136,8 +66,9 @@ class ChecklistController extends Controller
             $message = label_case('Store Checklists '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
-            $data = $request->all();
+            $data = $request->json()->all() ?? $request->all();
             $data['created_by'] = Auth::id();
+            $data['situation'] = 'a';
 
             // checklist
             $checklist = Checklist::create($data);
@@ -165,16 +96,24 @@ class ChecklistController extends Controller
                 $checklist->competences()->syncWithoutDetaching($notes);
             }
 
-            flash(self::MSG_UPDATE_SUCCESS)->success();
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true]);
+            }
 
+            flash(self::MSG_UPDATE_SUCCESS)->success();
             return redirect()->route('checklists.index');
+
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            Log::error('Erro ao criar checklist: ' . $e->getMessage());
+
+            if ($request->wantsJson()) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+
             $message = label_case('Create Checklists '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             flash(self::MSG_UPDATE_ERROR)->warning();
-
             return redirect()->back();
         }
     }

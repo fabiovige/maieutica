@@ -11,30 +11,76 @@
 @endsection
 
 @section('title')
-    Checklists
+    Checklists {{ $kid ? '- ' . $kid->name : '' }}
 @endsection
 
 @section('breadcrumb-items')
+    <li class="breadcrumb-item">
+        <a href="{{ route('kids.index') }}">
+            <i class="bi bi-people"></i> Crianças
+        </a>
+    </li>
+    @if($kid)
+    <li class="breadcrumb-item">
+        <a href="{{ route('kids.edit', $kid->id) }}">{{ $kid->name }}</a>
+    </li>
+    @endif
     <li class="breadcrumb-item active" aria-current="page">
-        <i class="bi bi-people"></i> Checklists
+        <i class="bi bi-card-checklist"></i> Checklists
     </li>
 @endsection
 
+@section('actions')
+    @can('create checklists')
+        @if($kid)
+            <button onclick="createChecklist()" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Novo Checklist
+            </button>
 
+            <script>
+                function createChecklist() {
+                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    fetch("{{ route('checklists.store') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            kid_id: {{ $kid->id }},
+                            level: 4
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            alert('Erro ao criar checklist: ' + (data.error || 'Erro desconhecido'));
+                        }
+                    })
+                    .catch(error => {
+                        alert('Erro ao criar checklist: ' + error.message);
+                    });
+                }
+            </script>
+        @endif
+    @endcan
+@endsection
 
 @section('content')
 
-    <div class="row" id="app">
-        @if (isset($kid))
-            <div class="col-md-4">
-                <Resume :responsible="{{ $kid->responsible()->first() }}"
-                    :professional="{{ $kid->professional()->first() }}" :kid="{{ $kid }}"
-                    :checklist="{{ $kid->checklists()->count() }}" :plane="{{ $kid->planes()->count() }}"
-                    :months="{{ $kid->months }}">
-                </Resume>
+    <div class="row mb-4">
+        @if(isset($kid))
+            <div class="col-md-12">
+                <x-kid-info-card :kid="$kid" />
             </div>
         @endif
-        <div class="{{ isset($kid) ? 'col-md-8' : 'col-md-12' }}">
+    </div>
+
+    <div class="row">
+        <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-6' }}">
             <div class="table-responsive">
             <table class="table table-hover table-bordered align-middle mt-3">
                 <thead>
@@ -111,9 +157,7 @@
             </div>
         </div>
         @if (isset($kid))
-            <div class="col-md-4">
-            </div>
-            <div class="{{ isset($kid) ? 'col-md-8' : 'col-md-12' }} mt-2">
+            <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-6' }} mt-2">
                 <div class="row">
                     <div class="col-md-12 mb-4">
                         <canvas id="barChart" width="400" height="300"></canvas>
@@ -195,18 +239,33 @@ var barChart = new Chart(ctxBar, {
     }
 });
 
-// Novo gráfico de status
-var ctxStatus = document.getElementById('statusChart').getContext('2d');
-
 // Preparar dados dos status
+const statusData = [
+    {{ $checklists->flatMap(function($checklist) {
+        return $checklist->competences->pluck('pivot.note');
+    })->filter(function($note) { return $note === 0; })->count() }}, // Não observado
+    {{ $checklists->flatMap(function($checklist) {
+        return $checklist->competences->pluck('pivot.note');
+    })->filter(function($note) { return $note === 1; })->count() }}, // Mais ou menos
+    {{ $checklists->flatMap(function($checklist) {
+        return $checklist->competences->pluck('pivot.note');
+    })->filter(function($note) { return $note === 2; })->count() }}, // Difícil
+    {{ $checklists->flatMap(function($checklist) {
+        return $checklist->competences->pluck('pivot.note');
+    })->filter(function($note) { return $note === 3; })->count() }}  // Consistente
+];
+
+// Configuração do gráfico de status
+var ctxStatus = document.getElementById('statusChart').getContext('2d');
 var statusLabels = ['Não observado', 'Mais ou menos', 'Difícil de obter', 'Consistente'];
 
 var statusColors = [
-    'rgba(108, 117, 125, 0.2)',  // Cinza mais claro para Não observado
-    'rgba(255, 193, 7, 0.6)',    // Amarelo para Mais ou menos
-    'rgba(220, 53, 69, 0.6)',    // Vermelho para Difícil
-    'rgba(40, 167, 69, 0.6)'     // Verde para Consistente
+    'rgba(108, 117, 125, 0.2)',
+    'rgba(255, 193, 7, 0.6)',
+    'rgba(220, 53, 69, 0.6)',
+    'rgba(40, 167, 69, 0.6)'
 ];
+
 var statusBorders = [
     'rgba(108, 117, 125, 1)',
     'rgba(255, 193, 7, 1)',
