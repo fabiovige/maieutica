@@ -1,30 +1,32 @@
 @extends('layouts.app')
 
-@section('breadcrumb')
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('kids.index') }}">Crianças</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Análise Geral</li>
-    </ol>
-</nav>
+@section('title')
+    Análise Geral - {{ $kid->name }}
+@endsection
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item">
+        <a href="{{ route('kids.index') }}">
+            <i class="bi bi-people"></i> Crianças
+        </a>
+    </li>
+    <li class="breadcrumb-item">
+        <a href="{{ route('kids.edit', $kid->id) }}">{{ $kid->name }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+        <i class="bi bi-clipboard-data"></i> Análise Geral
+    </li>
 @endsection
 
 @section('content')
 
 <div class="row" id="app">
+    <div class="col-md-12 mb-4">
+        <x-kid-info-card :kid="$kid" />
+    </div>
+
     <div class="row">
         <div class="col-md-4">
-            
-            <Resume
-                :responsible="{{ $kid->responsible()->first() }}"
-                :professional="{{ $kid->professional()->first() }}"
-                :kid="{{ $kid }}"
-                :checklist="{{ $kid->checklists()->count() }}"
-                :plane="{{ $kid->planes()->count() }}"
-                :months="{{ $kid->months }}"
-            >
-            </Resume>
 
             @if($currentChecklist)
             <p><strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id }} - {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
