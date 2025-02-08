@@ -27,6 +27,7 @@ Checklists
 @section('actions')
 @can('create checklists')
 @if($kid)
+
 <button onclick="createChecklist(this)" class="btn btn-primary">
     <span class="d-flex align-items-center">
         <i class="bi bi-plus-lg me-1"></i>

@@ -146,7 +146,7 @@ class KidsController extends Controller
 
             $data = [
                 'kid' => $kid,
-                'profession' => $kid->professional->name,
+                'professionals' => $kid->professionals->pluck('name'),
                 'checklists' => $checklists,
                 'checklist' => $checklist,
                 'checklist_id' => $checklists[0]->id,
@@ -158,6 +158,7 @@ class KidsController extends Controller
 
             return view('kids.show', $data);
         } catch (Exception $e) {
+            dd($e);
             $message = label_case('Error show kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
