@@ -205,7 +205,7 @@ function showCompetences(checklistId, note) {
                 </tr>`;
             });
             $('#competencesContent').html(html);
-            $('#competencesTitle').text(`Competências para o Status: ${note === 1 ? 'Mais ou menos' : note === 2 ? 'Difícil de obter' : note === 3 ? 'Consistente' : 'Não observado'}`);
+            $('#competencesTitle').text(`Competências para o Status: ${note === 1 ? 'Não desenvolvido' : note === 2 ? 'Em desenvolvimento' : note === 3 ? 'Desenvolvido' : 'Não observado'}`);
         },
         error: function(xhr) {
             $('#competencesContent').html('<div class="alert alert-danger">Erro ao carregar as competências.</div>');

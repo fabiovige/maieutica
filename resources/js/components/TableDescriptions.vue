@@ -35,10 +35,10 @@
 
                     </td>
                     <td class="customColumn">
-                        <h5 v-if="component.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
-                        <h5 v-if="component.note === 2"><span class="badge bg-warning text-dark customColumn">Mais ou menos</span></h5>
-                        <h5 v-if="component.note === 1"><span class="badge bg-danger customColumn">Difícil de obter</span></h5>
-                        <h5 v-if="component.note === 3"><span class="badge bg-primary customColumn">Consistente</span></h5>
+                        <h5 v-if="component.note === 0"><span class="badge bg-secondary text-dark customColumn">Não observado</span></h5>
+                        <h5 v-if="component.note === 1"><span class="badge bg-danger customColumn">Não desenvolvido</span></h5>
+                        <h5 v-if="component.note === 2"><span class="badge bg-warning text-dark customColumn">Em desenvolvimento</span></h5>
+                        <h5 v-if="component.note === 3"><span class="badge bg-success customColumn">Desenvolvido</span></h5>
                     </td>
                 </tr>
             </tbody>

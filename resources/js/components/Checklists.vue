@@ -17,15 +17,9 @@
         <ul class="nav nav-tabs nav-fill mt-2" id="navTablevel" role="tablist">
             <li v-for="(data, level_id) in checklist.levels" :key="level_id" class="nav-item" role="presentation">
 
-                <button :class="['nav-link', { 'active' : level_id == 1 }]"
-                        :id="`level-tab${ level_id }`"
-                        data-bs-toggle="tab"
-                        :data-bs-target="`#level${ level_id }`"
-                        type="button"
-                        role="tab"
-                        :aria-controls="`#level${ level_id }`"
-                        :aria-selected="{ 'true' : level_id == 1 }"
-                >
+                <button :class="['nav-link', { 'active': level_id == 1 }]" :id="`level-tab${level_id}`"
+                    data-bs-toggle="tab" :data-bs-target="`#level${level_id}`" type="button" role="tab"
+                    :aria-controls="`#level${level_id}`" :aria-selected="{ 'true': level_id == 1 }">
                     Nível {{ level_id }}
                 </button>
             </li>
@@ -33,47 +27,33 @@
 
         <div class="tab-content" id="navTablevelContent">
             <div v-for="(data, level_id) in checklist.levels" :key="level_id"
-                 :class="['tab-pane fade', { 'show active' : level_id == 1 } ]"
-                 :id="`level${level_id}`" role="tabpanel"
-                 :aria-labelledby="`level-tab${level_id}`"
-            >
+                :class="['tab-pane fade', { 'show active': level_id == 1 }]" :id="`level${level_id}`" role="tabpanel"
+                :aria-labelledby="`level-tab${level_id}`">
 
                 <ul class="nav nav-tabs mt-2" id="myTab2" role="tablist">
                     <li v-for="(domain, index) in data.domains" :key="domain" class="nav-item" role="presentation">
-                        <button
-                            :class="['nav-link', { 'active' : domain == 'COG' }]"
-                            :id="`${domain}${level_id}-tab`"
-                            data-bs-toggle="tab"
-                            :data-bs-target="`#${domain}${level_id}`"
-                            type="button"
-                            role="tab"
-                            :aria-controls="`${domain}${level_id}`"
-                            :aria-selected="{ 'true' : domain == 'COG' }"
-                        >{{ domain }}</button>
+                        <button :class="['nav-link', { 'active': domain == 'COG' }]" :id="`${domain}${level_id}-tab`"
+                            data-bs-toggle="tab" :data-bs-target="`#${domain}${level_id}`" type="button" role="tab"
+                            :aria-controls="`${domain}${level_id}`" :aria-selected="{ 'true': domain == 'COG' }">{{
+                            domain }}</button>
                     </li>
                 </ul>
 
                 <div class="tab-content mt-2" id="myTabContent">
                     <div v-for="(domain, index) in data.domains" :key="domain"
-                         :class="['tab-pane fade', { 'show active' : domain == 'COG' }]"
-                         :id="`${domain}${level_id}`" role="tabpanel"
-                         :aria-labelledby="`${domain}${level_id}-tab`"
-                    >
+                        :class="['tab-pane fade', { 'show active': domain == 'COG' }]" :id="`${domain}${level_id}`"
+                        role="tabpanel" :aria-labelledby="`${domain}${level_id}-tab`">
 
                         <table class="table table-sm table-striped mt-2">
                             <tbody>
                                 <tr v-for="component in data.competences[domain]" :key="component.id">
                                     <td class="customColumnCode">
-                                        {{level_id}}{{domain}}{{ component.code }}
+                                        {{ level_id }}{{ domain }}{{ component.code }}
                                     </td>
                                     <td>
-                                        <a data-bs-toggle="collapse"
-                                           :href="`#collapse${component.id}`"
-                                           role="button"
-                                           aria-expanded="false"
-                                           :aria-controls="`collapse${component.id}`"
-                                           class="customLink"
-                                        >
+                                        <a data-bs-toggle="collapse" :href="`#collapse${component.id}`" role="button"
+                                            aria-expanded="false" :aria-controls="`collapse${component.id}`"
+                                            class="customLink">
                                             {{ component.description }}
                                         </a>
 
@@ -88,10 +68,15 @@
                                         </div>
                                     </td>
                                     <td class="customColumn">
-                                        <h5 v-if="component.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
-                                        <h5 v-if="component.note === 1"><span class="badge bg-warning text-dark customColumn">Mais ou menos</span></h5>
-                                        <h5 v-if="component.note === 2"><span class="badge bg-danger customColumn">Difícil de obter</span></h5>
-                                        <h5 v-if="component.note === 3"><span class="badge bg-primary customColumn">Consistente</span></h5>
+                                        <h5 v-if="component.note === 0"><span
+                                                class="badge bg-light text-dark customColumn">Não observado</span></h5>
+                                        <h5 v-if="component.note === 1"><span
+                                                class="badge bg-warning text-dark customColumn">Em
+                                                desenvolvimento</span></h5>
+                                        <h5 v-if="component.note === 2"><span class="badge bg-danger customColumn">Não
+                                                desenvolvido</span></h5>
+                                        <h5 v-if="component.note === 3"><span
+                                                class="badge bg-primary customColumn">Desenvolvido</span></h5>
                                     </td>
                                 </tr>
                             </tbody>

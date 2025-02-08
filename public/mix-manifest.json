@@ -1,7 +1,14 @@
 {
-    "/js/app.js": "/js/app.js?id=c2494ce198c03860ee0cb25b59b774d4",
+    "/js/app.js": "/js/app.js?id=8a6bea1022a050312ef29ae28da315e6",
     "/css/app.css": "/css/app.css?id=24f722cdb620008a33ae69b1bfef40db",
+    "/images/avatars/1738842248_67a4a088a8815.jpg": "/images/avatars/1738842248_67a4a088a8815.jpg?id=5f65280e2eb7826d0958bd2e6ef7a407",
+    "/images/avatars/1738843004_67a4a37c7f6d0.jpeg": "/images/avatars/1738843004_67a4a37c7f6d0.jpeg?id=0f664840c2995c1e5fc44ba8637f0bf8",
+    "/images/avatars/UxSWedoeofeSoBvr9CEarqz84dMdA44noLlwI7VD.jpg": "/images/avatars/UxSWedoeofeSoBvr9CEarqz84dMdA44noLlwI7VD.jpg?id=5f65280e2eb7826d0958bd2e6ef7a407",
     "/images/bg-grande-maieutica.png": "/images/bg-grande-maieutica.png?id=fbe50f7ee4106d357e5aeac67518b3d9",
+    "/images/kids/1738844065_67a4a7a1065bd.png": "/images/kids/1738844065_67a4a7a1065bd.png?id=ffbf3b989d12c6bc14c2cbdf594ad662",
+    "/images/kids/1738857624_67a4dc98dbd54.png": "/images/kids/1738857624_67a4dc98dbd54.png?id=911ae86d4ad11988363bbb9f7091e04e",
+    "/images/kids/1738859125_2.png": "/images/kids/1738859125_2.png?id=dfe12f8101c6edad0e11342d37fb0d6e",
+    "/images/kids/1738948611_1.png": "/images/kids/1738948611_1.png?id=dfe12f8101c6edad0e11342d37fb0d6e",
     "/images/kids/67714aad4909f.png": "/images/kids/67714aad4909f.png?id=911ae86d4ad11988363bbb9f7091e04e",
     "/images/kids/677152c54b0dc.png": "/images/kids/677152c54b0dc.png?id=dfe12f8101c6edad0e11342d37fb0d6e",
     "/images/kids/6776ab629e244.png": "/images/kids/6776ab629e244.png?id=ffbf3b989d12c6bc14c2cbdf594ad662",
@@ -68,6 +75,6 @@
     "/vendor/datatable/responsive.bootstrap5.js": "/vendor/datatable/responsive.bootstrap5.js?id=eaf53c7428250d95227f80c2a3c96ddf",
     "/vendor/datatable/responsive.bootstrap5.min.css": "/vendor/datatable/responsive.bootstrap5.min.css?id=3a4613a6d489c5f597f5211c4c30661a",
     "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=0732e3eabbf8aa7ce7f69eedbd07dfdd",
-    "/js/app.min.js": "/js/app.min.js?id=c2494ce198c03860ee0cb25b59b774d4",
+    "/js/app.min.js": "/js/app.min.js?id=8a6bea1022a050312ef29ae28da315e6",
     "/css/app.min.css": "/css/app.min.css?id=24f722cdb620008a33ae69b1bfef40db"
 }
