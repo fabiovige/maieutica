@@ -84,17 +84,17 @@ Checklists
 </div>
 
 <div class="row">
-    <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-6' }}">
+    <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-12' }}">
         <div class="table-responsive">
             <table class="table table-hover table-bordered align-middle mt-3">
                 <thead>
                     <tr>
-                        <th style="width: 60px;">ID</th>
+                        <th style="width: 60px;" class="text-center align-middle">ID</th>
                         @if (!isset($kid))<th>Criança</th>@endif
                         <th>Status</th>
                         <th>Data de criação</th>
                         <th>Média Geral do Desenvolvimento</th>
-                        <th style="width: 100px;">Ações</th>
+                        <th width="100">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
