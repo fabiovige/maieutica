@@ -218,7 +218,7 @@
             </div>
 
             <div class="card-footer bg-transparent mt-4">
-                <div class="d-flex justify-content-end gap-2">
+                <div class="d-flex justify-content-start gap-2">
                     <a href="{{ route('kids.index') }}" class="btn btn-secondary">
                         <i class="bi bi-x-lg"></i> Cancelar
                     </a>
