@@ -3,12 +3,10 @@
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\CompetencesController;
 use App\Http\Controllers\KidsController;
+use App\Http\Controllers\ProfessionalController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProfessionalController;
-use App\Models\User;
-use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
@@ -115,8 +113,8 @@ Route::get('logs', function () {
     Log::debug($message);
 });
 
-//Route::get('/teste',  [KidsController::class, 'teste'])->name('kids.teste');
-//Route::get('/teste/{kidId}/level/{levelId}', [KidsController::class, 'showRadarChart'])->name('kids.radarChart');
+// Route::get('/teste',  [KidsController::class, 'teste'])->name('kids.teste');
+// Route::get('/teste/{kidId}/level/{levelId}', [KidsController::class, 'showRadarChart'])->name('kids.radarChart');
 Route::get('/analysis/{kidId}/level/{levelId}/{checklist?}', [KidsController::class, 'showRadarChart2'])->name('kids.radarChart2');
 Route::get('/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
 // routes/web.php

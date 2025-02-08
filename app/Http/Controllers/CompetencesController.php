@@ -11,17 +11,16 @@ use Log;
 
 class CompetencesController extends Controller
 {
-
     public function index(Request $request)
     {
         $this->authorize('viewAny', Competence::class);
-        
+
         // Verificar se os filtros foram enviados na requisição e armazenar na sessão
         if ($request->has('level_id') || $request->has('domain_id')) {
             // Se os filtros forem passados, salvá-los na sessão
             session([
                 'level_id' => $request->level_id,
-                'domain_id' => $request->domain_id
+                'domain_id' => $request->domain_id,
             ]);
         }
 
@@ -33,12 +32,12 @@ class CompetencesController extends Controller
         $query = Competence::query();
 
         // Aplica o filtro de level_id se estiver presente na sessão
-        if (!empty($level_id)) {
+        if (! empty($level_id)) {
             $query->where('level_id', $level_id);
         }
 
         // Aplica o filtro de domain_id se estiver presente na sessão
-        if (!empty($domain_id)) {
+        if (! empty($domain_id)) {
             $query->where('domain_id', $domain_id);
         }
 
@@ -48,7 +47,7 @@ class CompetencesController extends Controller
         // Filtra os domains disponíveis com base no level_id, se presente
         $domains = Domain::query();
 
-        if (!empty($level_id)) {
+        if (! empty($level_id)) {
             // Usa a tabela intermediária domain_level para filtrar os domínios pelo level
             $domains->whereHas('levels', function ($query) use ($level_id) {
                 $query->where('level_id', $level_id);
@@ -78,17 +77,17 @@ class CompetencesController extends Controller
     {
         // Verifica se o level_id é válido
         $levelExists = Level::where('id', $level_id)->exists();
-        if (!$levelExists) {
+        if (! $levelExists) {
             return response()->json(['error' => 'Level not found'], 404);
         }
-    
+
         // Busca os domínios relacionados ao nível através da tabela intermediária
         $domains = Domain::join('domain_level', 'domains.id', '=', 'domain_level.domain_id')
             ->where('domain_level.level_id', $level_id)
             ->select('domains.id', 'domains.name')
             ->distinct()
             ->get();
-    
+
         return response()->json($domains);
     }
 
@@ -96,7 +95,6 @@ class CompetencesController extends Controller
     {
         $competence = Competence::findOrFail($id);
         $this->authorize('update', $competence);
-
 
         // Validação dos dados recebidos
         $request->validate([
@@ -129,7 +127,7 @@ class CompetencesController extends Controller
                 $filters['domain_id'] = $request->domain_id;
             }
 
-            $message = label_case('Update Competence - ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . ' (ID:' . auth()->user()->id . ') ';
+            $message = label_case('Update Competence - '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.' (ID:'.auth()->user()->id.') ';
             Log::info($message, $data);
 
             // Redireciona com mensagem de sucesso, preservando os filtros na URL
@@ -140,14 +138,15 @@ class CompetencesController extends Controller
         } catch (ModelNotFoundException $e) {
             // Loga erro caso a competência não seja encontrada
             Log::error('Competence not found', ['message' => $e->getMessage()]);
+
             return redirect()->back()->with('error', 'Competence not found');
         } catch (\Exception $e) {
             // Loga erro genérico
             Log::error('Error updating competence', ['message' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Error updating competence: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Error updating competence: '.$e->getMessage());
         }
     }
-
 
     public function show(Competence $competence)
     {

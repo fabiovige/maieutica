@@ -2,8 +2,8 @@
 
 namespace App\View\Components;
 
-use Illuminate\View\Component;
 use App\Models\Kid;
+use Illuminate\View\Component;
 
 class KidInfoCard extends Component
 {

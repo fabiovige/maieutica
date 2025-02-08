@@ -18,7 +18,7 @@ class AddGenderAndEthnicityToKids extends Migration
                 'amarelo',
                 'multiracial',
                 'nao_declarado',
-                'outro'
+                'outro',
             ])->nullable()->after('gender');
         });
     }

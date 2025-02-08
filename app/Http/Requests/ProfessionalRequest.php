@@ -20,7 +20,7 @@ class ProfessionalRequest extends FormRequest
             'specialty_id' => 'required|exists:specialties,id',
             'registration_number' => 'required|string|max:50',
             'bio' => 'nullable|string',
-            'allow' => 'boolean'
+            'allow' => 'boolean',
         ];
     }
 
@@ -35,7 +35,7 @@ class ProfessionalRequest extends FormRequest
             'specialty_id.required' => 'A especialidade é obrigatória',
             'specialty_id.exists' => 'Especialidade inválida',
             'registration_number.required' => 'O número de registro é obrigatório',
-            'registration_number.max' => 'O número de registro não pode ter mais que 50 caracteres'
+            'registration_number.max' => 'O número de registro não pode ter mais que 50 caracteres',
         ];
     }
 }

@@ -15,7 +15,7 @@ class RoleRequest extends FormRequest
     {
         return [
             'name' => 'required|min:4|max:50|string',
-            //'abilities.*' => 'required',
+            // 'abilities.*' => 'required',
         ];
     }
 }

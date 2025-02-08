@@ -15,7 +15,7 @@ class Professional extends Model
         'specialty_id',
         'created_by',
         'updated_by',
-        'deleted_by'
+        'deleted_by',
     ];
 
     public function user()
@@ -31,7 +31,7 @@ class Professional extends Model
     public function kids()
     {
         return $this->belongsToMany(Kid::class, 'kid_professional')
-                    ->withPivot('is_primary')
-                    ->withTimestamps();
+            ->withPivot('is_primary')
+            ->withTimestamps();
     }
 }

@@ -3,11 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Kid;
-use App\Models\User;
 use App\Models\Professional;
 use App\Models\Specialty;
+use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class KidSeeder extends Seeder
 {
@@ -18,7 +17,7 @@ class KidSeeder extends Seeder
             ['name' => 'Pediatria'],
             [
                 'description' => 'Especialidade médica dedicada aos cuidados da criança e do adolescente',
-                'created_by' => 1
+                'created_by' => 1,
             ]
         );
 
@@ -28,7 +27,7 @@ class KidSeeder extends Seeder
             [
                 'name' => 'Dr. Professional',
                 'password' => bcrypt('password'),
-                'created_by' => 1
+                'created_by' => 1,
             ]
         );
         $professionalUser->assignRole('professional');
@@ -39,7 +38,7 @@ class KidSeeder extends Seeder
             [
                 'specialty_id' => $specialty->id,
                 'bio' => 'Médico pediatra com 10 anos de experiência',
-                'created_by' => 1
+                'created_by' => 1,
             ]
         );
 
@@ -52,7 +51,7 @@ class KidSeeder extends Seeder
             [
                 'name' => 'Responsible Parent',
                 'password' => bcrypt('password'),
-                'created_by' => 1
+                'created_by' => 1,
             ]
         );
         $responsibleUser->assignRole('pais');
@@ -64,14 +63,14 @@ class KidSeeder extends Seeder
             'gender' => 'M',
             'ethnicity' => 'branco',
             'responsible_id' => $responsibleUser->id,
-            'created_by' => 1
+            'created_by' => 1,
         ]);
 
         // Associar o profissional à criança
         $kid->professionals()->attach($professional->id, [
             'is_primary' => true,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ]);
     }
 }

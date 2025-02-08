@@ -13,9 +13,9 @@ class User extends Authenticatable
 {
     use HasApiTokens;
     use HasFactory;
+    use HasRoles;
     use Notifiable;
     use SoftDeletes;
-    use HasRoles;
 
     protected $fillable = [
         'name',
@@ -50,8 +50,11 @@ class User extends Authenticatable
     ];
 
     public const SUPERADMIN = 1;
+
     public const ADMIN = 2;
+
     public const ROLE_PAIS = 3;
+
     public const ROLE_PROFESSION = 4;
 
     // Constantes para os tipos

@@ -17,7 +17,7 @@ class Plane extends Model
         0 => 'Não observado',
         1 => 'Mais ou menos',
         2 => 'Difícil de obter',
-        3 => 'Consistente'
+        3 => 'Consistente',
     ];
 
     protected $fillable = ['kid_id', 'checklist_id', 'created_by', 'name', 'is_active'];

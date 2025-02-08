@@ -25,16 +25,16 @@ class Kid extends BaseModel
         'birth_date',
         'created_at',
         'updated_at',
-        'deleted_at'
+        'deleted_at',
     ];
 
     protected $casts = [
-        'birth_date' => 'date'
+        'birth_date' => 'date',
     ];
 
     public const GENDERS = [
         'M' => 'Masculino',
-        'F' => 'Feminino'
+        'F' => 'Feminino',
     ];
 
     public const ETHNICITIES = [
@@ -45,7 +45,7 @@ class Kid extends BaseModel
         'amarelo' => 'Amarelo/Asiático',
         'multiracial' => 'Multiracial',
         'nao_declarado' => 'Não Declarado',
-        'outro' => 'Outro'
+        'outro' => 'Outro',
     ];
 
     // Adicionando o Scope Local
@@ -60,7 +60,6 @@ class Kid extends BaseModel
         return $query;
     }
 
-
     // Relacionamento com o responsável (ROLE_PAIS)
     public function responsible()
     {
@@ -71,8 +70,8 @@ class Kid extends BaseModel
     public function professionals()
     {
         return $this->belongsToMany(Professional::class, 'kid_professional')
-                    ->withPivot('is_primary')
-                    ->withTimestamps();
+            ->withPivot('is_primary')
+            ->withTimestamps();
     }
 
     public function checklists()
@@ -93,7 +92,7 @@ class Kid extends BaseModel
 
     public function getAgeAttribute()
     {
-        if (!$this->birth_date) {
+        if (! $this->birth_date) {
             return null;
         }
 
@@ -105,10 +104,10 @@ class Kid extends BaseModel
             $months = $birthDate->diffInMonths($now) % 12;
 
             if ($years > 0) {
-                return $years . 'a ' . $months . 'm';
+                return $years.'a '.$months.'m';
             }
 
-            return $months . ' meses';
+            return $months.' meses';
         } catch (\Exception $e) {
             return null;
         }
@@ -116,7 +115,7 @@ class Kid extends BaseModel
 
     public function getBirthDateAttribute($value)
     {
-        if (!$value) {
+        if (! $value) {
             return null;
         }
         try {
@@ -128,8 +127,9 @@ class Kid extends BaseModel
 
     public function setBirthDateAttribute($value)
     {
-        if (!$value) {
+        if (! $value) {
             $this->attributes['birth_date'] = null;
+
             return;
         }
 
@@ -147,12 +147,13 @@ class Kid extends BaseModel
 
     public function getMonthsAttribute()
     {
-        if (!$this->birth_date) {
+        if (! $this->birth_date) {
             return null;
         }
 
         try {
             $birthDate = Carbon::parse($this->getRawOriginal('birth_date'));
+
             return $birthDate->diffInMonths(Carbon::now());
         } catch (\Exception $e) {
             return null;
@@ -161,7 +162,7 @@ class Kid extends BaseModel
 
     public function getFullNameMonthsAttribute()
     {
-        if (!$this->birth_date) {
+        if (! $this->birth_date) {
             return null;
         }
 
@@ -170,7 +171,7 @@ class Kid extends BaseModel
             $month = $birthDate->diffInMonths(Carbon::now());
             $formattedDate = $birthDate->format('d/m/Y');
 
-            return 'Cod. '. $this->id . ' - ' . ' Nascido em: ' . $formattedDate . ' (' . $month . ' meses)';
+            return 'Cod. '.$this->id.' - '.' Nascido em: '.$formattedDate.' ('.$month.' meses)';
         } catch (\Exception $e) {
             return 'Data inválida';
         }
@@ -188,7 +189,7 @@ class Kid extends BaseModel
         if (count($words) >= 2) {
             // Primeira letra do primeiro e último nome
             return mb_strtoupper(
-                mb_substr($words[0], 0, 1) .
+                mb_substr($words[0], 0, 1).
                 mb_substr(end($words), 0, 1)
             );
         }
@@ -213,14 +214,14 @@ class Kid extends BaseModel
 
         if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
             $query->with(['professionals', 'responsible', 'checklists']);
-        } else if (auth()->user()->hasRole('professional')) {
+        } elseif (auth()->user()->hasRole('professional')) {
             $query->where(function ($query) {
                 $query->whereHas('professionals', function ($q) {
                     $q->where('users.id', auth()->user()->id);
                 })->orWhere('created_by', auth()->user()->id);
             })
-            ->with(['professionals', 'responsible', 'checklists']);
-        } else if (auth()->user()->hasRole('pais')) {
+                ->with(['professionals', 'responsible', 'checklists']);
+        } elseif (auth()->user()->hasRole('pais')) {
             $query->where('responsible_id', auth()->user()->id)
                 ->with(['professionals', 'responsible', 'checklists']);
         }

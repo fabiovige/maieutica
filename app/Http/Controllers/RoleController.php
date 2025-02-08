@@ -6,13 +6,11 @@ use App\Http\Requests\RoleRequest;
 use App\Models\Ability;
 use App\Models\Resource;
 use App\Models\Role;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role as SpatieRole;
 use Spatie\Permission\Models\Permission as SpatiePermission;
-use Yajra\DataTables\DataTables;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 class RoleController extends Controller
 {
@@ -37,10 +35,10 @@ class RoleController extends Controller
 
     public function create()
     {
-        $message = label_case('Create Role ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+        $message = label_case('Create Role ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::info($message);
 
-        //$resources = Resource::with('abilities')->orderBy('created_at')->get();
+        // $resources = Resource::with('abilities')->orderBy('created_at')->get();
         $permissions = SpatiePermission::all();
 
         return view('roles.create', compact('permissions'));
@@ -69,7 +67,7 @@ class RoleController extends Controller
             flash(self::MSG_CREATE_SUCCESS)->success();
 
             // Log de sucesso
-            $message = label_case('Store Role ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Store Role '.self::MSG_CREATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::notice($message);
 
             // Redireciona para a página de listagem de roles
@@ -80,7 +78,7 @@ class RoleController extends Controller
 
             // Mensagem de erro e log do erro
             flash(self::MSG_CREATE_ERROR)->error();
-            $message = label_case('Store Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Store Role '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             // Redireciona de volta para a página de criação, com os dados antigos
@@ -94,14 +92,14 @@ class RoleController extends Controller
             $role = $this->role->findOrFail($id);
             $resources = Resource::with('abilities')->orderBy('created_at')->get();
             $abilities = Ability::assocAbilities($role, $resources);
-            $message = label_case('Show Role ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Show Role ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
             return view('roles.show', compact('role', 'abilities'));
         } catch (\Exception $e) {
             flash(self::MSG_NOT_FOUND)->error();
 
-            $message = label_case('Show Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Show Role '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             return redirect()->route('roles.index');
@@ -112,7 +110,7 @@ class RoleController extends Controller
     {
         try {
             $role = SpatieRole::findOrFail($id);
-            $message = label_case('Edit Role ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Edit Role '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::info($message);
 
             $permissions = SpatiePermission::all();
@@ -123,7 +121,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             flash(self::MSG_UPDATE_ERROR)->error();
 
-            $message = label_case('Edit Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Edit Role '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             return redirect()->route('roles.index');
@@ -155,7 +153,7 @@ class RoleController extends Controller
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
             // Loga a ação de sucesso
-            $message = label_case('Update Role ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Update Role '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::notice($message);
 
             // Redireciona para a página de edição
@@ -166,7 +164,7 @@ class RoleController extends Controller
 
             // Flash message e log do erro
             flash(self::MSG_UPDATE_ERROR)->error();
-            $message = label_case('Update Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Update Role '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             // Redireciona de volta para a página anterior
@@ -200,7 +198,7 @@ class RoleController extends Controller
             flash(self::MSG_DELETE_SUCCESS)->success();
 
             // Log de sucesso
-            $message = label_case('Destroy Role ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Destroy Role '.self::MSG_DELETE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::notice($message);
 
             // Redireciona para a listagem de roles
@@ -211,7 +209,7 @@ class RoleController extends Controller
             flash($e->getMessage())->error();
 
             // Log de erro
-            $message = label_case('Destroy Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Destroy Role '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
             // Redireciona de volta com erro

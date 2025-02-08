@@ -10,13 +10,11 @@ use App\Models\Competence;
 use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
-use Carbon\Carbon;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\DataTables;
 
 class ChecklistController extends Controller
 {
@@ -30,15 +28,15 @@ class ChecklistController extends Controller
         $queryChecklists = Checklist::getChecklists();
         $kid = $request->kidId ? Kid::findOrFail($request->kidId) : null;
 
-        if($request->kidId || auth()->user()->hasRole('pais')) {
-            if($kid){
+        if ($request->kidId || auth()->user()->hasRole('pais')) {
+            if ($kid) {
                 $queryChecklists->where('kid_id', $request->kidId);
-            } elseif(auth()->user()->hasRole('pais')) {
+            } elseif (auth()->user()->hasRole('pais')) {
                 $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
                 $queryChecklists->whereIn('kid_id', $kids);
             }
         }
-        $checklists = $queryChecklists->with('competences')->orderBy('created_at','desc')->get();
+        $checklists = $queryChecklists->with('competences')->orderBy('created_at', 'desc')->get();
 
         foreach ($checklists as $checklist) {
             $checklist->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
@@ -101,10 +99,11 @@ class ChecklistController extends Controller
             }
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
+
             return redirect()->route('checklists.index');
 
         } catch (\Exception $e) {
-            Log::error('Erro ao criar checklist: ' . $e->getMessage());
+            Log::error('Erro ao criar checklist: '.$e->getMessage());
 
             if ($request->wantsJson()) {
                 return response()->json(['error' => $e->getMessage()], 500);
@@ -114,6 +113,7 @@ class ChecklistController extends Controller
             Log::error($message);
 
             flash(self::MSG_UPDATE_ERROR)->warning();
+
             return redirect()->back();
         }
     }
@@ -136,6 +136,7 @@ class ChecklistController extends Controller
             Log::error($message);
 
             flash(self::MSG_UPDATE_ERROR)->warning();
+
             return redirect()->back();
         }
     }
@@ -219,10 +220,10 @@ class ChecklistController extends Controller
             Log::error($message);
 
             flash(self::MSG_NOT_FOUND)->warning();
+
             return redirect()->back();
         }
     }
-
 
     public function fill($id)
     {
@@ -238,6 +239,7 @@ class ChecklistController extends Controller
                 'created_at' => $checklist->created_at->format('d/m/Y').' Cod. '.$id,
                 'kid' => $checklist->kid,
             ];
+
             return view('checklists.fill', $data);
         } catch (\Exception $e) {
             $message = label_case('Fill Checklist '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
@@ -245,7 +247,7 @@ class ChecklistController extends Controller
 
             dd($e->getMessage());
             flash(self::MSG_NOT_FOUND)->warning();
-            //return redirect()->back();
+            // return redirect()->back();
         }
     }
 
@@ -286,14 +288,13 @@ class ChecklistController extends Controller
         }
     }
 
-
     public function percentualDesenvolvimento($checklistId)
     {
         // Obter o checklist pelo ID
         $currentChecklist = Checklist::findOrFail($checklistId);
 
         // Verificar se o checklist foi encontrado
-        if (!$currentChecklist) {
+        if (! $currentChecklist) {
             throw new Exception('Checklist não encontrado!');
         }
 
@@ -345,13 +346,16 @@ class ChecklistController extends Controller
             $percentage = $domain['itemsTested'] > 0 ? ($domain['itemsValid'] / $domain['itemsTested']) * 100 : 0;
             $totalPercentageGeral += $percentage;
         }
-        $averagePercentage = round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0 , 2);
+        $averagePercentage = round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0, 2);
+
         return $averagePercentage;
     }
 
-    public function clonarChecklist($id) {
-        if (!auth()->user()->can('create checklists')) {
+    public function clonarChecklist($id)
+    {
+        if (! auth()->user()->can('create checklists')) {
             flash('Você não tem permissão para clonar checklists.')->warning();
+
             return redirect()->route('checklists.index');
         }
         try {
@@ -402,8 +406,8 @@ class ChecklistController extends Controller
 
             log($message, $e->getMessage());
             flash(self::MSG_CLONE_ERROR)->success();
+
             return redirect()->route('checklists.index');
         }
     }
-
 }

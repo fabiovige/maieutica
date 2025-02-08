@@ -15,8 +15,7 @@ class ChecklistPolicy
      * Método executado antes de qualquer outra permissão.
      * Permite todas as ações para superadmin e admin.
      *
-     * @param User $user
-     * @param string $ability
+     * @param  string  $ability
      * @return bool|null
      */
     /*public function before(User $user, $ability): ?bool
@@ -28,7 +27,6 @@ class ChecklistPolicy
         return false;
     }*/
 
-
     public function viewAny(User $user): bool
     {
         // Verifica se o usuário tem a permissão de listar checklists
@@ -37,23 +35,16 @@ class ChecklistPolicy
 
     /**
      * Determina se o usuário pode visualizar o registro de um checklist.
-     *
-     * @param User $user
-     * @param Checklist $checklist
-     * @return bool
      */
     public function view(User $user, Checklist $checklist): bool
     {
         // Permite visualizar se o usuário é o criador do checklist
         return $user->can('view checklists');
-            //&& ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id || $user->id === $checklist->kid->responsible_id);
+        // && ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id || $user->id === $checklist->kid->responsible_id);
     }
 
     /**
      * Determina se o usuário pode criar um registro de checklist.
-     *
-     * @param User $user
-     * @return bool
      */
     public function create(User $user): bool
     {
@@ -63,24 +54,20 @@ class ChecklistPolicy
 
     /**
      * Determina se o usuário pode atualizar o registro de um checklist.
-     *
-     * @param User $user
-     * @param Checklist $checklist
-     * @return bool
      */
     public function update(User $user, Checklist $checklist): bool
     {
-        if ($checklist->situation === 'f' && !$user->hasRole('admin')) {
+        if ($checklist->situation === 'f' && ! $user->hasRole('admin')) {
             return false;
         }
-    
+
         // Se o usuário for admin, permitir
         if ($user->hasRole('admin')) {
             return true;
         }
 
         // Permite atualizar se o usuário é o criador do checklist
-        return $user->can('edits checklists') && 
+        return $user->can('edits checklists') &&
                 ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id)
                 ? Response::allow()
                 : Response::deny('Você não tem permissão para atualizar este checklist.');
@@ -88,10 +75,6 @@ class ChecklistPolicy
 
     /**
      * Determina se o usuário pode deletar o registro de um checklist.
-     *
-     * @param User $user
-     * @param Checklist $checklist
-     * @return bool
      */
     public function delete(User $user, Checklist $checklist): bool
     {
@@ -102,10 +85,6 @@ class ChecklistPolicy
 
     /**
      * Determina se o usuário pode restaurar o registro de um checklist deletado.
-     *
-     * @param User $user
-     * @param Checklist $checklist
-     * @return bool
      */
     public function restore(User $user, Checklist $checklist): bool
     {
@@ -115,10 +94,6 @@ class ChecklistPolicy
 
     /**
      * Determina se o usuário pode forçar a exclusão do registro de um checklist.
-     *
-     * @param User $user
-     * @param Checklist $checklist
-     * @return bool
      */
     public function forceDelete(User $user, Checklist $checklist): bool
     {

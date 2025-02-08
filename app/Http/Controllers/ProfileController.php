@@ -3,23 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Exception;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
     const MSG_UPDATE_SUCCESS = 'Perfil atualizado com sucesso!';
+
     const MSG_UPDATE_ERROR = 'Erro ao atualizar perfil.';
+
     const MSG_PASSWORD_SUCCESS = 'Senha alterada com sucesso!';
+
     const MSG_PASSWORD_ERROR = 'Erro ao alterar senha.';
 
     public function edit()
     {
         $user = auth()->user();
+
         return view('profile.edit', compact('user'));
     }
 
@@ -56,8 +59,9 @@ class ProfileController extends Controller
             return redirect()->route('profile.edit');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao atualizar perfil: ' . $e->getMessage());
+            Log::error('Erro ao atualizar perfil: '.$e->getMessage());
             flash($e->getMessage() ?: self::MSG_UPDATE_ERROR)->error();
+
             return redirect()->back()->withInput();
         }
     }
@@ -79,30 +83,31 @@ class ProfileController extends Controller
 
                 // Cria o diretório se não existir
                 $path = public_path('images/avatars');
-                if (!file_exists($path)) {
+                if (! file_exists($path)) {
                     mkdir($path, 0777, true);
                 }
 
                 // Salva novo avatar
                 $file = $request->file('avatar');
-                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $fileName = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
                 $file->move($path, $fileName);
 
                 // Salva o caminho relativo no banco
-                $user->avatar = 'images/avatars/' . $fileName;
+                $user->avatar = 'images/avatars/'.$fileName;
                 $user->save();
 
                 flash('Foto de perfil atualizada com sucesso!')->success();
                 Log::info('Avatar atualizado com sucesso', [
                     'user_id' => $user->id,
-                    'path' => $user->avatar
+                    'path' => $user->avatar,
                 ]);
             }
 
             return redirect()->route('profile.edit');
         } catch (Exception $e) {
-            Log::error('Erro ao atualizar avatar: ' . $e->getMessage());
+            Log::error('Erro ao atualizar avatar: '.$e->getMessage());
             flash('Erro ao atualizar foto de perfil.')->error();
+
             return redirect()->back();
         }
     }

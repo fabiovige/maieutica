@@ -28,7 +28,8 @@
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.15",
         "fakerphp/faker": "^1.9.1",
-        "laravel/pint": "^1.17",
+        "friendsofphp/php-cs-fixer": "^3.68",
+        "laravel/pint": "^1.20",
         "laravel/sail": "^1.0.1",
         "lucascudo/laravel-pt-br-localization": "^1.2",
         "mockery/mockery": "^1.4.4",

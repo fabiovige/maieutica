@@ -54,6 +54,7 @@ class Checklist extends Model
     {
         return self::SITUATION[$this->situation] ?? 'Desconhecido';
     }
+
     protected static function booted()
     {
         parent::booted();
@@ -92,19 +93,19 @@ class Checklist extends Model
         if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
             // Superadmin ou admin pode ver todos os checklists e seus relacionamentos
             $query->with(['kid']);
-        } else if (auth()->user()->hasRole('professional')) {
+        } elseif (auth()->user()->hasRole('professional')) {
             // Profissionais podem ver checklists criados por eles ou associados a eles
-            //$query->where('created_by', auth()->user()->id)
+            // $query->where('created_by', auth()->user()->id)
             $query->whereHas('kid', function ($q) {
-                    $q->where('profession_id', auth()->user()->id);
-                })
+                $q->where('profession_id', auth()->user()->id);
+            })
                 ->with(['kid']);
-        } else if (auth()->user()->hasRole('pais')) {
+        } elseif (auth()->user()->hasRole('pais')) {
             // Pais podem ver checklists associados às crianças pelas quais são responsáveis
             $query->whereHas('kid', function ($q) {
                 $q->where('responsible_id', auth()->user()->id);
             })
-            ->with(['kid']);
+                ->with(['kid']);
         }
 
         return $query;

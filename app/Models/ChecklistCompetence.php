@@ -10,5 +10,6 @@ class ChecklistCompetence extends Model
     use HasFactory;
 
     protected $table = 'checklist_competence';
+
     protected $fillable = ['checklist_id', 'competence_id', 'note'];
 }

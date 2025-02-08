@@ -2,13 +2,12 @@
 
 namespace App\Observers;
 
-use App\Mail\UserCreatedMail;
 use App\Mail\UserDeletedMail;
 use App\Mail\UserUpdatedMail;
 use App\Models\User;
+use App\Notifications\WelcomeNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Notifications\WelcomeNotification;
 
 class UserObserver
 {
@@ -22,15 +21,15 @@ class UserObserver
         try {
             \Log::info('UserObserver: created event triggered', [
                 'user_id' => $user->id,
-                'email' => $user->email
+                'email' => $user->email,
             ]);
 
             // O Observer é responsável por enviar o email de boas-vindas
-            //$notification = new WelcomeNotification($user, $user->passwordView);
-            //$user->notify($notification);
+            // $notification = new WelcomeNotification($user, $user->passwordView);
+            // $user->notify($notification);
 
         } catch (\Exception $e) {
-            Log::error('Erro no UserObserver: ' . $e->getMessage());
+            Log::error('Erro no UserObserver: '.$e->getMessage());
         }
     }
 
@@ -41,7 +40,7 @@ class UserObserver
      */
     public function updated(User $user)
     {
-        //dd('updated');
+        // dd('updated');
         try {
             // Criar a instância do Mailable e depois chamar onQueue()
             $email = (new UserUpdatedMail($user))->onQueue('emails');
@@ -83,9 +82,8 @@ class UserObserver
      */
     public function deleted(User $user)
     {
-        //dd('deleted');
+        // dd('deleted');
         if ($user->trashed()) {
-
 
             $admin = User::where('role_id', 1)->first(); // Ajuste a query conforme a role de admin
             if ($admin) {

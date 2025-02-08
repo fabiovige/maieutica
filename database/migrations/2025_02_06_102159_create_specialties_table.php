@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        if (!Schema::hasTable('specialties')) {
+        if (! Schema::hasTable('specialties')) {
             Schema::create('specialties', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -23,19 +23,19 @@ return new class extends Migration
 
         // Adicionar colunas se não existirem
         Schema::table('specialties', function (Blueprint $table) {
-            if (!Schema::hasColumn('specialties', 'description')) {
+            if (! Schema::hasColumn('specialties', 'description')) {
                 $table->text('description')->nullable();
             }
-            if (!Schema::hasColumn('specialties', 'created_by')) {
+            if (! Schema::hasColumn('specialties', 'created_by')) {
                 $table->foreignId('created_by')->nullable()->constrained('users');
             }
-            if (!Schema::hasColumn('specialties', 'updated_by')) {
+            if (! Schema::hasColumn('specialties', 'updated_by')) {
                 $table->foreignId('updated_by')->nullable()->constrained('users');
             }
-            if (!Schema::hasColumn('specialties', 'deleted_by')) {
+            if (! Schema::hasColumn('specialties', 'deleted_by')) {
                 $table->foreignId('deleted_by')->nullable()->constrained('users');
             }
-            if (!Schema::hasColumn('specialties', 'deleted_at')) {
+            if (! Schema::hasColumn('specialties', 'deleted_at')) {
                 $table->softDeletes();
             }
         });

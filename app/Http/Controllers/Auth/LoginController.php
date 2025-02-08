@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Exception;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
-use Exception;
 use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -50,14 +50,15 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        if (!$user->allow) {
+        if (! $user->allow) {
             Auth::logout();
+
             return back()->withErrors(['email' => 'Esta conta está desativada.']);
         }
 
         Log::info('Usuário logado com sucesso', [
             'user_id' => $user->id,
-            'email' => $user->email
+            'email' => $user->email,
         ]);
 
         return redirect()->intended($this->redirectTo);
@@ -75,12 +76,12 @@ class LoginController extends Controller
 
             $user = User::where('email', $googleUser->getEmail())->first();
 
-            if (!$user) {
+            if (! $user) {
                 return redirect()->route('login')
                     ->withErrors(['email' => 'Não foi encontrada uma conta com este e-mail.']);
             }
 
-            if (!$user->allow) {
+            if (! $user->allow) {
                 return redirect()->route('login')
                     ->withErrors(['email' => 'Esta conta está desativada.']);
             }
@@ -95,12 +96,13 @@ class LoginController extends Controller
 
             Log::info('Usuário logado com Google', [
                 'user_id' => $user->id,
-                'email' => $user->email
+                'email' => $user->email,
             ]);
 
             return redirect()->intended($this->redirectTo);
         } catch (Exception $e) {
-            Log::error('Erro no login com Google: ' . $e->getMessage());
+            Log::error('Erro no login com Google: '.$e->getMessage());
+
             return redirect()->route('login')
                 ->withErrors(['email' => 'Erro ao realizar login com Google.']);
         }
@@ -117,7 +119,7 @@ class LoginController extends Controller
 
         Log::info('Usuário deslogado', [
             'user_id' => $user->id ?? null,
-            'email' => $user->email ?? null
+            'email' => $user->email ?? null,
         ]);
 
         return redirect()->route('login');

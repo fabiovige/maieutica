@@ -14,8 +14,7 @@ class KidPolicy
      * Método executado antes de qualquer outra permissão.
      * Permite todas as ações para superadmin e admin.
      *
-     * @param User $user
-     * @param string $ability
+     * @param  string  $ability
      * @return bool|null
      */
     /*public function before(User $user, $ability): ?bool
@@ -35,10 +34,6 @@ class KidPolicy
 
     /**
      * Determina se o usuário pode visualizar o registro de uma criança.
-     *
-     * @param User $user
-     * @param Kid $kid
-     * @return bool
      */
     public function view(User $user, Kid $kid): bool
     {
@@ -48,9 +43,6 @@ class KidPolicy
 
     /**
      * Determina se o usuário pode criar um registro de criança.
-     *
-     * @param User $user
-     * @return bool
      */
     public function create(User $user): bool
     {
@@ -60,24 +52,16 @@ class KidPolicy
 
     /**
      * Determina se o usuário pode atualizar o registro de uma criança.
-     *
-     * @param User $user
-     * @param Kid $kid
-     * @return bool
      */
     public function update(User $user, Kid $kid): bool
     {
         // Permite atualizar se o usuário é o professional associado à criança
 
-        return $user->can('edit kids') || ( $user->id === $kid->created_by || $user->id === $kid->profession_id );
+        return $user->can('edit kids') || ($user->id === $kid->created_by || $user->id === $kid->profession_id);
     }
 
     /**
      * Determina se o usuário pode deletar o registro de uma criança.
-     *
-     * @param User $user
-     * @param Kid $kid
-     * @return bool
      */
     public function delete(User $user, Kid $kid): bool
     {
@@ -87,10 +71,6 @@ class KidPolicy
 
     /**
      * Determina se o usuário pode restaurar o registro de uma criança deletada.
-     *
-     * @param User $user
-     * @param Kid $kid
-     * @return bool
      */
     public function restore(User $user, Kid $kid): bool
     {
@@ -100,10 +80,6 @@ class KidPolicy
 
     /**
      * Determina se o usuário pode forçar a exclusão do registro de uma criança.
-     *
-     * @param User $user
-     * @param Kid $kid
-     * @return bool
      */
     public function forceDelete(User $user, Kid $kid): bool
     {
