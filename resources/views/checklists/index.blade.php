@@ -5,13 +5,22 @@ Checklists
 @endsection
 
 @section('breadcrumb-items')
+@if($kid)
 <li class="breadcrumb-item">
+
     <a href="{{ route('kids.index') }}">
         <i class="bi bi-people"></i> Crianças
     </a>
 </li>
 <li class="breadcrumb-item active" aria-current="page">
     <i class="bi bi-card-checklist"></i> Checklists
+</li>
+@else
+<li class="breadcrumb-item active" aria-current="page">
+    <i class="bi bi-card-checklist"></i> Checklists
+</li>
+
+@endif
 </li>
 @endsection
 
