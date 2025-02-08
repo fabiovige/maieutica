@@ -44,13 +44,17 @@ Plano Manual
 
 
 @section('content')
+
 <div class="row">
-    <div class="col-md-12 d-flex justify-content-between">
+    <div class="col-md-12 mb-4">
+        <x-kid-info-card :kid="$kid" />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 d-flex justify-content-start">
         <div>
-            <h5>{{ $kid->name }} - {{ $kid->FullNameMonths }}</h5>
-        </div>
-        <div>
-            <h5>Checklist: {{ $checklist->id }} - {{ $checklist->created_at->format('d/m/Y')}}</h5>
+            <h4>Checklist: {{ $checklist->id }} - Data: {{ $checklist->created_at->format('d/m/Y')}}</h4>
         </div>
     </div>
 </div>

@@ -158,7 +158,7 @@ class KidsController extends Controller
 
             return view('kids.show', $data);
         } catch (Exception $e) {
-            dd($e);
+            
             $message = label_case('Error show kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
