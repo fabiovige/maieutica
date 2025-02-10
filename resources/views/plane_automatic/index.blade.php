@@ -34,15 +34,6 @@ Plano Automático
 </li>
 @endsection
 
-@section('actions')
-@can('create professionals')
-<a href="{{ route('professionals.create') }}" class="btn btn-primary">
-    <i class="bi bi-plus-lg"></i> Novo Profissional
-</a>
-@endcan
-@endsection
-
-
 @section('content')
 
 <div class="row mb-4">
