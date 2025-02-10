@@ -36,7 +36,7 @@ class ChecklistController extends Controller
                 $queryChecklists->whereIn('kid_id', $kids);
             }
         }
-        $checklists = $queryChecklists->with('competences')->orderBy('created_at', 'desc')->get();
+        $checklists = $queryChecklists->with('competences')->orderBy('id', 'desc')->orderBy('created_at', 'desc')->get();
 
         foreach ($checklists as $checklist) {
             $checklist->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
