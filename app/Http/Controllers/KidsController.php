@@ -158,7 +158,7 @@ class KidsController extends Controller
 
             return view('kids.show', $data);
         } catch (Exception $e) {
-            
+
             $message = label_case('Error show kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
             Log::error($message);
 
@@ -329,9 +329,18 @@ class KidsController extends Controller
         try {
             $plane = Plane::findOrFail($id);
             $kid_id = $plane->kid()->first()->id;
+
             $kid = Kid::findOrFail($kid_id);
             $nameKid = $plane->kid()->first()->name;
-            $therapist = $kid->professional->name;
+            $professionals = $kid->professionals()->get();
+
+            $professionalNames = [];
+            foreach ($professionals as $professional) {
+                $professionalNames[] = $professional->user->first()->name . ' - (' . $professional->specialty->name . ')';
+            }
+            $therapist = implode("\n", $professionalNames);
+
+
             $date = $plane->first()->created_at;
             $arr = [];
 
@@ -630,24 +639,31 @@ class KidsController extends Controller
         $pdf->SetFont('helvetica', '', 18);
         $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: '.$plane_id, 0, 1, 'C');
 
-        $pdf->SetFont('helvetica', '', 14);
-        $pdf->Write(0, 'Profissional: '.$therapist, '', 0, 'C', true, 0, false, false, 0);
-
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->Write(0, 'Data: '.$date, '', 0, 'C', true, 0, false, false, 0);
-
-        $pdf->Ln(15);
-        $pdf->SetFont('helvetica', '', 14);
+        $pdf->SetFont('helvetica', '', 16);
         $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(2);
 
-        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetFont('helvetica', '', 12);
         $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
-        $pdf->Ln(3);
+        $pdf->Ln(15);
 
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->Write(0, '('.$planeName.')', '', 0, 'C', true, 0, false, false, 0);
-        $pdf->Ln(3);
+        $pdf->SetFont('helvetica', '', 14);
+        $pdf->Write(0, 'Profissional(ais)', '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(5);
+
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->Write(0, $therapist, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(5);
+
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->Write(0, 'Data: '.$date, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(15);
+
+        if($planeName){
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Write(0, '('.$planeName.')', '', 0, 'C', true, 0, false, false, 0);
+            $pdf->Ln(3);
+        }
     }
 
     public function uploadPhoto(Request $request, Kid $kid)
