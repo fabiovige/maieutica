@@ -442,7 +442,16 @@ class KidsController extends Controller
 
             // get kid
             $nameKid = $kid->name;
-            $therapist = $kid->professional->name;
+
+            // get professionals
+            $professionals = $kid->professionals()->get();
+
+            $professionalNames = [];
+            foreach ($professionals as $professional) {
+                $professionalNames[] = $professional->user->first()->name . ' - (' . $professional->specialty->name . ')';
+            }
+            $therapist = implode("\n", $professionalNames);
+
             $date = $plane->first()->created_at;
             $arr = [];
 
