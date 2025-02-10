@@ -28,6 +28,16 @@ class PlaneAutomaticController extends Controller
             3 => 'Desenvolvido',
         ];
 
-        return view('plane_automatic.index', compact('kid', 'checklist', 'statusAvaliation', 'notesDescription', 'planes', 'plane'));
+        $data =  [
+            'kid' => $kid,
+            'checklist' => $checklist,
+            'statusAvaliation' => $statusAvaliation,
+            'notesDescription' => $notesDescription,
+            'planes' => $planes,
+            'plane' => $plane,
+            'data' => now()
+        ];
+
+        return view('plane_automatic.index',$data);
     }
 }
