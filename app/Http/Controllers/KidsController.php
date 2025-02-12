@@ -62,7 +62,7 @@ class KidsController extends Controller
             $query->where('name', 'pais');
         })->get();
 
-        $message = label_case('Create Kids').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+        $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
         return view('kids.create', compact('professions', 'responsibles'));
@@ -74,7 +74,7 @@ class KidsController extends Controller
 
         DB::beginTransaction();
         try {
-            $message = label_case('Store Kids '.self::MSG_CREATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             $kidData = [
@@ -97,7 +97,7 @@ class KidsController extends Controller
                 ]);
             }
 
-            Log::info('Kid created: '.$kid->id.' created by: '.auth()->user()->id);
+            Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
 
             flash(self::MSG_CREATE_SUCCESS)->success();
 
@@ -107,7 +107,7 @@ class KidsController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_CREATE_ERROR)->warning();
-            $message = label_case('Store Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->route('kids.index');
@@ -159,7 +159,7 @@ class KidsController extends Controller
             return view('kids.show', $data);
         } catch (Exception $e) {
 
-            $message = label_case('Error show kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Error show kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             flash(self::MSG_NOT_FOUND)->warning();
@@ -172,7 +172,7 @@ class KidsController extends Controller
     {
         $this->authorize('update', $kid);
         try {
-            $message = label_case('Edit Kids ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             // Verificando se o papel 'pais' existe, caso contrário lançar exceção
@@ -203,7 +203,7 @@ class KidsController extends Controller
             return view('kids.edit', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
-            $message = label_case('Update Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -216,7 +216,7 @@ class KidsController extends Controller
         $this->authorize('view', $kid);
 
         try {
-            $message = label_case('Edit Kids ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             // Verificando se o papel 'pais' existe, caso contrário lançar exceção
@@ -244,7 +244,7 @@ class KidsController extends Controller
             return view('kids.eye', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
-            $message = label_case('Update Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -295,8 +295,8 @@ class KidsController extends Controller
             return redirect()->route('kids.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao atualizar criança: '.$e->getMessage());
-            flash('Erro ao atualizar criança: '.$e->getMessage())->error();
+            Log::error('Erro ao atualizar criança: ' . $e->getMessage());
+            flash('Erro ao atualizar criança: ' . $e->getMessage())->error();
 
             return redirect()->back()->withInput();
         }
@@ -306,7 +306,7 @@ class KidsController extends Controller
     {
         $this->authorize('delete', $kid);
         try {
-            $message = label_case('Destroy Kids '.self::MSG_DELETE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Destroy Kids ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             $kid->delete();
@@ -315,7 +315,7 @@ class KidsController extends Controller
             return redirect()->route('kids.index');
         } catch (Exception $e) {
 
-            $message = label_case('Destroy Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Destroy Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             flash(self::MSG_NOT_FOUND)->warning();
@@ -378,13 +378,13 @@ class KidsController extends Controller
 
                     $pdf->Ln(5);
                     $pdf->SetFont('helvetica', 'B', 10);
-                    $txt = $competence->level_id.$v['domain']->initial.$competence->code.' - '.$competence->description;
+                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
                     $pdf->Ln(5);
                     $pdf->Write(0, $txt, '', 0, 'L', true);
 
                     $pdf->Ln(1);
                     $pdf->SetFont('helvetica', 'I', 8);
-                    $pdf->Write(0, '"'.$competence->description_detail.'"', '', 0, 'L', true);
+                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
 
                     $pdf->Ln(4);
                     $pdf->SetFont('helvetica', '', 9);
@@ -393,9 +393,9 @@ class KidsController extends Controller
                 }
             }
 
-            $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
+            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
         } catch (Exception $e) {
-            $message = label_case('Plane Kids '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Plane Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error('Exibe Plano Erro', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -503,13 +503,13 @@ class KidsController extends Controller
 
                     $pdf->Ln(5);
                     $pdf->SetFont('helvetica', 'B', 10);
-                    $txt = $competence->level_id.$v['domain']->initial.$competence->code.' - '.$competence->description;
+                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
                     $pdf->Ln(5);
                     $pdf->Write(0, $txt, '', 0, 'L', true);
 
                     $pdf->Ln(1);
                     $pdf->SetFont('helvetica', 'I', 8);
-                    $pdf->Write(0, '"'.$competence->description_detail.'"', '', 0, 'L', true);
+                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
 
                     $pdf->Ln(4);
                     $pdf->SetFont('helvetica', '', 9);
@@ -518,9 +518,9 @@ class KidsController extends Controller
                 }
             }
 
-            $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
+            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
         } catch (Exception $e) {
-            Log::error('Erro em pdfPlaneAuto: '.$e->getMessage());
+            Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
             flash($e->getMessage())->error();
 
             return redirect()->back();
@@ -597,13 +597,13 @@ class KidsController extends Controller
 
                     $pdf->Ln(5);
                     $pdf->SetFont('helvetica', 'B', 10);
-                    $txt = $competence->level_id.$v['domain']->initial.$competence->code.' - '.$competence->description;
+                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
                     $pdf->Ln(5);
                     $pdf->Write(0, $txt, '', 0, 'L', true);
 
                     $pdf->Ln(1);
                     $pdf->SetFont('helvetica', 'I', 8);
-                    $pdf->Write(0, '"'.$competence->description_detail.'"', '', 0, 'L', true);
+                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
 
                     $pdf->Ln(4);
                     $pdf->SetFont('helvetica', '', 9);
@@ -612,10 +612,10 @@ class KidsController extends Controller
                 }
             }
 
-            $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
+            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
         } catch (Exception $e) {
-            Log::error('Erro em pdfPlaneAuto: '.$e->getMessage());
-            flash('Erro ao gerar o plano: '.$e->getMessage())->error();
+            Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
+            flash('Erro ao gerar o plano: ' . $e->getMessage())->error();
 
             return redirect()->back();
         }
@@ -646,7 +646,7 @@ class KidsController extends Controller
         $pdf->AddPage();
 
         $pdf->SetFont('helvetica', '', 18);
-        $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: '.$plane_id, 0, 1, 'C');
+        $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
 
         $pdf->SetFont('helvetica', '', 16);
         $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
@@ -665,12 +665,12 @@ class KidsController extends Controller
         $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Write(0, 'Data: '.$date, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Write(0, 'Data: ' . $date, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(15);
 
-        if($planeName){
+        if ($planeName) {
             $pdf->SetFont('helvetica', '', 10);
-            $pdf->Write(0, '('.$planeName.')', '', 0, 'C', true, 0, false, false, 0);
+            $pdf->Write(0, '(' . $planeName . ')', '', 0, 'C', true, 0, false, false, 0);
             $pdf->Ln(3);
         }
     }
@@ -685,7 +685,7 @@ class KidsController extends Controller
             if ($request->hasFile('photo')) {
                 // Remove foto antiga se existir
                 if ($kid->photo) {
-                    $oldPhotoPath = public_path('images/kids/'.$kid->photo);
+                    $oldPhotoPath = public_path('images/kids/' . $kid->photo);
                     if (file_exists($oldPhotoPath)) {
                         unlink($oldPhotoPath);
                     }
@@ -699,11 +699,11 @@ class KidsController extends Controller
 
                 // Salva nova foto
                 $file = $request->file('photo');
-                $fileName = time().'_'.$kid->id.'.'.$file->getClientOriginalExtension();
+                $fileName = time() . '_' . $kid->id . '.' . $file->getClientOriginalExtension();
                 $file->move($path, $fileName);
 
                 // Salva o caminho relativo no banco
-                $kid->update(['photo' => 'images/kids/'.$fileName]);
+                $kid->update(['photo' => 'images/kids/' . $fileName]);
 
                 flash('Foto atualizada com sucesso!')->success();
                 Log::info('Foto da criança atualizada', [
@@ -714,7 +714,7 @@ class KidsController extends Controller
 
             return redirect()->back();
         } catch (Exception $e) {
-            Log::error('Erro ao atualizar foto: '.$e->getMessage());
+            Log::error('Erro ao atualizar foto: ' . $e->getMessage());
             flash('Erro ao atualizar foto.')->error();
 
             return redirect()->back();
@@ -1366,7 +1366,7 @@ class KidsController extends Controller
 
         // **Adicionar a foto da criança**
         // Obter o caminho da foto da criança
-        $photoPath = storage_path('app/public/'.$kid->photo);
+        $photoPath = storage_path('app/public/' . $kid->photo);
         // dd($photoPath);
         // Verificar se o arquivo existe
         if (file_exists($photoPath)) {
@@ -1426,19 +1426,20 @@ class KidsController extends Controller
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
-        $txt = 'Responsável: '.$kid->responsible->name;
+        $txt = 'Responsável: ' . $kid->responsible->name;
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
-        $txt = 'Desenvolvimento: '.round($data['developmentalAgeInMonths'], 0).' meses';
+        $txt = 'Desenvolvimento: ' . round($data['developmentalAgeInMonths'], 0) . ' meses';
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
-        $txt = 'Atraso: '.round($data['delayInMonths'], 0).' meses';
+        $txt = 'Atraso: ' . round($data['delayInMonths'], 0) . ' meses';
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
-        $pdf->Cell(0, 2, $periodAvaliable, 0, 1, 'C');
+        $txt = $periodAvaliable;
+        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
         // $pdf->Ln(20);
@@ -1479,12 +1480,12 @@ class KidsController extends Controller
 
         foreach ($data['domainData'] as $domain) {
             $html .= '<tr>
-                <td nowrap="nowrap">'.$domain['name'].'</td>
-                <td style="text-align: center;">'.$domain['itemsTotal'].'</td>
-                <td style="text-align: center;">'.$domain['itemsTested'].'</td>
-                <td style="text-align: center;">'.$domain['itemsValid'].'</td>
-                <td style="text-align: center;">'.$domain['itemsInvalid'].'</td>
-                <td style="text-align: center;"> ('.$domain['percentage'].'%)</td>
+                <td nowrap="nowrap">' . $domain['name'] . '</td>
+                <td style="text-align: center;">' . $domain['itemsTotal'] . '</td>
+                <td style="text-align: center;">' . $domain['itemsTested'] . '</td>
+                <td style="text-align: center;">' . $domain['itemsValid'] . '</td>
+                <td style="text-align: center;">' . $domain['itemsInvalid'] . '</td>
+                <td style="text-align: center;"> (' . $domain['percentage'] . '%)</td>
             </tr>';
         }
 
@@ -1511,8 +1512,8 @@ class KidsController extends Controller
         foreach ($data['weakAreas'] as $domain) {
 
             $html .= '<tr>
-                <td style="white-space: nowrap;">'.$domain['name'].'</td>
-                <td style="text-align: center; white-space: nowrap;"> ('.$domain['percentage'].'%)</td>
+                <td style="white-space: nowrap;">' . $domain['name'] . '</td>
+                <td style="text-align: center; white-space: nowrap;"> (' . $domain['percentage'] . '%)</td>
             </tr>';
         }
 
@@ -1528,23 +1529,44 @@ class KidsController extends Controller
     private function addChartToPdf($pdf, $imageData, $title, $width = null, $height = null)
     {
         if ($imageData) {
-            // Decodificar a imagem base64
-            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
+            try {
+                // Decodificar a imagem base64
+                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
 
-            // Criar um arquivo temporário para a imagem
-            $tempImagePath = tempnam(sys_get_temp_dir(), 'chart').'.png';
-            file_put_contents($tempImagePath, $imageData);
+                // Criar um caminho absoluto para o arquivo temporário
+                $tempDir = storage_path('app/temp');
 
-            // Adicionar título
-            $pdf->Ln(10);
-            $pdf->SetFont('helvetica', 'B', 12);
-            $pdf->Cell(0, 10, $title, 0, 1, 'C');
+                // Garantir que o diretório existe com permissões corretas
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0755, true);
+                }
 
-            // Adicionar imagem com as dimensões especificadas
-            $pdf->Image($tempImagePath, '', '', $width, $height, 'PNG');
+                // Criar nome único para o arquivo
+                $tempFileName = uniqid('chart_') . '.png';
+                $tempImagePath = $tempDir . DIRECTORY_SEPARATOR . $tempFileName;
 
-            // Remover o arquivo temporário
-            unlink($tempImagePath);
+                // Salvar a imagem
+                if (file_put_contents($tempImagePath, $imageData)) {
+                    // Verificar se o arquivo existe e é legível
+                    if (file_exists($tempImagePath) && is_readable($tempImagePath)) {
+                        // Adicionar título
+                        $pdf->Ln(10);
+                        $pdf->SetFont('helvetica', 'B', 12);
+                        $pdf->Cell(0, 10, $title, 0, 1, 'C');
+
+                        // Adicionar imagem com caminho absoluto
+                        $pdf->Image($tempImagePath, '', '', $width, $height, 'PNG');
+                    }
+
+                    // Remover o arquivo temporário
+                    if (file_exists($tempImagePath)) {
+                        unlink($tempImagePath);
+                    }
+                }
+            } catch (Exception $e) {
+                \Log::error('Erro ao processar imagem para PDF: ' . $e->getMessage());
+                \Log::error('Caminho da imagem: ' . $tempImagePath);
+            }
         }
     }
 }
