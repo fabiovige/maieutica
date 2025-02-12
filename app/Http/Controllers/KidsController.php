@@ -251,11 +251,21 @@ class KidsController extends Controller
         }
     }
 
-    public function update(KidRequest $request, Kid $kid)
+    public function update(Request $request, Kid $kid)
     {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'birth_date' => 'required|date',
+            'gender' => 'required|string',
+            'ethnicity' => 'required|string',
+            'responsible_id' => 'required|exists:users,id',
+            'professionals' => 'array',
+            'professionals.*' => 'exists:professionals,id',
+            'primary_professional' => 'required_with:professionals|exists:professionals,id'
+        ]);
+
         try {
             DB::beginTransaction();
-            $validated = $request->validated();
 
             $kid->update([
                 'name' => $validated['name'],
@@ -263,42 +273,35 @@ class KidsController extends Controller
                 'gender' => $validated['gender'],
                 'ethnicity' => $validated['ethnicity'],
                 'responsible_id' => $validated['responsible_id'],
-                'updated_by' => auth()->id(),
             ]);
 
-            // Atualiza os profissionais
-            if ($request->has('professionals')) {
-                $professionals = array_filter($request->professionals); // Remove valores vazios
-                if (! empty($professionals)) {
-                    // Prepara os dados para sync
-                    $syncData = [];
-                    foreach ($professionals as $professionalId) {
-                        $syncData[$professionalId] = [
-                            'is_primary' => false,
-                        ];
-                    }
+            // Sincroniza os profissionais
+            $professionals = $request->input('professionals', []);
+            $primaryProfessional = $request->input('primary_professional');
 
-                    // Sincroniza os profissionais
-                    $kid->professionals()->sync($syncData);
-                } else {
-                    // Se não houver profissionais selecionados, remove todos
-                    $kid->professionals()->detach();
-                }
+            // Prepara os dados para sync
+            $syncData = [];
+            foreach ($professionals as $professionalId) {
+                $syncData[$professionalId] = [
+                    'is_primary' => $professionalId == $primaryProfessional,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
             }
 
-            // Opcional: Disparar job de atualização de criança
-            // SendKidUpdateJob::dispatch($kid)->onQueue('emails');
+            $kid->professionals()->sync($syncData);
 
             DB::commit();
-            flash('Criança atualizada com sucesso!')->success();
 
-            return redirect()->route('kids.index');
+            return redirect()
+                ->route('kids.index')
+                ->with('success', 'Criança atualizada com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao atualizar criança: ' . $e->getMessage());
-            flash('Erro ao atualizar criança: ' . $e->getMessage())->error();
-
-            return redirect()->back()->withInput();
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Erro ao atualizar criança. Por favor, tente novamente.');
         }
     }
 
