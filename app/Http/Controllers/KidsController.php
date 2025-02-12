@@ -1416,7 +1416,13 @@ class KidsController extends Controller
 
         $pdf->SetFont('helvetica', '', 14);
 
-        $txt = 'Profissional: '.$kid->professional->name;
+        $professionals = $kid->professionals()->get();
+        $professionalNames = [];
+        foreach ($professionals as $professional) {
+            $professionalNames[] = $professional->user->first()->name . ' (' . $professional->specialty->name . ')';
+        }
+        $txt = 'Profissionais: ' . implode(', ', $professionalNames);
+
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
