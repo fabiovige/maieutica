@@ -42,6 +42,13 @@ class KidsController extends Controller
             ->when(auth()->user()->hasRole('pais'), function ($query) {
                 return $query->where('responsible_id', auth()->user()->id);
             })
+            ->when(auth()->user()->hasRole('professional'), function ($query) {
+                $professionalId = auth()->user()->professional->first()->id;
+
+                return $query->whereHas('professionals', function ($q) use ($professionalId) {
+                    $q->where('professional_id', $professionalId);
+                });
+            })
             ->orderBy('name')
             ->paginate(15);
 
