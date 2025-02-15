@@ -19,7 +19,7 @@
 @endsection
 
 @section('content')
-    @if($roles->isEmpty())
+    @if ($roles->isEmpty())
         <div class="alert alert-info">
             Nenhum perfil cadastrado.
         </div>
@@ -29,23 +29,35 @@
                 <tr>
                     <th style="width: 60px;" class="text-center">ID</th>
                     <th>Nome</th>
-                    <th>Guard</th>
+                    <th>Permissões</th>
                     <th class="text-center" style="width: 100px;">Ações</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($roles as $role)
+                @foreach ($roles as $role)
                     <tr>
                         <td class="text-center">{{ $role->id }}</td>
-                        <td>{{ $role->name }}</td>
-                        <td>{{ $role->guard_name }}</td>
+                        <td style="width: 200px;">{{ $role->name }}</td>
+                        <td>
+                            @foreach ($role->permissions as $permission)
+                                <span class="badge bg-info">{{ $permission->name }}</span>
+                            @endforeach
+                        </td>
                         <td class="text-center">
                             @can('edit roles')
-                                <button type="button"
-                                        onclick="window.location.href='{{ route('roles.edit', $role->id) }}'"
-                                        class="btn btn-sm btn-secondary">
+                                <button type="button" onclick="window.location.href='{{ route('roles.edit', $role->id) }}'"
+                                    class="btn btn-sm btn-secondary">
                                     <i class="bi bi-pencil"></i> Editar
                                 </button>
+                            @endcan
+                            @can('delete roles')
+                                <form action="{{ route('roles.destroy', $role->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este perfil?');">
+                                        <i class="bi bi-trash"></i> Excluir
+                                    </button>
+                                </form>
                             @endcan
                         </td>
                     </tr>
