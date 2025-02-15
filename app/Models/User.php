@@ -88,11 +88,7 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        if ($this->role) {
-            return $this->role->id == 2;
-        }
-
-        return false;
+        return $this->hasRole('admin');
     }
 
     public function isProfessional(): bool

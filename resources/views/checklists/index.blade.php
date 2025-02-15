@@ -116,7 +116,7 @@
                                 <td><span
                                         class="badge {{ $checklist->situation_label === 'Aberto' ? 'bg-success' : 'bg-secondary' }}">{{ $checklist->situation_label }}</span>
                                 </td>
-                                <td>{{ $checklist->created_at->format('d/m/Y') }}</td>
+                                <td>{{ $checklist->created_at }}</td>
                                 <td>
 
                                     <div class="progress" role="progressbar" aria-label="checklist{{ $checklist->id }}"
@@ -216,9 +216,9 @@
                         data: data,
                         backgroundColor: data.map(value => {
                             if (value < 30)
-                        return 'rgba(220, 53, 69, 0.6)'; // Vermelho para baixo desenvolvimento
+                                return 'rgba(220, 53, 69, 0.6)'; // Vermelho para baixo desenvolvimento
                             if (value < 70)
-                        return 'rgba(255, 193, 7, 0.6)'; // Amarelo para médio desenvolvimento
+                                return 'rgba(255, 193, 7, 0.6)'; // Amarelo para médio desenvolvimento
                             return 'rgba(40, 167, 69, 0.6)'; // Verde para alto desenvolvimento
                         }),
                         borderWidth: 1,
