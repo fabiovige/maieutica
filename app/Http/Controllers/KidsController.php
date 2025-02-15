@@ -255,7 +255,7 @@ class KidsController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'birth_date' => 'required|date',
+            'birth_date' => 'required|date_format:d/m/Y|before:today|after:1900-01-01',
             'gender' => 'required|string',
             'ethnicity' => 'required|string',
             'responsible_id' => 'required|exists:users,id',

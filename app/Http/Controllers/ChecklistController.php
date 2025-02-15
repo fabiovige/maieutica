@@ -21,72 +21,81 @@ class ChecklistController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Checklist::class);
+        try {
+            $this->authorize('viewAny', Checklist::class);
 
-        $message = label_case('Index Checklists ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::debug($message);
+            $message = label_case('Index Checklists ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::debug($message);
 
-        $queryChecklists = Checklist::getChecklists();
-        $kid = $request->kidId ? Kid::findOrFail($request->kidId) : null;
+            $queryChecklists = Checklist::getChecklists();
+            $kid = $request->kidId ? Kid::findOrFail($request->kidId) : null;
 
-        if ($request->kidId || auth()->user()->hasRole('pais')) {
-            if ($kid) {
-                $queryChecklists->where('kid_id', $request->kidId);
-            } elseif (auth()->user()->hasRole('pais')) {
-                $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
-                $queryChecklists->whereIn('kid_id', $kids);
-            }
-        } elseif (auth()->user()->hasRole('professional')) {
-            $professionalId = auth()->user()->professional->first()->id;
+            if ($request->kidId || auth()->user()->hasRole('pais')) {
+                if ($kid) {
+                    $queryChecklists->where('kid_id', $request->kidId);
+                } elseif (auth()->user()->hasRole('pais')) {
+                    $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
+                    $queryChecklists->whereIn('kid_id', $kids);
+                }
+            } elseif (auth()->user()->hasRole('professional')) {
+                $professionalId = auth()->user()->professional->first()->id;
 
-            $queryChecklists->whereHas('kid', function ($q) use ($professionalId) {
-                $q->whereHas('professionals', function ($q) use ($professionalId) {
-                    $q->where('professional_id', $professionalId);
+                $queryChecklists->whereHas('kid', function ($q) use ($professionalId) {
+                    $q->whereHas('professionals', function ($q) use ($professionalId) {
+                        $q->where('professional_id', $professionalId);
+                    });
                 });
-            });
-        }
+            }
 
-        // Add date format handling with multiple format support
-        $date = $request->get('date');
-        if ($date) {
-            try {
-                // First try parsing as Y-m-d
-                $parsedDate = Carbon::createFromFormat('Y-m-d', $date);
-            } catch (\Exception $e) {
+            // Add date format handling with multiple format support
+            $date = $request->get('date');
+            if ($date) {
                 try {
-                    // Then try parsing as d/m/Y
-                    $parsedDate = Carbon::createFromFormat('d/m/Y', $date);
+                    // First try parsing as Y-m-d
+                    $parsedDate = Carbon::createFromFormat('Y-m-d', $date);
                 } catch (\Exception $e) {
                     try {
-                        // Finally try general parse
-                        $parsedDate = Carbon::parse($date);
+                        // Then try parsing as d/m/Y
+                        $parsedDate = Carbon::createFromFormat('d/m/Y', $date);
                     } catch (\Exception $e) {
-                        // If all parsing attempts fail, use current date
-                        $parsedDate = now();
+                        try {
+                            // Finally try general parse
+                            $parsedDate = Carbon::parse($date);
+                        } catch (\Exception $e) {
+                            // If all parsing attempts fail, use current date
+                            $parsedDate = now();
+                        }
                     }
                 }
+
+                $queryChecklists->whereDate('created_at', $parsedDate->format('Y-m-d'));
+            } else {
+                $queryChecklists->whereDate('created_at', now()->format('Y-m-d'));
             }
 
-            $queryChecklists->whereDate('created_at', $parsedDate->format('Y-m-d'));
-        } else {
-            $queryChecklists->whereDate('created_at', now()->format('Y-m-d'));
+            $checklists = $queryChecklists->with('competences')
+                ->orderBy('id', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            foreach ($checklists as $checklist) {
+                $checklist->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
+            }
+
+            $data = [
+                'checklists' => $checklists,
+                'kid' => $kid
+            ];
+
+            return view('checklists.index', $data);
+        } catch (Exception $e) {
+            dd($e->getMessage());
+            flash($e->getMessage())->warning();
+            $message = label_case('Index Checklists ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
+
+            return redirect()->back();
         }
-
-        $checklists = $queryChecklists->with('competences')
-            ->orderBy('id', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        foreach ($checklists as $checklist) {
-            $checklist->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
-        }
-
-        $data = [
-            'checklists' => $checklists,
-            'kid' => $kid
-        ];
-
-        return view('checklists.index', $data);
     }
 
     public function create()

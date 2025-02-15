@@ -107,74 +107,82 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($checklists as $checklist)
+                        @if($checklists->isEmpty())
                             <tr>
-                                <td class="text-center">{{ $checklist->id }}</td>
-                                @if (!isset($kid))
-                                    <td>{{ $checklist->kid->name }}</td>
-                                @endif
-                                <td><span
-                                        class="badge {{ $checklist->situation_label === 'Aberto' ? 'bg-success' : 'bg-secondary' }}">{{ $checklist->situation_label }}</span>
+                                <td colspan="{{ isset($kid) ? '5' : '6' }}" class="text-center">
+                                    Nenhum checklist encontrado.
                                 </td>
-                                <td>{{ $checklist->created_at }}</td>
-                                <td>
-
-                                    <div class="progress" role="progressbar" aria-label="checklist{{ $checklist->id }}"
-                                        aria-valuenow="{{ $checklist->developmentPercentage }}" aria-valuemin="0"
-                                        aria-valuemax="100">
-                                        <div class="progress-bar" style="width: {{ $checklist->developmentPercentage }}%">
-                                        </div>
-                                    </div>
-
-                                    {{ $checklist->developmentPercentage }}%
-                                </td>
-                                @can('edit checklists')
-                                    <td>
-                                        <div class="dropdown">
-                                            @can('edit checklists')
-                                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
-                                                    id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
-                                                    {{ $checklist->situation_label !== 'Aberto' ? 'disabled' : '' }}>
-                                                    Ações
-                                                </button>
-                                            @endcan
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                @if ($checklist->situation_label === 'Aberto')
-                                                    @can('edit checklists')
-                                                        <li><a class="dropdown-item"
-                                                                href="{{ route('checklists.edit', $checklist->id) }}">
-                                                                <i class="bi bi-pencil"></i> Editar
-                                                            </a></li>
-                                                    @endcan
-                                                    @can('fill checklists')
-                                                        <li><a class="dropdown-item"
-                                                                href="{{ route('checklists.fill', $checklist->id) }}">
-                                                                <i class="bi bi-check2-square"></i> Avaliação
-                                                            </a></li>
-                                                    @endcan
-                                                    @can('fill checklists')
-                                                        <li><a class="dropdown-item"
-                                                                href="{{ route('kids.showPlane', $checklist->kid->id) }}">
-                                                                <i class="bi bi-check2-square"></i> Plano Manual
-                                                            </a></li>
-                                                        <li><a class="dropdown-item"
-                                                                href="{{ route('kid.plane-automatic', ['kidId' => $checklist->kid->id, 'checklistId' => $checklist->id]) }}">
-                                                                <i class="bi bi-file-earmark-pdf"></i> Plano Automático
-                                                            </a></li>
-                                                    @endcan
-                                                    @can('create checklists')
-                                                        <li><a class="dropdown-item"
-                                                                href="{{ route('checklists.clonar', $checklist->id) }}">
-                                                                <i class="bi bi-copy"></i> Clonar
-                                                            </a></li>
-                                                    @endcan
-                                                @endif
-                                            </ul>
-                                        </div>
-                                    </td>
-                                @endcan
                             </tr>
-                        @endforeach
+                        @else
+                            @foreach ($checklists as $checklist)
+                                <tr>
+                                    <td class="text-center">{{ $checklist->id }}</td>
+                                    @if (!isset($kid))
+                                        <td>{{ $checklist->kid->name }}</td>
+                                    @endif
+                                    <td><span
+                                            class="badge {{ $checklist->situation_label === 'Aberto' ? 'bg-success' : 'bg-secondary' }}">{{ $checklist->situation_label }}</span>
+                                    </td>
+                                    <td>{{ $checklist->created_at }}</td>
+                                    <td>
+
+                                        <div class="progress" role="progressbar" aria-label="checklist{{ $checklist->id }}"
+                                            aria-valuenow="{{ $checklist->developmentPercentage }}" aria-valuemin="0"
+                                            aria-valuemax="100">
+                                            <div class="progress-bar" style="width: {{ $checklist->developmentPercentage }}%">
+                                            </div>
+                                        </div>
+
+                                        {{ $checklist->developmentPercentage }}%
+                                    </td>
+                                    @can('edit checklists')
+                                        <td>
+                                            <div class="dropdown">
+                                                @can('edit checklists')
+                                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
+                                                        id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
+                                                        {{ $checklist->situation_label !== 'Aberto' ? 'disabled' : '' }}>
+                                                        Ações
+                                                    </button>
+                                                @endcan
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                    @if ($checklist->situation_label === 'Aberto')
+                                                        @can('edit checklists')
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ route('checklists.edit', $checklist->id) }}">
+                                                                    <i class="bi bi-pencil"></i> Editar
+                                                                </a></li>
+                                                        @endcan
+                                                        @can('fill checklists')
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ route('checklists.fill', $checklist->id) }}">
+                                                                    <i class="bi bi-check2-square"></i> Avaliação
+                                                                </a></li>
+                                                        @endcan
+                                                        @can('fill checklists')
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ route('kids.showPlane', $checklist->kid->id) }}">
+                                                                    <i class="bi bi-check2-square"></i> Plano Manual
+                                                                </a></li>
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ route('kid.plane-automatic', ['kidId' => $checklist->kid->id, 'checklistId' => $checklist->id]) }}">
+                                                                    <i class="bi bi-file-earmark-pdf"></i> Plano Automático
+                                                                </a></li>
+                                                        @endcan
+                                                        @can('create checklists')
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ route('checklists.clonar', $checklist->id) }}">
+                                                                    <i class="bi bi-copy"></i> Clonar
+                                                                </a></li>
+                                                        @endcan
+                                                    @endif
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    @endcan
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -283,16 +291,20 @@
 
         // Preparar dados dos status
         @php
-            // Pegar apenas o último checklist
-            $lastChecklist = $checklists->first(); // Já está ordenado por created_at desc
+            $statusData = [0, 0, 0, 0]; // Valores padrão caso não haja checklist
 
-            // Contar as competências por nota
-            $statusData = [
-                $lastChecklist->competences->where('pivot.note', 0)->count(), // Não observado
-                $lastChecklist->competences->where('pivot.note', 1)->count(), // Mais ou menos
-                $lastChecklist->competences->where('pivot.note', 2)->count(), // Difícil
-                $lastChecklist->competences->where('pivot.note', 3)->count(), // Consistente
-            ];
+            if ($checklists->isNotEmpty()) {
+                // Pegar apenas o último checklist
+                $lastChecklist = $checklists->first(); // Já está ordenado por created_at desc
+
+                // Contar as competências por nota
+                $statusData = [
+                    $lastChecklist->competences->where('pivot.note', 0)->count(), // Não observado
+                    $lastChecklist->competences->where('pivot.note', 1)->count(), // Mais ou menos
+                    $lastChecklist->competences->where('pivot.note', 2)->count(), // Difícil
+                    $lastChecklist->competences->where('pivot.note', 3)->count(), // Consistente
+                ];
+            }
         @endphp
 
         var statusData = @json($statusData);
