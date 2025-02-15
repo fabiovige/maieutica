@@ -170,19 +170,6 @@
                                                                     @endif
                                                                 </label>
                                                             </div>
-                                                            <div class="ms-auto">
-                                                                <div class="form-check">
-                                                                    <input type="radio" class="form-check-input"
-                                                                        id="primary_{{ optional($profession->professional->first())->id }}"
-                                                                        name="primary_professional"
-                                                                        value="{{ optional($profession->professional->first())->id }}"
-                                                                        {{ $kid->professionals->where('id', optional($profession->professional->first())->id)->where('pivot.is_primary', true)->count()? 'checked': '' }}
-                                                                        {{ !optional($profession->professional->first())->id ? 'disabled' : '' }}>
-                                                                    <label
-                                                                        class="form-check-label {{ !optional($profession->professional->first())->id ? 'text-muted' : '' }} {{ $kid->professionals->where('id', optional($profession->professional->first())->id)->where('pivot.is_primary', true)->count()? 'fw-bold text-primary': '' }}"
-                                                                        for="primary_{{ optional($profession->professional->first())->id }}">Principal</label>
-                                                                </div>
-                                                            </div>
                                                         </div>
                                                     </div>
                                                 @endforeach

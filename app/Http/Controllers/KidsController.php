@@ -97,12 +97,16 @@ class KidsController extends Controller
 
             // Se o usuário for profissional, adiciona-o como profissional principal
             if (Auth::user()->hasRole('professional')) {
-                $kid->professionals()->attach(Auth::user()->professional->id, [
+                $professional = Auth::user()->professional->first();
+                $kid->professionals()->attach($professional->id, [
                     'is_primary' => true,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
             }
+
+            //
+
 
             Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
 
@@ -112,6 +116,7 @@ class KidsController extends Controller
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
+
             DB::rollBack();
             flash(self::MSG_CREATE_ERROR)->warning();
             $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -267,8 +272,7 @@ class KidsController extends Controller
             'ethnicity' => 'required|string',
             'responsible_id' => 'required|exists:users,id',
             'professionals' => 'array',
-            'professionals.*' => 'exists:professionals,id',
-            'primary_professional' => 'required_with:professionals|exists:professionals,id'
+            'professionals.*' => 'exists:professionals,id'
         ]);
 
         try {
@@ -296,6 +300,7 @@ class KidsController extends Controller
                 ];
             }
 
+            // Sincroniza os profissionais mantendo o is_primary
             $kid->professionals()->sync($syncData);
 
             DB::commit();
@@ -305,6 +310,8 @@ class KidsController extends Controller
                 ->with('success', 'Criança atualizada com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Erro ao atualizar criança: ' . $e->getMessage());
+
             return redirect()
                 ->back()
                 ->withInput()
@@ -794,8 +801,6 @@ class KidsController extends Controller
 
     public function showDomainDetails($kidId, $levelId, $domainId, $checklistId = null)
     {
-        // dd($kidId, $levelId, $domainId, $checklistId);
-
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
 
@@ -1374,10 +1379,9 @@ class KidsController extends Controller
         $pdf->Cell(0, 10, 'Prontuário de desenvolvimento', 0, 1, 'C');
         $pdf->Ln(10);
 
-        // **Adicionar a foto da criança**
         // Obter o caminho da foto da criança
         $photoPath = storage_path('app/public/' . $kid->photo);
-        // dd($photoPath);
+
         // Verificar se o arquivo existe
         if (file_exists($photoPath)) {
             // Definir a largura da foto
