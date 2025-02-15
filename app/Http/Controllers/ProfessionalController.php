@@ -38,7 +38,8 @@ class ProfessionalController extends Controller
     public function edit(Professional $professional)
     {
         try {
-            $professional->load(['user', 'specialty']);
+            //$professional->load(['user', 'specialty']);
+            
             $specialties = Specialty::orderBy('name')->get();
 
             return view('professionals.edit', compact('professional', 'specialties'));
@@ -116,28 +117,56 @@ class ProfessionalController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $professional = Professional::findOrFail($id);
+            $professional = Professional::with('user')->findOrFail($id);
+            $user = $professional->user->first();
 
-            // Validação específica para o telefone
+            if (!$user) {
+                throw new \Exception('Usuário não encontrado');
+            }
+
+            // Validação
             $request->validate([
+                'name' => 'required',
+                'email' => 'required|email',
                 'phone' => 'required',
+                'specialty_id' => 'required',
+                'registration_number' => 'required',
             ], [
                 'phone.required' => 'O campo telefone é obrigatório.'
             ]);
 
-            $data = $request->all();
-            $professional->update($data);
+            DB::beginTransaction();
+
+            // Atualizar dados do usuário
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'allow' => $request->has('allow'),
+                'updated_by' => auth()->id()
+            ]);
+
+            // Atualizar dados do profissional
+            $professional->update([
+                'specialty_id' => $request->specialty_id,
+                'registration_number' => $request->registration_number,
+                'bio' => $request->bio,
+                'updated_by' => auth()->id()
+            ]);
+
+            DB::commit();
 
             flash('Profissional atualizado com sucesso!')->success();
             return redirect()->route('professionals.index');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Retorna para o formulário com os erros de validação
             return redirect()->back()
                 ->withErrors($e->validator)
                 ->withInput();
         } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao atualizar profissional: ' . $e->getMessage());
             flash('Erro ao atualizar o profissional')->warning();
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
     }
 
