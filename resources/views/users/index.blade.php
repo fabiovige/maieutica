@@ -40,6 +40,7 @@
             <thead>
                 <tr>
                     <th style="width: 60px;" class="text-center">ID</th>
+                    <th style="width: 80px;" class="text-center">Avatar</th>
                     <th>Nome</th>
                     <th>Email</th>
                     <th>Perfil</th>
@@ -50,9 +51,36 @@
                 @foreach($users as $user)
                     <tr>
                         <td class="text-center">{{ $user->id }}</td>
+                        <td class="text-center">
+                            @if($user->avatar)
+                                <img src="{{ asset('images/avatar/' . $user->avatar) }}"
+                                     alt="{{ $user->name }}"
+                                     class="rounded-circle"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                            @else
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto text-white"
+                                     style="width: 40px; height: 40px; font-size: 16px;">
+                                    {{ substr($user->name, 0, 2) }}
+                                </div>
+                            @endif
+                        </td>
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
-                        <td>{{ $user->roles->pluck('name')->implode(', ') }}</td>
+                        <td>
+                            @foreach($user->roles as $role)
+                                @if($role->name === 'professional')
+                                    <span class="badge bg-info">
+                                        {{ $user->professional->first()?->specialty?->name ?? 'Profissional' }}
+                                    </span>
+                                @elseif($role->name === 'pais')
+                                    <span class="badge bg-success">Pais</span>
+                                @elseif($role->name === 'admin')
+                                    <span class="badge bg-danger">Administrador</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $role->name }}</span>
+                                @endif
+                            @endforeach
+                        </td>
                         <td class="text-center">
                             @can('edit users')
                                 <button type="button"

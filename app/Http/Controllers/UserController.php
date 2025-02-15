@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role as SpatieRole;
+use App\Models\Professional;
 
 class UserController extends Controller
 {
@@ -131,6 +132,15 @@ class UserController extends Controller
             $role = SpatieRole::find($data['role_id']);
             $user->syncRoles([]);
             $user->assignRole($role->name);
+
+            // Se for profissional, criar registro na tabela professionals
+            if ($role->name === 'professional') {
+                Professional::create([
+                    'specialty_id' => 1, // ID padrão, pode ser ajustado conforme necessidade
+                    'registration_number' => 'Pendente',
+                    'created_by' => auth()->id(),
+                ])->user()->attach($user->id);
+            }
 
             DB::commit();
 
