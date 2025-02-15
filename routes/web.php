@@ -50,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('checklists/{id}/chart', [ChecklistController::class, 'chart'])->name('checklists.chart');
     Route::get('checklists/{id}/fill', [ChecklistController::class, 'fill'])->name('checklists.fill');
     Route::get('checklists/register', [ChecklistController::class, 'register'])->name('checklists.register');
-    Route::get('checklists/{id}/clonar', [ChecklistController::class, 'clonarChecklist'])->name('checklists.clonar');
+    Route::post('checklists/{id}/clonar', [ChecklistController::class, 'clonarChecklist'])->name('checklists.clonar');
     Route::resource('checklists', ChecklistController::class);
 
     // kids

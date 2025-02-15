@@ -46,7 +46,7 @@
                     `;
 
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    fetch("{{ route('checklists.store') }}", {
+                    fetch("{{ route('checklists.clonar', ['id' => $kid->id]) }}", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -55,7 +55,7 @@
                             },
                             body: JSON.stringify({
                                 kid_id: {{ $kid->id }},
-                                level: 4
+                                level: 4,
                             })
                         })
                         .then(response => response.json())

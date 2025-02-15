@@ -286,19 +286,6 @@ class ChecklistController extends Controller
         }
     }
 
-    /*public function register(Request $request)
-    {
-        $data = $request->all();
-        $checklistRegister = ChecklistRegister::where('checklist_id', $request->checklist_id)->where('competence_description_id', $request->competence_description_id);
-        if ($checklistRegister->count()) {
-            $id = $checklistRegister->first()->id;
-            $cr = ChecklistRegister::findOrFail($id);
-            $cr->update($data);
-        } else {
-            $checklistRegister->create($data);
-        }
-    }*/
-
     public function chart($id)
     {
         try {
@@ -386,7 +373,7 @@ class ChecklistController extends Controller
         return $averagePercentage;
     }
 
-    public function clonarChecklist($id)
+    public function clonarChecklist(Request $request)
     {
         if (! auth()->user()->can('create checklists')) {
             flash('Você não tem permissão para clonar checklists.')->warning();
@@ -395,7 +382,9 @@ class ChecklistController extends Controller
         }
         try {
             DB::beginTransaction();
-            $checklistAtual = Checklist::findOrFail($id);
+            $checklistAtual = Checklist::where('situation', 'a')
+                ->where('kid_id', $request->kid_id)
+                ->firstOrFail();
 
             $data = [];
             $data['kid_id'] = $checklistAtual->kid_id;
@@ -432,7 +421,7 @@ class ChecklistController extends Controller
             DB::commit();
             flash(self::MSG_CLONE_SUCCESS)->success();
 
-            return redirect()->route('checklists.index', ['kidId' => $checklistAtual->kid_id]);
+            return response()->json(['success' => true]);
         } catch (Exception $e) {
             DB::rollBack();
 
