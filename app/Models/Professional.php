@@ -30,8 +30,6 @@ class Professional extends Model
 
     public function kids()
     {
-        return $this->belongsToMany(Kid::class, 'kid_professional')
-            ->withPivot('is_primary')
-            ->withTimestamps();
+        return $this->belongsToMany(Kid::class, 'kid_professional');
     }
 }

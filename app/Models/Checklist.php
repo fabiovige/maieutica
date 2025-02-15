@@ -35,7 +35,7 @@ class Checklist extends Model
 
     protected $fillable = ['level', 'kid_id', 'situation', 'description', 'created_by', 'updated_by', 'deleted_by'];
 
-    public function kid(): BelongsTo
+    public function kid()
     {
         return $this->belongsTo(Kid::class);
     }
@@ -88,16 +88,18 @@ class Checklist extends Model
 
     public static function getChecklists()
     {
-        $query = Checklist::query();
+        $query = self::query();
 
         if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
             // Superadmin ou admin pode ver todos os checklists e seus relacionamentos
             $query->with(['kid']);
         } elseif (auth()->user()->hasRole('professional')) {
-            // Profissionais podem ver checklists criados por eles ou associados a eles
-            // $query->where('created_by', auth()->user()->id)
-            $query->whereHas('kid', function ($q) {
-                $q->where('profession_id', auth()->user()->id);
+            $professionalId = auth()->user()->professional->first()->id;
+
+            $query->whereHas('kid', function ($q) use ($professionalId) {
+                $q->whereHas('professionals', function ($q) use ($professionalId) {
+                    $q->where('professional_id', $professionalId);
+                });
             })
                 ->with(['kid']);
         } elseif (auth()->user()->hasRole('pais')) {
@@ -117,7 +119,7 @@ class Checklist extends Model
             return (object)[
                 'note' => $note,
                 'total_competences' => 0,
-                'note_description' => match($note) {
+                'note_description' => match ($note) {
                     0 => 'Não observado',
                     1 => 'Em desenvolvimento',
                     2 => 'Não desenvolvido',
@@ -135,7 +137,7 @@ class Checklist extends Model
             ->groupBy('note')
             ->get();
 
-        return $notes->map(function($note) use ($results) {
+        return $notes->map(function ($note) use ($results) {
             $result = $results->firstWhere('note', $note->note);
             if ($result) {
                 $note->total_competences = $result->total_competences;

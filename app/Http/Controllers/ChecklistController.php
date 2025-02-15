@@ -36,6 +36,14 @@ class ChecklistController extends Controller
                 $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
                 $queryChecklists->whereIn('kid_id', $kids);
             }
+        } elseif (auth()->user()->hasRole('professional')) {
+            $professionalId = auth()->user()->professional->first()->id;
+
+            $queryChecklists->whereHas('kid', function ($q) use ($professionalId) {
+                $q->whereHas('professionals', function ($q) use ($professionalId) {
+                    $q->where('professional_id', $professionalId);
+                });
+            });
         }
 
         // Add date format handling with multiple format support
