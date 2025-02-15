@@ -43,7 +43,7 @@ class ProfessionalController extends Controller
 
             return view('professionals.edit', compact('professional', 'specialties'));
         } catch (\Exception $e) {
-            Log::error('Erro ao editar profissional: '.$e->getMessage());
+            Log::error('Erro ao editar profissional: ' . $e->getMessage());
             flash('Erro ao carregar dados do profissional.')->error();
 
             return redirect()->route('professionals.index');
@@ -57,7 +57,7 @@ class ProfessionalController extends Controller
 
             return view('professionals.create', compact('specialties'));
         } catch (\Exception $e) {
-            Log::error('Erro ao criar profissional: '.$e->getMessage());
+            Log::error('Erro ao criar profissional: ' . $e->getMessage());
             flash('Erro ao carregar formulário de criação.')->error();
 
             return redirect()->route('professionals.index');
@@ -106,61 +106,38 @@ class ProfessionalController extends Controller
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao salvar profissional: '.$e->getMessage());
+            Log::error('Erro ao salvar profissional: ' . $e->getMessage());
             flash('Erro ao criar profissional.')->error();
 
             return redirect()->back()->withInput();
         }
     }
 
-    public function update(Request $request, Professional $professional)
+    public function update(Request $request, $id)
     {
         try {
-            DB::beginTransaction();
+            $professional = Professional::findOrFail($id);
 
-            // Validar os dados
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
-                'phone' => 'required|string|max:20',
-                'specialty_id' => 'required|exists:specialties,id',
-                'registration_number' => 'required|string|max:50',
-                'bio' => 'nullable|string',
-                'allow' => 'boolean',
+            // Validação específica para o telefone
+            $request->validate([
+                'phone' => 'required',
+            ], [
+                'phone.required' => 'O campo telefone é obrigatório.'
             ]);
 
-            // Atualizar o usuário associado
-            $user = $professional->user->first();
-            if (! $user) {
-                throw new \Exception('Usuário não encontrado');
-            }
+            $data = $request->all();
+            $professional->update($data);
 
-            $user->update([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'allow' => $request->has('allow'),
-                'updated_by' => auth()->id(),
-            ]);
-
-            // Atualizar o profissional
-            $professional->update([
-                'specialty_id' => $validated['specialty_id'],
-                'registration_number' => $validated['registration_number'],
-                'bio' => $validated['bio'],
-                'updated_by' => auth()->id(),
-            ]);
-
-            DB::commit();
-            flash('Profissional atualizado com sucesso.')->success();
-
+            flash('Profissional atualizado com sucesso!')->success();
             return redirect()->route('professionals.index');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Retorna para o formulário com os erros de validação
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput();
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Erro ao atualizar profissional: '.$e->getMessage());
-            flash('Erro ao atualizar profissional.')->error();
-
-            return redirect()->back()->withInput();
+            flash('Erro ao atualizar o profissional')->warning();
+            return redirect()->back();
         }
     }
 
@@ -185,7 +162,7 @@ class ProfessionalController extends Controller
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao desativar profissional: '.$e->getMessage());
+            Log::error('Erro ao desativar profissional: ' . $e->getMessage());
             flash('Erro ao desativar profissional.')->error();
 
             return redirect()->back();
@@ -213,7 +190,7 @@ class ProfessionalController extends Controller
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao ativar profissional: '.$e->getMessage());
+            Log::error('Erro ao ativar profissional: ' . $e->getMessage());
             flash('Erro ao ativar profissional.')->error();
 
             return redirect()->back();

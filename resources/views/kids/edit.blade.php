@@ -178,7 +178,9 @@
                                                                         value="{{ optional($profession->professional->first())->id }}"
                                                                         {{ $kid->professionals->where('id', optional($profession->professional->first())->id)->where('pivot.is_primary', true)->count()? 'checked': '' }}
                                                                         {{ !optional($profession->professional->first())->id ? 'disabled' : '' }}>
-                                                                    <label class="form-check-label {{ !optional($profession->professional->first())->id ? 'text-muted' : '' }} {{ $kid->professionals->where('id', optional($profession->professional->first())->id)->where('pivot.is_primary', true)->count() ? 'fw-bold text-primary' : '' }}" for="primary_{{ optional($profession->professional->first())->id }}">Principal</label>
+                                                                    <label
+                                                                        class="form-check-label {{ !optional($profession->professional->first())->id ? 'text-muted' : '' }} {{ $kid->professionals->where('id', optional($profession->professional->first())->id)->where('pivot.is_primary', true)->count()? 'fw-bold text-primary': '' }}"
+                                                                        for="primary_{{ optional($profession->professional->first())->id }}">Principal</label>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -247,13 +249,8 @@
                 const primaryProfessional = document.querySelector(
                     'input[name="primary_professional"]:checked')?.value;
 
-                console.log('Profissionais selecionados:', selectedProfessionals);
-                console.log('Profissional principal:', primaryProfessional);
+                this.submit();
 
-                // Remover depois do debug
-                if (confirm('Enviar formulário?')) {
-                    this.submit();
-                }
             });
 
             // Quando um checkbox de profissional é alterado
@@ -288,7 +285,7 @@
                                 if (firstChecked) {
                                     const firstRadio = document.querySelector(
                                         `input[name="primary_professional"][value="${firstChecked.value}"]`
-                                        );
+                                    );
                                     if (firstRadio) {
                                         firstRadio.checked = true;
                                         console.log('Novo principal:', firstChecked.value);
