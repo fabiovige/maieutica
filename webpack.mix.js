@@ -3,7 +3,14 @@ const path = require('path');
 
 mix.js('resources/js/app.js', 'public/js')
     .vue()
-    .sass('resources/sass/app.scss', 'public/css')
+    .sass('resources/sass/app.scss', 'public/css', {
+        sassOptions: {
+            quietDeps: true,
+            outputStyle: 'compressed',
+            includePaths: ['node_modules'],
+            implementation: require('sass')
+        }
+    })
     .copy('resources/images', 'public/images')
     .copy('resources/vendor', 'public/vendor')
     .version()
@@ -18,6 +25,4 @@ mix.js('resources/js/app.js', 'public/js')
 
 if (mix.inProduction()) {
     mix.version();
-    mix.minify('public/js/app.js');
-    mix.minify('public/css/app.css');
 }

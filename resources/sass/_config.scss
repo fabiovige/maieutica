@@ -1,0 +1,20 @@
+@use "sass:math";
+@use "bootstrap/scss/functions" as bootstrap;
+
+// Configurações básicas
+$enable-deprecation-messages: false !default;
+$enable-negative-margins: true !default;
+
+// Configurações de fonte
+$font-family-sans-serif: 'Nunito', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !default;
+$font-size-base: 1rem !default;
+$line-height-base: 1.6 !default;
+
+// Cores principais
+$primary: #4aa4ee !default;
+$secondary: #3286ca !default;
+
+// Configurações do Bootstrap
+$bootstrap-sass-enable-deprecation-messages: false !default;
+
+@forward "bootstrap/scss/functions";
