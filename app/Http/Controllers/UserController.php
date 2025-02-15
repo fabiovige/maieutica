@@ -26,7 +26,7 @@ class UserController extends Controller
             ->when(! auth()->user()->hasRole('superadmin'), function ($query) {
                 $query->where('name', '!=', 'Super Admin');
             })
-            ->orderBy('name')
+            ->orderBy('created_at', 'desc')
             ->paginate(15);
 
         return view('users.index', compact('users'));
@@ -41,14 +41,14 @@ class UserController extends Controller
 
             $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 
-            $message = label_case('Edit User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Edit User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             return view('users.edit', compact('user', 'roles'));
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
 
-            $message = label_case('Edit User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Edit User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -62,7 +62,7 @@ class UserController extends Controller
             $user = User::findOrFail($id);
             $roles = Role::all();
 
-            $message = label_case('Show User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Show User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             return view('users.show', compact('user', 'roles'));
@@ -71,7 +71,7 @@ class UserController extends Controller
 
             flash($message)->warning();
 
-            $message = label_case('Show User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Show User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -84,7 +84,7 @@ class UserController extends Controller
 
         $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 
-        $message = label_case('Create User ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+        $message = label_case('Create User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
         return view('users.create', compact('roles'));
@@ -135,12 +135,12 @@ class UserController extends Controller
             DB::commit();
 
             flash(self::MSG_CREATE_SUCCESS)->success();
-            Log::notice('Usuário criado com sucesso. ID: '.$user->id.' Email: '.$user->email);
+            Log::notice('Usuário criado com sucesso. ID: ' . $user->id . ' Email: ' . $user->email);
 
             return redirect()->route('users.index');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao criar usuário: '.$e->getMessage());
+            Log::error('Erro ao criar usuário: ' . $e->getMessage());
             flash(self::MSG_CREATE_ERROR)->warning();
 
             return redirect()->back();
@@ -185,7 +185,7 @@ class UserController extends Controller
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
-            $message = label_case('Update User '.self::MSG_UPDATE_SUCCESS).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update User ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::notice($message);
 
             return redirect()->route('users.edit', $id);
@@ -193,7 +193,7 @@ class UserController extends Controller
             DB::rollBack();
             flash(self::MSG_UPDATE_ERROR)->warning();
 
-            $message = label_case('Update User '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -208,7 +208,7 @@ class UserController extends Controller
         try {
             // Verifica se o usuário autenticado está tentando excluir a si mesmo
             if (auth()->id() == $user->id) {
-                $message = label_case('Attempted to delete self. '.self::MSG_DELETE_USER_SELF).' | User: '.auth()->user()->name.' (ID: '.auth()->id().')';
+                $message = label_case('Attempted to delete self. ' . self::MSG_DELETE_USER_SELF) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
                 Log::alert($message);
 
                 // Lança uma exceção para bloquear a operação
@@ -217,7 +217,7 @@ class UserController extends Controller
 
             // Verifica se o usuário tem papéis atribuídos
             if ($user->roles()->count() > 0) {
-                $message = label_case('Attempted to delete user with roles. '.self::MSG_DELETE_USER_WITH_ROLE).' | User: '.$user->name.' (ID: '.$user->id.')';
+                $message = label_case('Attempted to delete user with roles. ' . self::MSG_DELETE_USER_WITH_ROLE) . ' | User: ' . $user->name . ' (ID: ' . $user->id . ')';
                 Log::alert($message);
 
                 // Lança uma exceção para impedir a exclusão de usuários com papéis
@@ -237,7 +237,7 @@ class UserController extends Controller
             flash(self::MSG_DELETE_SUCCESS)->success();
 
             // Registra a ação de exclusão no log
-            $message = label_case('User deleted successfully. '.self::MSG_DELETE_SUCCESS).' | Deleted User: '.$user->name.' (ID: '.$user->id.')';
+            $message = label_case('User deleted successfully. ' . self::MSG_DELETE_SUCCESS) . ' | Deleted User: ' . $user->name . ' (ID: ' . $user->id . ')';
             Log::notice($message);
 
             // Redireciona para a lista de usuários
@@ -249,7 +249,7 @@ class UserController extends Controller
             flash($e->getMessage())->warning();
 
             // Registra o erro no log
-            $message = label_case('Error while deleting user: '.$e->getMessage()).' | User: '.auth()->user()->name.' (ID: '.auth()->id().')';
+            $message = label_case('Error while deleting user: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
             Log::error($message);
 
             // Redireciona de volta
@@ -264,14 +264,14 @@ class UserController extends Controller
 
             $pdf = PDF::loadView('users.show', compact('user'));
 
-            $message = label_case('PDF Users Teste ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('PDF Users Teste ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return $pdf->download('user.pdf');
         } catch (Exception $e) {
             flash(self::MSG_DELETE_ERROR)->warning();
 
-            $message = label_case('Destroy Users '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Destroy Users ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
