@@ -129,10 +129,8 @@
                         </div>
                     </div>
 
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-primary" form="professionalForm">
-                            <i class="bi bi-check-lg"></i> Salvar
-                        </button>
+                    <div class="mt-4 d-flex justify-content-start gap-2">
+                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
                         <a href="{{ route('professionals.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-lg"></i> Cancelar
                         </a>

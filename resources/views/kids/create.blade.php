@@ -95,13 +95,11 @@
             </div>
 
             <div class="card-footer bg-transparent mt-4">
-                <div class="d-flex justify-content-end gap-2">
+                <div class="d-flex justify-content-start gap-2">
+                    <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
                     <a href="{{ route('kids.index') }}" class="btn btn-secondary">
                         <i class="bi bi-x-lg"></i> Cancelar
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-lg"></i> Salvar
-                    </button>
                 </div>
             </div>
         </form>

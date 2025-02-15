@@ -162,10 +162,11 @@
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-lg"></i> Salvar Alterações
-                            </button>
+                        <div class="d-flex justify-content-start gap-2">
+                            <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                            <a href="{{ route('home.index') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-lg"></i> Cancelar
+                            </a>
                         </div>
                     </form>
                 </div>
