@@ -1,5 +1,6 @@
 const mix = require('laravel-mix');
 const path = require('path');
+const sass = require('sass');
 
 mix.js('resources/js/app.js', 'public/js')
     .vue()
@@ -7,9 +8,9 @@ mix.js('resources/js/app.js', 'public/js')
         sassOptions: {
             quietDeps: true,
             outputStyle: 'compressed',
-            includePaths: ['node_modules'],
-            implementation: require('sass')
-        }
+            includePaths: ['node_modules']
+        },
+        implementation: sass
     })
     .copy('resources/images', 'public/images')
     .copy('resources/vendor', 'public/vendor')
