@@ -28,16 +28,19 @@ class ChecklistController extends Controller
             Log::debug($message);
 
             $queryChecklists = Checklist::getChecklists();
+
             $kid = $request->kidId ? Kid::findOrFail($request->kidId) : null;
 
             if ($request->kidId || auth()->user()->hasRole('pais')) {
                 if ($kid) {
                     $queryChecklists->where('kid_id', $request->kidId);
                 } elseif (auth()->user()->hasRole('pais')) {
+
                     $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
                     $queryChecklists->whereIn('kid_id', $kids);
                 }
             } elseif (auth()->user()->hasRole('professional')) {
+
                 $professionalId = auth()->user()->professional->first()->id;
 
                 $queryChecklists->whereHas('kid', function ($q) use ($professionalId) {
@@ -45,32 +48,6 @@ class ChecklistController extends Controller
                         $q->where('professional_id', $professionalId);
                     });
                 });
-            }
-
-            // Add date format handling with multiple format support
-            $date = $request->get('date');
-            if ($date) {
-                try {
-                    // First try parsing as Y-m-d
-                    $parsedDate = Carbon::createFromFormat('Y-m-d', $date);
-                } catch (\Exception $e) {
-                    try {
-                        // Then try parsing as d/m/Y
-                        $parsedDate = Carbon::createFromFormat('d/m/Y', $date);
-                    } catch (\Exception $e) {
-                        try {
-                            // Finally try general parse
-                            $parsedDate = Carbon::parse($date);
-                        } catch (\Exception $e) {
-                            // If all parsing attempts fail, use current date
-                            $parsedDate = now();
-                        }
-                    }
-                }
-
-                $queryChecklists->whereDate('created_at', $parsedDate->format('Y-m-d'));
-            } else {
-                $queryChecklists->whereDate('created_at', now()->format('Y-m-d'));
             }
 
             $checklists = $queryChecklists->with('competences')
