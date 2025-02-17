@@ -213,6 +213,7 @@ class KidsController extends Controller
                     $query->whereNotNull('specialty_id');
                 })->get();
 
+
             return view('kids.edit', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
