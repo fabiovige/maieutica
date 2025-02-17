@@ -103,7 +103,9 @@
                         <th>Status</th>
                         <th>Data de criação</th>
                         <th>Média Geral do Desenvolvimento</th>
-                        <th width="100">Ações</th>
+                        @can('edit checklists')
+                            <th width="100">Ações</th>
+                        @endcan
                     </tr>
                 </thead>
                 <tbody>
