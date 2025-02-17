@@ -56,6 +56,10 @@ class RoleAndPermissionSeeder extends Seeder
             'edit checklists',
             'remove checklists',
             'fill checklists',
+            'clone checklists',
+            'plane automatic checklist',
+            'plane manual checklist',
+            'avaliation checklist',
 
             // Professionals
             'list professionals',
@@ -82,59 +86,7 @@ class RoleAndPermissionSeeder extends Seeder
         $superAdmin->syncPermissions($permissions);
 
         // Admin tem todas as permissões relacionadas a usuários, roles, kids e checklists
-        $admin->syncPermissions([
-            // Usuários
-            'list users',
-            'view users',
-            'create users',
-            'edit users',
-            'remove users',
-
-            // Crianças
-            'list kids',
-            'view kids',
-            'create kids',
-            'edit kids',
-            'remove kids',
-
-            // Planes
-            'list planes',
-            'view planes',
-            'create planes',
-            'edit planes',
-            'remove planes',
-
-            // Roles
-            'list roles',
-            'view roles',
-            'create roles',
-            'edit roles',
-            'remove roles',
-
-            // Checklists
-            'list checklists',
-            'view checklists',
-            'create checklists',
-            'edit checklists',
-            'remove checklists',
-            'fill checklists',
-
-            // Professionals
-            'list professionals',
-            'view professionals',
-            'create professionals',
-            'edit professionals',
-            'remove professionals',
-            'activate professionals',
-            'deactivate professionals',
-
-            // Competences
-            'list competences',
-            'edit competences',
-
-            // Permissões Adicionais
-            'manage dashboard',
-        ]);
+        $admin->syncPermissions($permissions);
 
         // professional tem permissões limitadas
         $professional->syncPermissions([
@@ -144,10 +96,12 @@ class RoleAndPermissionSeeder extends Seeder
             'edit kids',
 
             'list checklists',
-            'view checklists',
             'create checklists',
             'edit checklists',
-            'fill checklists',
+            'clone checklists',
+            'plane automatic checklist',
+            'plane manual checklist',
+            'avaliation checklist',
 
             'list planes',
             'view planes',

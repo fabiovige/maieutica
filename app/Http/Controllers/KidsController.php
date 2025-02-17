@@ -130,7 +130,7 @@ class KidsController extends Controller
 
     public function showPlane(Kid $kid, $checklistId = null)
     {
-        $this->authorize('view', $kid);
+        $this->authorize('plane manual checklist', $kid);
 
         try {
             Log::info('show', [
@@ -427,6 +427,8 @@ class KidsController extends Controller
 
     public function pdfPlaneAuto($kidId, $checklislId, $note)
     {
+        $this->authorize('plane automatic checklist');
+
         try {
             // Primeiro, verificar se o kid existe
             $kid = Kid::findOrFail($kidId);

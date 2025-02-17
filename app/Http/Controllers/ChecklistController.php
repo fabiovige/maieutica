@@ -42,13 +42,11 @@ class ChecklistController extends Controller
             } elseif (auth()->user()->hasRole('professional')) {
 
                 $professionalId = auth()->user()->professional->first()->id;
-
-                $queryChecklists->whereHas('kid', function ($q) use ($professionalId) {
-                    $q->whereHas('professionals', function ($q) use ($professionalId) {
-                        $q->where('professional_id', $professionalId);
-                    });
+                $queryChecklists->whereHas('kid.professionals', function ($query) use ($professionalId) {
+                    $query->where('professional_id', $professionalId);
                 });
             }
+
 
             $checklists = $queryChecklists->with('competences')
                 ->orderBy('id', 'desc')
@@ -256,6 +254,7 @@ class ChecklistController extends Controller
 
     public function fill($id)
     {
+        $this->authorize('avaliation checklists');
         try {
             $message = label_case('Fill Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
@@ -367,18 +366,28 @@ class ChecklistController extends Controller
         return $averagePercentage;
     }
 
-    public function clonarChecklist(Request $request)
+    public function clonarChecklist(Request $request, $checklistId = null)
     {
+        $this->authorize('clone checklists');
+
         if (! auth()->user()->can('create checklists')) {
             flash('Você não tem permissão para clonar checklists.')->warning();
 
             return redirect()->route('checklists.index');
         }
+
         try {
             DB::beginTransaction();
+
             $checklistAtual = Checklist::where('situation', 'a')
-                ->where('kid_id', $request->kid_id)
+                ->when($request->kid_id, function ($query) use ($request) {
+                    return $query->where('kid_id', $request->kid_id);
+                })
+                ->when($checklistId, function ($query) use ($checklistId) {
+                    return $query->where('id', $checklistId);
+                })
                 ->firstOrFail();
+
 
             $data = [];
             $data['kid_id'] = $checklistAtual->kid_id;
@@ -415,7 +424,7 @@ class ChecklistController extends Controller
             DB::commit();
             flash(self::MSG_CLONE_SUCCESS)->success();
 
-            return response()->json(['success' => true]);
+            return redirect()->route('checklists.index', ['kidId' => $request->kid_id]);
         } catch (Exception $e) {
             DB::rollBack();
 

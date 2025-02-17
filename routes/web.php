@@ -50,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('checklists/{id}/chart', [ChecklistController::class, 'chart'])->name('checklists.chart');
     Route::get('checklists/{id}/fill', [ChecklistController::class, 'fill'])->name('checklists.fill');
     Route::get('checklists/register', [ChecklistController::class, 'register'])->name('checklists.register');
-    Route::post('checklists/{id}/clonar', [ChecklistController::class, 'clonarChecklist'])->name('checklists.clonar');
+    Route::get('checklists/{id}/clonar', [ChecklistController::class, 'clonarChecklist'])->name('checklists.clonar');
     Route::resource('checklists', ChecklistController::class);
 
     // kids
@@ -92,7 +92,6 @@ Route::middleware(['auth'])->group(function () {
     Route::put('professionals/{professional}', [ProfessionalController::class, 'update'])
         ->name('professionals.update')
         ->middleware('auth');
-
 });
 
 // Data Table Ajax

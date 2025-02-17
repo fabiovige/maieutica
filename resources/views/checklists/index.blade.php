@@ -107,7 +107,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if($checklists->isEmpty())
+                        @if ($checklists->isEmpty())
                             <tr>
                                 <td colspan="{{ isset($kid) ? '5' : '6' }}" class="text-center">
                                     Nenhum checklist encontrado.
@@ -129,7 +129,8 @@
                                         <div class="progress" role="progressbar" aria-label="checklist{{ $checklist->id }}"
                                             aria-valuenow="{{ $checklist->developmentPercentage }}" aria-valuemin="0"
                                             aria-valuemax="100">
-                                            <div class="progress-bar" style="width: {{ $checklist->developmentPercentage }}%">
+                                            <div class="progress-bar"
+                                                style="width: {{ $checklist->developmentPercentage }}%">
                                             </div>
                                         </div>
 
@@ -153,25 +154,27 @@
                                                                     <i class="bi bi-pencil"></i> Editar
                                                                 </a></li>
                                                         @endcan
-                                                        @can('fill checklists')
+                                                        @can('avaliation checklist')
                                                             <li><a class="dropdown-item"
                                                                     href="{{ route('checklists.fill', $checklist->id) }}">
                                                                     <i class="bi bi-check2-square"></i> Avaliação
                                                                 </a></li>
                                                         @endcan
-                                                        @can('fill checklists')
+                                                        @can('plane manual checklist')
                                                             <li><a class="dropdown-item"
                                                                     href="{{ route('kids.showPlane', $checklist->kid->id) }}">
                                                                     <i class="bi bi-check2-square"></i> Plano Manual
                                                                 </a></li>
+                                                        @endcan
+                                                        @can('plane automatic checklist')
                                                             <li><a class="dropdown-item"
                                                                     href="{{ route('kid.plane-automatic', ['kidId' => $checklist->kid->id, 'checklistId' => $checklist->id]) }}">
                                                                     <i class="bi bi-file-earmark-pdf"></i> Plano Automático
                                                                 </a></li>
                                                         @endcan
-                                                        @can('create checklists')
+                                                        @can('clone checklists')
                                                             <li><a class="dropdown-item"
-                                                                    href="{{ route('checklists.clonar', $checklist->id) }}">
+                                                                    href="{{ route('checklists.clonar', ['id' => $checklist->id, 'kid_id' => $checklist->kid_id]) }}">
                                                                     <i class="bi bi-copy"></i> Clonar
                                                                 </a></li>
                                                         @endcan
