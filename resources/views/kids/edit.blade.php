@@ -130,61 +130,58 @@
                     </div>
                 </div>
 
+                @if (!auth()->user()->hasRole('professional'))
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Vínculo com Profissionais</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="professionals">Profissionais</label>
+                                        <select name="professionals[]" id="professionals" class="form-control select2"
+                                            multiple>
+                                            @foreach ($professions as $profession)
+                                                <option value="{{ $profession->professional->id }}"
+                                                    {{ in_array($profession->professional->id, $kid->professionals->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                                    {{ $profession->name }}
+                                                    ({{ $profession->professional->specialty->name }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="primary_professional">Profissional Principal</label>
+                                        <select name="primary_professional" id="primary_professional"
+                                            class="form-control select2">
+                                            <option value="">Selecione um profissional principal</option>
+                                            @foreach ($kid->professionals as $professional)
+                                                <option value="{{ $professional->id }}"
+                                                    {{ $professional->pivot->is_primary ? 'selected' : '' }}>
+                                                    {{ $professional->user->first()->name }}
+                                                    ({{ $professional->specialty->name }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="card mt-4">
                     <div class="card-header">
                         <h5 class="card-title mb-0">Vínculos</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="professionals" class="form-label">Profissionais</label>
-                                    <div class="card">
-                                        <div class="card-body p-0">
-                                            <div class="list-group list-group-flush">
-                                                @foreach ($professions as $profession)
-                                                    <div class="list-group-item">
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="form-check">
-                                                                <input type="checkbox" class="form-check-input"
-                                                                    name="professionals[]"
-                                                                    value="{{ optional($profession->professional->first())->id }}"
-                                                                    id="prof_{{ $profession->id }}"
-                                                                    {{ optional($profession->professional->first())->id && in_array(optional($profession->professional->first())->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}
-                                                                    {{ !optional($profession->professional->first())->id ? 'disabled' : '' }}>
-                                                            </div>
-                                                            <div class="ms-3">
-                                                                <label class="form-check-label"
-                                                                    for="prof_{{ $profession->id }}">
-                                                                    {{ $profession->name }}
-                                                                    @if ($profession->professional->first())
-                                                                        <small class="text-muted">
-                                                                            ({{ $profession->professional->first()->specialty->name }}
-                                                                            - CRM:
-                                                                            {{ $profession->professional->first()->registration_number }})
-                                                                        </small>
-                                                                    @else
-                                                                        <small class="text-danger">
-                                                                            (Perfil profissional não configurado)
-                                                                        </small>
-                                                                    @endif
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @error('professionals')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <div class="form-text">
-                                        Selecione os profissionais e indique qual é o principal.
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="responsible_id" class="form-label">Responsável</label>
