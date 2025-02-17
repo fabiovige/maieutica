@@ -254,7 +254,7 @@ class ChecklistController extends Controller
 
     public function fill($id)
     {
-        $this->authorize('avaliation checklists');
+        $this->authorize('avaliation checklist');
         try {
             $message = label_case('Fill Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);

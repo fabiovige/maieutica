@@ -95,17 +95,18 @@ class KidsController extends Controller
 
             $kid = Kid::create($kidData);
 
-            // Se o usuário for profissional, adiciona-o como profissional principal
+
+            // Se o usuário logado for profissional, adiciona ele como profissional da criança
             if (Auth::user()->hasRole('professional')) {
                 $professional = Auth::user()->professional->first();
-                $kid->professionals()->attach($professional->id, [
-                    'is_primary' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
 
-            //
+                if ($professional) {
+                    $kid->professionals()->attach($professional->id, [
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
 
 
             Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
