@@ -130,82 +130,97 @@
                     </div>
                 </div>
 
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Vínculos</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="professionals" class="form-label">Profissionais</label>
-                                    <div class="card">
-                                        <div class="card-body p-0">
-                                            <div class="list-group list-group-flush">
-                                                @foreach ($professions as $profession)
-                                                    <div class="list-group-item">
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="form-check">
-                                                                <input type="checkbox" class="form-check-input"
-                                                                    name="professionals[]"
-                                                                    value="{{ optional($profession->professional->first())->id }}"
-                                                                    id="prof_{{ $profession->id }}"
-                                                                    {{ optional($profession->professional->first())->id && in_array(optional($profession->professional->first())->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}
-                                                                    {{ !optional($profession->professional->first())->id ? 'disabled' : '' }}>
+
+
+                @if (auth()->user()->hasRole('pais'))
+                    @foreach ($kid->professionals as $professional)
+                        <input type="hidden" name="professionals[]" value="{{ $professional->id }}">
+                    @endforeach
+                    <input type="hidden" name="responsible_id" value="{{ auth()->id() }}">
+                @else
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Vínculos</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                @if (!auth()->user()->hasRole('professional'))
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="professionals" class="form-label">Profissionais</label>
+                                            <div class="card">
+                                                <div class="card-body p-0">
+                                                    <div class="list-group list-group-flush">
+                                                        @foreach ($professions as $profession)
+                                                            <div class="list-group-item">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="form-check">
+                                                                        <input type="checkbox" class="form-check-input"
+                                                                            name="professionals[]"
+                                                                            value="{{ optional($profession->professional->first())->id }}"
+                                                                            id="prof_{{ $profession->id }}"
+                                                                            {{ optional($profession->professional->first())->id && in_array(optional($profession->professional->first())->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}
+                                                                            {{ !optional($profession->professional->first())->id ? 'disabled' : '' }}>
+                                                                    </div>
+                                                                    <div class="ms-3">
+                                                                        <label class="form-check-label"
+                                                                            for="prof_{{ $profession->id }}">
+                                                                            {{ $profession->name }}
+                                                                            @if ($profession->professional->first())
+                                                                                <small class="text-muted">
+                                                                                    ({{ $profession->professional->first()->specialty->name }}
+                                                                                    - CRM:
+                                                                                    {{ $profession->professional->first()->registration_number }})
+                                                                                </small>
+                                                                            @else
+                                                                                <small class="text-danger">
+                                                                                    (Perfil profissional não configurado)
+                                                                                </small>
+                                                                            @endif
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div class="ms-3">
-                                                                <label class="form-check-label"
-                                                                    for="prof_{{ $profession->id }}">
-                                                                    {{ $profession->name }}
-                                                                    @if ($profession->professional->first())
-                                                                        <small class="text-muted">
-                                                                            ({{ $profession->professional->first()->specialty->name }}
-                                                                            - CRM:
-                                                                            {{ $profession->professional->first()->registration_number }})
-                                                                        </small>
-                                                                    @else
-                                                                        <small class="text-danger">
-                                                                            (Perfil profissional não configurado)
-                                                                        </small>
-                                                                    @endif
-                                                                </label>
-                                                            </div>
-                                                        </div>
+                                                        @endforeach
                                                     </div>
-                                                @endforeach
+                                                </div>
+                                            </div>
+                                            @error('professionals')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            <div class="form-text">
+                                                Selecione os profissionais e indique qual é o principal.
                                             </div>
                                         </div>
                                     </div>
-                                    @error('professionals')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <div class="form-text">
-                                        Selecione os profissionais e indique qual é o principal.
-                                    </div>
-                                </div>
-                            </div>
+                                @else
+                                    <input type="hidden" name="professionals[]"
+                                        value="{{ auth()->user()->professional->first()->id }}">
+                                @endif
 
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="responsible_id" class="form-label">Responsável</label>
-                                    <select class="form-select @error('responsible_id') is-invalid @enderror"
-                                        id="responsible_id" name="responsible_id">
-                                        <option value="">Selecione...</option>
-                                        @foreach ($responsibles as $responsible)
-                                            <option value="{{ $responsible->id }}"
-                                                {{ old('responsible_id', $kid->responsible_id) == $responsible->id ? 'selected' : '' }}>
-                                                {{ $responsible->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('responsible_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="responsible_id" class="form-label">Responsável</label>
+                                        <select class="form-select @error('responsible_id') is-invalid @enderror"
+                                            id="responsible_id" name="responsible_id">
+                                            <option value="">Selecione...</option>
+                                            @foreach ($responsibles as $responsible)
+                                                <option value="{{ $responsible->id }}"
+                                                    {{ old('responsible_id', $kid->responsible_id) == $responsible->id ? 'selected' : '' }}>
+                                                    {{ $responsible->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('responsible_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
+
 
                 <div class="card-footer bg-transparent mt-4">
                     <div class="d-flex justify-content-start gap-2">

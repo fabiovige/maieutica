@@ -120,7 +120,6 @@ class RoleAndPermissionSeeder extends Seeder
             'view kids',
             'edit kids',
             'list checklists',
-            'view checklists',
         ]);
     }
 }
