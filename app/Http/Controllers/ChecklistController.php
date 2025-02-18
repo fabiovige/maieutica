@@ -10,6 +10,7 @@ use App\Models\Competence;
 use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
+use App\Services\ChecklistService;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,6 +20,14 @@ use Carbon\Carbon;
 
 class ChecklistController extends Controller
 {
+
+    protected $checklistService;
+
+    public function __construct(ChecklistService $checklistService)
+    {
+        $this->checklistService = $checklistService;
+    }
+
     public function index(Request $request)
     {
         try {
@@ -303,7 +312,11 @@ class ChecklistController extends Controller
         }
     }
 
-    public function percentualDesenvolvimento($checklistId)
+    public function percentualDesenvolvimento($checklistId){
+        return $this->checklistService->percentualDesenvolvimento($checklistId);
+    }
+
+    public function percentualDesenvolvimentoOld($checklistId)
     {
         // Obter o checklist pelo ID
         $currentChecklist = Checklist::findOrFail($checklistId);
