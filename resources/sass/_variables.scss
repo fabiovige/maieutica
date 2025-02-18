@@ -1,8 +1,50 @@
-// Body
-//$body-bg: #a9d9d0;
+@use 'sass:math';
+@use 'config' as *;
+@use "bootstrap/scss/bootstrap" as bootstrap;
 
 // Typography
-$font-family-sans-serif: 'Nunito', sans-serif;
-$font-size-base: 0.9rem;
-$line-height-base: 1.6;
+$font-family-sans-serif: 'Nunito', sans-serif !default;
+$font-size-base: 0.9rem !default;
+$line-height-base: 1.6 !default;
+
+// Colors
+$body-bg: #fff !default;
+$body-color: #212529 !default;
+
+// Form variables
+$form-check-input-width: 1em !default;
+$form-check-min-height: $font-size-base * $line-height-base !default;
+$form-check-padding-start: $form-check-input-width + .5em !default;
+$form-check-margin-bottom: .125rem !default;
+$form-check-label-color: null !default;
+$form-check-label-cursor: null !default;
+$form-check-transition: null !default;
+
+$form-check-input-active-filter: brightness(90%) !default;
+
+$form-check-input-bg: bootstrap.$input-bg !default;
+$form-check-input-border: 1px solid rgba(bootstrap.$black, .25) !default;
+$form-check-input-border-radius: .25em !default;
+$form-check-radio-border-radius: 50% !default;
+$form-check-input-focus-border: bootstrap.$input-focus-border-color !default;
+$form-check-input-focus-box-shadow: bootstrap.$input-btn-focus-box-shadow !default;
+
+$form-check-input-checked-color: bootstrap.$component-active-color !default;
+$form-check-input-checked-bg-color: bootstrap.$component-active-bg !default;
+$form-check-input-checked-border-color: $form-check-input-checked-bg-color !default;
+$form-check-input-checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$form-check-input-checked-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/></svg>") !default;
+$form-check-radio-checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='#{$form-check-input-checked-color}'/></svg>") !default;
+
+$form-check-input-indeterminate-color: bootstrap.$component-active-color !default;
+$form-check-input-indeterminate-bg-color: bootstrap.$component-active-bg !default;
+$form-check-input-indeterminate-border-color: $form-check-input-indeterminate-bg-color !default;
+$form-check-input-indeterminate-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$form-check-input-indeterminate-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/></svg>") !default;
+
+$form-check-input-disabled-opacity: .5 !default;
+$form-check-label-disabled-opacity: $form-check-input-disabled-opacity !default;
+$form-check-btn-check-disabled-opacity: bootstrap.$btn-disabled-opacity !default;
+
+$form-check-inline-margin-end: 1rem !default;
+
+// Suas outras variáveis personalizadas aqui...
 

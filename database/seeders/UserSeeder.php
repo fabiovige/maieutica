@@ -35,8 +35,8 @@ class UserSeeder extends Seeder
                 'role' => 'Professional',
             ],
             [
-                'name' => 'Valéria Nunes',
-                'email' => 'valeria@mailinator.com',
+                'name' => 'Maria da Silva',
+                'email' => 'maria@maildrop.cc',
                 'password' => 'password',
                 'created_by' => 2, // criado por admin
                 'role' => 'pais',

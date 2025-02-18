@@ -13,14 +13,15 @@ class User extends Authenticatable
 {
     use HasApiTokens;
     use HasFactory;
+    use HasRoles;
     use Notifiable;
     use SoftDeletes;
-    use HasRoles;
 
     protected $fillable = [
         'name',
         'email',
         'password',
+        'avatar',
         'allow',
         'created_by',
         'updated_by',
@@ -49,8 +50,11 @@ class User extends Authenticatable
     ];
 
     public const SUPERADMIN = 1;
+
     public const ADMIN = 2;
+
     public const ROLE_PAIS = 3;
+
     public const ROLE_PROFESSION = 4;
 
     // Constantes para os tipos
@@ -84,11 +88,7 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        if ($this->role) {
-            return $this->role->id == 2;
-        }
-
-        return false;
+        return $this->hasRole('admin');
     }
 
     public function isProfessional(): bool
@@ -140,5 +140,15 @@ class User extends Authenticatable
             return self::where('type', '=', $type)
                 ->where('created_by', '=', auth()->user()->id)->get();
         }
+    }
+
+    public function professional()
+    {
+        return $this->belongsToMany(Professional::class, 'user_professional');
+    }
+
+    public function getSpecialtyAttribute()
+    {
+        return $this->professional->first()?->specialty;
     }
 }

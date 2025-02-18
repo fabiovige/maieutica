@@ -2,13 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Ability;
 use Closure;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class AclMiddleware
 {
@@ -21,6 +18,7 @@ class AclMiddleware
         // Se o usuário não estiver permitido (flag 'allow'), faz logout.
         if (! $user->allow) {
             Auth::guard()->logout();
+
             return redirect()->route('login')->withErrors('Acesso negado.');
         }
 
@@ -38,11 +36,11 @@ class AclMiddleware
 
         foreach ($permissions as $permission) {
             if ($request->is($permission->name)) {
-                //return $next($request);
+                // return $next($request);
                 return $this->authorize($permission->name);
             }
         }
-        
+
         dd($permissions);
 
         return $next($request);

@@ -56,8 +56,11 @@
                         </div>
 
                     </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
+                    <div class="card-footer d-flex justify-content-start gap-2">
+                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                        <a href="{{ route('checklists.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </a>
                     </div>
                 </div>
             </form>

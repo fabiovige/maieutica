@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
+use App\Models\User;
+use Exception;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -30,7 +31,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
@@ -42,44 +43,85 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function login(Request $request) {
-
-        $request->validate([
-            $this->username() => 'required|string',
-            'password' => 'required|string',
-        ]);
-
-        if (Auth::attempt($request->only($this->username(), 'password'))) {
-            return redirect()->intended($this->redirectPath());
-        }
-
-        throw ValidationException::withMessages([
-            $this->username() => [trans('auth.failed')],
-        ]);
+    public function showLoginForm()
+    {
+        return view('auth.login');
     }
 
     protected function authenticated(Request $request, $user)
     {
-        Log::alert(label_case('Autenticado').' | User: '.auth()->user()->name.' (ID: '.auth()->user()->id.')');
-        Auth::logoutOtherDevices($request->password);
+        if (! $user->allow) {
+            Auth::logout();
 
-        // se user acesso bloqueado
-        if (Auth::user()->allow == false) {
-
-            $this->guard()->logout();
-
-            $request->session()->invalidate();
-
-            $request->session()->regenerateToken();
-
-            if ($response = $this->loggedOut($request)) {
-                return $response;
-            }
-
-            throw ValidationException::withMessages([
-                $this->username() => [trans('auth.failed')],
-            ]);
+            return back()->withErrors(['email' => 'Esta conta está desativada.']);
         }
 
+        Log::info('Usuário logado com sucesso', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+        ]);
+
+        return redirect()->intended($this->redirectTo);
+    }
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if (! $user) {
+                return redirect()->route('login')
+                    ->withErrors(['email' => 'Não foi encontrada uma conta com este e-mail.']);
+            }
+
+            if (! $user->allow) {
+                return redirect()->route('login')
+                    ->withErrors(['email' => 'Esta conta está desativada.']);
+            }
+
+            $user->update([
+                'provider_id' => $googleUser->getId(),
+                'provider_email' => $googleUser->getEmail(),
+                'provider_avatar' => $googleUser->getAvatar(),
+            ]);
+
+            Auth::login($user);
+
+            Log::info('Usuário logado com Google', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+
+            return redirect()->intended($this->redirectTo);
+        } catch (Exception $e) {
+            Log::error('Erro no login com Google: '.$e->getMessage());
+
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Erro ao realizar login com Google.']);
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        $user = Auth::user();
+
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        Log::info('Usuário deslogado', [
+            'user_id' => $user->id ?? null,
+            'email' => $user->email ?? null,
+        ]);
+
+        return redirect()->route('login');
     }
 }

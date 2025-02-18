@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Checklist;
-use App\Models\ChecklistCompetence;
 use App\Models\Competence;
 use Illuminate\Http\Request;
 
@@ -50,7 +49,7 @@ class ChecklistRegisterController extends Controller
 
         // Atualize a nota da competência no checklist (tabela pivot)
         $checklist->competences()->syncWithoutDetaching([
-            $request->competence_id => ['note' => $request->note]
+            $request->competence_id => ['note' => $request->note],
         ]);
 
         // Retorne uma resposta, se necessário

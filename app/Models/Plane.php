@@ -15,9 +15,9 @@ class Plane extends Model
 
     const NOTES_DESCRIPTION = [
         0 => 'Não observado',
-        1 => 'Mais ou menos',
-        2 => 'Difícil de obter',
-        3 => 'Consistente'
+        1 => 'Não desenvolvido',
+        2 => 'Em desenvolvimento',
+        3 => 'Desenvolvido',
     ];
 
     protected $fillable = ['kid_id', 'checklist_id', 'created_by', 'name', 'is_active'];

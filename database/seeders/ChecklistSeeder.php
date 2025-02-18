@@ -19,31 +19,33 @@ class ChecklistSeeder extends Seeder
         $kid = Kid::pluck('id');
 
         // checklists
-        foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as $c => $v) {
-
-            // levels
-            $indice = 4;
-            $arrLevel = [];
-            for ($i = 1; $i <= $indice; $i++) {
-                $arrLevel[] = $i;
-            }
-
-            $checklist = Checklist::create([
-                'kid_id' => $kid->random(),
-                'level' => $indice,
-                'created_by' => 1,
-            ]);
-
-            foreach ($arrLevel as $c => $level) {
-                $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();
-
-                $notes = [];
-                // competences
-                foreach ($components as $c => $v) {
-                    $notes[$v] = ['note' => rand(1,3)];
+        foreach ($kid as $kidId) {
+            // Criar 5 checklists para cada criança
+            foreach ([1, 2, 3] as $c => $v) {
+                // levels
+                $indice = 4;
+                $arrLevel = [];
+                for ($i = 1; $i <= $indice; $i++) {
+                    $arrLevel[] = $i;
                 }
 
-                $checklist->competences()->syncWithoutDetaching($notes);
+                $checklist = Checklist::create([
+                    'kid_id' => $kidId,
+                    'level' => $indice,
+                    'created_by' => 1,
+                ]);
+
+                foreach ($arrLevel as $c => $level) {
+                    $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();
+
+                    $notes = [];
+                    // competences
+                    foreach ($components as $c => $v) {
+                        $notes[$v] = ['note' => rand(1, 3)];
+                    }
+
+                    $checklist->competences()->syncWithoutDetaching($notes);
+                }
             }
         }
     }

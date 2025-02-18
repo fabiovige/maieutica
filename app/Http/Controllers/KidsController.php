@@ -6,25 +6,19 @@ use App\Http\Requests\KidRequest;
 use App\Jobs\SendKidUpdateJob;
 use App\Models\Checklist;
 use App\Models\Competence;
-use App\Models\CompetencePlane;
 use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
-use App\Models\Responsible;
 use App\Models\User;
+use App\Services\OverviewService;
 use App\Util\MyPdf;
 use Auth;
 use Exception;
-use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role as SpatieRole;
-use App\Services\OverviewService;
-use Illuminate\Support\Facades\File;
-use Psy\VersionUpdater\Checker;
 
 class KidsController extends Controller
 {
@@ -37,77 +31,48 @@ class KidsController extends Controller
 
     public function index()
     {
-        $message = label_case('Index Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::debug($message);
-        $kids = Kid::getKids();
+        $this->authorize('view kids');
+
+        if (request()->ajax()) {
+            return $this->index_data();
+        }
+
+        // Buscar crianças com paginação (15 por página)
+        $kids = Kid::query()
+            ->when(auth()->user()->hasRole('pais'), function ($query) {
+                return $query->where('responsible_id', auth()->user()->id);
+            })
+            ->when(auth()->user()->hasRole('professional'), function ($query) {
+                $professionalId = auth()->user()->professional->first()->id;
+
+                return $query->whereHas('professionals', function ($q) use ($professionalId) {
+                    $q->where('professional_id', $professionalId);
+                });
+            })
+            ->orderBy('name')
+            ->paginate(15);
+
         return view('kids.index', compact('kids'));
     }
-    /*
-    public function index_data()
-    {
-        $data = Kid::getKids();
 
-        return Datatables::of($data)
-            ->addColumn('action', function ($data) {
-
-                if (request()->user()->can('edit kids')) {
-
-                    $html = '<div class="dropdown">';
-                    $html .= '<button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">';
-                    $html .= '<li><a class="dropdown-item" href="' . route('kids.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a></li>';
-
-                    if ($data->checklists()->count() > 0) {
-                        $html .= '<li><a class="dropdown-item" href="' . route('kids.radarChart2', ['kidId' => $data->id, 'levelId' => 1, 'checklist' => null])
-                        . '"><i class="bi bi-check2-square"></i> Análise Geral</a></li>';
-                    }
-
-                    $html .= '</ul></div>';
-
-                    return $html;
-                }
-            })
-            ->editColumn('photo', function ($data) {
-                // Verifica se a criança tem uma foto. Se não tiver, gera um avatar aleatório.
-                if ($data->photo) {
-                    $photoUrl = asset('storage/' . $data->photo);
-                } else {
-                    $randomAvatarNumber = rand(1, 13); // Gera um número aleatório entre 1 e 13
-                    $photoUrl = asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png');
-                }
-
-                $html = '<img src="' . $photoUrl . '" class="rounded-img" style="width: 50px; height: 50px;">';
-                return $html;
-            })
-            ->editColumn('name', function ($data) {
-                return $data->name;
-            })
-            ->editColumn('birth_date', function ($data) {
-                return $data->birth_date . ' (' . $data->months . ' meses)';
-            })
-            ->editColumn('checklists', function ($data) {
-                return '<span class="badge bg-success"><i class="bi bi-check"></i> ' . $data->checklists->count() . ' Checklist(s) </span>';
-            })
-            ->editColumn('profession_id', function ($data) {
-                // Exibe o nome do professional ou 'Não atribuído' caso não tenha um professional
-                return $data->professional ? $data->professional->name : 'Não atribuído';
-            })
-            ->editColumn('responsible_id', function ($data) {
-                // Exibe o nome do responsável ou 'Não atribuído' caso não tenha um responsável
-                return $data->responsible ? $data->responsible->name : 'Não atribuído';
-            })
-            ->rawColumns(['photo', 'name', 'checklists', 'responsible', 'action'])
-            //->orderColumns(['id'], '-:column $1')
-            ->make(true);
-    }
-*/
     public function create()
     {
         $this->authorize('create', Kid::class);
 
+        // Buscar usuários com o papel 'professional'
+        $professions = User::whereHas('roles', function ($query) {
+            $query->where('name', 'professional');
+        })->get();
+
+        // Buscar usuários com o papel 'pais'
+        $responsibles = User::whereHas('roles', function ($query) {
+            $query->where('name', 'pais');
+        })->get();
+
         $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
-        return view('kids.create');
+        return view('kids.create', compact('professions', 'responsibles'));
     }
 
     public function store(KidRequest $request)
@@ -119,18 +84,30 @@ class KidsController extends Controller
             $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-
             $kidData = [
                 'name' => $request->name,
                 'birth_date' => $request->birth_date,
+                'gender' => $request->gender,
+                'ethnicity' => $request->ethnicity,
+                'responsible_id' => $request->responsible_id,
                 'created_by' => auth()->user()->id,
             ];
 
+            $kid = Kid::create($kidData);
+
+
+            // Se o usuário logado for profissional, adiciona ele como profissional da criança
             if (Auth::user()->hasRole('professional')) {
-                $kidData['profession_id'] = Auth::user()->id;
+                $professional = Auth::user()->professional->first();
+
+                if ($professional) {
+                    $kid->professionals()->attach($professional->id, [
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
             }
 
-            $kid = Kid::forProfessional()->create($kidData);
 
             Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
 
@@ -140,6 +117,7 @@ class KidsController extends Controller
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
+
             DB::rollBack();
             flash(self::MSG_CREATE_ERROR)->warning();
             $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -150,9 +128,10 @@ class KidsController extends Controller
     }
 
     public function show(Kid $kid) {}
+
     public function showPlane(Kid $kid, $checklistId = null)
     {
-        $this->authorize('view', $kid);
+        $this->authorize('plane manual checklist', $kid);
 
         try {
             Log::info('show', [
@@ -180,7 +159,7 @@ class KidsController extends Controller
 
             $data = [
                 'kid' => $kid,
-                'profession' => $kid->professional->name,
+                'professionals' => $kid->professionals->pluck('name'),
                 'checklists' => $checklists,
                 'checklist' => $checklist,
                 'checklist_id' => $checklists[0]->id,
@@ -192,17 +171,18 @@ class KidsController extends Controller
 
             return view('kids.show', $data);
         } catch (Exception $e) {
+
             $message = label_case('Error show kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             flash(self::MSG_NOT_FOUND)->warning();
+
             return redirect()->back();
         }
     }
 
-    public function edit($id)
+    public function edit(Kid $kid)
     {
-        $kid = Kid::findOrFail($id);
         $this->authorize('update', $kid);
         try {
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -210,13 +190,13 @@ class KidsController extends Controller
 
             // Verificando se o papel 'pais' existe, caso contrário lançar exceção
             $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (!$parentRole) {
+            if (! $parentRole) {
                 throw new Exception("O papel 'pais' não existe no sistema.");
             }
 
             // Verificando se o papel 'professional' existe, caso contrário lançar exceção
             $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (!$professionalRole) {
+            if (! $professionalRole) {
                 throw new Exception("O papel 'professional' não existe no sistema.");
             }
 
@@ -228,7 +208,10 @@ class KidsController extends Controller
             // Buscando usuários com o papel 'professional'
             $professions = User::whereHas('roles', function ($query) {
                 $query->where('name', 'professional');
-            })->get();
+            })->with(['professional.specialty'])
+                ->whereHas('professional', function ($query) {
+                    $query->whereNotNull('specialty_id');
+                })->get();
 
 
             return view('kids.edit', compact('kid', 'responsibles', 'professions'));
@@ -252,13 +235,13 @@ class KidsController extends Controller
 
             // Verificando se o papel 'pais' existe, caso contrário lançar exceção
             $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (!$parentRole) {
+            if (! $parentRole) {
                 throw new Exception("O papel 'pais' não existe no sistema.");
             }
 
             // Verificando se o papel 'professional' existe, caso contrário lançar exceção
             $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (!$professionalRole) {
+            if (! $professionalRole) {
                 throw new Exception("O papel 'professional' não existe no sistema.");
             }
 
@@ -272,7 +255,6 @@ class KidsController extends Controller
                 $query->where('name', 'professional');
             })->get();
 
-
             return view('kids.eye', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
@@ -283,43 +265,59 @@ class KidsController extends Controller
         }
     }
 
-    public function update(KidRequest $request, Kid $kid)
+    public function update(Request $request, Kid $kid)
     {
-        // Verifica se o usuário está autorizado a atualizar o registro
-        $this->authorize('update', $kid);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'birth_date' => 'required|date_format:d/m/Y|before:today|after:1900-01-01',
+            'gender' => 'required|string',
+            'ethnicity' => 'required|string',
+            //'responsible_id' => 'required|exists:users,id',
+            'professionals' => 'array',
+            'professionals.*' => 'exists:professionals,id'
+        ]);
 
         try {
-            // Loga a tentativa de atualização
-            $message = label_case('Update Kids ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            DB::beginTransaction();
 
-            // Coleta os dados do request
-            $data = $request->all();
+            $kid->update([
+                'name' => $validated['name'],
+                'birth_date' => $validated['birth_date'],
+                'gender' => $validated['gender'],
+                'ethnicity' => $validated['ethnicity'],
+                'responsible_id' => $request->input('responsible_id'),
+            ]);
 
-            // Removida a verificação de papel 'isProfessional'
-            // O tratamento para usuários profissionais será feito futuramente
+            // Sincroniza os profissionais
+            $professionals = $request->input('professionals', []);
+            $primaryProfessional = $request->input('primary_professional');
 
-            // Atualiza os dados da criança
-            $kid->update($data);
+            // Prepara os dados para sync
+            $syncData = [];
+            foreach ($professionals as $professionalId) {
+                $syncData[$professionalId] = [
+                    'is_primary' => $professionalId == $primaryProfessional,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
 
-            // Opcional: Disparar job de atualização de criança
-            // SendKidUpdateJob::dispatch($kid)->onQueue('emails');
+            // Sincroniza os profissionais mantendo o is_primary
+            $kid->professionals()->sync($syncData);
 
-            // Mensagem de sucesso
-            flash(self::MSG_UPDATE_SUCCESS)->success();
+            DB::commit();
 
-            // Redireciona para a página de edição
-            return redirect()->route('kids.edit', $kid->id);
-        } catch (Exception $e) {
-            // Loga o erro em caso de falha
-            $message = label_case('Update Kids Error' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            return redirect()
+                ->route('kids.index')
+                ->with('success', 'Criança atualizada com sucesso!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao atualizar criança: ' . $e->getMessage());
 
-            // Mensagem de erro
-            flash(self::MSG_UPDATE_ERROR)->warning();
-
-            // Redireciona de volta para a página anterior
-            return redirect()->back();
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Erro ao atualizar criança. Por favor, tente novamente.');
         }
     }
 
@@ -329,7 +327,6 @@ class KidsController extends Controller
         try {
             $message = label_case('Destroy Kids ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
-
 
             $kid->delete();
             flash(self::MSG_DELETE_SUCCESS)->success();
@@ -351,9 +348,18 @@ class KidsController extends Controller
         try {
             $plane = Plane::findOrFail($id);
             $kid_id = $plane->kid()->first()->id;
+
             $kid = Kid::findOrFail($kid_id);
             $nameKid = $plane->kid()->first()->name;
-            $therapist = $kid->professional->name;
+            $professionals = $kid->professionals()->get();
+
+            $professionalNames = [];
+            foreach ($professionals as $professional) {
+                $professionalNames[] = $professional->user->first()->name . ' - (' . $professional->specialty->name . ')';
+            }
+            $therapist = implode("\n", $professionalNames);
+
+
             $date = $plane->first()->created_at;
             $arr = [];
 
@@ -417,12 +423,14 @@ class KidsController extends Controller
 
             flash(self::MSG_NOT_FOUND)->warning();
 
-            //return redirect()->route('kids.index');
+            // return redirect()->route('kids.index');
         }
     }
 
     public function pdfPlaneAuto($kidId, $checklislId, $note)
     {
+        $this->authorize('plane automatic checklist');
+
         try {
             // Primeiro, verificar se o kid existe
             $kid = Kid::findOrFail($kidId);
@@ -445,19 +453,26 @@ class KidsController extends Controller
 
             // Criar o plane dentro de uma transação
 
-
             $existingPlane = Plane::where('kid_id', $kid->id)->where('checklist_id', $checklist->id)->where('is_active', true)->where('name', $dataCreatePlane['name'])->first();
             if ($existingPlane) {
-                //throw new Exception('Já existe um plano ativo para esta criança.');
+                // throw new Exception('Já existe um plano ativo para esta criança.');
                 $plane = $existingPlane;
             } else {
                 $plane = Plane::create($dataCreatePlane);
             }
 
-
             // get kid
             $nameKid = $kid->name;
-            $therapist = $kid->professional->name;
+
+            // get professionals
+            $professionals = $kid->professionals()->get();
+
+            $professionalNames = [];
+            foreach ($professionals as $professional) {
+                $professionalNames[] = $professional->user->first()->name . ' - (' . $professional->specialty->name . ')';
+            }
+            $therapist = implode("\n", $professionalNames);
+
             $date = $plane->first()->created_at;
             $arr = [];
 
@@ -528,6 +543,7 @@ class KidsController extends Controller
         } catch (Exception $e) {
             Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
             flash($e->getMessage())->error();
+
             return redirect()->back();
         }
     }
@@ -621,6 +637,7 @@ class KidsController extends Controller
         } catch (Exception $e) {
             Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
             flash('Erro ao gerar o plano: ' . $e->getMessage())->error();
+
             return redirect()->back();
         }
     }
@@ -652,82 +669,77 @@ class KidsController extends Controller
         $pdf->SetFont('helvetica', '', 18);
         $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
 
-        $pdf->SetFont('helvetica', '', 14);
-        $pdf->Write(0, 'Profissional: '.$therapist, '', 0, 'C', true, 0, false, false, 0);
-
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->Write(0, 'Data: '.$date, '', 0, 'C', true, 0, false, false, 0);
-
-        $pdf->Ln(15);
-        $pdf->SetFont('helvetica', '', 14);
+        $pdf->SetFont('helvetica', '', 16);
         $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(2);
 
-        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetFont('helvetica', '', 12);
         $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
-        $pdf->Ln(3);
+        $pdf->Ln(15);
 
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->Write(0, '('.$planeName.')', '', 0, 'C', true, 0, false, false, 0);
-        $pdf->Ln(3);
+        $pdf->SetFont('helvetica', '', 14);
+        $pdf->Write(0, 'Profissional(ais)', '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(5);
+
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->Write(0, $therapist, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(5);
+
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->Write(0, 'Data: ' . $date, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(15);
+
+        if ($planeName) {
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Write(0, '(' . $planeName . ')', '', 0, 'C', true, 0, false, false, 0);
+            $pdf->Ln(3);
+        }
     }
 
-    public function uploadPhoto(HttpRequest $request, Kid $kid)
+    public function uploadPhoto(Request $request, Kid $kid)
     {
-        //$this->authorize('update', $kid);
-
-        $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024',
-        ]);
-
-        DB::beginTransaction();
-
         try {
-            // Remove a foto anterior se houver uma
-            //if ($kid->photo) {
-            //    Storage::disk('public')->delete($kid->photo);
-            //}
+            $request->validate([
+                'photo' => ['required', 'image', 'max:1024'], // max 1MB
+            ]);
 
-            // Armazena a nova foto
-            //$photoPath = $request->file('photo')->store('kids_photos', 'public');
+            if ($request->hasFile('photo')) {
+                // Remove foto antiga se existir
+                if ($kid->photo) {
+                    $oldPhotoPath = public_path('images/kids/' . $kid->photo);
+                    if (file_exists($oldPhotoPath)) {
+                        unlink($oldPhotoPath);
+                    }
+                }
 
-            // Obtém o arquivo
-            $file = $request->file('photo');
+                // Cria o diretório se não existir
+                $path = public_path('images/kids');
+                if (! file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
 
-            // Define o caminho para salvar a imagem
-            $destinationPath = public_path('images/kids');
+                // Salva nova foto
+                $file = $request->file('photo');
+                $fileName = time() . '_' . $kid->id . '.' . $file->getClientOriginalExtension();
+                $file->move($path, $fileName);
 
-            // Garante que o diretório existe
-            if (!File::exists($destinationPath)) {
-                File::makeDirectory($destinationPath, 0755, true, true);
+                // Salva o caminho relativo no banco
+                $kid->update(['photo' => 'images/kids/' . $fileName]);
+
+                flash('Foto atualizada com sucesso!')->success();
+                Log::info('Foto da criança atualizada', [
+                    'kid_id' => $kid->id,
+                    'path' => $kid->photo,
+                ]);
             }
 
-            // Define o nome único para o arquivo
-            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            return redirect()->back();
+        } catch (Exception $e) {
+            Log::error('Erro ao atualizar foto: ' . $e->getMessage());
+            flash('Erro ao atualizar foto.')->error();
 
-            // Move o arquivo para o diretório desejado
-            $file->move($destinationPath, $fileName);
-
-            // Atualiza o caminho da foto no banco de dados
-            $kid->update(['photo' => $fileName]);
-
-            // Confirma a transação
-            DB::commit();
-
-            // Retorna com sucesso
-            flash('Foto atualizada com sucesso!')->success();
-        } catch (\Exception $e) {
-            // Reverte a transação em caso de falha
-            DB::rollBack();
-
-            // Loga o erro
-            Log::error('Erro ao fazer upload da foto da criança: ' . $e->getMessage());
-
-            // Retorna mensagem de erro
-            flash('Houve um erro ao atualizar a foto. Por favor, tente novamente.')->error();
+            return redirect()->back();
         }
-
-        return redirect()->route('kids.edit', $kid->id);
     }
 
     public function showRadarChart($kidId, $levelId)
@@ -793,8 +805,6 @@ class KidsController extends Controller
 
     public function showDomainDetails($kidId, $levelId, $domainId, $checklistId = null)
     {
-        //dd($kidId, $levelId, $domainId, $checklistId);
-
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
 
@@ -809,7 +819,6 @@ class KidsController extends Controller
         $currentChecklist = Checklist::where('kid_id', $kidId)
             ->orderBy('created_at', 'desc')
             ->first();
-
 
         // Obter o checklist de comparação, se um ID foi fornecido
         if ($checklistId) {
@@ -829,6 +838,7 @@ class KidsController extends Controller
             ->whereIn('level_id', $levelId)
             ->get();
 
+        $ageInmonths = 0;
 
         // Preparar os dados para as avaliações de ambos os checklists
         $radarDataCompetences = [];
@@ -892,50 +902,50 @@ class KidsController extends Controller
                 } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
                     $status = 'Adiantada'; // Consistente entre 25% e 50%, ainda adiantada
                     $statusColor = 'blue';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                } elseif ($ageInmonths < $competence->percentil_75) {
                     $status = 'Dentro do esperado'; // Consistente dentro da faixa normal (50% - 75%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                } elseif ($ageInmonths < $competence->percentil_90) {
                     $status = 'Dentro do esperado'; // Consistente dentro da faixa normal (75% - 90%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_90) {
                     $status = 'Dentro do esperado'; // Consistente depois do percentil 90, mas Consistente
                     $statusColor = 'orange';
                 }
             } elseif ($currentStatusValue === 2) {
                 // Mais ou menos
-                if ($ageInMonths < $competence->percentil_25) {
+                if ($ageInmonths < $competence->percentil_25) {
                     $status = 'Dentro do esperado'; // Mais ou menos, mas ainda dentro da faixa esperada (<25%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
+                } elseif ($ageInmonths >= $competence->percentil_25 && $ageInmonths < $competence->percentil_50) {
                     $status = 'Dentro do esperado'; // Mais ou menos entre 25% e 50%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                } elseif ($ageInmonths >= $competence->percentil_50 && $ageInmonths < $competence->percentil_75) {
                     $status = 'Dentro do esperado'; // Mais ou menos entre 50% e 75%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
                     $status = 'Dentro do esperado'; // Mais ou menos entre 75% e 90%
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_90) {
                     $status = 'Atrasada'; // Mais ou menos após o percentil 90, deveria ter Consistente
                     $statusColor = 'red';
                 }
             } elseif ($currentStatusValue === 1) {
 
                 // Difícil de obter ou não avaliado
-                if ($ageInMonths < $competence->percentil_25) {
+                if ($ageInmonths < $competence->percentil_25) {
                     $status = 'Dentro do esperado'; // Difícil de obter, mas ainda dentro da faixa esperada (<25%)
                     $statusColor = 'orange';
-                } elseif ($ageInMonths >= $competence->percentil_25 && $ageInMonths < $competence->percentil_50) {
+                } elseif ($ageInmonths >= $competence->percentil_25 && $ageInmonths < $competence->percentil_50) {
                     $status = 'Atrasada'; // Difícil de obter entre 25% e 50%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_50 && $ageInMonths < $competence->percentil_75) {
+                } elseif ($ageInmonths >= $competence->percentil_50 && $ageInmonths < $competence->percentil_75) {
                     $status = 'Atrasada'; // Difícil de obter entre 50% e 75%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_75 && $ageInMonths < $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_75 && $ageInmonths < $competence->percentil_90) {
                     $status = 'Atrasada'; // Difícil de obter entre 75% e 90%
                     $statusColor = 'red';
-                } elseif ($ageInMonths >= $competence->percentil_90) {
+                } elseif ($ageInmonths >= $competence->percentil_90) {
                     $status = 'Atrasada'; // Difícil de obter após o percentil 90, deveria ter Consistente
                     $statusColor = 'red';
                 }
@@ -943,16 +953,16 @@ class KidsController extends Controller
 
             // Determinar o progresso em termos de percentil
             $percentComplete = 0;
-            if ($ageInMonths < $competence->percentil_25) {
-                $percentComplete = ($ageInMonths / $competence->percentil_25) * 25;
-            } elseif ($ageInMonths < $competence->percentil_50) {
-                $percentComplete = 25 + (($ageInMonths - $competence->percentil_25) / ($competence->percentil_50 - $competence->percentil_25)) * 25;
-            } elseif ($ageInMonths < $competence->percentil_75) {
-                $percentComplete = 50 + (($ageInMonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
-            } elseif ($ageInMonths < $competence->percentil_90) {
-                $percentComplete = 75 + (($ageInMonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
+            if ($ageInmonths < $competence->percentil_25) {
+                $percentComplete = ($ageInmonths / $competence->percentil_25) * 25;
+            } elseif ($ageInmonths < $competence->percentil_50) {
+                $percentComplete = 25 + (($ageInmonths - $competence->percentil_25) / ($competence->percentil_50 - $competence->percentil_25)) * 25;
+            } elseif ($ageInmonths < $competence->percentil_75) {
+                $percentComplete = 50 + (($ageInmonths - $competence->percentil_50) / ($competence->percentil_75 - $competence->percentil_50)) * 25;
+            } elseif ($ageInmonths < $competence->percentil_90) {
+                $percentComplete = 75 + (($ageInmonths - $competence->percentil_75) / ($competence->percentil_90 - $competence->percentil_75)) * 15;
             } else {
-                $percentComplete = 90 + (($ageInMonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
+                $percentComplete = 90 + (($ageInmonths - $competence->percentil_90) / ($competence->percentil_90)) * 10;
             }
 
             $radarDataCompetences[] = [
@@ -968,7 +978,7 @@ class KidsController extends Controller
                 'percentil_25' => $competence->percentil_25,
                 'percentil_50' => $competence->percentil_50,
                 'percentil_75' => $competence->percentil_75,
-                'percentil_90' => $competence->percentil_90
+                'percentil_90' => $competence->percentil_90,
             ];
         }
         if (is_array($levelId) && count($levelId) > 1) {
@@ -978,15 +988,17 @@ class KidsController extends Controller
         }
 
         // Retornar a view com os dados do radar detalhado
-        return view('kids.domain_details', compact(
-            'kid',
-            'ageInMonths',
-            'levelId',
-            'domain',
-            'radarDataCompetences',
-            'currentChecklist',
-            'previousChecklist'
-        ));
+        $data = [
+            'kid' => $kid,
+            'ageInMonths' => $ageInMonths,
+            'levelId' => $levelId,
+            'domain' => $domain,
+            'radarDataCompetences' => $radarDataCompetences,
+            'currentChecklist' => $currentChecklist,
+            'previousChecklist' => $previousChecklist,
+        ];
+
+        return view('kids.domain_details', $data);
     }
 
     public function showRadarChart2($kidId, $levelId, $checklistId = null)
@@ -1012,7 +1024,7 @@ class KidsController extends Controller
             ->first();
 
         // Verificar se existe um checklist atual
-        if (!$currentChecklist) {
+        if (! $currentChecklist) {
             // Tratar o caso em que não há checklists para a criança
             throw new ('Nenhum checklist encontrado!');
         }
@@ -1030,7 +1042,6 @@ class KidsController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-
         // Obter os dois checklists mais recentes da criança
         $checklists = Checklist::where('kid_id', $kidId)
             ->orderBy('created_at', 'desc')
@@ -1041,14 +1052,11 @@ class KidsController extends Controller
         $radarDataDomains = [];
         $levels = [];
 
-
         foreach ($domains as $domain) {
             // Obter as competências do domínio e nível selecionados
             $competences = Competence::where('domain_id', $domain->id)
                 ->whereIn('level_id', $levelId)
                 ->get();
-
-
 
             // Inicializar as médias como null
             $currentAverage = null;
@@ -1116,12 +1124,10 @@ class KidsController extends Controller
                 'previousAverage' => $previousAverage,
             ];
 
-
             for ($i = 1; $i <= $currentChecklist->level; $i++) {
                 $levels[$i] = $i;
             }
         }
-
 
         $countPlanes = 1;
         $countChecklists = Checklist::where('kid_id', $kidId)->count();
@@ -1131,7 +1137,6 @@ class KidsController extends Controller
         } else {
             $levelId = $levelId[0];
         }
-
 
         $data = [
             'kid' => $kid,
@@ -1179,7 +1184,7 @@ class KidsController extends Controller
             ->first();
 
         // Verificar se existe um checklist atual
-        if (!$currentChecklist) {
+        if (! $currentChecklist) {
             throw new Exception('Nenhum checklist encontrado!');
         }
 
@@ -1261,7 +1266,7 @@ class KidsController extends Controller
                 'itemsValid' => $itemsValid,
                 'itemsInvalid' => $itemsInvalid,
                 'itemsTotal' => $itemsTotal,
-                'percentage' => round($percentage, 2)
+                'percentage' => round($percentage, 2),
             ];
 
             $totalItemsTested += $itemsTested;
@@ -1328,7 +1333,7 @@ class KidsController extends Controller
         return view('kids.overview', $data);
     }
 
-    public function generatePdf(HttpRequest $request, $kidId, $levelId = null)
+    public function generatePdf(Request $request, $kidId, $levelId = null)
     {
         // Reutilizar o serviço para obter os dados da visão geral
         $data = $this->overviewService->getOverviewData($kidId, $levelId);
@@ -1348,7 +1353,6 @@ class KidsController extends Controller
 
         // Montar a saída
         $periodAvaliable = "Período de avaliação: {$createdAt} até {$currentDate}";
-
 
         // Criar uma nova instância do PDF
         $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -1379,10 +1383,9 @@ class KidsController extends Controller
         $pdf->Cell(0, 10, 'Prontuário de desenvolvimento', 0, 1, 'C');
         $pdf->Ln(10);
 
-        // **Adicionar a foto da criança**
         // Obter o caminho da foto da criança
         $photoPath = storage_path('app/public/' . $kid->photo);
-        //dd($photoPath);
+
         // Verificar se o arquivo existe
         if (file_exists($photoPath)) {
             // Definir a largura da foto
@@ -1392,7 +1395,7 @@ class KidsController extends Controller
             // Calcular a posição X para centralizar
             $x = round(($pageWidth - $photoWidth) / 2, 0);
             // Adicionar a foto da criança
-            //dd($x);
+            // dd($x);
             $pdf->Image($photoPath, 80, null, $photoWidth, $photoWidth, '', '', 'C', false, 72);
             // Adicionar espaço após a foto
             $pdf->Ln(60);
@@ -1431,7 +1434,13 @@ class KidsController extends Controller
 
         $pdf->SetFont('helvetica', '', 14);
 
-        $txt = 'Profissional: ' . $kid->professional->name;
+        $professionals = $kid->professionals()->get();
+        $professionalNames = [];
+        foreach ($professionals as $professional) {
+            $professionalNames[] = $professional->user->first()->name . ' (' . $professional->specialty->name . ')';
+        }
+        $txt = 'Profissionais: ' . implode(', ', $professionalNames);
+
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
@@ -1447,13 +1456,14 @@ class KidsController extends Controller
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
-        $pdf->Cell(0, 2, $periodAvaliable, 0, 1, 'C');
+        $txt = $periodAvaliable;
+        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
-        //$pdf->Ln(20);
-        //$txt2 = "Esta avaliação foi composta pelo instrumento Checklist Curriculum Denver. Mantivemos como base de aferição o Nível III do Checklist Curriculum Denver para efeitos de comparação em relação ao próprio desenvolvimento de " . $kid->name . ". Os resultados estão ilustrados abaixo:";
-        //$pdf->SetFont('helvetica', '', 12);
-        //$pdf->MultiCell(0, 5, $txt2, 0, 'L', 0, 1);
+        // $pdf->Ln(20);
+        // $txt2 = "Esta avaliação foi composta pelo instrumento Checklist Curriculum Denver. Mantivemos como base de aferição o Nível III do Checklist Curriculum Denver para efeitos de comparação em relação ao próprio desenvolvimento de " . $kid->name . ". Os resultados estão ilustrados abaixo:";
+        // $pdf->SetFont('helvetica', '', 12);
+        // $pdf->MultiCell(0, 5, $txt2, 0, 'L', 0, 1);
 
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 14, '', 'C');
@@ -1466,7 +1476,6 @@ class KidsController extends Controller
 
         $pdf->AddPage();
         $this->addChartToPdf($pdf, $barChartItems2Image, 'Análise Geral dos Itens', 170);
-
 
         // Adicionar tabela de domínios
         $pdf->AddPage();
@@ -1538,23 +1547,44 @@ class KidsController extends Controller
     private function addChartToPdf($pdf, $imageData, $title, $width = null, $height = null)
     {
         if ($imageData) {
-            // Decodificar a imagem base64
-            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
+            try {
+                // Decodificar a imagem base64
+                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
 
-            // Criar um arquivo temporário para a imagem
-            $tempImagePath = tempnam(sys_get_temp_dir(), 'chart') . '.png';
-            file_put_contents($tempImagePath, $imageData);
+                // Criar um caminho absoluto para o arquivo temporário
+                $tempDir = storage_path('app/temp');
 
-            // Adicionar título
-            $pdf->Ln(10);
-            $pdf->SetFont('helvetica', 'B', 12);
-            $pdf->Cell(0, 10, $title, 0, 1, 'C');
+                // Garantir que o diretório existe com permissões corretas
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0755, true);
+                }
 
-            // Adicionar imagem com as dimensões especificadas
-            $pdf->Image($tempImagePath, '', '', $width, $height, 'PNG');
+                // Criar nome único para o arquivo
+                $tempFileName = uniqid('chart_') . '.png';
+                $tempImagePath = $tempDir . DIRECTORY_SEPARATOR . $tempFileName;
 
-            // Remover o arquivo temporário
-            unlink($tempImagePath);
+                // Salvar a imagem
+                if (file_put_contents($tempImagePath, $imageData)) {
+                    // Verificar se o arquivo existe e é legível
+                    if (file_exists($tempImagePath) && is_readable($tempImagePath)) {
+                        // Adicionar título
+                        $pdf->Ln(10);
+                        $pdf->SetFont('helvetica', 'B', 12);
+                        $pdf->Cell(0, 10, $title, 0, 1, 'C');
+
+                        // Adicionar imagem com caminho absoluto
+                        $pdf->Image($tempImagePath, '', '', $width, $height, 'PNG');
+                    }
+
+                    // Remover o arquivo temporário
+                    if (file_exists($tempImagePath)) {
+                        unlink($tempImagePath);
+                    }
+                }
+            } catch (Exception $e) {
+                \Log::error('Erro ao processar imagem para PDF: ' . $e->getMessage());
+                \Log::error('Caminho da imagem: ' . $tempImagePath);
+            }
         }
     }
 }

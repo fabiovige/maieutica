@@ -16,7 +16,7 @@ class ResponsibleController extends Controller
 {
     public function index()
     {
-        //$this->authorize('viewAny', Responsible::class);
+        // $this->authorize('viewAny', Responsible::class);
         $message = label_case('Index Responsibles ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
         Log::debug($message);
 
@@ -45,8 +45,8 @@ class ResponsibleController extends Controller
                 }
                 $data = $data->whereIn('id', array_unique($responsibleIds));
             }
-            //$data->where('created_by', '=', auth()->user()->id);
-            //$data->orWhere('user_id', '=', auth()->user()->id);
+            // $data->where('created_by', '=', auth()->user()->id);
+            // $data->orWhere('user_id', '=', auth()->user()->id);
         }
 
         return Datatables::of($data)
@@ -65,7 +65,7 @@ class ResponsibleController extends Controller
                 return $data->cell;
             })
             ->rawColumns(['action'])
-            //->orderColumns($data->id, '-:column $1')
+            // ->orderColumns($data->id, '-:column $1')
             ->make(true);
     }
 

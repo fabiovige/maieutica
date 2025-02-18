@@ -31,7 +31,7 @@ return new class extends Migration
             $table->dropColumn([
                 'provider_id',
                 'provider_email',
-                'provider_avatar'
+                'provider_avatar',
             ]);
         });
     }

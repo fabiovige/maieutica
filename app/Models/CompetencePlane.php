@@ -12,8 +12,6 @@ class CompetencePlane extends Model
 
     protected $table = 'competence_plane';
 
-
-
     protected $fillable = ['plane_id', 'competence_id'];
 
     public static function deleteCompetencePlane($request)

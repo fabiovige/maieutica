@@ -53,7 +53,7 @@ return [
         'attributes' => [
             'prefix' => 'log-viewer',
             'middleware' => ['web', 'auth'],
-            //'middleware' => env('ARCANEDEV_LOGVIEWER_MIDDLEWARE') ? explode(',', env('ARCANEDEV_LOGVIEWER_MIDDLEWARE')) : null,
+            // 'middleware' => env('ARCANEDEV_LOGVIEWER_MIDDLEWARE') ? explode(',', env('ARCANEDEV_LOGVIEWER_MIDDLEWARE')) : null,
         ],
     ],
 
