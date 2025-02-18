@@ -41,7 +41,7 @@ class MyPdf extends TCPDF
         $this->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
     }
 
-    //Page header
+    // Page header
     public function Header($data = '')
     {
         // Set font

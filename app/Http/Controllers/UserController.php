@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\WelcomeNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\DataTables;
-
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role as SpatieRole;
+use App\Models\Professional;
 
 class UserController extends Controller
 {
@@ -20,63 +21,16 @@ class UserController extends Controller
 
     public function index()
     {
-        $this->authorize('viewAny', User::class);
+        $this->authorize('view users');
 
-        $message = label_case('list users ') . ' | User:' . auth()->user()->name . '(ID: ' . auth()->user()->id . ') ';
-        Log::info($message);
-
-
-        $user = auth()->user();
-        return view('users.index');
-    }
-
-    public function index_data()
-    {
-
-        /*if (auth()->user()->isSuperAdmin()) {
-            $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
-        } else {
-            $data = User::select('id', 'name', 'email', 'type', 'allow', 'role_id');
-            $data->where('created_by', '=', auth()->user()->id);
-        }*/
-
-        $data = User::select('id', 'name', 'email', 'type', 'allow');
-
-        return Datatables::of($data)
-
-            ->addColumn('action', function ($data) {
-                if (request()->user()->can('update users') || request()->user()->can('create users')) {
-                    $html = '<a class="btn btn-sm btn-secondary" href="' . route('users.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a>';
-
-                    return $html;
-                }
+        $users = User::query()
+            ->when(! auth()->user()->hasRole('superadmin'), function ($query) {
+                $query->where('name', '!=', 'Super Admin');
             })
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
-            ->editColumn('name', function ($data) {
-                return $data->name;
-            })
-
-            ->editColumn('role', function ($data) {
-                return '<span class="badge bg-primary"><i class="bi bi-shield-check"></i> ' . $data->getRoleNames()->first() ?? '' . ' </span>';
-            })
-
-            ->editColumn('email', function ($data) {
-                return $data->email;
-            })
-
-            ->editColumn('allow', function ($data) {
-
-                if ($data->allow) {
-                    $html = '<span class="badge bg-primary"><i class="bi bi-emoji-smile"></i> Sim </span>';
-                } else {
-                    $html = '<span class="badge bg-info"><i class="bi bi-emoji-frown"></i> Não </span>';
-                }
-
-                return $html;
-            })
-            ->rawColumns(['name', 'role', 'type', 'allow', 'action'])
-            ->orderColumns(['id'], '-:column $1')
-            ->make(true);
+        return view('users.index', compact('users'));
     }
 
     public function edit($id)
@@ -85,15 +39,6 @@ class UserController extends Controller
         $this->authorize('update', $user);
 
         try {
-            //$user = User::findOrFail($id);
-
-            /*if (auth()->user()->isSuperAdmin()) {
-                $roles = Role::all();
-            } elseif (auth()->user()->isAdmin()) {
-                $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
-            } else {
-                $roles = Role::where('created_by', '=', Auth::id())->get();
-            }*/
 
             $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 
@@ -137,14 +82,6 @@ class UserController extends Controller
     public function create()
     {
         $this->authorize('create', User::class);
-        /*
-        if (auth()->user()->isSuperAdmin()) {
-            $roles = Role::all();
-        } elseif (auth()->user()->isAdmin()) {
-            $roles = Role::where('created_by', '!=', Role::ROLE_SUPER_ADMIN)->get();
-        } else {
-            $roles = Role::where('created_by', '=', Auth::id())->get();
-        }*/
 
         $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 
@@ -163,7 +100,9 @@ class UserController extends Controller
             $data = $request->all();
             $data['type'] = (! isset($request->type)) ? User::TYPE_I : $data['type'];
 
-            // cadastra user com role_id = 3 (pais)
+            // Gera uma senha aleatória
+            $plainPassword = Str::random(8);
+
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
@@ -175,38 +114,45 @@ class UserController extends Controller
                 'neighborhood' => $request->bairro,
                 'city' => $request->cidade,
                 'state' => $request->estado,
-                'password' => bcrypt('password'), // Ou você pode gerar uma senha aleatória
-                'role_id' => 3, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
+                'password' => Hash::make($plainPassword),
+                'passwordView' => $plainPassword,
+                'role_id' => 3,
                 'created_by' => auth()->user()->id,
                 'allow' => (bool) isset($request->allow),
                 'type' => $data['type'],
             ];
 
             $user = User::create($userData);
-            Log::info('User created: ' . $user->id . ' created by: ' . auth()->user()->id);
 
+            // Envia o email de boas-vindas
+            $notification = new WelcomeNotification($user, $plainPassword);
+            $user->notify($notification);
 
+            // Atribui o papel (role)
             $role = SpatieRole::find($data['role_id']);
             $user->syncRoles([]);
             $user->assignRole($role->name);
-            $user->save();
+
+            // Se for profissional, criar registro na tabela professionals
+            if ($role->name === 'professional') {
+                Professional::create([
+                    'specialty_id' => 1, // ID padrão, pode ser ajustado conforme necessidade
+                    'registration_number' => 'Pendente',
+                    'created_by' => auth()->id(),
+                ])->user()->attach($user->id);
+            }
 
             DB::commit();
 
             flash(self::MSG_CREATE_SUCCESS)->success();
-
-            $message = label_case('Create User ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::notice($message);
+            Log::notice('Usuário criado com sucesso. ID: ' . $user->id . ' Email: ' . $user->email);
 
             return redirect()->route('users.index');
         } catch (Exception $e) {
-
             DB::rollBack();
-
-            $message = label_case('Create User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
+            Log::error('Erro ao criar usuário: ' . $e->getMessage());
             flash(self::MSG_CREATE_ERROR)->warning();
+
             return redirect()->back();
         }
     }
@@ -320,7 +266,6 @@ class UserController extends Controller
             return redirect()->back();
         }
     }
-
 
     public function pdf($id)
     {

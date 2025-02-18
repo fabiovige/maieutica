@@ -1,51 +1,160 @@
-@extends('layouts.guest')
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config('app.name') }} - Redefinir Senha</title>
 
-@section('content')
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-<div style="text-align: center; margin-bottom: 70px;">
-    <img src="{{ asset('images/logo_login.png') }} "
-            class="elevation-0"
-            alt="{{ config('app.name') }}"
-            width="160px"
-        />
-</div>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .login-header {
+            background: #d7e2ec;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+        }
+        .login-body {
+            padding: 30px;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+        .form-floating {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .form-floating .bi {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 15px;
+            z-index: 4;
+            color: #6c757d;
+        }
+        .form-floating input {
+            padding-left: 45px !important;
+        }
+        .form-floating label {
+            padding-left: 45px;
+        }
+        .invalid-feedback {
+            display: block;
+        }
+        .alert {
+            border-left: 4px solid;
+        }
+        .alert-success {
+            border-left-color: #198754;
+        }
+        .alert-danger {
+            border-left-color: #dc3545;
+        }
+        .back-to-login {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .back-to-login a {
+            color: #6c757d;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .back-to-login a:hover {
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="card login-card">
+            <div class="login-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    Redefinir Senha
+                </h4>
+            </div>
+            <div class="login-body">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-<form method="POST" action="{{ route('password.update') }}">
-    @csrf
+                <form method="POST" action="{{ route('password.update') }}">
+                    @csrf
+                    <input type="hidden" name="token" value="{{ $token }}">
 
-    <input type="hidden" name="token" value="{{ $token }}">
+                    <div class="form-floating">
+                        <i class="bi bi-envelope"></i>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror"
+                               id="email" name="email" value="{{ $email ?? old('email') }}"
+                               placeholder="nome@exemplo.com" required autofocus>
+                        <label for="email">E-mail</label>
+                    </div>
 
-    <div class="input-box">
-        <span>E-mail</span>
-        <input id="email" type="email" class="form-control " name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus>
+                    <div class="form-floating">
+                        <i class="bi bi-key"></i>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror"
+                               id="password" name="password"
+                               placeholder="Nova Senha" required>
+                        <label for="password">Nova Senha</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <i class="bi bi-key-fill"></i>
+                        <input type="password" class="form-control"
+                               id="password-confirm" name="password_confirmation"
+                               placeholder="Confirmar Nova Senha" required>
+                        <label for="password-confirm">Confirmar Nova Senha</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-submit">
+                        <i class="bi bi-check-lg me-2"></i>
+                        Redefinir Senha
+                    </button>
+                </form>
+
+                <div class="back-to-login">
+                    <a href="{{ route('login') }}">
+                        <i class="bi bi-arrow-left"></i>
+                        Voltar para o Login
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="input-box">
-        <span>Senha</span>
-        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
-        @error('password')
-            <span class="invalid-feedback" role="alert">
-                <strong>{{ $message }}</strong>
-            </span>
-        @enderror
-    </div>
-
-    <div class="input-box">
-        <span>Confirme a Senha</span>
-        <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
-    </div>
-
-    <div class="input-box">
-        <button type="submit" class="btn btn-primary">
-            {{ __('Reset Password') }}
-        </button>
-    </div>
-</form>
-
-<div class="d-flex flex-column align-items-center">
-    <span class="small text-muted text-center">
-        Todos os direitos reservados. {{ config('app.name') }} - {{ config('app.description') }}.
-    </span>
-</div>
-
-@endsection
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

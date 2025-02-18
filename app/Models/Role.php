@@ -21,6 +21,8 @@ class Role extends Model
 
     public const ROLE_PROFESSION = 4;
 
+    public $perPage = 15;
+
     public function users()
     {
         return $this->hasMany(User::class);

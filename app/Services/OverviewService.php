@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\Kid;
 use App\Models\Checklist;
-use App\Models\Domain;
 use App\Models\Competence;
-use Illuminate\Support\Carbon;
-use Exception;
+use App\Models\Domain;
+use App\Models\Kid;
 use DB;
+use Exception;
+use Illuminate\Support\Carbon;
 
 class OverviewService
 {
@@ -26,7 +26,7 @@ class OverviewService
             ->orderBy('id', 'desc')
             ->first();
 
-        if (!$currentChecklist) {
+        if (! $currentChecklist) {
             throw new Exception('Nenhum checklist encontrado!');
         }
 
@@ -103,6 +103,7 @@ class OverviewService
             $domainLevels = DB::table('domain_level')
                 ->where('level_id', $levelId)
                 ->pluck('domain_id');
+
             return Domain::whereIn('id', $domainLevels)->get();
         } else {
             // Obter todos os domínios
@@ -150,9 +151,10 @@ class OverviewService
                 'itemsValid' => $itemsValid,
                 'itemsInvalid' => $itemsInvalid,
                 'itemsTotal' => $itemsTotal,
-                'percentage' => round($percentage, 2)
+                'percentage' => round($percentage, 2),
             ];
         }
+
         return $domainData;
     }
 
@@ -164,6 +166,7 @@ class OverviewService
             $percentage = $domain['itemsTested'] > 0 ? ($domain['itemsValid'] / $domain['itemsTested']) * 100 : 0;
             $totalPercentageGeral += $percentage;
         }
+
         return round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0, 2);
     }
 }

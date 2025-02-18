@@ -1,18 +1,28 @@
 @extends('layouts.app')
 
 @section('breadcrumb')
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Competências</li>
-    </ol>
-</nav>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Percentis</li>
+        </ol>
+    </nav>
+@endsection
+
+
+@section('title')
+    Percentis
+@endsection
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item active" aria-current="page">
+        <i class="bi bi-people"></i> Percentis
+    </li>
 @endsection
 
 @section('content')
 <div class="row">
     <div class="col-md-12 ">
-        <h3>Competências - atualização dos percentis</h3>
         @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
@@ -95,7 +105,7 @@
                         <td nowrap><input type="text" value="{{ $com->percentil_90 }}" name="percentil_90" maxlength="2" class="col-8" /></td>
                         @can('edit competences')
                         <td>
-                            
+
                             <button type="submit" class="btn btn-primary">Salvar</button>
                         </td>
                         @endcan

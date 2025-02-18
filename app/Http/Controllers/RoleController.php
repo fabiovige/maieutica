@@ -6,56 +6,44 @@ use App\Http\Requests\RoleRequest;
 use App\Models\Ability;
 use App\Models\Resource;
 use App\Models\Role;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role as SpatieRole;
 use Spatie\Permission\Models\Permission as SpatiePermission;
-use Yajra\DataTables\DataTables;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 class RoleController extends Controller
 {
+    const MSG_CREATE_SUCCESS = 'Perfil criado com sucesso!';
+    const MSG_CREATE_ERROR = 'Erro ao criar perfil.';
+    const MSG_UPDATE_SUCCESS = 'Perfil atualizado com sucesso!';
+    const MSG_UPDATE_ERROR = 'Erro ao atualizar perfil.';
+    const MSG_DELETE_SUCCESS = 'Perfil excluído com sucesso!';
+    const MSG_DELETE_ERROR = 'Erro ao excluir perfil.';
+    const MSG_NOT_FOUND = 'Perfil não encontrado.';
+    const MSG_DELETE_ROLE_SELF = 'Você não pode excluir seu próprio perfil.';
+
     private $role;
 
     public function __construct(Role $role)
     {
         $this->role = $role;
+        $this->middleware('permission:create roles')->only(['create', 'store']);
+        $this->middleware('permission:edit roles')->only(['edit', 'update']);
+        $this->middleware('permission:delete roles')->only('destroy');
+        $this->middleware('permission:view roles')->only(['index', 'show']);
     }
 
     public function index()
     {
-        $message = label_case('Index Role ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
+        $this->authorize('view roles');
 
-        return view('roles.index');
-    }
+        $roles = SpatieRole::query()
+            ->where('name', '!=', 'superadmin')
+            ->orderBy('name')
+            ->paginate(15);
 
-    public function index_data()
-    {
-        /*if (auth()->user()->isSuperAdmin()) {
-            $data = ModelsRole::select('id', 'name');
-        } else {
-            $data = Role::select('id', 'name')->where('created_by', '=', auth()->user()->id);
-        }
-        */
-
-        $data = SpatieRole::where('name', '!=', 'superadmin');
-
-        return Datatables::of($data)
-            ->addColumn('action', function ($data) {
-                if (request()->user()->can('edit roles')) {
-                    $html = '<a class="btn btn-sm btn-success" href="' . route('roles.edit', $data->id) . '"><i class="bi bi-pencil"></i> Editar</a>';
-
-                    return $html;
-                }
-            })
-            ->editColumn('name', function ($data) {
-                return $data->name;
-            })
-            ->rawColumns(['name', 'action'])
-            //->orderColumns(['id'], '-:column $1')
-            ->make(true);
+        return view('roles.index', compact('roles'));
     }
 
     public function create()
@@ -63,7 +51,7 @@ class RoleController extends Controller
         $message = label_case('Create Role ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
-        //$resources = Resource::with('abilities')->orderBy('created_at')->get();
+        // $resources = Resource::with('abilities')->orderBy('created_at')->get();
         $permissions = SpatiePermission::all();
 
         return view('roles.create', compact('permissions'));

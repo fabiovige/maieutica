@@ -16,6 +16,9 @@
     <link href="{{ mix('css/app.css') }}"
           rel="stylesheet">
 
+    <!-- No head, após os outros links CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     @stack('styles')
 
 </head>
@@ -24,37 +27,42 @@
     <div class="pagewrap">
 
         @include('layouts.navbar')
-        <main class="py-2" style="margin-bottom: 70px;">
-            <div class="container">
-                <div class="row mt-1">
-                    <div class="col-md-6 text-start">
-                        @yield('breadcrumb')
-                    </div>
-                    <div class="col-md-6 text-end">
-                        @yield('button')
-                    </div>
-                </div>
 
-                @include('flash::message')
+        <div class="container mt-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <h4 class="mb-0 fw-bold">@yield('title')</h4>
+                    <div class="text-muted fw-light">|</div>
+                    <nav aria-label="breadcrumb" class="mb-0">
+                        <ol class="breadcrumb breadcrumb-modern mb-0">
+                            @if(request()->routeIs('home.index'))
+                                <li class="breadcrumb-item active">
+                                    <i class="bi bi-house-door"></i> Home
+                                </li>
+                            @else
+                                <li class="breadcrumb-item">
+                                    <a href="{{ route('home.index') }}">
+                                        <i class="bi bi-house-door"></i> Home
+                                    </a>
+                                </li>
+                                @yield('breadcrumb-items')
+                            @endif
+                        </ol>
+                    </nav>
+                </div>
+                <div class="d-flex align-items-center">
+                    @yield('actions')
+                </div>
+            </div>
+        </div>
+
+        <main class="py-2">
+            <div class="container">
+                @include('layouts.messages')
                 @yield('content')
             </div>
         </main>
-        <footer>
-            <div class="container-fluid" style="background-color: #d7e2ec; height: 40px; position: fixed; bottom: 0; width: 100%;">
-                <div class="row py-2 d-flex justify-content-between align-items-center">
-                    <div class="col-auto">
-                        <p class="small mb-0">
-                            &copy; {{ now()->format('Y') }} {{ config('app.name') }} - {{ config('app.description') }}
-                        </p>
-                    </div>
-                    <div class="col-auto">
-                        <p class="small mb-0 text-right">
-                            <span class="badge text-bg-secondary">versão: {{ config('app.version') }}</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </footer>
+        @include('layouts.footer')
     </div>
 
     <!-- Scripts -->

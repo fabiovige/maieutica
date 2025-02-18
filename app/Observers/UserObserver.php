@@ -2,10 +2,10 @@
 
 namespace App\Observers;
 
-use App\Mail\UserCreatedMail;
 use App\Mail\UserDeletedMail;
 use App\Mail\UserUpdatedMail;
 use App\Models\User;
+use App\Notifications\WelcomeNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -18,42 +18,19 @@ class UserObserver
      */
     public function created(User $user)
     {
-        //dd('created');
         try {
-            // Criar a instância do Mailable e depois chamar onQueue()
-            $email = (new UserCreatedMail($user))->onQueue('emails');
-
-            // Enviar o e-mail para a fila
-            Mail::to($user->email)->queue($email);
-
-            Log::alert('E-mail de boas-vindas enfileirado para o novo usuário', [
+            \Log::info('UserObserver: created event triggered', [
                 'user_id' => $user->id,
-                'name' => $user->name,
                 'email' => $user->email,
             ]);
 
-        } catch (\Exception $e) {
-            // Registrar o erro no log
-            Log::error('Falha ao enviar o e-mail de boas-vindas', [
-                'user_id' => $user->id,
-                'error' => $e->getMessage(),
-            ]);
-        }
+            // O Observer é responsável por enviar o email de boas-vindas
+            // $notification = new WelcomeNotification($user, $user->passwordView);
+            // $user->notify($notification);
 
-        Log::info('Novo usuário criado e processado no UserObserver', [
-            'user_id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'street' => $user->street,
-            'city' => $user->city,
-            'state' => $user->state,
-            'country' => $user->country,
-            'neighborhood' => $user->neighborhood,
-            'postal_code' => $user->postal_code,
-            'created_at' => $user->created_at,
-            'created_by' => auth()->user()->id,
-        ]);
+        } catch (\Exception $e) {
+            Log::error('Erro no UserObserver: '.$e->getMessage());
+        }
     }
 
     /**
@@ -63,7 +40,7 @@ class UserObserver
      */
     public function updated(User $user)
     {
-        //dd('updated');
+        // dd('updated');
         try {
             // Criar a instância do Mailable e depois chamar onQueue()
             $email = (new UserUpdatedMail($user))->onQueue('emails');
@@ -105,16 +82,15 @@ class UserObserver
      */
     public function deleted(User $user)
     {
-        //dd('deleted');
+        // dd('deleted');
         if ($user->trashed()) {
 
-            
             $admin = User::where('role_id', 1)->first(); // Ajuste a query conforme a role de admin
             if ($admin) {
-                
+
                 // Criar a instância do Mailable e depois chamar onQueue()
                 $email = (new UserDeletedMail($user))->onQueue('emails');
-                
+
                 // Enviar o e-mail para a fila
                 Mail::to($admin->email)
                     ->cc($user->email)

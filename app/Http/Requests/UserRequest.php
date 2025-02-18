@@ -43,7 +43,7 @@ class UserRequest extends FormRequest
                         'regex:/^\(\d{2}\)\s\d{5}-\d{4}$/', // Exige o formato "11 99999-8888"
                         'max:15',
                     ],
-                    //'role_id' => 'required',
+                    // 'role_id' => 'required',
                 ];
 
             default:

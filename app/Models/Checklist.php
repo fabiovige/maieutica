@@ -35,7 +35,7 @@ class Checklist extends Model
 
     protected $fillable = ['level', 'kid_id', 'situation', 'description', 'created_by', 'updated_by', 'deleted_by'];
 
-    public function kid(): BelongsTo
+    public function kid()
     {
         return $this->belongsTo(Kid::class);
     }
@@ -54,6 +54,7 @@ class Checklist extends Model
     {
         return self::SITUATION[$this->situation] ?? 'Desconhecido';
     }
+
     protected static function booted()
     {
         parent::booted();
@@ -87,24 +88,26 @@ class Checklist extends Model
 
     public static function getChecklists()
     {
-        $query = Checklist::query();
+        $query = self::query();
 
         if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
             // Superadmin ou admin pode ver todos os checklists e seus relacionamentos
             $query->with(['kid']);
-        } else if (auth()->user()->hasRole('professional')) {
-            // Profissionais podem ver checklists criados por eles ou associados a eles
-            //$query->where('created_by', auth()->user()->id)
-            $query->whereHas('kid', function ($q) {
-                    $q->where('profession_id', auth()->user()->id);
-                })
+        } elseif (auth()->user()->hasRole('professional')) {
+            $professionalId = auth()->user()->professional->first()->id;
+
+            $query->whereHas('kid', function ($q) use ($professionalId) {
+                $q->whereHas('professionals', function ($q) use ($professionalId) {
+                    $q->where('professional_id', $professionalId);
+                });
+            })
                 ->with(['kid']);
-        } else if (auth()->user()->hasRole('pais')) {
+        } elseif (auth()->user()->hasRole('pais')) {
             // Pais podem ver checklists associados às crianças pelas quais são responsáveis
             $query->whereHas('kid', function ($q) {
                 $q->where('responsible_id', auth()->user()->id);
             })
-            ->with(['kid']);
+                ->with(['kid']);
         }
 
         return $query;
@@ -112,20 +115,35 @@ class Checklist extends Model
 
     public function getStatusAvaliation($checklistId)
     {
-        return DB::table('checklist_competence')
+        $notes = collect([0, 1, 2, 3])->map(function ($note) {
+            return (object)[
+                'note' => $note,
+                'total_competences' => 0,
+                'note_description' => match ($note) {
+                    0 => 'Não observado',
+                    1 => 'Em desenvolvimento',
+                    2 => 'Não desenvolvido',
+                    3 => 'Desenvolvido'
+                }
+            ];
+        });
+
+        $results = DB::table('checklist_competence')
             ->select(
                 DB::raw('COUNT(competence_id) as total_competences'),
-                'note',
-                DB::raw("CASE
-                    WHEN note = 0 THEN 'Não observado'
-                    WHEN note = 1 THEN 'Mais ou menos'
-                    WHEN note = 2 THEN 'Difícil de obter'
-                    WHEN note = 3 THEN 'Consistente'
-                END as note_description")
+                'note'
             )
             ->where('checklist_id', $checklistId)
             ->groupBy('note')
             ->get();
+
+        return $notes->map(function ($note) use ($results) {
+            $result = $results->firstWhere('note', $note->note);
+            if ($result) {
+                $note->total_competences = $result->total_competences;
+            }
+            return $note;
+        });
     }
 
     public static function getCompetencesByNote($checklistId, $note)

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('planes', function (Blueprint $table) {
             $table->foreignId('checklist_id')->constrained()->onDelete('cascade'); // Relacionamento Plane -> Checklist
-            //$table->dropColumn('kid_id');  // Remover a coluna kid_id, pois o Plane está agora ligado ao Checklist
+            // $table->dropColumn('kid_id');  // Remover a coluna kid_id, pois o Plane está agora ligado ao Checklist
         });
     }
 
@@ -27,7 +27,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('planes', function (Blueprint $table) {
-            //$table->foreignId('kid_id')->constrained()->onDelete('cascade');
+            // $table->foreignId('kid_id')->constrained()->onDelete('cascade');
             $table->dropForeign(['checklist_id']);
             $table->dropColumn('checklist_id');
         });

@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Checklist;
 use App\Models\Kid;
 use App\Models\Plane;
-use Illuminate\Http\Request;
 
 class PlaneAutomaticController extends Controller
 {
     public function index($kidId = null, $checklistId = null)
     {
-        if(!$kidId && !$checklistId) {
+        if (! $kidId && ! $checklistId) {
             return redirect()->back()->with('error', 'ID não informado');
         }
 
@@ -23,13 +22,22 @@ class PlaneAutomaticController extends Controller
 
         // Adiciona as descrições das notas
         $notesDescription = [
-            0 => 'Não observado',
-            1 => 'Mais ou menos',
-            2 => 'Difícil de obter',
-            3 => 'Consistente'
+            0 => 'Não Observado',
+            1 => 'Não desenvolvimento',
+            2 => 'Em desenvolvimento',
+            3 => 'Desenvolvido',
         ];
 
+        $data =  [
+            'kid' => $kid,
+            'checklist' => $checklist,
+            'statusAvaliation' => $statusAvaliation,
+            'notesDescription' => $notesDescription,
+            'planes' => $planes,
+            'plane' => $plane,
+            'data' => now()
+        ];
 
-        return view('plane_automatic.index', compact('kid', 'checklist', 'statusAvaliation', 'notesDescription', 'planes', 'plane'));
+        return view('plane_automatic.index',$data);
     }
 }

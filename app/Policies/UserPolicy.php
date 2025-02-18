@@ -13,8 +13,7 @@ class UserPolicy
      * Método executado antes de qualquer outra permissão.
      * Permite todas as ações para superadmin e admin.
      *
-     * @param User $user
-     * @param string $ability
+     * @param  string  $ability
      * @return bool|null
      */
     /*public function before(User $user, $ability): ?bool
@@ -28,9 +27,6 @@ class UserPolicy
 
     /**
      * Determina se o usuário pode visualizar qualquer usuário (listagem).
-     *
-     * @param User $user
-     * @return bool
      */
     public function viewAny(User $user): bool
     {
@@ -39,10 +35,6 @@ class UserPolicy
 
     /**
      * Determina se o usuário pode visualizar um usuário específico.
-     *
-     * @param User $user
-     * @param User $model
-     * @return bool
      */
     public function view(User $user, User $model): bool
     {
@@ -52,9 +44,6 @@ class UserPolicy
 
     /**
      * Determina se o usuário pode criar novos usuários.
-     *
-     * @param User $user
-     * @return bool
      */
     public function create(User $user): bool
     {
@@ -63,10 +52,6 @@ class UserPolicy
 
     /**
      * Determina se o usuário pode atualizar um usuário específico.
-     *
-     * @param User $user
-     * @param User $model
-     * @return bool
      */
     public function update(User $user, User $model): bool
     {
@@ -76,10 +61,6 @@ class UserPolicy
 
     /**
      * Determina se o usuário pode remover um usuário específico.
-     *
-     * @param User $user
-     * @param User $model
-     * @return bool
      */
     public function delete(User $user, User $model): bool
     {
@@ -94,10 +75,6 @@ class UserPolicy
 
     /**
      * Determina se o usuário pode restaurar um usuário específico.
-     *
-     * @param User $user
-     * @param User $model
-     * @return bool
      */
     public function restore(User $user, User $model): bool
     {
@@ -107,10 +84,6 @@ class UserPolicy
 
     /**
      * Determina se o usuário pode forçar a remoção de um usuário específico.
-     *
-     * @param User $user
-     * @param User $model
-     * @return bool
      */
     public function forceDelete(User $user, User $model): bool
     {

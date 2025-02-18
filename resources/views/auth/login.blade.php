@@ -1,77 +1,167 @@
-@extends('layouts.guest2')
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config('app.name') }} - Login</title>
 
-@section('content')
-<form method="POST"
-    action="{{ route('login') }}">
-    @csrf
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-    <div class="row mb-2">
-        <label for="email"
-            class="col-form-label text-md-start">E-mail</label>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .login-header {
+            background: #d7e2ec;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+        }
+        .login-body {
+            padding: 30px;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+        .form-floating {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .form-floating .bi {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 15px;
+            z-index: 4;
+            color: #6c757d;
+        }
+        .form-floating input {
+            padding-left: 45px !important;
+        }
+        .form-floating label {
+            padding-left: 45px;
+        }
+        .invalid-feedback {
+            display: block;
+        }
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+        .forgot-password a {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .forgot-password a:hover {
+            color: #0d6efd;
+        }
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .form-check-input {
+            margin-top: 0;
+        }
+        .alert-danger {
+            border-left: 4px solid #dc3545;
+        }
+        .alert-danger ul {
+            padding-left: 1rem;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="card login-card">
+            <div class="login-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    {{ config('app.name') }}
+                </h4>
+            </div>
+            <div class="login-body">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-        <div class="">
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+                    <div class="form-floating">
+                        <i class="bi bi-envelope"></i>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror"
+                               id="email" name="email" value="{{ old('email') }}"
+                               placeholder="nome@exemplo.com" required autofocus>
+                        <label for="email">E-mail</label>
+                    </div>
 
-            <input id="email"
-                type="email"
-                maxlength="150"
-                class="form-control"
-                name="email"
-                value="{{ old('email') ?? '' }}"
-                required
-                autocomplete="email"
-                autofocus>
-        </div>
-    </div>
+                    <div class="form-floating">
+                        <i class="bi bi-key"></i>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror"
+                               id="password" name="password"
+                               placeholder="Senha" required>
+                        <label for="password">Senha</label>
+                    </div>
 
-    <div class="row mb-2">
-        <label for="password"
-            class="col-form-label text-md-start">Senha</label>
+                    <div class="forgot-password">
+                        <a href="{{ route('password.request') }}">
+                            <i class="bi bi-question-circle"></i>
+                            Esqueceu sua senha?
+                        </a>
+                    </div>
 
-        <div class="">
-            <input id="password"
-                maxlength="32"
-                type="password"
-                class="form-control"
-                value=""
-                name="password"
-                required
-                autocomplete="current-password">
-        </div>
-    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="remember"
+                               id="remember" {{ old('remember') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="remember">
+                            <i class="bi bi-clock-history me-1"></i>
+                            Lembrar-me
+                        </label>
+                    </div>
 
-    <div class="row mb-2">
-        <div class="">
-            <div class="form-check">
-                <input class="form-check-input"
-                    type="checkbox"
-                    name="remember"
-                    id="remember"
-                    {{ old('remember') ? 'checked' : '' }}>
-                <label class="form-check-label"
-                    for="remember">
-                    {{ __('Remember Me') }}
-                </label>
+                    <button type="submit" class="btn btn-primary btn-login">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Acessar Sistema
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="d-flex align-items-center">
-            <button type="submit"
-                class="w-100 btn btn-primary ">
-                <i class="bi bi-arrow-right-short"></i> {{ __('Login') }}
-            </button>
-        </div>
-    </div>
-</form>
-
-</div>
-<div class="card-footer text-center">
-    @if (Route::has('password.request'))
-    <a class="btn btn-link"
-        href="{{ route('password.request') }}">
-        {{ __('Forgot Your Password?') }}
-        <a />
-        @endif
-</div>
-@endsection
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

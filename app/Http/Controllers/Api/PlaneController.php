@@ -31,6 +31,7 @@ class PlaneController
         $planes = Plane::where('kid_id', $id)
             ->where('checklist_id', $checklist_id)
             ->orderBy('id', 'DESC')->get();
+
         return PlaneResource::collection($planes);
     }
 
@@ -61,6 +62,7 @@ class PlaneController
         $data = $request->all();
         $data['created_by'] = Auth::id();
         $plane = Plane::create($data);
+
         return new PlaneResource($plane);
     }
 }

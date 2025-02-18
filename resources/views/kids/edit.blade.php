@@ -10,124 +10,119 @@
     </nav>
 @endsection
 
+@section('title')
+    Editar Criança
+@endsection
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item"><a href="{{ route('kids.index') }}">Crianças</a></li>
+    <li class="breadcrumb-item active" aria-current="page">
+        <i class="bi bi-pencil"></i> Editar
+    </li>
+@endsection
+
 @section('content')
-
-<div class="row">
-    <div class="col-md-3 mt-3">
-        <div class="mt-3 centered-column">
-            @if($kid->photo)
-                <!-- Exibe a foto da criança se ela tiver uma -->
-                <img src="{{ asset('images/kids/' . $kid->photo) }}" alt="Foto da criança" class="rounded-img">
-            @else
-                <!-- Exibe um avatar aleatório se não houver foto -->
-                @php
-                    $randomAvatarNumber = rand(1, 13); // Gera um número aleatório entre 1 e 13
-                @endphp
-                <img src="{{ asset('storage/kids_avatars/avatar' . $randomAvatarNumber . '.png') }}" alt="Avatar aleatório" class="rounded-img">
-            @endif
-        </div>
-    </div>
-
-
-    <div class="col-md-9 mt-3">
-        <div class="card">
-            <div class="card-header">
-                Atualizar Foto
-            </div>
-            <div class="card-body">
-                <form action="{{ route('kids.upload.photo', $kid->id) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group">
-                        <label for="photo">Escolha uma foto:</label>
-                        <input type="file" class="form-control @error('photo') is-invalid @enderror" name="photo" required>
-                        @error('photo')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <!-- Card de Upload de Imagem -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            @if ($kid->photo)
+                                <img src="{{ asset($kid->photo) }}" class="rounded-circle" width="100" height="100"
+                                    alt="{{ $kid->name }}">
+                            @else
+                                <div class="avatar-circle" style="width: 100px; height: 100px; font-size: 2em;">
+                                    {{ substr($kid->name, 0, 2) }}
+                                </div>
+                            @endif
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Foto da Criança</h5>
+                            <form action="{{ route('kids.upload.photo', $kid->id) }}" method="POST"
+                                enctype="multipart/form-data" class="d-flex align-items-center">
+                                @csrf
+                                <input type="file" name="photo"
+                                    class="form-control form-control-sm me-2 @error('photo') is-invalid @enderror"
+                                    accept="image/*">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    Salvar
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">Salvar Foto</button>
-                    </div>
-                </form>
-
+                </div>
             </div>
-        </div>
-    </div>
 
-</div>
-
-
-
-
-    <div class="row">
-        <div class="col-md-12">
-            <form action="{{ route('kids.update', $kid->id) }}" method="POST">
+            <form action="{{ route('kids.update', $kid->id) }}" method="POST" id="kidForm">
                 @csrf
                 @method('PUT')
 
-                <!-- DADOS DA CRIANÇA -->
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <h3>Dados da criança</h3>
-                    </div>
-                </div>
-
                 <div class="card">
                     <div class="card-header">
-                        Id: {{ $kid->id }}
+                        <h5 class="card-title mb-0">Informações Pessoais</h5>
                     </div>
                     <div class="card-body">
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label for="name">Nome completo da criança</label> <br>
-                                    <input class="form-control @error('name') is-invalid @enderror" type="text" name="name" value="{{ old('name') ?? $kid->name }}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nome Completo</label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        id="name" name="name" value="{{ old('name', $kid->name) }}" required>
                                     @error('name')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="birth_date">Data de nascimento</label> <br>
-                                    <input class="form-control datepicker @error('birth_date') is-invalid @enderror" type="text" name="birth_date" value="{{ old('birth_date') ?? $kid->birth_date }}">
-                                    @error('birth_date')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mt-3">
-                                    <label for="profession_id">Professional</label> <br>
-                                    <select class="form-select @error('profession_id') is-invalid @enderror" aria-label="profession_id" name="profession_id" @if(auth()->user()->isProfessional()) disabled @endif>
-                                        <option value="">-- selecione --</option>
-                                        @foreach($professions as $profession)
-                                            <option value="{{ $profession->id }}" @if(old('profession_id') == $profession->id || $profession->id == $kid->profession_id  ) selected @endif> {{ $profession->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('profession_id')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6 mt-3">
-                                    <label for="responsible_id">Pais ou responsável</label> <br>
-                                    <select class="form-select @error('responsible_id') is-invalid @enderror"
-                                    aria-label="responsible_id" name="responsible_id">
-                                        <option value="">-- selecione --</option>
-                                        @foreach($responsibles as $responsible)
-                                            <option value="{{ $responsible->id }}"
-                                                @if(old('responsible_id') == $responsible->id || $responsible->id == $kid->responsible_id  ) selected @endif>
-                                                {{ $responsible->name }}
+
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="gender" class="form-label">Sexo</label>
+                                    <select class="form-select @error('gender') is-invalid @enderror" id="gender"
+                                        name="gender">
+                                        <option value="">Selecione...</option>
+                                        @foreach (App\Models\Kid::GENDERS as $value => $label)
+                                            <option value="{{ $value }}"
+                                                {{ old('gender', $kid->gender) == $value ? 'selected' : '' }}>
+                                                {{ $label }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('responsible_id')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
+                                    @error('gender')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="ethnicity" class="form-label">Etnia</label>
+                                    <select class="form-select @error('ethnicity') is-invalid @enderror" id="ethnicity"
+                                        name="ethnicity">
+                                        <option value="">Selecione...</option>
+                                        @foreach (App\Models\Kid::ETHNICITIES as $value => $label)
+                                            <option value="{{ $value }}"
+                                                {{ old('ethnicity', $kid->ethnicity) == $value ? 'selected' : '' }}>
+                                                {{ $label }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('ethnicity')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="birth_date" class="form-label">Data de Nascimento</label>
+                                    <input type="text"
+                                        class="form-control datepicker @error('birth_date') is-invalid @enderror"
+                                        id="birth_date" name="birth_date" value="{{ old('birth_date', $kid->birth_date) }}"
+                                        required>
+                                    @error('birth_date')
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -135,101 +130,193 @@
                     </div>
                 </div>
 
-                <!-- DADOS OS PAIS -->
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <h3>Dados do responsável</h3>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        Id: {{ $kid->responsible ? $kid->responsible->id : 'Não cadastrado' }}
-                    </div>
-                    <div class="card-body">
-                        @if ($kid->responsible)
+
+
+                @if (auth()->user()->hasRole('pais'))
+                    @foreach ($kid->professionals as $professional)
+                        <input type="hidden" name="professionals[]" value="{{ $professional->id }}">
+                    @endforeach
+                    <input type="hidden" name="responsible_id" value="{{ auth()->id() }}">
+                @else
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Vínculos</h5>
+                        </div>
+                        <div class="card-body">
                             <div class="row">
-                                <div class="col-md-12">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>Id</th>
-                                                <th>Nome</th>
-                                                <th>E-mail</th>
-                                                <th>Telefone</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>{{ $kid->responsible->id }}</td>
-                                                <td>{{ $kid->responsible->name }}</td>
-                                                <td>{{ $kid->responsible->email }}</td>
-                                                <td>{{ $kid->responsible->phone }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                @if (!auth()->user()->hasRole('professional'))
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="professionals" class="form-label">Profissionais</label>
+                                            <div class="card">
+                                                <div class="card-body p-0">
+                                                    <div class="list-group list-group-flush">
+                                                        @foreach ($professions as $profession)
+                                                            <div class="list-group-item">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="form-check">
+                                                                        <input type="checkbox" class="form-check-input"
+                                                                            name="professionals[]"
+                                                                            value="{{ optional($profession->professional->first())->id }}"
+                                                                            id="prof_{{ $profession->id }}"
+                                                                            {{ optional($profession->professional->first())->id && in_array(optional($profession->professional->first())->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}
+                                                                            {{ !optional($profession->professional->first())->id ? 'disabled' : '' }}>
+                                                                    </div>
+                                                                    <div class="ms-3">
+                                                                        <label class="form-check-label"
+                                                                            for="prof_{{ $profession->id }}">
+                                                                            {{ $profession->name }}
+                                                                            @if ($profession->professional->first())
+                                                                                <small class="text-muted">
+                                                                                    ({{ $profession->professional->first()->specialty->name }}
+                                                                                    - CRM:
+                                                                                    {{ $profession->professional->first()->registration_number }})
+                                                                                </small>
+                                                                            @else
+                                                                                <small class="text-danger">
+                                                                                    (Perfil profissional não configurado)
+                                                                                </small>
+                                                                            @endif
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @error('professionals')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            <div class="form-text">
+                                                Selecione os profissionais e indique qual é o principal.
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <input type="hidden" name="professionals[]"
+                                        value="{{ auth()->user()->professional->first()->id }}">
+                                @endif
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="responsible_id" class="form-label">Responsável</label>
+                                        <select class="form-select @error('responsible_id') is-invalid @enderror"
+                                            id="responsible_id" name="responsible_id">
+                                            <option value="">Selecione...</option>
+                                            @foreach ($responsibles as $responsible)
+                                                <option value="{{ $responsible->id }}"
+                                                    {{ old('responsible_id', $kid->responsible_id) == $responsible->id ? 'selected' : '' }}>
+                                                    {{ $responsible->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('responsible_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
-                        @else
-                            <div class="alert alert-warning" role="alert">
-                                Não há responsável cadastrado
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- DADOS DO professional -->
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <h3>Dados do professional</h3>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        Id: {{ $kid->professional ? $kid->professional->id : 'Não cadastrado' }}
-                    </div>
-                    <div class="card-body">
-                        @if ($kid->professional)
-                        <div class="row">
-                            <div class="col-md-12">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Id</th>
-                                            <th>Nome</th>
-                                            <th>E-mail</th>
-                                            <th>Telefone</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $kid->professional->id }}</td>
-                                            <td>{{ $kid->professional->name }}</td>
-                                            <td>{{ $kid->professional->email }}</td>
-                                            <td>{{ $kid->professional->phone }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
                         </div>
-                        @else
-                        <div class="alert alert-warning" role="alert">
-                            Não há professional cadastrado
-                        </div>
-                        @endif
+                    </div>
+                @endif
+
+
+                <div class="card-footer bg-transparent mt-4">
+                    <div class="d-flex justify-content-start gap-2">
+                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                        <a href="{{ route('kids.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </a>
                     </div>
                 </div>
-
-                <div class="card-footer d-flex justify-content-center mt-3">
-                    @can('edit kids')
-                    <x-button icon="check" name="Atualizar dados da criança" type="submit" class="primary"></x-button>
-                    @endcan
-                </div>
-
             </form>
         </div>
     </div>
-
-    @include('includes.information-register', ['data' => $kid, 'action' => 'kids.destroy', 'can' => 'remove kids'])
-
 @endsection
 
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            // Debug do formulário
+            $('#kidForm').on('submit', function(e) {
+                e.preventDefault(); // Previne o envio temporariamente para debug
+
+                // Log dos valores selecionados
+                const selectedProfessionals = [];
+                document.querySelectorAll('input[name="professionals[]"]:checked').forEach(checkbox => {
+                    selectedProfessionals.push(checkbox.value);
+                });
+
+                const primaryProfessional = document.querySelector(
+                    'input[name="primary_professional"]:checked')?.value;
+
+                this.submit();
+
+            });
+
+            // Quando um checkbox de profissional é alterado
+            document.querySelectorAll('input[name="professionals[]"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const professionalId = this.value;
+                    const radioButton = document.querySelector(
+                        `input[name="primary_professional"][value="${professionalId}"]`);
+
+                    console.log('Checkbox alterado:', professionalId, this.checked);
+                    console.log('Radio button encontrado:', radioButton);
+
+                    if (radioButton) {
+                        if (this.checked) {
+                            radioButton.disabled = false;
+
+                            // Se for o único profissional selecionado, marca como principal
+                            const checkedBoxes = document.querySelectorAll(
+                                'input[name="professionals[]"]:checked');
+                            if (checkedBoxes.length === 1) {
+                                radioButton.checked = true;
+                                console.log('Marcando como principal:', professionalId);
+                            }
+                        } else {
+                            radioButton.disabled = true;
+
+                            // Se este era o principal, seleciona outro como principal
+                            if (radioButton.checked) {
+                                radioButton.checked = false;
+                                const firstChecked = document.querySelector(
+                                    'input[name="professionals[]"]:checked');
+                                if (firstChecked) {
+                                    const firstRadio = document.querySelector(
+                                        `input[name="primary_professional"][value="${firstChecked.value}"]`
+                                    );
+                                    if (firstRadio) {
+                                        firstRadio.checked = true;
+                                        console.log('Novo principal:', firstChecked.value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Inicialização
+            document.querySelectorAll('input[name="professionals[]"]').forEach(checkbox => {
+                if (checkbox.checked) {
+                    const professionalId = checkbox.value;
+                    const radioButton = document.querySelector(
+                        `input[name="primary_professional"][value="${professionalId}"]`);
+                    if (radioButton) {
+                        radioButton.disabled = false;
+                    }
+                }
+            });
+
+            // Adicionar evento de clique nos radio buttons
+            document.querySelectorAll('input[name="primary_professional"]').forEach(radio => {
+                radio.addEventListener('click', function() {
+                    console.log('Radio selecionado:', this.value);
+                });
+            });
+        });
+    </script>
+@endpush

@@ -1,95 +1,86 @@
 @extends('layouts.app')
 
-@section('breadcrumb')
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Usuários</li>
-        </ol>
-    </nav>
+@section('title')
+    Usuários
 @endsection
 
-@section('button')
+@section('breadcrumb-items')
+    <li class="breadcrumb-item active" aria-current="page">
+        <i class="bi bi-people"></i> Usuários
+    </li>
+@endsection
+
+@section('actions')
     @can('create users')
-    <x-button href="{{route('users.create')}}" icon="plus" name="Cadastrar novo usuário" type="link" class="primary btn-sm"></x-button>
+        <a href="{{ route('users.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Novo Usuário
+        </a>
     @endcan
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-md-12 ">
-            <div class="card">
-                <div class="card-header">
-                    Lista de usuários
-                </div>
-                <div class="card-body">
-                    <table class="table table-bordered table-hover dt-responsive nowrap dataTable" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Nome</th>
-                                <th>Papel</th>
-                                <th>E-mail</th>
-                                <th>Acesso liberado</th>
-                                <th style="width: 30px"></th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
+
+    @if ($users->isEmpty())
+        <div class="alert alert-info">
+            Nenhum usuário cadastrado.
         </div>
-    </div>
+    @else
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th style="width: 60px;" class="text-center">ID</th>
+                    <th style="width: 80px;" class="text-center">Avatar</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Perfil</th>
+                    <th class="text-center" style="width: 100px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($users as $user)
+                    <tr>
+                        <td class="text-center">{{ $user->id }}</td>
+                        <td class="text-center">
+                            @if ($user->avatar)
+                                <img src="{{ asset('images/avatar/' . $user->avatar) }}" alt="{{ $user->name }}"
+                                    class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                            @else
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto text-white"
+                                    style="width: 40px; height: 40px; font-size: 16px;">
+                                    {{ substr($user->name, 0, 2) }}
+                                </div>
+                            @endif
+                        </td>
+                        <td>{{ $user->name }}</td>
+                        <td>{{ $user->email }}</td>
+                        <td>
+                            @foreach ($user->roles as $role)
+                                @if ($role->name === 'professional')
+                                    <span class="badge bg-info">Professional</span>
+                                @elseif($role->name === 'pais')
+                                    <span class="badge bg-success">Pais</span>
+                                @elseif($role->name === 'admin')
+                                    <span class="badge bg-dark">Administrador</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $role->name }}</span>
+                                @endif
+                            @endforeach
+                        </td>
+                        <td class="text-center">
+                            @can('edit users')
+                                <button type="button" onclick="window.location.href='{{ route('users.edit', $user->id) }}'"
+                                    class="btn btn-sm btn-secondary">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+                            @endcan
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-end">
+            {{ $users->links() }}
+        </div>
+    @endif
 @endsection
-
-@push ('styles')
-    <link rel="stylesheet" href="{{ asset('vendor/datatable/datatables.min.css') }}">
-@endpush
-
-@push ('scripts')
-    <script type="text/javascript" src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('vendor/datatable/datatables.min.js') }}"></script>
-
-    <script type="text/javascript">
-        $('.dataTable').DataTable({
-            language: {
-                url: "{{ asset('vendor/datatable/pt-BR.json') }}"
-            },
-            processing: true,
-            serverSide: true,
-            autoWidth: true,
-            responsive: true,
-            ajax: '{{ route("users.index_data") }}',
-            columns: [{
-                data: 'id',
-                name: 'id',
-                },
-                {
-                    data: 'name',
-                    name: 'name',
-                },
-                {
-                    data: 'role',
-                    name: 'role',
-                    searchable: false
-                },
-                {
-                    data: 'email',
-                    name: 'email',
-                },
-                {
-                    data: 'allow',
-                    name: 'allow',
-                    searchable: false
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
-            ]
-        });
-
-    </script>
-
-@endpush

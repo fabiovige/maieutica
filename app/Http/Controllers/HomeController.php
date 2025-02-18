@@ -2,36 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Checklist;
 use App\Models\Kid;
-use Illuminate\Support\Facades\Log;
+use App\Models\Professional;
+use Illuminate\Support\Facades\DB;
+use App\Services\OverviewService;
+use App\Services\ChecklistService;
 
 class HomeController extends Controller
 {
-    public function __construct()
+    protected $checklistService;
+
+    public function __construct(ChecklistService $checklistService)
     {
         $this->middleware('auth');
-        //$this->middleware('acl');
+        $this->checklistService = $checklistService;
     }
 
     public function index()
     {
-        $user = auth()->user();
+        // Cards principais
+        $totalKids = Kid::count();
+        $totalChecklists = Checklist::count();
+        $checklistsEmAndamento = Checklist::where('situation', 'a')->count();
+        $totalProfessionals = Professional::count();
 
-        $roles = $user->getRoleNames()->first();
+        // Lista de crianças com paginação e cálculo de progresso
+        $kids = Kid::with(['responsible', 'professionals', 'checklists'])
+            ->latest()
+            ->paginate(10);
 
-        try {
-            $kids = Kid::getKids();
-            $data = [];
-            foreach ($kids as $key => $kid) {
-                $kids[$key]['months'] = $kid->months;
-                $data['countChecklists'][$kid->id] = $kid->checklists()->count();
-                $data['countPlanes'][$kid->id] = $kid->planes()->count();
-            }
-            $data['kids'] = $kids;
-            return view('home', $data);
-        } catch (\Exception $e) {
-            Log::error("message: {$e->getMessage()} file: {$e->getFile()} line: {$e->getLine()}");
-            dd($e->getMessage());
+        // Calculando o progresso para cada criança
+        foreach ($kids as $kid) {
+            $kid->progress = $kid->checklists->isNotEmpty()
+                ? $this->checklistService->percentualDesenvolvimento($kid->checklists->last()->id)
+                : 0;
         }
+
+        return view('home', compact(
+            'totalKids',
+            'totalChecklists',
+            'checklistsEmAndamento',
+            'totalProfessionals',
+            'kids'
+        ));
     }
 }

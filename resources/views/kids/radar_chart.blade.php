@@ -52,9 +52,9 @@
                     ticks: {
                         stepSize: 1,
                         callback: function(value) {
-                            if (value === 1) return 'Difícil de obter';
-                            if (value === 2) return 'Mais ou menos';
-                            if (value === 3) return 'Consistente';
+                            if (value === 1) return 'Não desenvolvido';
+                            if (value === 2) return 'Em desenvolvimento';
+                            if (value === 3) return 'Desenvolvido';
                             return value;
                         }
                     }

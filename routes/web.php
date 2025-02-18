@@ -3,74 +3,44 @@
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\CompetencesController;
 use App\Http\Controllers\KidsController;
+use App\Http\Controllers\ProfessionalController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
-use App\Models\User;
-use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
-Auth::routes();
+// Rotas de Autenticação
+Route::middleware('guest')->group(function () {
+    Route::get('login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])
+        ->name('login');
 
-Route::get('/auth/google/redirect', function () {
-    return Socialite::driver('google')->redirect();
+    Route::post('login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
+
+    // Rotas de Reset de Senha
+    Route::get('password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
+        ->name('password.request');
+
+    Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
+        ->name('password.email');
+
+    Route::get('password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])
+        ->name('password.reset');
+
+    Route::post('password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])
+        ->name('password.update');
 });
 
-// Google Auth
-Route::get('/auth/google/callback', function () {
-    $user = Socialite::driver('google')->user();
+Route::post('logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+    ->name('logout')
+    ->middleware('auth');
 
-    $existingUser = User::where('email', $user->getEmail())->first();
-
-    if (!$existingUser) {
-        return redirect()->route('login')->withErrors(['email' => 'Falha na autenticação.']);
-    }
-
-    $data = [
-        'provider_id' => $user->getId(),
-        'provider_email' => $user->getEmail(),
-        'provider_avatar' => $user->getAvatar(),
-    ];
-
-    $existingUser->update($data);
-
-    Auth::loginUsingId($existingUser->id);
-
-    return redirect()->route('home.index');
-});
-
-// Login
-Route::post('/autenticacao', function (HttpRequest $request) {
-
-    $credentials = $request->only('email', 'password');
-
-    if (Auth::attempt($credentials)) {
-        return redirect()->route('home.index');
-    }
-
-    return redirect()->route('login-novo')->withErrors(['email' => 'Credenciais inválidas']);
-
-})->name('autenticacao');
-
-// Login View
-Route::get('/login-novo', function () {
-    return view('layouts.guest2');
-})->name('login-novo');
-
-// Home
+// Redirecionar raiz para login ou home
 Route::get('/', function () {
-    if (!Auth::check()) {
-        return redirect()->route('login-novo');
-    } else {
-        return redirect()->route('home.index');
-    }
+    return auth()->check()
+        ? redirect()->route('home.index')
+        : redirect()->route('login');
 });
-
-// Logout
-Route::post('/sair', function () {
-    Auth::logout();
-    return redirect()->route('login-novo');
-})->name('sair');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->middleware(['auth'])->name('home.index');
 
@@ -110,6 +80,18 @@ Route::middleware(['auth'])->group(function () {
     // plane automatic
     Route::get('kid/plane-automatic/{kidId}/{checklistId}', [App\Http\Controllers\PlaneAutomaticController::class, 'index'])->name('kid.plane-automatic');
 
+    // profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+
+    // professionals
+    Route::resource('professionals', ProfessionalController::class);
+    Route::patch('professionals/{professional}/deactivate', [ProfessionalController::class, 'deactivate'])->name('professionals.deactivate');
+    Route::patch('professionals/{professional}/activate', [ProfessionalController::class, 'activate'])->name('professionals.activate');
+    Route::put('professionals/{professional}', [ProfessionalController::class, 'update'])
+        ->name('professionals.update')
+        ->middleware('auth');
 });
 
 // Data Table Ajax
@@ -130,8 +112,8 @@ Route::get('logs', function () {
     Log::debug($message);
 });
 
-//Route::get('/teste',  [KidsController::class, 'teste'])->name('kids.teste');
-//Route::get('/teste/{kidId}/level/{levelId}', [KidsController::class, 'showRadarChart'])->name('kids.radarChart');
+// Route::get('/teste',  [KidsController::class, 'teste'])->name('kids.teste');
+// Route::get('/teste/{kidId}/level/{levelId}', [KidsController::class, 'showRadarChart'])->name('kids.radarChart');
 Route::get('/analysis/{kidId}/level/{levelId}/{checklist?}', [KidsController::class, 'showRadarChart2'])->name('kids.radarChart2');
 Route::get('/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
 // routes/web.php
