@@ -1,4 +1,4 @@
-git tag -a 1.4.4 -m "Release 1.4.4 - removido botão google"
+git tag -a 1.5.0 -m "Release 1.5.0 - multiplos funcionários"
 
 git push --tags
 
