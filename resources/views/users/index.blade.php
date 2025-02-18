@@ -19,19 +19,8 @@
 @endsection
 
 @section('content')
-    @if(config('app.debug'))
-        <div class="alert alert-info">
-            <p>Debug info:</p>
-            <ul>
-                <li>Total users: {{ $users->total() }}</li>
-                <li>Current page: {{ $users->currentPage() }}</li>
-                <li>Items per page: {{ $users->perPage() }}</li>
-                <li>User can view users: {{ auth()->user()->can('view users') ? 'Yes' : 'No' }}</li>
-            </ul>
-        </div>
-    @endif
 
-    @if($users->isEmpty())
+    @if ($users->isEmpty())
         <div class="alert alert-info">
             Nenhum usuário cadastrado.
         </div>
@@ -48,18 +37,16 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($users as $user)
+                @foreach ($users as $user)
                     <tr>
                         <td class="text-center">{{ $user->id }}</td>
                         <td class="text-center">
-                            @if($user->avatar)
-                                <img src="{{ asset('images/avatar/' . $user->avatar) }}"
-                                     alt="{{ $user->name }}"
-                                     class="rounded-circle"
-                                     style="width: 40px; height: 40px; object-fit: cover;">
+                            @if ($user->avatar)
+                                <img src="{{ asset('images/avatar/' . $user->avatar) }}" alt="{{ $user->name }}"
+                                    class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                             @else
                                 <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto text-white"
-                                     style="width: 40px; height: 40px; font-size: 16px;">
+                                    style="width: 40px; height: 40px; font-size: 16px;">
                                     {{ substr($user->name, 0, 2) }}
                                 </div>
                             @endif
@@ -67,15 +54,13 @@
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
                         <td>
-                            @foreach($user->roles as $role)
-                                @if($role->name === 'professional')
-                                    <span class="badge bg-info">
-                                        {{ $user->professional->first()?->specialty?->name ?? 'Profissional' }}
-                                    </span>
+                            @foreach ($user->roles as $role)
+                                @if ($role->name === 'professional')
+                                    <span class="badge bg-info">Professional</span>
                                 @elseif($role->name === 'pais')
                                     <span class="badge bg-success">Pais</span>
                                 @elseif($role->name === 'admin')
-                                    <span class="badge bg-danger">Administrador</span>
+                                    <span class="badge bg-dark">Administrador</span>
                                 @else
                                     <span class="badge bg-secondary">{{ $role->name }}</span>
                                 @endif
@@ -83,9 +68,8 @@
                         </td>
                         <td class="text-center">
                             @can('edit users')
-                                <button type="button"
-                                        onclick="window.location.href='{{ route('users.edit', $user->id) }}'"
-                                        class="btn btn-sm btn-secondary">
+                                <button type="button" onclick="window.location.href='{{ route('users.edit', $user->id) }}'"
+                                    class="btn btn-sm btn-secondary">
                                     <i class="bi bi-pencil"></i> Editar
                                 </button>
                             @endcan
