@@ -272,7 +272,7 @@ class KidsController extends Controller
             'birth_date' => 'required|date_format:d/m/Y|before:today|after:1900-01-01',
             'gender' => 'required|string',
             'ethnicity' => 'required|string',
-            'responsible_id' => 'required|exists:users,id',
+            //'responsible_id' => 'required|exists:users,id',
             'professionals' => 'array',
             'professionals.*' => 'exists:professionals,id'
         ]);
@@ -285,7 +285,7 @@ class KidsController extends Controller
                 'birth_date' => $validated['birth_date'],
                 'gender' => $validated['gender'],
                 'ethnicity' => $validated['ethnicity'],
-                'responsible_id' => $validated['responsible_id'],
+                'responsible_id' => $request->input('responsible_id'),
             ]);
 
             // Sincroniza os profissionais
