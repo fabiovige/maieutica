@@ -14,7 +14,7 @@ class Specialty extends Model
         'description',
         'created_by',
         'updated_by',
-        'deleted_by',
+        'deleted_by'
     ];
 
     protected $dates = [
@@ -23,20 +23,11 @@ class Specialty extends Model
         'deleted_at',
     ];
 
-    public function professionalProfiles()
-    {
-        return $this->hasMany(ProfessionalProfile::class);
-    }
-
+    /**
+     * Relacionamento com Professional
+     */
     public function professionals()
     {
-        return $this->hasManyThrough(
-            User::class,
-            ProfessionalProfile::class,
-            'specialty_id', // Chave em professional_profiles
-            'id', // Chave em users
-            'id', // Chave local em specialties
-            'user_id' // Chave em professional_profiles
-        );
+        return $this->hasMany(Professional::class);
     }
 }

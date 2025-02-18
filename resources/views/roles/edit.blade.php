@@ -69,10 +69,10 @@
                     </div>
 
                     <div class="card-footer d-flex justify-content-start gap-2">
+                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                         <a href="{{ route('roles.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-lg"></i> Cancelar
                         </a>
-                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                     </div>
                 </div>
             </form>

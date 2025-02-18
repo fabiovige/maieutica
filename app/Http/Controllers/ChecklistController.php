@@ -205,7 +205,7 @@ class ChecklistController extends Controller
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
-            return redirect()->route('checklists.index');
+            return redirect()->route('checklists.index', ['kidId' => $checklist->kid_id]);
         } catch (\Exception $e) {
 
             $message = label_case('Update Checklists ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';

@@ -14,18 +14,17 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            // RoleSeeder::class,
             RoleAndPermissionSeeder::class,
             UserSeeder::class,
+            SpecialtySeeder::class,
+            ProfessionalSeeder::class,
+            ResponsibleSeeder::class,
             KidSeeder::class,
-            // ResourceSeeder::class,
-            // AbilitySeeder::class,
             DomainSeeder::class,
             LevelSeeder::class,
             CompetenceSeeder::class,
             ChecklistSeeder::class,
-            PlaneSeeder::class,
-            SpecialtySeeder::class,
+            //PlaneSeeder::class,
         ]);
     }
 }

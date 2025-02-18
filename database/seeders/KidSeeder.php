@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Kid;
 use App\Models\Professional;
-use App\Models\Specialty;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -12,65 +11,37 @@ class KidSeeder extends Seeder
 {
     public function run()
     {
-        // Criar uma especialidade se não existir
-        $specialty = Specialty::firstOrCreate(
-            ['name' => 'Pediatria'],
-            [
-                'description' => 'Especialidade médica dedicada aos cuidados da criança e do adolescente',
-                'created_by' => 1,
-            ]
-        );
+        // Buscar responsáveis
+        $responsible1 = User::where('email', 'responsible1@example.com')->first();
+        $responsible2 = User::where('email', 'responsible2@example.com')->first();
 
-        // Criar usuário profissional se não existir
-        $professionalUser = User::firstOrCreate(
-            ['email' => 'professional@example.com'],
-            [
-                'name' => 'Dr. Professional',
-                'password' => bcrypt('password'),
-                'created_by' => 1,
-            ]
-        );
-        $professionalUser->assignRole('professional');
-
-        // Criar o registro professional
-        $professional = Professional::firstOrCreate(
-            ['registration_number' => 'CRM12345'],
-            [
-                'specialty_id' => $specialty->id,
-                'bio' => 'Médico pediatra com 10 anos de experiência',
-                'created_by' => 1,
-            ]
-        );
-
-        // Associar usuário ao professional
-        $professional->user()->sync([$professionalUser->id]);
-
-        // Criar usuário responsável se não existir
-        $responsibleUser = User::firstOrCreate(
-            ['email' => 'responsible@example.com'],
-            [
-                'name' => 'Responsible Parent',
-                'password' => bcrypt('password'),
-                'created_by' => 1,
-            ]
-        );
-        $responsibleUser->assignRole('pais');
-
-        // Criar a criança
-        $kid = Kid::create([
-            'name' => 'Test Kid',
-            'birth_date' => now()->subYears(5),
-            'gender' => 'M',
+        // Criar primeira criança
+        $kid1 = Kid::create([
+            'name' => 'Ana Silva',
+            'birth_date' => now()->subYears(6),
+            'gender' => 'F',
             'ethnicity' => 'branco',
-            'responsible_id' => $responsibleUser->id,
+            'responsible_id' => $responsible1->id,
             'created_by' => 1,
         ]);
 
-        // Associar o profissional à criança
-        $kid->professionals()->attach($professional->id, [
-            'is_primary' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
+        // Criar segunda criança
+        $kid2 = Kid::create([
+            'name' => 'Pedro Santos',
+            'birth_date' => now()->subYears(4),
+            'gender' => 'M',
+            'ethnicity' => 'pardo',
+            'responsible_id' => $responsible2->id,
+            'created_by' => 1,
         ]);
+
+        // Associar profissionais às crianças
+        $professional1 = Professional::where('registration_number', 'CRM12345')->first();
+        $professional2 = Professional::where('registration_number', 'CRM67890')->first();
+
+        if ($professional1 && $professional2) {
+            $kid1->professionals()->attach($professional1->id);
+            $kid2->professionals()->attach($professional2->id);
+        }
     }
 }

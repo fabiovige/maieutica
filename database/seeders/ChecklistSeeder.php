@@ -21,7 +21,7 @@ class ChecklistSeeder extends Seeder
         // checklists
         foreach ($kid as $kidId) {
             // Criar 5 checklists para cada criança
-            foreach ([1, 2, 3, 4, 5] as $c => $v) {
+            foreach ([1, 2, 3] as $c => $v) {
                 // levels
                 $indice = 4;
                 $arrLevel = [];
@@ -41,7 +41,7 @@ class ChecklistSeeder extends Seeder
                     $notes = [];
                     // competences
                     foreach ($components as $c => $v) {
-                        $notes[$v] = ['note' => rand(0, 3)];
+                        $notes[$v] = ['note' => rand(1, 3)];
                     }
 
                     $checklist->competences()->syncWithoutDetaching($notes);
