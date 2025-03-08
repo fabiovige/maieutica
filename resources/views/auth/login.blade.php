@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,10 +11,14 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
+    <!-- reCAPTCHA Script -->
+    {!! htmlScriptTagJsApi() !!}
+
     <style>
         body {
             background-color: #f8f9fa;
         }
+
         .login-container {
             min-height: 100vh;
             display: flex;
@@ -21,22 +26,26 @@
             justify-content: center;
             padding: 20px;
         }
+
         .login-card {
             width: 100%;
             max-width: 400px;
             border: none;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
+
         .login-header {
             background: #d7e2ec;
             padding: 20px;
             border-radius: 10px 10px 0 0;
             text-align: center;
         }
+
         .login-body {
             padding: 30px;
         }
+
         .btn-login {
             width: 100%;
             padding: 12px;
@@ -44,10 +53,12 @@
             font-size: 1.1rem;
             margin-top: 1rem;
         }
+
         .form-floating {
             margin-bottom: 1rem;
             position: relative;
         }
+
         .form-floating .bi {
             position: absolute;
             top: 50%;
@@ -56,19 +67,24 @@
             z-index: 4;
             color: #6c757d;
         }
+
         .form-floating input {
             padding-left: 45px !important;
         }
+
         .form-floating label {
             padding-left: 45px;
         }
+
         .invalid-feedback {
             display: block;
         }
+
         .forgot-password {
             text-align: right;
             margin-bottom: 1rem;
         }
+
         .forgot-password a {
             color: #6c757d;
             font-size: 0.9rem;
@@ -77,27 +93,33 @@
             align-items: center;
             gap: 5px;
         }
+
         .forgot-password a:hover {
             color: #0d6efd;
         }
+
         .form-check {
             display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 1.5rem;
         }
+
         .form-check-input {
             margin-top: 0;
         }
+
         .alert-danger {
             border-left: 4px solid #dc3545;
         }
+
         .alert-danger ul {
             padding-left: 1rem;
             margin-bottom: 0;
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="card login-card">
@@ -120,19 +142,19 @@
 
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
+
                     <div class="form-floating">
                         <i class="bi bi-envelope"></i>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror"
-                               id="email" name="email" value="{{ old('email') }}"
-                               placeholder="nome@exemplo.com" required autofocus>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
+                            name="email" value="{{ old('email') }}" placeholder="nome@exemplo.com" required
+                            autofocus>
                         <label for="email">E-mail</label>
                     </div>
 
                     <div class="form-floating">
                         <i class="bi bi-key"></i>
                         <input type="password" class="form-control @error('password') is-invalid @enderror"
-                               id="password" name="password"
-                               placeholder="Senha" required>
+                            id="password" name="password" placeholder="Senha" required>
                         <label for="password">Senha</label>
                     </div>
 
@@ -144,17 +166,23 @@
                     </div>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember"
-                               id="remember" {{ old('remember') ? 'checked' : '' }}>
+                        <input class="form-check-input" type="checkbox" name="remember" id="remember"
+                            {{ old('remember') ? 'checked' : '' }}>
                         <label class="form-check-label" for="remember">
                             <i class="bi bi-clock-history me-1"></i>
                             Lembrar-me
                         </label>
                     </div>
 
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            {!! htmlFormSnippet() !!}
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary btn-login">
                         <i class="bi bi-box-arrow-in-right me-2"></i>
-                        Acessar Sistema
+                        Entrar
                     </button>
                 </form>
             </div>
@@ -164,4 +192,5 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

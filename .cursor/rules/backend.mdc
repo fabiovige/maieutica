@@ -1,0 +1,40 @@
+---
+description: Minhas regras debacken
+globs: 
+alwaysApply: false
+---
+
+- Use Eloquent ORM efficiently, avoiding N+1 queries with eager loading;  
+- Validate all user inputs using Laravel Form Requests or Validator;  
+- Follow the MVC pattern to separate concerns;  
+- Use Service or Repository classes for complex business logic;  
+- Design RESTful APIs with clear and consistent endpoints;  
+- Use Laravel Sanctum or Passport for secure API authentication;  
+- Implement rate limiting to prevent abuse of APIs;  
+- Use middleware for request filtering and authorization;  
+- Cache frequently accessed data using Redis or Memcached;  
+- Use queues and jobs for time-consuming or asynchronous tasks;  
+- Write automated tests using PHPUnit and Laravel Testing tools;  
+- Protect against SQL injection by using Eloquent or Query Builder;  
+- Prevent XSS attacks by escaping output and using Blade templates;  
+- Use CSRF protection for forms and POST requests;  
+- Hash passwords using Laravel's built-in `Hash` facade;  
+- Use environment variables (`.env`) for configuration, never hardcode secrets;  
+- Keep the `.env` file out of version control (add it to `.gitignore`);  
+- Use migrations to manage database schema changes;  
+- Seed databases with test data using Laravel Seeders;  
+- Normalize database schemas to avoid redundancy;  
+- Use database indexing to optimize query performance;  
+- Implement soft deletes for records that may need recovery;  
+- Use transactions for database operations that must succeed or fail together;  
+- Log errors and important events using Laravel's logging system;  
+- Monitor application performance with tools like Laravel Telescope;  
+- Use API resources to transform and format API responses consistently;  
+- Implement pagination for large datasets to improve performance;  
+- Use event listeners and observers for decoupled logic;  
+- Keep controllers thin by moving logic to services or repositories;  
+- Regularly update Laravel and its dependencies to avoid security vulnerabilities.  
+
+---
+
+Essas regras ajudam a garantir um backend robusto, seguro e escalável com Laravel e PHP.

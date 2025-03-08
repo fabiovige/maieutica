@@ -1,0 +1,48 @@
+---
+description: Minhas regras para desenolvimento
+globs: 
+alwaysApply: false
+---
+
+# Content
+
+- Follow SOLID principles;  
+- Keep code DRY (Don't Repeat Yourself);  
+- Write clean and readable code;  
+- Document the code when necessary;  
+- Use version control (Git) with descriptive commit messages;  
+- Follow coding conventions (PSR for PHP, ESLint for JS);  
+- Remove unnecessary or commented-out code;  
+- Prioritize simplicity over complexity;  
+- Break UI into reusable components (Vue.js);  
+- Use state management (Vuex/Pinia) for global state;  
+- Avoid overusing reactivity (watch/computed);  
+- Implement efficient routing with Vue Router;  
+- Validate forms using libraries like Vuelidate;  
+- Optimize for SEO and performance (e.g., SSR with Nuxt.js);  
+- Write unit tests for frontend components;  
+- Ensure accessibility (WCAG guidelines);  
+- Use Eloquent ORM efficiently (e.g., eager loading);  
+- Validate user input with Laravel Form Requests;  
+- Separate concerns using MVC, Services, or Repositories;  
+- Design RESTful APIs with clear endpoints;  
+- Secure authentication with Laravel Passport/Sanctum;  
+- Implement caching for better performance;  
+- Use queues for async tasks;  
+- Write automated tests with PHPUnit;  
+- Protect against common vulnerabilities (SQL injection, XSS, CSRF);  
+- Normalize database schemas;  
+- Use indexing to optimize queries;  
+- Manage database changes with migrations;  
+- Set up automated backups;  
+- Avoid overly complex database queries;  
+- Set up CI/CD pipelines;  
+- Monitor errors and performance with tools like Sentry;  
+- Keep development, staging, and production environments separate;  
+- Never expose credentials or API keys in code;  
+- Regularly update dependencies;  
+- Conduct code reviews for quality assurance;  
+- Use standardized commit messages (e.g., Conventional Commits);  
+- Minify CSS, JS, and compress images;  
+- Test across browsers and devices;  
+- Seek continuous feedback for improvement.
