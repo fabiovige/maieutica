@@ -15,3 +15,6 @@ yarn-error.log
 /.idea
 /.vscode
 /tests
+/docs
+/public/hot
+

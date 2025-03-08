@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use App\Http\Requests\LoginRequest;
 
 class LoginController extends Controller
 {
@@ -123,5 +124,10 @@ class LoginController extends Controller
         ]);
 
         return redirect()->route('login');
+    }
+
+    public function login(LoginRequest $request)
+    {
+        // ... resto do código de login
     }
 }
