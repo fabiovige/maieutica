@@ -11,6 +11,9 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
+    <!-- reCAPTCHA Script -->
+    {!! htmlScriptTagJsApi() !!}
+
     <style>
         body {
             background-color: #f8f9fa;
@@ -139,6 +142,7 @@
 
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
+
                     <div class="form-floating">
                         <i class="bi bi-envelope"></i>
                         <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
@@ -171,13 +175,8 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-6 offset-md-4">
-                            <div class="g-recaptcha" data-sitekey="{{ config('recaptcha.site_key') }}"></div>
-                            @error('g-recaptcha-response')
-                                <span class="invalid-feedback d-block" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
+                        <div class="col-md-12">
+                            {!! htmlFormSnippet() !!}
                         </div>
                     </div>
 
@@ -192,7 +191,6 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 
 </html>

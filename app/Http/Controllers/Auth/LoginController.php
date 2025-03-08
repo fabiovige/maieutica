@@ -102,7 +102,7 @@ class LoginController extends Controller
 
             return redirect()->intended($this->redirectTo);
         } catch (Exception $e) {
-            Log::error('Erro no login com Google: '.$e->getMessage());
+            Log::error('Erro no login com Google: ' . $e->getMessage());
 
             return redirect()->route('login')
                 ->withErrors(['email' => 'Erro ao realizar login com Google.']);
@@ -128,6 +128,14 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request)
     {
-        // ... resto do código de login
+        // Validação já foi feita pelo LoginRequest
+
+        // Tentativa de login
+        if ($this->attemptLogin($request)) {
+            return $this->sendLoginResponse($request);
+        }
+
+        // Se falhar, retorna com erro
+        return $this->sendFailedLoginResponse($request);
     }
 }
