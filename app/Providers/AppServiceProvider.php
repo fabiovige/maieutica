@@ -41,5 +41,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Observers
         User::observe(UserObserver::class);
+
+        // Configuração para resolver o problema de SSL com o reCAPTCHA
+        \Illuminate\Support\Facades\Http::macro('noSslVerification', function () {
+            return \Illuminate\Support\Facades\Http::withOptions([
+                'verify' => false,
+            ]);
+        });
     }
 }

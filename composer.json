@@ -9,6 +9,7 @@
         "ext-json": "*",
         "arcanedev/log-viewer": "*",
         "barryvdh/laravel-dompdf": "*",
+        "biscolab/laravel-recaptcha": "^6.1",
         "datatables.net/datatables.net": "dev-master",
         "datatables.net/datatables.net-dt": "dev-master",
         "elibyy/tcpdf-laravel": "^9.1",
