@@ -17,6 +17,8 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
 
+    public $temporaryPassword;
+
     protected $fillable = [
         'name',
         'email',
@@ -36,7 +38,7 @@ class User extends Authenticatable
         'state',
         'provider_id',
         'provider_email',
-        'provider_avatar',
+        'provider_avatar'
     ];
 
     protected $hidden = [

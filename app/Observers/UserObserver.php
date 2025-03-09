@@ -25,8 +25,8 @@ class UserObserver
             ]);
 
             // O Observer é responsável por enviar o email de boas-vindas
-            // $notification = new WelcomeNotification($user, $user->passwordView);
-            // $user->notify($notification);
+            $notification = new WelcomeNotification($user, $user->temporaryPassword);
+            $user->notify($notification);
 
         } catch (\Exception $e) {
             Log::error('Erro no UserObserver: '.$e->getMessage());
