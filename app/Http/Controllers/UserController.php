@@ -100,8 +100,8 @@ class UserController extends Controller
             $data = $request->all();
             $data['type'] = (! isset($request->type)) ? User::TYPE_I : $data['type'];
 
-            // Gera uma senha aleatória
-            $plainPassword = Str::random(8);
+            $temporaryPassword = Str::random(10); // Gera a senha temporária
+            $hashedPassword = bcrypt($temporaryPassword); // Gera o hash da senha
 
             $userData = [
                 'name' => $request->name,
@@ -114,19 +114,17 @@ class UserController extends Controller
                 'neighborhood' => $request->bairro,
                 'city' => $request->cidade,
                 'state' => $request->estado,
-                'password' => Hash::make($plainPassword),
-                'passwordView' => $plainPassword,
+                'password' => $hashedPassword,
                 'role_id' => 3,
                 'created_by' => auth()->user()->id,
                 'allow' => (bool) isset($request->allow),
                 'type' => $data['type'],
             ];
 
-            $user = User::create($userData);
+            $user = new User($userData);
+            $user->temporaryPassword = $temporaryPassword;
+            $user->save();
 
-            // Envia o email de boas-vindas
-            $notification = new WelcomeNotification($user, $plainPassword);
-            $user->notify($notification);
 
             // Atribui o papel (role)
             $role = SpatieRole::find($data['role_id']);
