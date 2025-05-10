@@ -33,7 +33,7 @@ class Checklist extends Model
         'created_at' => 'datetime:d/m/Y',
     ];
 
-    protected $fillable = ['level', 'kid_id', 'situation', 'description', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['level', 'kid_id', 'situation', 'description', 'created_by', 'updated_by', 'deleted_by', 'created_at'];
 
     public function kid()
     {

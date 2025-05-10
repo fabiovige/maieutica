@@ -105,6 +105,18 @@ class ChecklistController extends Controller
             $data['created_by'] = Auth::id();
             $data['situation'] = 'a';
 
+            // Validação da data retroativa
+            if (isset($data['created_at']) && $data['created_at']) {
+                $createdAt = \Carbon\Carbon::parse($data['created_at']);
+                // Não permitir datas futuras
+                if ($createdAt->isFuture()) {
+                    return response()->json(['error' => 'A data não pode ser futura.'], 422);
+                }
+                $data['created_at'] = $createdAt;
+            } else {
+                unset($data['created_at']); // Garante que o Eloquent use a data atual
+            }
+
             // checklist
             $checklist = Checklist::create($data);
 

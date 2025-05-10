@@ -26,16 +26,54 @@
 @section('actions')
     @can('create checklists')
         @if ($kid)
-            <button onclick="createChecklist(this)" class="btn btn-primary">
+            <button onclick="openDateModal()" class="btn btn-primary">
                 <span class="d-flex align-items-center">
                     <i class="bi bi-plus-lg me-1"></i>
                     <span class="button-text">Novo Checklist</span>
                 </span>
             </button>
 
+            <!-- Modal para seleção de data -->
+            <div class="modal fade" id="dateModal" tabindex="-1" aria-labelledby="dateModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="dateModalLabel">Selecionar Data do Checklist</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="retroactiveDate" class="form-label">Data do Checklist</label>
+                            <input type="date" class="form-control" id="retroactiveDate" max="{{ date('Y-m-d') }}">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="confirmDateBtn">Criar Checklist</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <script>
-                function createChecklist(button) {
-                    // Desabilita o botão e mostra loading
+                function openDateModal() {
+                    var dateModal = new bootstrap.Modal(document.getElementById('dateModal'));
+                    document.getElementById('retroactiveDate').value = '';
+                    dateModal.show();
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Salva o id da criança em uma variável JS (como string para evitar erros de sintaxe)
+                    window.kidId = "{{ $kid->id }}";
+                    document.getElementById('confirmDateBtn').addEventListener('click', function () {
+                        var date = document.getElementById('retroactiveDate').value;
+                        if (!date) {
+                            alert('Por favor, selecione uma data.');
+                            return;
+                        }
+                        createChecklistWithDate(date, this);
+                    });
+                });
+
+                function createChecklistWithDate(date, button) {
                     button.disabled = true;
                     const buttonContent = button.innerHTML;
                     button.innerHTML = `
@@ -54,8 +92,9 @@
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify({
-                                kid_id: {{ $kid->id }},
+                                kid_id: window.kidId,
                                 level: 4,
+                                created_at: date
                             })
                         })
                         .then(response => response.json())
@@ -63,14 +102,12 @@
                             if (data.success) {
                                 window.location.reload();
                             } else {
-                                // Restaura o botão em caso de erro
                                 button.disabled = false;
                                 button.innerHTML = buttonContent;
                                 alert('Erro ao criar checklist: ' + (data.error || 'Erro desconhecido'));
                             }
                         })
                         .catch(error => {
-                            // Restaura o botão em caso de erro
                             button.disabled = false;
                             button.innerHTML = buttonContent;
                             alert('Erro ao criar checklist: ' + error.message);
