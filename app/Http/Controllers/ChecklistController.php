@@ -58,8 +58,8 @@ class ChecklistController extends Controller
 
 
             $checklists = $queryChecklists->with('competences')
-                ->orderBy('id', 'desc')
                 ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->get();
 
             foreach ($checklists as $checklist) {
@@ -103,7 +103,6 @@ class ChecklistController extends Controller
 
             $data = $request->json()->all() ?? $request->all();
             $data['created_by'] = Auth::id();
-            $data['situation'] = 'a';
 
             // Validação da data retroativa
             if (isset($data['created_at']) && $data['created_at']) {
@@ -113,8 +112,15 @@ class ChecklistController extends Controller
                     return response()->json(['error' => 'A data não pode ser futura.'], 422);
                 }
                 $data['created_at'] = $createdAt;
+                // Se a data não for hoje, checklist deve ser fechado
+                if (!$createdAt->isToday()) {
+                    $data['situation'] = 'f';
+                } else {
+                    $data['situation'] = 'a';
+                }
             } else {
                 unset($data['created_at']); // Garante que o Eloquent use a data atual
+                $data['situation'] = 'a';
             }
 
             // checklist
@@ -222,6 +228,10 @@ class ChecklistController extends Controller
 
             $data = $request->all();
             $data['updated_by'] = Auth::id();
+            // Permitir atualização manual da situação (aberto/fechado)
+            if (isset($data['situation'])) {
+                $checklist->situation = $data['situation'];
+            }
             $checklist->update($data);
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
