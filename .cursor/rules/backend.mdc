@@ -1,40 +1,53 @@
 ---
 description: Minhas regras debacken
-globs: 
+globs:
 alwaysApply: false
 ---
-
-- Use Eloquent ORM efficiently, avoiding N+1 queries with eager loading;  
-- Validate all user inputs using Laravel Form Requests or Validator;  
-- Follow the MVC pattern to separate concerns;  
-- Use Service or Repository classes for complex business logic;  
-- Design RESTful APIs with clear and consistent endpoints;  
-- Use Laravel Sanctum or Passport for secure API authentication;  
-- Implement rate limiting to prevent abuse of APIs;  
-- Use middleware for request filtering and authorization;  
-- Cache frequently accessed data using Redis or Memcached;  
-- Use queues and jobs for time-consuming or asynchronous tasks;  
-- Write automated tests using PHPUnit and Laravel Testing tools;  
-- Protect against SQL injection by using Eloquent or Query Builder;  
-- Prevent XSS attacks by escaping output and using Blade templates;  
-- Use CSRF protection for forms and POST requests;  
-- Hash passwords using Laravel's built-in `Hash` facade;  
-- Use environment variables (`.env`) for configuration, never hardcode secrets;  
-- Keep the `.env` file out of version control (add it to `.gitignore`);  
-- Use migrations to manage database schema changes;  
-- Seed databases with test data using Laravel Seeders;  
-- Normalize database schemas to avoid redundancy;  
-- Use database indexing to optimize query performance;  
-- Implement soft deletes for records that may need recovery;  
-- Use transactions for database operations that must succeed or fail together;  
-- Log errors and important events using Laravel's logging system;  
-- Monitor application performance with tools like Laravel Telescope;  
-- Use API resources to transform and format API responses consistently;  
-- Implement pagination for large datasets to improve performance;  
-- Use event listeners and observers for decoupled logic;  
-- Keep controllers thin by moving logic to services or repositories;  
-- Regularly update Laravel and its dependencies to avoid security vulnerabilities.  
+- Use Eloquent ORM efficiently, avoiding N+1 queries with eager loading;
+- Validate all user inputs using Laravel Form Requests or Validator;
+- Follow the MVC pattern to separate concerns;
+- Use Service or Repository classes for complex business logic;
+- Design RESTful APIs with clear and consistent endpoints;
+- Use Laravel Sanctum or Passport for secure API authentication;
+- Implement rate limiting to prevent abuse of APIs;
+- Use middleware for request filtering and authorization;
+- Cache frequently accessed data using Redis or Memcached;
+- Use queues and jobs for time-consuming or asynchronous tasks;
+- Write automated tests using PHPUnit and Laravel Testing tools;
+- Protect against SQL injection by using Eloquent or Query Builder;
+- Prevent XSS attacks by escaping output and using Blade templates;
+- Use CSRF protection for forms and POST requests;
+- Hash passwords using Laravel's built-in `Hash` facade;
+- Use environment variables (`.env`) for configuration, never hardcode secrets;
+- Keep the `.env` file out of version control (add it to `.gitignore`);
+- Use migrations to manage database schema changes;
+- Seed databases with test data using Laravel Seeders;
+- Normalize database schemas to avoid redundancy;
+- Use database indexing to optimize query performance;
+- Implement soft deletes for records that may need recovery;
+- Use transactions for database operations that must succeed or fail together;
+- Log errors and important events using Laravel's logging system;
+- Monitor application performance with tools like Laravel Telescope;
+- Use API resources to transform and format API responses consistently;
+- Implement pagination for large datasets to improve performance;
+- Use event listeners and observers for decoupled logic;
+- Keep controllers thin by moving logic to services or repositories;
+- Regularly update Laravel and its dependencies to avoid security vulnerabilities.
 
 ---
 
 Essas regras ajudam a garantir um backend robusto, seguro e escalável com Laravel e PHP.
+
+# Regras para Sistemas em Produção
+
+- O sistema está em produção (maieuticavaliacom.br). Nunca faça alterações que possam quebrar funcionalidades existentes sem testes e validação.
+- Sempre priorize a estabilidade e compatibilidade do código.
+- Antes de grandes mudanças, garanta que o comportamento atual está preservado (testes manuais e/ou automatizados).
+- Toda refatoração deve ser feita de forma incremental e validada em ambiente de staging antes de ir para produção.
+- Documente mudanças relevantes no README ou em um CHANGELOG.
+- Comunique alterações importantes para a equipe/responsáveis.
+- Sempre busque otimizar o código, tornando-o mais eficiente, limpo e de fácil manutenção.
+- Antes de propor ou aplicar otimizações, compreenda profundamente o contexto e o fluxo da aplicação.
+- Nunca otimize prematuramente: priorize primeiro a estabilidade e o funcionamento correto.
+- Teste todas as otimizações em cenários reais para garantir que nada deixe de funcionar.
+- Documente otimizações relevantes para facilitar futuras manutenções.
