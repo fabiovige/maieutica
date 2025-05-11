@@ -215,7 +215,7 @@
                                     <td>
                                         <div class="dropdown">
                                             @php
-                                                $isAdmin = auth()->check() && auth()->user()->id == 1; // ajuste conforme sua lógica de admin
+                                                $isAdmin = auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('superadmin'));
                                             @endphp
                                             @can('edit checklists')
                                                 <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
@@ -225,7 +225,7 @@
                                                 </button>
                                             @endcan
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                @if ($checklist->situation_label === 'Aberto')
+                                                @if ($checklist->situation_label === 'Aberto' || $isAdmin)
                                                     @can('edit checklists')
                                                         <li><a class="dropdown-item"
                                                                 href="{{ isset($kid) ? route('checklists.edit', ['checklist' => $checklist->id, 'kidId' => $kid->id]) : route('checklists.edit', $checklist->id) }}">

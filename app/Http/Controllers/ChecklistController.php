@@ -31,7 +31,7 @@ class ChecklistController extends Controller
     public function index(Request $request)
     {
         try {
-            // $this->authorize('viewAny', Checklist::class);
+            $this->authorize('viewAny', Checklist::class);
 
             $message = label_case('Index Checklists ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::debug($message);
@@ -84,7 +84,7 @@ class ChecklistController extends Controller
 
     public function create()
     {
-        // $this->authorize('create', Checklist::class);
+        $this->authorize('create', Checklist::class);
 
         $message = label_case('Create Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
@@ -95,7 +95,7 @@ class ChecklistController extends Controller
 
     public function store(ChecklistRequest $request)
     {
-        // $this->authorize('create', Checklist::class);
+        $this->authorize('create', Checklist::class);
 
         try {
             $message = label_case('Store Checklists ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -175,7 +175,7 @@ class ChecklistController extends Controller
     public function show($id)
     {
         $checklist = Checklist::findOrFail($id);
-        // $this->authorize('view', $checklist);
+        $this->authorize('view', $checklist);
 
         try {
             $message = label_case('Edit Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -197,7 +197,7 @@ class ChecklistController extends Controller
 
     public function edit($id)
     {
-        // $this->authorize('edit checklists');
+        $this->authorize('update', Checklist::findOrFail($id));
 
         try {
             $message = label_case('Edit Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -220,7 +220,7 @@ class ChecklistController extends Controller
     public function update(ChecklistRequest $request, $id)
     {
         $checklist = Checklist::findOrFail($id);
-        // $this->authorize('update', $checklist);
+        $this->authorize('update', $checklist);
 
         try {
             $message = label_case('Update Checklists ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -256,7 +256,7 @@ class ChecklistController extends Controller
     public function destroy($id)
     {
         $checklist = Checklist::findOrFail($id);
-        // $this->authorize('delete', $checklist);
+        $this->authorize('delete', $checklist);
 
         try {
             $message = label_case('Destroy Checklist ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -290,11 +290,11 @@ class ChecklistController extends Controller
 
     public function fill($id)
     {
-        // $this->authorize('avaliation checklist');
+        $checklist = Checklist::findOrFail($id);
+        $this->authorize('view', $checklist);
         try {
             $message = label_case('Fill Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
-            $checklist = Checklist::findOrFail($id);
             $data = [
                 'is_admin' => auth()->user()->isAdmin(),
                 'situation' => $checklist->situation,
@@ -408,7 +408,7 @@ class ChecklistController extends Controller
 
     public function clonarChecklist(Request $request, $checklistId = null)
     {
-        // $this->authorize('clone checklists');
+        $this->authorize('create', Checklist::class);
 
         if (! auth()->user()->can('create checklists')) {
             flash('Você não tem permissão para clonar checklists.')->warning();

@@ -18,19 +18,16 @@ class ChecklistPolicy
      * @param  string  $ability
      * @return bool|null
      */
-    /*public function before(User $user, $ability): ?bool
+    public function before(User $user, $ability)
     {
-        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+        if (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('superadmin'))) {
             return true;
         }
-
-        return false;
-    }*/
+    }
 
     public function viewAny(User $user): bool
     {
-        // Verifica se o usuário tem a permissão de listar checklists
-        return $user->can('list checklists');
+        return (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('professional') || $user->hasRole('pais') || $user->hasRole('superadmin')));
     }
 
     /**
@@ -38,9 +35,14 @@ class ChecklistPolicy
      */
     public function view(User $user, Checklist $checklist): bool
     {
-        // Permite visualizar se o usuário é o criador do checklist
-        return $user->can('view checklists');
-        // && ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id || $user->id === $checklist->kid->responsible_id);
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) return true;
+        if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
+            return $checklist->created_by === $user->id;
+        }
+        if (method_exists($user, 'hasRole') && $user->hasRole('pais')) {
+            return $checklist->kid->responsible_id === $user->id;
+        }
+        return false;
     }
 
     /**
@@ -48,8 +50,7 @@ class ChecklistPolicy
      */
     public function create(User $user): bool
     {
-        // Permite criação se o usuário tem a permissão para criar checklists
-        return $user->can('create checklists');
+        return (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('professional')));
     }
 
     /**
@@ -57,18 +58,11 @@ class ChecklistPolicy
      */
     public function update(User $user, Checklist $checklist): bool
     {
-        if ($checklist->situation === 'f' && ! $user->hasRole('admin')) {
-            return false;
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) return true;
+        if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
+            return $checklist->created_by === $user->id;
         }
-
-        // Se o usuário for admin, permitir
-        if ($user->hasRole('admin') || $user->hasRole('professional')) {
-            return true;
-        }
-
-        // Permite atualizar se o usuário é o criador do checklist
-        return $user->can('edits checklists') &&
-            ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id);
+        return false;
     }
 
     /**
@@ -76,9 +70,11 @@ class ChecklistPolicy
      */
     public function delete(User $user, Checklist $checklist): bool
     {
-        // Permite deletar se o usuário é o criador do checklist
-        return $user->can('remove checklists') &&
-            ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id);
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) return true;
+        if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
+            return $checklist->created_by === $user->id;
+        }
+        return false;
     }
 
     /**
@@ -86,8 +82,7 @@ class ChecklistPolicy
      */
     public function restore(User $user, Checklist $checklist): bool
     {
-        // Permite restaurar se o usuário é o criador do checklist
-        return $user->id === $checklist->created_by;
+        return (method_exists($user, 'hasRole') && $user->hasRole('admin'));
     }
 
     /**
@@ -95,7 +90,6 @@ class ChecklistPolicy
      */
     public function forceDelete(User $user, Checklist $checklist): bool
     {
-        // Permite exclusão definitiva se o usuário é o criador do checklist
-        return $user->id === $checklist->created_by;
+        return (method_exists($user, 'hasRole') && $user->hasRole('admin'));
     }
 }
