@@ -10,6 +10,8 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="progressModalLabel">Processando Preenchimento</h5>
+                        <button v-if="!isProcessingAutoFill" type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="progress mb-2">
@@ -18,7 +20,12 @@
                                 aria-valuemax="100">{{
                                     progressPercent }}%</div>
                         </div>
-                        <div>{{ progressMessage }}</div>
+                        <div v-if="isProcessingAutoFill" class="mt-2 text-center">Processando níveis anteriores...</div>
+                        <div class="progress mb-2">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                :style="`width: ${progressTotalPercent}%`">{{ progressTotalPercent }}%</div>
+                        </div>
+                        <div class="mt-2 text-center">Processando as informações...</div>
                     </div>
                 </div>
             </div>
@@ -68,9 +75,12 @@
                     <div class="col-md-12">
                         <div class="progress mt-2 mb-3">
                             <div class="progress-bar" role="progressbar" :style="`width: ${progressbar}%`"
-                                aria-valuenow="{{ progressbar }}" aria-valuemin="0" :aria-valuemax="100">{{ progressbar
-                                }}%</div>
+                                aria-valuenow="{{ progressbar }}" aria-valuemin="0" :aria-valuemax="100">{{
+                                    progressbar }}%</div>
                         </div>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        Processamento em Andamento ...
                     </div>
                 </div>
 
@@ -152,7 +162,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="autoFillModalLabel">Preencher Níveis Anteriores</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
@@ -165,51 +174,41 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Selecione a avaliação:</label>
-                            <div class="form-check form-check-inline">
+                            <div class="form-check">
                                 <input class="form-check-input" type="radio" id="noteN" value="1"
                                     v-model="selectedNote">
                                 <label class="form-check-label" for="noteN">N (Difícil)</label>
                             </div>
-                            <div class="form-check form-check-inline">
+                            <div class="form-check">
                                 <input class="form-check-input" type="radio" id="noteP" value="2"
                                     v-model="selectedNote">
                                 <label class="form-check-label" for="noteP">P (Parcial)</label>
                             </div>
-                            <div class="form-check form-check-inline">
+                            <div class="form-check">
                                 <input class="form-check-input" type="radio" id="noteA" value="3"
                                     v-model="selectedNote">
                                 <label class="form-check-label" for="noteA">A (Consistente)</label>
                             </div>
-                            <div class="form-check form-check-inline">
+                            <div class="form-check">
                                 <input class="form-check-input" type="radio" id="noteX" value="0"
                                     v-model="selectedNote">
                                 <label class="form-check-label" for="noteX">X (Não observado)</label>
                             </div>
                         </div>
+                        <div v-if="autoFillError" class="alert alert-danger py-2">{{ autoFillError }}</div>
                         <div v-if="isProcessingAutoFill" class="mb-3">
                             <div class="progress">
                                 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                                    :style="`width: ${progressResumoPercent}%`">{{ progressResumoPercent }}%</div>
+                                    :style="`width: ${progressTotalPercent}%`">{{ progressTotalPercent }}%</div>
                             </div>
-                            <div class="mt-2 text-center">Preparando Resumo...</div>
                         </div>
-                        <div v-if="showSummary" class="alert alert-info">
-                            <strong>Resumo:</strong>
-                            <div>Níveis selecionados: {{ selectedLevels.join(', ') }}</div>
-                            <div>Avaliação: {{ noteLabel(selectedNote) }}</div>
-                        </div>
+                        <div v-if="isProcessingAutoFill" class="mb-3 text-center">Processamento em
+                            andamento...</div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer" v-if="!hideFooter">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button v-if="!showSummary" type="button" class="btn btn-primary"
-                            :disabled="isProcessingAutoFill" @click="processAutoFill">
-                            <span v-if="isProcessingAutoFill" class="spinner-border spinner-border-sm me-2"
-                                role="status" aria-hidden="true"></span>
-                            <span v-if="isProcessingAutoFill">Preparando Resumo</span>
-                            <span v-else>Processar</span>
-                        </button>
-                        <button v-if="showSummary" type="button" class="btn btn-success"
-                            @click="startAutoFill">Confirmar</button>
+                        <button v-if="!isProcessingAutoFill" type="button" class="btn btn-primary"
+                            @click="processAutoFill">Confirmar</button>
                     </div>
                 </div>
             </div>
@@ -318,13 +317,19 @@ export default {
         const allCompetencesAutoFill = ref([])
         const isProcessingAutoFill = ref(false)
         const progressResumoPercent = ref(0)
+        const progressTotalPercent = ref(0)
+        const progressStage = ref('resumo')
+        const progressMessage = ref('')
+        const hideFooter = ref(false)
+        const autoFillError = ref('')
 
         function openAutoFillModal() {
-            selectedLevels.value = [];
             selectedNote.value = null;
             showSummary.value = false;
+            autoFillError.value = '';
+            selectedLevels.value = arrLevel.value ? arrLevel.value.map(String) : [];
             nextTick(() => {
-                const modal = new bootstrap.Modal(autoFillModalRef.value);
+                const modal = new bootstrap.Modal(autoFillModalRef.value, { backdrop: 'static', keyboard: false });
                 modal.show();
             });
         }
@@ -340,8 +345,21 @@ export default {
         }
 
         async function processAutoFill() {
+            autoFillError.value = '';
+            if (!selectedLevels.value.length) {
+                autoFillError.value = 'Selecione pelo menos um nível para preencher.';
+                return;
+            }
+            if (selectedNote.value === null || selectedNote.value === undefined || selectedNote.value === '') {
+                autoFillError.value = 'Selecione uma avaliação para preencher.';
+                return;
+            }
             isProcessingAutoFill.value = true;
+            hideFooter.value = true;
             progressResumoPercent.value = 0;
+            progressTotalPercent.value = 0;
+            progressStage.value = 'resumo';
+            progressMessage.value = 'Preparando Resumo...';
             let total = 0;
             let detalhes = [];
             let allCompetences = [];
@@ -374,62 +392,47 @@ export default {
                     allCompetences.push(...comps.map(c => ({ nivel, dom, comp: c })));
                     requestsDone++;
                     progressResumoPercent.value = Math.round((requestsDone / totalRequests) * 100);
+                    progressTotalPercent.value = Math.max(3, Math.round((requestsDone / (totalRequests + allCompetences.length)) * 100));
                 }
             }
             totalCompetenciasAutoFill.value = total;
             detalheCompetenciasAutoFill.value = detalhes;
             allCompetencesAutoFill.value = allCompetences;
             showSummary.value = true;
-            isProcessingAutoFill.value = false;
-            progressResumoPercent.value = 100;
-        }
-
-        async function startAutoFill() {
-            // Fecha o modal de resumo
-            const autoFillModal = bootstrap.Modal.getInstance(autoFillModalRef.value);
-            if (autoFillModal) autoFillModal.hide();
-            // Abre o modal de progresso imediatamente
-            nextTick(async () => {
-                const modal = new bootstrap.Modal(progressModalRef.value, { backdrop: 'static', keyboard: false });
-                modal.show();
-                progressPercent.value = 10;
-                progressMessage.value = 'Preparando preenchimento...';
-                // Inicia o processamento real
-                await confirmAutoFill();
-            });
-        }
-
-        async function confirmAutoFill() {
-            // Usa a lista já processada
-            const allCompetences = allCompetencesAutoFill.value;
-            const total = allCompetences.length;
+            progressStage.value = 'processamento';
+            progressMessage.value = 'Processando preenchimento...';
             let done = 0;
-            try {
-                for (const { nivel, dom, comp } of allCompetences) {
-                    progressMessage.value = '';
-                    await axios.post(`/api/checklistregisters/single`, {
-                        checklist_id: checklist_id.value,
-                        competence_id: comp.id,
-                        note: parseInt(selectedNote.value),
-                        totalLevel: totalLevel.value,
-                    });
-                    done++;
-                    progressPercent.value = Math.round((done / total) * 100);
-                }
-            } finally {
-                // Fecha o modal de progresso
+            for (const { nivel, dom, comp } of allCompetences) {
+                await axios.post(`/api/checklistregisters/single`, {
+                    checklist_id: checklist_id.value,
+                    competence_id: comp.id,
+                    note: parseInt(selectedNote.value),
+                    totalLevel: totalLevel.value,
+                });
+                done++;
+                progressTotalPercent.value = Math.max(3, Math.round(((requestsDone + done) / (totalRequests + allCompetences.length)) * 100));
+            }
+            progressStage.value = 'finalizado';
+            progressMessage.value = 'Preenchimento concluído!';
+            progressTotalPercent.value = 100;
+            setTimeout(() => {
                 const modal = bootstrap.Modal.getInstance(progressModalRef.value);
                 if (modal) modal.hide();
+                const autoFillModal = bootstrap.Modal.getInstance(autoFillModalRef.value);
+                if (autoFillModal) autoFillModal.hide();
+                isProcessingAutoFill.value = false;
                 showSummary.value = false;
-                getCompetences(checklist_id.value, level_id.value, domain_id.value);
-                progressPercent.value = 0;
+                progressResumoPercent.value = 0;
+                progressTotalPercent.value = 0;
+                progressStage.value = 'resumo';
                 progressMessage.value = '';
-            }
+                getCompetences(checklist_id.value, level_id.value, domain_id.value);
+                hideFooter.value = false;
+            }, 1200);
         }
 
         // Progresso do preenchimento automático
         const progressPercent = ref(0)
-        const progressMessage = ref('')
         const progressModalRef = ref(null)
 
         return {
@@ -466,18 +469,20 @@ export default {
             selectedNote,
             showSummary,
             processAutoFill,
-            confirmAutoFill,
             noteLabel,
             autoFillModalRef,
             progressPercent,
-            progressMessage,
             progressModalRef,
             totalCompetenciasAutoFill,
             detalheCompetenciasAutoFill,
             allCompetencesAutoFill,
-            startAutoFill,
             isProcessingAutoFill,
-            progressResumoPercent
+            progressResumoPercent,
+            progressTotalPercent,
+            progressStage,
+            progressMessage,
+            hideFooter,
+            autoFillError
         }
     }
 }
