@@ -214,10 +214,13 @@
                                 @can('edit checklists')
                                     <td>
                                         <div class="dropdown">
+                                            @php
+                                                $isAdmin = auth()->check() && auth()->user()->id == 1; // ajuste conforme sua lógica de admin
+                                            @endphp
                                             @can('edit checklists')
                                                 <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
                                                     id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
-                                                    {{ $checklist->situation_label !== 'Aberto' ? 'disabled' : '' }}>
+                                                    @if($checklist->situation_label !== 'Aberto' && !$isAdmin) disabled @endif>
                                                     Ações
                                                 </button>
                                             @endcan
