@@ -13,7 +13,9 @@
             action="{{ route('checklists.update', $checklist->id) }}"
             method="POST"
         >
-            @csrf @method('PUT')
+            @csrf @method('PUT') @if(request('kidId'))
+            <input type="hidden" name="kidId" value="{{ request('kidId') }}" />
+            @endif
             <div class="card">
                 <div class="card-header">
                     <h3>Checklist Id: {{ $checklist->id }}</h3>

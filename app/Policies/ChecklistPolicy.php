@@ -68,9 +68,7 @@ class ChecklistPolicy
 
         // Permite atualizar se o usuário é o criador do checklist
         return $user->can('edits checklists') &&
-            ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id)
-            ? Response::allow()
-            : Response::deny('Você não tem permissão para atualizar este checklist.');
+            ($user->id === $checklist->created_by || $user->id === $checklist->kid->profession_id);
     }
 
     /**

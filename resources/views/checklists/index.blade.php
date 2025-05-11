@@ -225,7 +225,7 @@
                                                 @if ($checklist->situation_label === 'Aberto')
                                                     @can('edit checklists')
                                                         <li><a class="dropdown-item"
-                                                                href="{{ route('checklists.edit', $checklist->id) }}">
+                                                                href="{{ isset($kid) ? route('checklists.edit', ['checklist' => $checklist->id, 'kidId' => $kid->id]) : route('checklists.edit', $checklist->id) }}">
                                                                 <i class="bi bi-pencil"></i> Editar
                                                             </a></li>
                                                     @endcan
