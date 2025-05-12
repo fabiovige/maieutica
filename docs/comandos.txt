@@ -1,0 +1,32 @@
+git tag -a 1.6.0 -m "Release 1.6.0 - feat: preenchimento de níveis anteriores e criação de cecklist com data retroativa"
+
+git push --tags
+
+php artisan queue:failed-table
+
+php artisan storage:link
+sudo chmod -R 775 storage
+sudo chmod -R 775 bootstrap/cache
+
+php artisan queue:work --queue=emails --verbose
+php artisan queue:listen --queue=emails --verbose
+
+
+########################
+CRON
+
+/usr/bin/php /home/u350247040/domains/hotpink-shark-117733.hostingersite.com/public_html/artisan queue:work --queue=emails --verbose
+
+#######################
+
+php artisan db:seed
+
+
+############################
+recaptcha
+
+https://www.google.com/recaptcha/admin/site/720252696/settings?hl=pt-br
+
+
+###############################
+php artisan route:list --name=checklist

@@ -26,26 +26,105 @@
 @section('actions')
     @can('create checklists')
         @if ($kid)
-            <button onclick="createChecklist(this)" class="btn btn-primary">
+            <button onclick="openDateModal()" class="btn btn-primary">
                 <span class="d-flex align-items-center">
                     <i class="bi bi-plus-lg me-1"></i>
                     <span class="button-text">Novo Checklist</span>
                 </span>
             </button>
 
+            <!-- Modal para seleção de tipo de checklist -->
+            <div class="modal fade" id="dateModal" tabindex="-1" aria-labelledby="dateModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="dateModalLabel">Criar Checklist</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Checklist</label>
+                                <div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="checklistType" id="checklistTypeAtual" value="atual" checked>
+                                        <label class="form-check-label" for="checklistTypeAtual">
+                                            Checklist com base no atual
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="checklistType" id="checklistTypeRetro" value="retro">
+                                        <label class="form-check-label" for="checklistTypeRetro">
+                                            Checklist com data retroativa
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3" id="retroactiveDateGroup" style="display: none;">
+                                <label for="retroactiveDate" class="form-label">Data do Checklist</label>
+                                <input type="date" class="form-control" id="retroactiveDate" max="{{ date('Y-m-d') }}">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="confirmDateBtn">Criar Checklist</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <script>
-                function createChecklist(button) {
-                    // Desabilita o botão e mostra loading
+                function openDateModal() {
+                    var dateModal = new bootstrap.Modal(document.getElementById('dateModal'));
+                    document.getElementById('retroactiveDate').value = '';
+                    document.getElementById('checklistTypeAtual').checked = true;
+                    document.getElementById('retroactiveDateGroup').style.display = 'none';
+                    dateModal.show();
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    window.kidId = "{{ $kid->id }}";
+                    // Alternar exibição do campo de data
+                    document.getElementById('checklistTypeAtual').addEventListener('change', function () {
+                        document.getElementById('retroactiveDateGroup').style.display = 'none';
+                    });
+                    document.getElementById('checklistTypeRetro').addEventListener('change', function () {
+                        document.getElementById('retroactiveDateGroup').style.display = 'block';
+                    });
+
+                    document.getElementById('confirmDateBtn').addEventListener('click', function () {
+                        var type = document.querySelector('input[name="checklistType"]:checked').value;
+                        if (type === 'retro') {
+                            var date = document.getElementById('retroactiveDate').value;
+                            if (!date) {
+                                alert('Por favor, selecione uma data.');
+                                return;
+                            }
+                            createChecklistWithDate(date, this);
+                        } else {
+                            // Cria checklist com data de hoje
+                            createChecklistWithDate(null, this);
+                        }
+                    });
+                });
+
+                function createChecklistWithDate(date, button) {
                     button.disabled = true;
                     const buttonContent = button.innerHTML;
                     button.innerHTML = `
-                        <span class="d-flex align-items-center">
-                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span class=\"d-flex align-items-center\">
+                            <span class=\"spinner-border spinner-border-sm me-2\" role=\"status\" aria-hidden=\"true\"></span>
                             Criando...
                         </span>
                     `;
 
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    let bodyData = {
+                        kid_id: window.kidId,
+                        level: 4
+                    };
+                    if (date) {
+                        bodyData.created_at = date;
+                    }
                     fetch("{{ route('checklists.store', ['kidId' => $kid->id]) }}", {
                             method: 'POST',
                             headers: {
@@ -53,24 +132,19 @@
                                 'X-CSRF-TOKEN': token,
                                 'Accept': 'application/json'
                             },
-                            body: JSON.stringify({
-                                kid_id: {{ $kid->id }},
-                                level: 4,
-                            })
+                            body: JSON.stringify(bodyData)
                         })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 window.location.reload();
                             } else {
-                                // Restaura o botão em caso de erro
                                 button.disabled = false;
                                 button.innerHTML = buttonContent;
                                 alert('Erro ao criar checklist: ' + (data.error || 'Erro desconhecido'));
                             }
                         })
                         .catch(error => {
-                            // Restaura o botão em caso de erro
                             button.disabled = false;
                             button.innerHTML = buttonContent;
                             alert('Erro ao criar checklist: ' + error.message);
@@ -140,18 +214,21 @@
                                 @can('edit checklists')
                                     <td>
                                         <div class="dropdown">
+                                            @php
+                                                $isAdmin = auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('superadmin'));
+                                            @endphp
                                             @can('edit checklists')
                                                 <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
                                                     id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
-                                                    {{ $checklist->situation_label !== 'Aberto' ? 'disabled' : '' }}>
+                                                    @if($checklist->situation_label !== 'Aberto' && !$isAdmin) disabled @endif>
                                                     Ações
                                                 </button>
                                             @endcan
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                @if ($checklist->situation_label === 'Aberto')
+                                                @if ($checklist->situation_label === 'Aberto' || $isAdmin)
                                                     @can('edit checklists')
                                                         <li><a class="dropdown-item"
-                                                                href="{{ route('checklists.edit', $checklist->id) }}">
+                                                                href="{{ isset($kid) ? route('checklists.edit', ['checklist' => $checklist->id, 'kidId' => $kid->id]) : route('checklists.edit', $checklist->id) }}">
                                                                 <i class="bi bi-pencil"></i> Editar
                                                             </a></li>
                                                     @endcan

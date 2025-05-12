@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class Checklist extends Model
 {
@@ -33,7 +34,7 @@ class Checklist extends Model
         'created_at' => 'datetime:d/m/Y',
     ];
 
-    protected $fillable = ['level', 'kid_id', 'situation', 'description', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['level', 'kid_id', 'situation', 'description', 'created_by', 'updated_by', 'deleted_by', 'created_at'];
 
     public function kid()
     {
@@ -60,12 +61,15 @@ class Checklist extends Model
         parent::booted();
 
         static::creating(function ($checklist) {
-            // Antes de criar o novo checklist, fechar os anteriores do mesmo kid
+            // Se o checklist for retroativo (data diferente de hoje), não fecha os outros e mantém fechado
+            if (isset($checklist->created_at) && !Carbon::parse($checklist->created_at)->isToday()) {
+                $checklist->situation = 'f';
+                return;
+            }
+            // Se for de hoje, fecha os anteriores e mantém aberto
             Checklist::where('kid_id', $checklist->kid_id)
                 ->where('situation', 'a') // Apenas se estiver aberto
                 ->update(['situation' => 'f']);
-
-            // Garantir que o novo checklist esteja com situação 'a'
             $checklist->situation = 'a';
         });
     }
