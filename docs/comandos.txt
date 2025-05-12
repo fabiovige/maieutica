@@ -1,4 +1,4 @@
-git tag -a 1.5.2 -m "Release 1.5.2 - fix: corrigido envio de e-mail ao cadastrar novo usuario"
+git tag -a 1.6.0 -m "Release 1.6.0 - feat: preenchimento de níveis anteriores e criação de cecklist com data retroativa"
 
 git push --tags
 
