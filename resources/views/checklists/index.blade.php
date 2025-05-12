@@ -48,7 +48,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="checklistType" id="checklistTypeAtual" value="atual" checked>
                                         <label class="form-check-label" for="checklistTypeAtual">
-                                            Checklist com base no atual (data de hoje)
+                                            Checklist com base no atual
                                         </label>
                                     </div>
                                     <div class="form-check">

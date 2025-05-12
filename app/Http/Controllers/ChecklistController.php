@@ -139,14 +139,50 @@ class ChecklistController extends Controller
                 $arrLevel[] = $i;
             }
 
-            foreach ($arrLevel as $c => $level) {
-                $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();
-                $notes = [];
-                // competences
-                foreach ($components as $c => $v) {
-                    $notes[$v] = ['note' => 0];
+            // Se for retroativo, tenta clonar as notas do checklist ativo
+            $clonarNotas = false;
+            if (isset($data['created_at']) && !$data['created_at'] instanceof \Carbon\Carbon) {
+                $data['created_at'] = \Carbon\Carbon::parse($data['created_at']);
+            }
+            if (isset($data['created_at']) && !$data['created_at']->isToday()) {
+                $clonarNotas = true;
+            }
+            if ($clonarNotas) {
+                $checklistAtual = Checklist::where('kid_id', $request->kid_id)
+                    ->where('situation', 'a')
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+                if ($checklistAtual) {
+                    foreach ($arrLevel as $level) {
+                        $components = \App\Models\Competence::where('level_id', '=', $level)->pluck('id')->toArray();
+                        $notes = [];
+                        foreach ($components as $competence_id) {
+                            $chechlistCompetente = \App\Models\ChecklistCompetence::where('checklist_id', $checklistAtual->id)->where('competence_id', $competence_id)->first();
+                            $notes[$competence_id] = ['note' => $chechlistCompetente ? $chechlistCompetente['note'] : 0];
+                        }
+                        $checklist->competences()->syncWithoutDetaching($notes);
+                    }
+                } else {
+                    // Não existe checklist ativo, mantém notas zeradas
+                    foreach ($arrLevel as $level) {
+                        $components = \App\Models\Competence::where('level_id', '=', $level)->pluck('id')->toArray();
+                        $notes = [];
+                        foreach ($components as $v) {
+                            $notes[$v] = ['note' => 0];
+                        }
+                        $checklist->competences()->syncWithoutDetaching($notes);
+                    }
                 }
-                $checklist->competences()->syncWithoutDetaching($notes);
+            } else {
+                // Checklist de hoje, mantém notas zeradas
+                foreach ($arrLevel as $level) {
+                    $components = \App\Models\Competence::where('level_id', '=', $level)->pluck('id')->toArray();
+                    $notes = [];
+                    foreach ($components as $v) {
+                        $notes[$v] = ['note' => 0];
+                    }
+                    $checklist->competences()->syncWithoutDetaching($notes);
+                }
             }
 
             if ($request->wantsJson()) {

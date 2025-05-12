@@ -367,6 +367,15 @@ export default {
             selectedLevels.value = [];
             resumoCompetenciasProcessadas.value = [];
             resumoAgrupado.value = {};
+            isProcessingAutoFill.value = false;
+            progressStage.value = 'resumo';
+            progressTotalPercent.value = 0;
+            progressResumoPercent.value = 0;
+            detalheCompetenciasAutoFill.value = [];
+            totalCompetenciasAutoFill.value = 0;
+            allCompetencesAutoFill.value = [];
+            hideFooter.value = false;
+            progressMessage.value = '';
             if (level_id.value > 1) {
                 for (let i = 1; i < level_id.value; i++) {
                     selectedLevels.value.push(String(i));
