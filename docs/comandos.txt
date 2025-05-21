@@ -1,4 +1,4 @@
-git tag -a 1.6.0 -m "Release 1.6.0 - feat: preenchimento de níveis anteriores e criação de cecklist com data retroativa"
+git tag -a 1.6.1 -m "Release 1.6.1 - feat: agora permite comparar qualquer checklists"
 
 git push --tags
 
