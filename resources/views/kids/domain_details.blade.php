@@ -1,34 +1,36 @@
 <!-- resources/views/kids/domain_details.blade.php -->
 
-@extends('layouts.app')
-
-
-@section('breadcrumb')
+@extends('layouts.app') @section('breadcrumb')
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ url('/analysis/1/level/0') }}">Comparativo</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Detalhes do Domínio</li>
+        <li class="breadcrumb-item">
+            <a href="{{ route('home.index') }}">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{{ url('/analysis/1/level/0') }}">Comparativo</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            Detalhes do Domínio
+        </li>
     </ol>
 </nav>
-@endsection
-
-@section('title')
-Domínio
-@endsection
-
-@section('breadcrumb-items')
-<li class="breadcrumb-item"><a href="{{ url('/analysis/1/level/0') }}">Comparativo</a></li>
+@endsection @section('title') Domínio @endsection @section('breadcrumb-items')
+<li class="breadcrumb-item">
+    <a href="{{ url('/analysis/1/level/0') }}">Comparativo</a>
+</li>
 <li class="breadcrumb-item active" aria-current="page">
     <i class="bi bi-eye"></i> Visão Geral
 </li>
-@endsection
-
-@section('content')
+@endsection @section('content')
 <div class="row">
     <div class="col-md-12">
-        <x-kid-info-card :kid="$kid" :responsible="$kid->responsible" :professional="$kid->professional"
-            :checklist-count="$kid->checklists()->count()" :plane-count="$kid->planes()->count()" />
+        <x-kid-info-card
+            :kid="$kid"
+            :responsible="$kid->responsible"
+            :professional="$kid->professional"
+            :checklist-count="$kid->checklists()->count()"
+            :plane-count="$kid->planes()->count()"
+        />
     </div>
 </div>
 
@@ -37,9 +39,14 @@ Domínio
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-0">{{ $domain->name }} ({{ $domain->initial }})</h2>
             <div class="d-flex align-items-center">
-                <h2 class="mb-0 me-3">{{ $levelId === 0 ? 'Todos os níveis' : 'Nível ' . $levelId }}</h2>
-                <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => $levelId, $previousChecklist->id]) }}"
-                    class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
+                <h2 class="mb-0 me-3">
+                    {{ $levelId === 0 ? "Todos os níveis" : "Nível ".$levelId }}
+                </h2>
+                <a
+                    href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => $levelId]) }}"
+                    class="btn btn-secondary"
+                    ><i class="bi bi-arrow-left"></i> Voltar</a
+                >
             </div>
         </div>
     </div>
@@ -48,37 +55,41 @@ Domínio
 <div class="row">
     <div class="col-md-12 mt-3">
         <div class="card mt-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Gráfico de Barras - Comparativo de Competências</h5>
+            <div
+                class="card-header d-flex justify-content-between align-items-center"
+            >
+                <h5 class="card-title mb-0">
+                    Gráfico de Barras - Comparativo de Competências
+                </h5>
                 <div>
                     @if ($currentChecklist)
                     <small class="text-muted me-3">
-                        <strong>Checklist Atual:</strong> {{ $currentChecklist->name ?? 'Checklist ' .
-                        $currentChecklist->id }} -
+                        <strong>Checklist Atual:</strong>
+                        {{ $currentChecklist->name ?? 'Checklist ' .
+                        $currentChecklist->id }}
+                        -
                         {{ $currentChecklist->created_at->format('d/m/Y') }}
                     </small>
-                    @endif
-
-                    @if ($previousChecklist)
+                    @endif @if ($previousChecklist)
                     <small class="text-muted">
                         <strong>Checklist de Comparação:</strong>
-                        {{ $previousChecklist->name ?? 'Checklist ' . $previousChecklist->id }} -
+                        {{ $previousChecklist->name ?? 'Checklist ' . $previousChecklist->id }}
+                        -
                         {{ $previousChecklist->created_at->format('d/m/Y') }}
                     </small>
                     @endif
                 </div>
             </div>
             <div class="card-body">
-                <div class="chart-container d-flex justify-content-center align-items-center">
+                <div
+                    class="chart-container d-flex justify-content-center align-items-center"
+                >
                     <canvas id="barChartCompetences"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
-
 
 <div class="row">
     <div class="col-md-12 mt-3">
@@ -100,44 +111,57 @@ Domínio
                 <tbody>
                     @foreach ($radarDataCompetences as $competenceData)
                     <tr>
-                        <td nowrap>{{ $competenceData['domain_initial'] }} Nível: {{ $competenceData['level'] }}
-                            Item: {{ $competenceData['competence'] }}</td>
-                        <td>{{ $competenceData['description'] ?? '' }}</td>
+                        <td nowrap>
+                            {{ $competenceData["domain_initial"] }} Nível:
+                            {{ $competenceData["level"] }} Item:
+                            {{ $competenceData["competence"] }}
+                        </td>
+                        <td>{{ $competenceData["description"] ?? "" }}</td>
                         <td nowrap>
                             @if ($competenceData['currentStatusValue'] === 1)
                             Desenvolvido
                             @elseif($competenceData['currentStatusValue'] === 2)
                             Em desenvolvimento
                             @elseif($competenceData['currentStatusValue'] === 3)
-                            Não desenvolvido
-                            @else
-                            Não Avaliado
-                            @endif
+                            Não desenvolvido @else Não Avaliado @endif
                         </td>
                         <td nowrap>
                             @if ($competenceData['previousStatusValue'] === 1)
                             Desenvolvido
-                            @elseif($competenceData['previousStatusValue'] === 2)
-                            Em desenvolvimento
-                            @elseif($competenceData['previousStatusValue'] === 3)
-                            Não desenvolvido
-                            @else
-                            Não Avaliado
-                            @endif
+                            @elseif($competenceData['previousStatusValue'] ===
+                            2) Em desenvolvimento
+                            @elseif($competenceData['previousStatusValue'] ===
+                            3) Não desenvolvido @else Não Avaliado @endif
                         </td>
                         <td>
                             <!-- Barra de Progresso -->
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar"
-                                    style="width: {{ $competenceData['percentComplete'] ?? 100 }}%; background-color: {{ $competenceData['statusColor'] }};"
-                                    aria-valuenow="{{ $competenceData['percentComplete'] ?? 100 }}" aria-valuemin="0"
-                                    aria-valuemax="100">
-                                    {{ $competenceData['status'] }}
+                                <div
+                                    class="progress-bar"
+                                    role="progressbar"
+                                    style="width: {{
+                                        $competenceData['percentComplete'] ??
+                                            100
+                                    }}%; background-color: {{
+                                        $competenceData['statusColor']
+                                    }};"
+                                    aria-valuenow="{{
+                                        $competenceData['percentComplete'] ??
+                                            100
+                                    }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                >
+                                    {{ $competenceData["status"] }}
                                 </div>
                             </div>
                         </td>
                         <td nowrap>
-                            <canvas id="percentilChart-{{ $loop->index }}" width="400" height="200"></canvas>
+                            <canvas
+                                id="percentilChart-{{ $loop->index }}"
+                                width="400"
+                                height="200"
+                            ></canvas>
                         </td>
                     </tr>
                     @endforeach
@@ -146,10 +170,7 @@ Domínio
         </div>
     </div>
 </div>
-@endsection
-
-
-@push('scripts')
+@endsection @push('scripts')
 <!-- Scripts para os gráficos -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -369,6 +390,5 @@ Domínio
             }
         }
     });
-
 </script>
 @endpush

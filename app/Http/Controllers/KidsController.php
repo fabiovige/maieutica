@@ -1001,7 +1001,7 @@ class KidsController extends Controller
         return view('kids.domain_details', $data);
     }
 
-    public function showRadarChart2($kidId, $levelId, $checklistId = null)
+    public function showRadarChart2($kidId, $levelId, $firstChecklistId = null, $secondChecklistId = null)
     {
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
@@ -1009,44 +1009,32 @@ class KidsController extends Controller
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
         $ageInMonths = $birthdate->diffInMonths(Carbon::now());
-        // Obter os domínios para o nível selecionado
+
+        // Configurar níveis
         if ($levelId == 0) {
             $levelId = [1, 2, 3, 4];
         } else {
             $levelId = [$levelId];
         }
+
+        // Obter os domínios para o nível selecionado
         $domainLevels = DB::table('domain_level')->whereIn('level_id', $levelId)->pluck('domain_id');
-
         $domains = Domain::whereIn('id', $domainLevels)->get();
-        // Obter o checklist atual (mais recente)
-        $currentChecklist = Checklist::where('kid_id', $kidId)
-            ->orderBy('id', 'desc')
-            ->first();
 
-        // Verificar se existe um checklist atual
-        if (! $currentChecklist) {
-            // Tratar o caso em que não há checklists para a criança
-            throw new ('Nenhum checklist encontrado!');
-        }
-
-        // Obter o checklist de comparação, se um ID foi fornecido
-        if ($checklistId) {
-            $previousChecklist = Checklist::find($checklistId);
-        } else {
-            $previousChecklist = null;
-        }
-
-        // Obter todos os checklists para o combobox, excluindo o atual
+        // Obter todos os checklists disponíveis
         $allChecklists = Checklist::where('kid_id', $kidId)
-            ->where('id', '<>', $currentChecklist->id)
-            ->orderBy('id', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        // Obter os dois checklists mais recentes da criança
-        $checklists = Checklist::where('kid_id', $kidId)
-            ->orderBy('created_at', 'desc')
-            ->take(2)
-            ->get();
+        // Se nenhum checklist foi selecionado, usar os dois mais recentes
+        if (!$firstChecklistId && !$secondChecklistId && $allChecklists->count() >= 2) {
+            $firstChecklistId = $allChecklists->first()->id;
+            $secondChecklistId = $allChecklists->skip(1)->first()->id;
+        }
+
+        // Obter os checklists selecionados
+        $firstChecklist = $firstChecklistId ? Checklist::find($firstChecklistId) : null;
+        $secondChecklist = $secondChecklistId ? Checklist::find($secondChecklistId) : null;
 
         // Preparar os dados para o radar geral por domínios
         $radarDataDomains = [];
@@ -1059,78 +1047,73 @@ class KidsController extends Controller
                 ->get();
 
             // Inicializar as médias como null
-            $currentAverage = null;
-            $previousAverage = null;
+            $firstAverage = null;
+            $secondAverage = null;
 
-            // Calcular a média para o checklist atual, se existir
-            if ($currentChecklist) {
-                $currentEvaluations = DB::table('checklist_competence')
-                    ->where('checklist_id', $currentChecklist->id)
+            // Calcular a média para o primeiro checklist
+            if ($firstChecklist) {
+                $firstEvaluations = DB::table('checklist_competence')
+                    ->where('checklist_id', $firstChecklist->id)
                     ->whereIn('competence_id', $competences->pluck('id'))
                     ->select('competence_id', 'note')
                     ->get()
                     ->keyBy('competence_id');
 
-                $currentSumNotes = 0;
-                $currentCountNotes = 0;
+                $firstSumNotes = 0;
+                $firstCountNotes = 0;
 
                 foreach ($competences as $competence) {
-                    $evaluation = $currentEvaluations->get($competence->id);
-
-                    if ($evaluation) {
-                        $note = $evaluation->note;
-
-                        if ($note !== null && $note !== 0) {
-                            $currentSumNotes += $note;
-                            $currentCountNotes++;
-                        }
+                    $evaluation = $firstEvaluations->get($competence->id);
+                    if ($evaluation && $evaluation->note !== null && $evaluation->note !== 0) {
+                        $firstSumNotes += $evaluation->note;
+                        $firstCountNotes++;
                     }
                 }
 
-                $currentAverage = $currentCountNotes > 0 ? $currentSumNotes / $currentCountNotes : null;
+                $firstAverage = $firstCountNotes > 0 ? $firstSumNotes / $firstCountNotes : null;
             }
 
-            // Calcular a média para o checklist anterior, se existir
-            if ($previousChecklist) {
-                $previousEvaluations = DB::table('checklist_competence')
-                    ->where('checklist_id', $previousChecklist->id)
+            // Calcular a média para o segundo checklist
+            if ($secondChecklist) {
+                $secondEvaluations = DB::table('checklist_competence')
+                    ->where('checklist_id', $secondChecklist->id)
                     ->whereIn('competence_id', $competences->pluck('id'))
                     ->select('competence_id', 'note')
                     ->get()
                     ->keyBy('competence_id');
 
-                $previousSumNotes = 0;
-                $previousCountNotes = 0;
+                $secondSumNotes = 0;
+                $secondCountNotes = 0;
 
                 foreach ($competences as $competence) {
-                    $evaluation = $previousEvaluations->get($competence->id);
-
-                    if ($evaluation) {
-                        $note = $evaluation->note;
-
-                        if ($note !== null && $note !== 0) {
-                            $previousSumNotes += $note;
-                            $previousCountNotes++;
-                        }
+                    $evaluation = $secondEvaluations->get($competence->id);
+                    if ($evaluation && $evaluation->note !== null && $evaluation->note !== 0) {
+                        $secondSumNotes += $evaluation->note;
+                        $secondCountNotes++;
                     }
                 }
 
-                $previousAverage = $previousCountNotes > 0 ? $previousSumNotes / $previousCountNotes : null;
+                $secondAverage = $secondCountNotes > 0 ? $secondSumNotes / $secondCountNotes : null;
             }
 
             $radarDataDomains[] = [
                 'domain' => $domain->initial,
-                'currentAverage' => $currentAverage,
-                'previousAverage' => $previousAverage,
+                'firstAverage' => $firstAverage,
+                'secondAverage' => $secondAverage,
             ];
 
-            for ($i = 1; $i <= $currentChecklist->level; $i++) {
-                $levels[$i] = $i;
+            // Configurar níveis disponíveis
+            if ($firstChecklist) {
+                for ($i = 1; $i <= $firstChecklist->level; $i++) {
+                    $levels[$i] = $i;
+                }
+            }
+            if ($secondChecklist) {
+                for ($i = 1; $i <= $secondChecklist->level; $i++) {
+                    $levels[$i] = $i;
+                }
             }
         }
-
-        $countPlanes = 1;
-        $countChecklists = Checklist::where('kid_id', $kidId)->count();
 
         if (is_array($levelId) && count($levelId) > 1) {
             $levelId = 0;
@@ -1144,15 +1127,13 @@ class KidsController extends Controller
             'levelId' => $levelId,
             'radarDataDomains' => $radarDataDomains,
             'domains' => $domains,
-            'currentChecklist' => $currentChecklist,
-            'previousChecklist' => $previousChecklist,
+            'firstChecklist' => $firstChecklist,
+            'secondChecklist' => $secondChecklist,
             'allChecklists' => $allChecklists,
             'levels' => $levels,
-            'countChecklists' => $countChecklists,
-            'countPlanes' => $countPlanes,
+            'countChecklists' => $allChecklists->count(),
         ];
 
-        // Retornar a view com os dados do radar geral
         return view('kids.radar_chart2', $data);
     }
 
