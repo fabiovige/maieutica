@@ -1319,8 +1319,11 @@ class KidsController extends Controller
 
     public function generatePdf(Request $request, $kidId, $levelId = null)
     {
-        // Reutilizar o serviço para obter os dados da visão geral
-        $data = $this->overviewService->getOverviewData($kidId, $levelId);
+        // Capturar checklistId da query string
+        $checklistId = $request->query('checklist_id');
+
+        // Reutilizar o serviço para obter os dados da visão geral com o checklist correto
+        $data = $this->overviewService->getOverviewData($kidId, $levelId, $checklistId);
 
         // Obter as imagens dos gráficos enviadas no request
         $barChartImage = $request->input('barChartImage');
@@ -1328,15 +1331,23 @@ class KidsController extends Controller
         $barChartItems2Image = $request->input('barChartItems2Image');
 
         $kid = Kid::findOrFail($kidId);
-        $currentChecklist = $kid->currentChecklist;
+
+        // Usar o checklist dos dados retornados pelo service (que pode ser o selecionado ou o atual)
+        $currentChecklist = $data['currentChecklist'];
+
+        if (!$currentChecklist) {
+            flash('Não é possível gerar PDF. Esta criança não possui checklist avaliado.')->warning();
+            return redirect()->back();
+        }
 
         $createdAt = Carbon::parse($currentChecklist->created_at)->format('d/m/Y');
 
         // Obter a data atual formatada
         $currentDate = Carbon::now()->format('d/m/Y');
 
-        // Montar a saída
-        $periodAvaliable = "Período de avaliação: {$createdAt} até {$currentDate}";
+        // Montar a saída com informação do checklist
+        $checklistInfo = $checklistId ? "Checklist #" . $currentChecklist->id : "Checklist Atual";
+        $periodAvaliable = "Período de avaliação: {$createdAt} até {$currentDate} ({$checklistInfo})";
 
         // Criar uma nova instância do PDF
         $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);

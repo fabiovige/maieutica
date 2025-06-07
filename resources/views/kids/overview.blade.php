@@ -86,7 +86,7 @@
                             PDF</button></p>
 
                     <form id="pdfForm"
-                        action="{{ route('kids.generatePdf', ['kidId' => $kid->id, 'levelId' => $levelId]) }}"
+                        action="{{ route('kids.generatePdf', ['kidId' => $kid->id, 'levelId' => $levelId]) }}{{ $checklistId ? '?checklist_id=' . $checklistId : '' }}"
                         method="POST" style="display: none;" target="_blank">
                         @csrf
                         <input type="hidden" name="barChartImage" id="barChartImageInput">
