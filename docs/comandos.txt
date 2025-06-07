@@ -1,4 +1,4 @@
-git tag -a 1.6.1 -m "Release 1.6.1 - feat: agora permite comparar qualquer checklists"
+git tag -a 1.7.0 -m "Release 1.7.0 - feat: tela de desenvolvimento permite filtrar por checklist"
 
 git push --tags
 

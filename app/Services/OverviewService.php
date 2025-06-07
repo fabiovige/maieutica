@@ -21,25 +21,53 @@ class OverviewService
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
         $ageInMonths = $birthdate->diffInMonths(Carbon::now());
 
-        // Obter o checklist atual (mais recente)
-        $currentChecklist = Checklist::where('kid_id', $kidId)
-            ->orderBy('id', 'desc')
-            ->first();
+        // Determinar qual checklist usar para os cálculos
+        if ($checklistId) {
+            // Se um checklistId foi fornecido, usar esse checklist
+            $currentChecklist = Checklist::where('kid_id', $kidId)
+                ->where('id', $checklistId)
+                ->first();
 
-        if (! $currentChecklist) {
-            throw new Exception('Nenhum checklist encontrado!');
+            if (!$currentChecklist) {
+                throw new Exception('Checklist selecionado não encontrado!');
+            }
+        } else {
+            // Caso contrário, usar o checklist mais recente
+            $currentChecklist = Checklist::where('kid_id', $kidId)
+                ->orderBy('id', 'desc')
+                ->first();
         }
 
-        // Obter o checklist de comparação, se um ID foi fornecido
-        $previousChecklist = $checklistId ? Checklist::find($checklistId) : null;
+        // Se não há checklist, retornar dados vazios
+        if (!$currentChecklist) {
+            return [
+                'kid' => $kid,
+                'ageInMonths' => $ageInMonths,
+                'domainData' => [],
+                'totalItemsTested' => 0,
+                'totalItemsValid' => 0,
+                'totalItemsInvalid' => 0,
+                'totalItemsTotal' => 0,
+                'totalPercentage' => 0,
+                'developmentalAgeInMonths' => 0,
+                'delayInMonths' => $ageInMonths,
+                'weakAreas' => [],
+                'currentChecklist' => null,
+                'allChecklists' => collect([]),
+                'levelId' => $levelId,
+                'levels' => [],
+                'domains' => collect([]),
+                'averagePercentage' => 0,
+                'checklistId' => $checklistId
+            ];
+        }
 
-        // Obter todos os checklists para o combobox, excluindo o atual
+        // Obter todos os checklists para o combobox
         $allChecklists = Checklist::where('kid_id', $kidId)
-            ->where('id', '<>', $currentChecklist->id)
             ->orderBy('id', 'desc')
             ->get();
 
-        // Obter os níveis disponíveis
+        // Obter os níveis disponíveis do checklist sendo usado
         $levels = [];
         for ($i = 1; $i <= $currentChecklist->level; $i++) {
             $levels[] = $i;
@@ -48,7 +76,7 @@ class OverviewService
         // Obter os domínios
         $domains = $this->getDomainsByLevel($levelId);
 
-        // Preparar os dados por domínio
+        // Preparar os dados por domínio usando o checklist selecionado
         $domainData = $this->prepareDomainData($domains, $currentChecklist, $levelId);
 
         // Cálculo dos percentuais
@@ -87,12 +115,12 @@ class OverviewService
             'delayInMonths',
             'weakAreas',
             'currentChecklist',
-            'previousChecklist',
             'allChecklists',
             'levelId',
             'levels',
             'domains',
-            'averagePercentage'
+            'averagePercentage',
+            'checklistId'
         );
     }
 
