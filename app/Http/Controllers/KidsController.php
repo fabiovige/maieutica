@@ -1305,8 +1305,11 @@ class KidsController extends Controller
         ));
     }
 
-    public function overview($kidId, $levelId = null, $checklistId = null)
+    public function overview(Request $request, $kidId, $levelId = null)
     {
+        // Capturar checklistId da query string
+        $checklistId = $request->query('checklist_id');
+
         // Usando o serviço para obter os dados
         $data = $this->overviewService->getOverviewData($kidId, $levelId, $checklistId);
 

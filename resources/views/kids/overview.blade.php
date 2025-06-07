@@ -27,17 +27,54 @@
         </div>
     </div>
 
-
+    {{-- Verificar se há checklist disponível --}}
+    @if(!isset($currentChecklist) || !$currentChecklist)
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <div class="py-5">
+                    <i class="bi bi-clipboard-x text-muted" style="font-size: 4rem;"></i>
+                    <h3 class="mt-3 text-muted">Nenhum Checklist Encontrado</h3>
+                    <p class="text-muted mb-4">
+                        Esta criança ainda não possui um checklist avaliado.<br>
+                        É necessário criar e avaliar um checklist para visualizar o desenvolvimento.
+                    </p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{{ route('kids.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar às Crianças
+                        </a>
+                        <a href="{{ route('kids.show', $kid->id) }}" class="btn btn-primary">
+                            <i class="bi bi-clipboard-plus"></i> Ver Perfil da Criança
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
 
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <h3>Informações da Criança</h3>
+
+                    <!-- Seletor de Checklist -->
+                    <div class="form-group mb-3">
+                        <label for="checklistSelect"><strong>Selecionar Checklist:</strong></label>
+                        <select id="checklistSelect" name="checklist_id" class="form-control" onchange="changeChecklist(this.value)">
+                            @foreach ($allChecklists as $checklist)
+                                <option value="{{ $checklist->id }}" {{
+                                    ($checklistId && $checklistId == $checklist->id) ||
+                                    (!$checklistId && $currentChecklist->id == $checklist->id) ? 'selected' : ''
+                                }}>
+                                    Checklist #{{ $checklist->id }} - {{ $checklist->created_at->format('d/m/Y') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     @if ($currentChecklist)
-                        <p><strong>Checklist Atual:</strong>
-                            {{ $currentChecklist->name ?? 'Checklist ' . $currentChecklist->id }} -
-                            {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
+                        <p><strong>Checlist Sendo Exibido:</strong>
+                            Checklist #{{ $currentChecklist->id }} - {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
                     @else
                         <p><strong>Checklist Atual:</strong> Não disponível</p>
                     @endif
@@ -235,36 +272,40 @@
 
 
 
-@endsection
+@endif
 
 @push('scripts')
-    <!-- Scripts para os gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="text/javascript">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Verificar se os dados dos domínios existem antes de renderizar os gráficos
+        @if(isset($domainData) && count($domainData) > 0)
+
+        const domainData = @json($domainData);
+        const domainNames = domainData.map(domain => domain.name);
+        const domainPercentages = domainData.map(domain => domain.percentage);
+        const validItems = domainData.map(domain => domain.itemsValid);
+        const invalidItems = domainData.map(domain => domain.itemsInvalid);
+        const totalItems = domainData.map(domain => domain.itemsTotal);
+        const testedItems = domainData.map(domain => domain.itemsTested);
+
         var ctxBar = document.getElementById('barChart').getContext('2d');
         var ctxRadar = document.getElementById('radarChart').getContext('2d');
         var ctxBarItems2 = document.getElementById('barChartItems2').getContext('2d');
-
-        var domainLabels = @json(array_column($domainData, 'name'));
-        var domainPercentages = @json(array_column($domainData, 'percentage'));
-
-        var domainItemsTested = @json(array_column($domainData, 'itemsTested'));
-        var domainItemsValid = @json(array_column($domainData, 'itemsValid'));
-        var domainItemsInvalid = @json(array_column($domainData, 'itemsInvalid'));
-        var domainItemsTotal = @json(array_column($domainData, 'itemsTotal'));
 
         var barColors = domainPercentages.map(function(percentage) {
             return percentage < 70 ? 'rgba(255, 99, 132, 0.6)' : 'rgba(75, 192, 192, 0.6)';
         });
 
-        var fullPercentages = domainLabels.map(function() {
+        var fullPercentages = domainNames.map(function() {
             return 100;
         });
 
         var barChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
-                labels: domainLabels,
+                labels: domainNames,
                 datasets: [{
                     label: 'Percentual de Habilidades Adquiridas',
                     data: domainPercentages,
@@ -338,7 +379,7 @@
         var radarChart = new Chart(ctxRadar, {
             type: 'radar',
             data: {
-                labels: domainLabels,
+                labels: domainNames,
                 datasets: [{
                     label: 'Percentual de Habilidades Adquiridas',
                     data: domainPercentages,
@@ -443,31 +484,31 @@
 
         // Configuração dos dados
         const data = {
-            labels: domainLabels,
+            labels: domainNames,
             datasets: [{
                     label: 'Total Itens',
-                    data: domainItemsTotal,
+                    data: totalItems,
                     backgroundColor: 'rgba(255, 159, 64, 0.6)',
                     borderColor: 'rgba(255, 159, 64, 1)',
                     borderWidth: 1
                 },
                 {
                     label: 'Itens Testados',
-                    data: domainItemsTested,
+                    data: testedItems,
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 },
                 {
                     label: 'Itens Válidos',
-                    data: domainItemsValid,
+                    data: validItems,
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 },
                 {
                     label: 'Itens Inválidos',
-                    data: domainItemsInvalid,
+                    data: invalidItems,
                     borderWidth: 1,
                     borderColor: 'rgba(255, 0, 0, 1)', // Cor da borda vermelha
                     backgroundColor: 'rgba(255, 0, 0, 0.5)' // Cor de fundo vermelha com transparência
@@ -595,6 +636,7 @@
 
         function changeLevel(selectedLevel) {
             var kidId = {{ $kid->id }};
+            var checklistId = "{{ $checklistId ?? '' }}";
             var baseUrl = "{{ url('kids') }}";
             var url = '';
 
@@ -606,10 +648,33 @@
                 url = baseUrl + "/" + kidId + "/overview";
             }
 
+            // Adicionar checklistId se existir
+            if (checklistId) {
+                url += "?checklist_id=" + checklistId;
+            }
+
             // Redirecionar para a URL construída
             window.location.href = url;
         }
 
+        function changeChecklist(checklistId) {
+            var kidId = {{ $kid->id }};
+            var levelId = "{{ $levelId ?? '' }}";
+            var baseUrl = "{{ url('kids') }}";
+            var url = baseUrl + "/" + kidId;
+
+            // Adicionar nível se selecionado
+            if (levelId) {
+                url += "/level/" + levelId;
+            }
+
+            url += "/overview";
+
+            // Adicionar checklist - sempre adiciona pois agora sempre teremos um ID
+            url += "?checklist_id=" + checklistId;
+
+            window.location.href = url;
+        }
 
         // Função para capturar as imagens dos gráficos
         function getChartImages() {
@@ -703,5 +768,8 @@
                 button.innerHTML = '<i class="bi bi-filetype-pdf"></i> Gerar PDF';
             }
         });
+        @endif
     </script>
 @endpush
+
+@endsection
