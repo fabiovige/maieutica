@@ -95,7 +95,7 @@
                         <div class="progress" role="progressbar" aria-label="{{ $kid->name }}"
                             aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100" style="height: 30px">
                             <div class="progress-bar progress-bar-striped"
-                                style="width: {{ $averagePercentage }}%; background: {{ get_progress_gradient($averagePercentage) }}">
+                                style="width: {{ $averagePercentage }}%; background-color: {{ get_progress_color($averagePercentage) }}">
                                 {{ $averagePercentage }}%
                             </div>
                         </div>
@@ -190,7 +190,7 @@
                                                             aria-valuenow="{{ $domain['percentage'] }}" aria-valuemin="0"
                                                             aria-valuemax="100">
                                                             <div class="progress-bar"
-                                                                style="width: {{ $domain['percentage'] }}%; background: {{ get_progress_gradient($domain['percentage']) }}">
+                                                                style="width: {{ $domain['percentage'] }}%; background-color: {{ get_progress_color($domain['percentage']) }}">
                                                             </div>
                                                         </div>
                                                         {{ $domain['percentage'] }}%
@@ -228,7 +228,7 @@
                                                                 aria-valuenow="{{ $area['percentage'] }}" aria-valuemin="0"
                                                                 aria-valuemax="100">
                                                                 <div class="progress-bar"
-                                                                    style="width: {{ $area['percentage'] }}%; background: {{ get_progress_gradient($area['percentage']) }}">
+                                                                    style="width: {{ $area['percentage'] }}%; background-color: {{ get_progress_color($area['percentage']) }}">
                                                                 </div>
                                                             </div>
                                                             {{ $area['percentage'] }}%
