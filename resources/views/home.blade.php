@@ -148,7 +148,8 @@
                                                     <img src="{{ asset($kid->photo) }}" alt="Avatar"
                                                         class="rounded-circle" width="60" />
                                                 @else
-                                                    <span class="avatar-initial rounded-circle bg-primary" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                                    <span class="avatar-initial rounded-circle bg-primary"
+                                                        style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
                                                         {{ $kid->initials }}
                                                     </span>
                                                 @endif

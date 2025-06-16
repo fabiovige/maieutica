@@ -202,6 +202,7 @@
                                                 <th>{{ $totalItemsTotal }}</th>
                                                 <th>{{ $totalItemsTested }}</th>
                                                 <th>{{ $totalItemsValid }}</th>
+                                                <th>{{ $totalItemsInvalid }}</th>
                                                 <th>{{ round($totalPercentage, 2) }}%</th>
                                             </tr>
                                         </tbody>
