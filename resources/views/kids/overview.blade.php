@@ -24,7 +24,7 @@
     </div>
 
     {{-- Verificar se há checklist disponível --}}
-    @if(!isset($currentChecklist) || !$currentChecklist)
+    @if (!isset($currentChecklist) || !$currentChecklist)
         <div class="card shadow-sm">
             <div class="card-body text-center">
                 <div class="py-5">
@@ -55,12 +55,14 @@
                         <!-- Seletor de Checklist -->
                         <div class="form-group mb-3">
                             <label for="checklistSelect"><strong>Selecionar Checklist:</strong></label>
-                            <select id="checklistSelect" name="checklist_id" class="form-control" onchange="changeChecklist(this.value)">
+                            <select id="checklistSelect" name="checklist_id" class="form-control"
+                                onchange="changeChecklist(this.value)">
                                 @foreach ($allChecklists as $checklist)
-                                    <option value="{{ $checklist->id }}" {{
-                                        ($checklistId && $checklistId == $checklist->id) ||
-                                        (!$checklistId && $currentChecklist->id == $checklist->id) ? 'selected' : ''
-                                    }}>
+                                    <option value="{{ $checklist->id }}"
+                                        {{ ($checklistId && $checklistId == $checklist->id) ||
+                                        (!$checklistId && $currentChecklist->id == $checklist->id)
+                                            ? 'selected'
+                                            : '' }}>
                                         Checklist #{{ $checklist->id }} - {{ $checklist->created_at->format('d/m/Y') }}
                                     </option>
                                 @endforeach
@@ -69,7 +71,8 @@
 
                         @if ($currentChecklist)
                             <p><strong>Checlist Sendo Exibido:</strong>
-                                Checklist #{{ $currentChecklist->id }} - {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
+                                Checklist #{{ $currentChecklist->id }} -
+                                {{ $currentChecklist->created_at->format('d/m/Y') }}</p>
                         @else
                             <p><strong>Checklist Atual:</strong> Não disponível</p>
                         @endif
@@ -93,7 +96,8 @@
                     <div class="col-md-6">
                         <h3>Progresso Geral</h3>
                         <div class="progress" role="progressbar" aria-label="{{ $kid->name }}"
-                            aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100" style="height: 30px">
+                            aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100"
+                            style="height: 30px">
                             <div class="progress-bar progress-bar-striped"
                                 style="width: {{ $averagePercentage }}%; background-color: {{ get_progress_color($averagePercentage) }}">
                                 {{ $averagePercentage }}%
@@ -138,7 +142,8 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="domain-tab" data-bs-toggle="tab" data-bs-target="#domain-chart"
-                            type="button" role="tab" aria-controls="domain-chart" aria-selected="false">Domínios e Áreas
+                            type="button" role="tab" aria-controls="domain-chart" aria-selected="false">Domínios e
+                            Áreas
                             Frágeis</button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -156,7 +161,7 @@
                     </div>
                     <div class="tab-pane fade" id="radar-chart" role="tabpanel" aria-labelledby="radar-tab">
                         <div class="mt-3">
-                            <canvas id="radarChart" width="400" height="400"></canvas>
+                            <canvas id="radarChart" width="720" height="720"></canvas>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="domain-chart" role="tabpanel" aria-labelledby="domain-tab">
@@ -226,8 +231,8 @@
                                                         <td>
                                                             <div class="progress" role="progressbar"
                                                                 aria-label="{{ $area['name'] }}"
-                                                                aria-valuenow="{{ $area['percentage'] }}" aria-valuemin="0"
-                                                                aria-valuemax="100">
+                                                                aria-valuenow="{{ $area['percentage'] }}"
+                                                                aria-valuemin="0" aria-valuemax="100">
                                                                 <div class="progress-bar"
                                                                     style="width: {{ $area['percentage'] }}%; background-color: {{ get_progress_color($area['percentage']) }} !important">
                                                                 </div>
@@ -259,365 +264,430 @@
         </div>
     @endif
 
-@push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        // Registrar o plugin
-        Chart.register(ChartDataLabels);
+        <script>
+            // Registrar o plugin
+            Chart.register(ChartDataLabels);
 
-        // Verificar se os dados dos domínios existem antes de renderizar os gráficos
-        @if(isset($domainData) && count($domainData) > 0)
-            const domainData = @json($domainData);
-            const domainNames = domainData.map(domain => domain.name);
-            const domainPercentages = domainData.map(domain => domain.percentage);
-            const validItems = domainData.map(domain => domain.itemsValid);
-            const invalidItems = domainData.map(domain => domain.itemsInvalid);
-            const totalItems = domainData.map(domain => domain.itemsTotal);
-            const testedItems = domainData.map(domain => domain.itemsTested);
+            // Verificar se os dados dos domínios existem antes de renderizar os gráficos
+            @if (isset($domainData) && count($domainData) > 0)
+                const domainData = @json($domainData);
+                const domainNames = domainData.map(domain => domain.name);
+                const domainPercentages = domainData.map(domain => domain.percentage);
+                const validItems = domainData.map(domain => domain.itemsValid);
+                const invalidItems = domainData.map(domain => domain.itemsInvalid);
+                const totalItems = domainData.map(domain => domain.itemsTotal);
+                const testedItems = domainData.map(domain => domain.itemsTested);
 
-            // Cores do enum ProgressColors
-            const progressColors = {
-                0: '{{ get_progress_color(0) }}',
-                10: '{{ get_progress_color(10) }}',
-                20: '{{ get_progress_color(20) }}',
-                30: '{{ get_progress_color(30) }}',
-                40: '{{ get_progress_color(40) }}',
-                50: '{{ get_progress_color(50) }}',
-                60: '{{ get_progress_color(60) }}',
-                70: '{{ get_progress_color(70) }}',
-                80: '{{ get_progress_color(80) }}',
-                90: '{{ get_progress_color(90) }}',
-                100: '{{ get_progress_color(100) }}'
-            };
+                // Cores do enum ProgressColors
+                const progressColors = {
+                    0: '{{ get_progress_color(0) }}',
+                    10: '{{ get_progress_color(10) }}',
+                    20: '{{ get_progress_color(20) }}',
+                    30: '{{ get_progress_color(30) }}',
+                    40: '{{ get_progress_color(40) }}',
+                    50: '{{ get_progress_color(50) }}',
+                    60: '{{ get_progress_color(60) }}',
+                    70: '{{ get_progress_color(70) }}',
+                    80: '{{ get_progress_color(80) }}',
+                    90: '{{ get_progress_color(90) }}',
+                    100: '{{ get_progress_color(100) }}'
+                };
 
-            // Função para obter a cor baseada no percentual
-            function getProgressColor(percentage) {
-                const rounded = Math.round(percentage / 10) * 10;
-                const safe = Math.max(0, Math.min(100, rounded));
-                return progressColors[safe];
-            }
-
-            // Função para adicionar transparência à cor
-            function addTransparency(color, alpha) {
-                return color + alpha;
-            }
-
-            var ctxBar = document.getElementById('barChart').getContext('2d');
-            var ctxRadar = document.getElementById('radarChart').getContext('2d');
-            var ctxBarItems2 = document.getElementById('barChartItems2').getContext('2d');
-
-            var barColors = domainPercentages.map(percentage => getProgressColor(percentage));
-
-            var barChart = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: domainNames,
-                    datasets: [{
-                        label: 'Percentual de Habilidades Adquiridas',
-                        data: domainPercentages,
-                        backgroundColor: barColors,
-                        borderColor: barColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                                callback: function(value) {
-                                    return value + "%";
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'Percentual (%)'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Domínios'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.parsed.x + '%';
-                                }
-                            }
-                        },
-                        datalabels: {
-                            color: '#000',
-                            anchor: 'end',
-                            align: 'right',
-                            offset: 4,
-                            formatter: function(value) {
-                                return value + '%';
-                            },
-                            font: {
-                                weight: 'bold'
-                            },
-                            padding: {
-                                right: 4
-                            }
-                        }
-                    }
+                // Função para obter a cor baseada no percentual
+                function getProgressColor(percentage) {
+                    const rounded = Math.round(percentage / 10) * 10;
+                    const safe = Math.max(0, Math.min(100, rounded));
+                    return progressColors[safe];
                 }
-            });
 
-            // Radar Chart
-            var radarChart = new Chart(ctxRadar, {
-                type: 'radar',
-                data: {
-                    labels: domainData.map(domain => domain.abbreviation),
-                    datasets: [{
-                        label: 'Percentual de Habilidades Adquiridas',
-                        data: domainPercentages,
-                        backgroundColor: barColors.map(color => addTransparency(color, '80')),
-                        borderColor: barColors,
-                        pointBackgroundColor: barColors,
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: barColors,
-                        borderWidth: 2,
-                        fill: true,
-                        lineTension: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    elements: {
-                        line: {
-                            tension: 0
-                        }
+                // Função para adicionar transparência à cor
+                function addTransparency(color, alpha) {
+                    return color + alpha;
+                }
+
+                var ctxBar = document.getElementById('barChart').getContext('2d');
+                var ctxRadar = document.getElementById('radarChart').getContext('2d');
+                var ctxBarItems2 = document.getElementById('barChartItems2').getContext('2d');
+
+                var barColors = domainPercentages.map(percentage => getProgressColor(percentage));
+
+                var barChart = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: domainNames,
+                        datasets: [{
+                            label: 'Percentual de Habilidades Adquiridas',
+                            data: domainPercentages,
+                            backgroundColor: barColors,
+                            borderColor: barColors,
+                            borderWidth: 1
+                        }]
                     },
-                    scales: {
-                        r: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                                stepSize: 20,
-                                callback: function(value) {
+                    options: {
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + "%";
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Percentual (%)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Domínios'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.x + '%';
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                color: '#000',
+                                anchor: 'end',
+                                align: 'right',
+                                offset: 4,
+                                formatter: function(value) {
                                     return value + '%';
+                                },
+                                font: {
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    right: 4
                                 }
                             }
                         }
-                    }
-                }
-            });
-
-            // Bar Chart Items 2
-            var barChartItems2 = new Chart(ctxBarItems2, {
-                type: 'bar',
-                data: {
-                    labels: domainNames,
-                    datasets: [{
-                        label: 'Total Itens',
-                        data: totalItems,
-                        backgroundColor: barColors.map(color => addTransparency(color, '80')),
-                        borderColor: barColors,
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Itens Avaliados',
-                        data: testedItems,
-                        backgroundColor: barColors.map(color => addTransparency(color, '60')),
-                        borderColor: barColors,
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Itens Válidos',
-                        data: validItems,
-                        backgroundColor: barColors.map(color => addTransparency(color, '20')),
-                        borderColor: barColors,
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Itens Inválidos',
-                        data: invalidItems,
-                        backgroundColor: barColors.map(color => addTransparency(color, '80')),
-                        borderColor: barColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            stacked: true,
-                            title: {
-                                display: true,
-                                text: 'Domínios'
-                            }
-                        },
-                        y: {
-                            stacked: true,
-                            title: {
-                                display: true,
-                                text: 'Quantidade de Itens'
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.raw;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        @endif
-
-        function changeLevel(selectedLevel) {
-            var kidId = {{ $kid->id }};
-            var checklistId = "{{ $checklistId ?? '' }}";
-            var baseUrl = "{{ url('kids') }}";
-            var url = '';
-
-            if (selectedLevel) {
-                // Se um nível específico for selecionado
-                url = baseUrl + "/" + kidId + "/level/" + selectedLevel + "/overview";
-            } else {
-                // Se "Todos os Níveis" for selecionado
-                url = baseUrl + "/" + kidId + "/overview";
-            }
-
-            // Adicionar checklistId se existir
-            if (checklistId) {
-                url += "?checklist_id=" + checklistId;
-            }
-
-            // Redirecionar para a URL construída
-            window.location.href = url;
-        }
-
-        function changeChecklist(checklistId) {
-            var kidId = {{ $kid->id }};
-            var levelId = "{{ $levelId ?? '' }}";
-            var baseUrl = "{{ url('kids') }}";
-            var url = baseUrl + "/" + kidId;
-
-            // Adicionar nível se selecionado
-            if (levelId) {
-                url += "/level/" + levelId;
-            }
-
-            url += "/overview";
-
-            // Adicionar checklist - sempre adiciona pois agora sempre teremos um ID
-            url += "?checklist_id=" + checklistId;
-
-            window.location.href = url;
-        }
-
-        // Função para capturar as imagens dos gráficos
-        function getChartImages() {
-            return new Promise((resolve) => {
-                // Força a exibição de todas as tabs para garantir que os gráficos sejam renderizados
-                document.querySelectorAll('.nav-link').forEach(tab => {
-                    const tabPane = document.querySelector(tab.dataset.bsTarget);
-                    if (tabPane) {
-                        tabPane.classList.add('show', 'active');
                     }
                 });
 
-                // Aguarda um pouco mais para garantir a renderização
-                setTimeout(() => {
-                    try {
-                        var barChartCanvas = document.getElementById('barChart');
-                        var radarChartCanvas = document.getElementById('radarChart');
-                        var barChartItems2Canvas = document.getElementById('barChartItems2');
-
-                        var barChartImage = barChartCanvas ? barChartCanvas.toDataURL('image/png', 1.0) :
-                            null;
-                        var radarChartImage = radarChartCanvas ? radarChartCanvas.toDataURL('image/png',
-                            1.0) : null;
-                        var barChartItems2Image = barChartItems2Canvas ? barChartItems2Canvas.toDataURL(
-                            'image/png', 1.0) : null;
-
-                        // Restaura a visualização original
-                        document.querySelectorAll('.nav-link').forEach(tab => {
-                            const tabPane = document.querySelector(tab.dataset.bsTarget);
-                            if (tabPane) {
-                                tabPane.classList.remove('show', 'active');
+                // Radar Chart - Versão otimizada para PDF
+                var radarChart = new Chart(ctxRadar, {
+                    type: 'radar',
+                    data: {
+                        labels: domainData.map(domain => domain.abbreviation),
+                        datasets: [{
+                            label: 'Percentual de Habilidades Adquiridas',
+                            data: domainPercentages,
+                            backgroundColor: 'rgba(54, 162, 235, 0.3)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 0 // Desabilitar animações para melhor captura
+                        },
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 100,
+                                min: 0,
+                                ticks: {
+                                    stepSize: 20,
+                                    font: {
+                                        size: 12
+                                    },
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                },
+                                angleLines: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                },
+                                pointLabels: {
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                }
                             }
-                        });
-
-                        // Reativa a tab inicial
-                        document.querySelector('#bar-chart').classList.add('show', 'active');
-
-                        resolve({
-                            barChartImage: barChartImage || 'data:,',
-                            radarChartImage: radarChartImage || 'data:,',
-                            barChartItems2Image: barChartItems2Image || 'data:,'
-                        });
-                    } catch (error) {
-                        console.error('Erro ao capturar imagens:', error);
-                        resolve({
-                            barChartImage: 'data:,',
-                            radarChartImage: 'data:,',
-                            barChartItems2Image: 'data:,'
-                        });
+                        },
+                        plugins: {
+                            datalabels: {
+                                display: false
+                            },
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 12
+                                    },
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.parsed.r + '%';
+                                    }
+                                }
+                            }
+                        }
                     }
-                }, 1000); // Aumentado para 1 segundo para garantir a renderização
-            });
-        }
+                });
 
-        // Evento para o botão de gerar PDF
-        document.getElementById('generatePdfBtn').addEventListener('click', async function(e) {
-            e.preventDefault();
+                // Bar Chart Items 2
+                var barChartItems2 = new Chart(ctxBarItems2, {
+                    type: 'bar',
+                    data: {
+                        labels: domainNames,
+                        datasets: [{
+                                label: 'Total Itens',
+                                data: totalItems,
+                                backgroundColor: barColors.map(color => addTransparency(color, '80')),
+                                borderColor: barColors,
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Itens Avaliados',
+                                data: testedItems,
+                                backgroundColor: barColors.map(color => addTransparency(color, '60')),
+                                borderColor: barColors,
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Itens Válidos',
+                                data: validItems,
+                                backgroundColor: barColors.map(color => addTransparency(color, '20')),
+                                borderColor: barColors,
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Itens Inválidos',
+                                data: invalidItems,
+                                backgroundColor: barColors.map(color => addTransparency(color, '80')),
+                                borderColor: barColors,
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                stacked: true,
+                                title: {
+                                    display: true,
+                                    text: 'Domínios'
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                title: {
+                                    display: true,
+                                    text: 'Quantidade de Itens'
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.raw;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            @endif
 
-            const button = this;
-            try {
-                // Mostra spinner com texto
-                button.disabled = true;
-                button.innerHTML = `
+            function changeLevel(selectedLevel) {
+                var kidId = {{ $kid->id }};
+                var checklistId = "{{ $checklistId ?? '' }}";
+                var baseUrl = "{{ url('kids') }}";
+                var url = '';
+
+                if (selectedLevel) {
+                    // Se um nível específico for selecionado
+                    url = baseUrl + "/" + kidId + "/level/" + selectedLevel + "/overview";
+                } else {
+                    // Se "Todos os Níveis" for selecionado
+                    url = baseUrl + "/" + kidId + "/overview";
+                }
+
+                // Adicionar checklistId se existir
+                if (checklistId) {
+                    url += "?checklist_id=" + checklistId;
+                }
+
+                // Redirecionar para a URL construída
+                window.location.href = url;
+            }
+
+            function changeChecklist(checklistId) {
+                var kidId = {{ $kid->id }};
+                var levelId = "{{ $levelId ?? '' }}";
+                var baseUrl = "{{ url('kids') }}";
+                var url = baseUrl + "/" + kidId;
+
+                // Adicionar nível se selecionado
+                if (levelId) {
+                    url += "/level/" + levelId;
+                }
+
+                url += "/overview";
+
+                // Adicionar checklist - sempre adiciona pois agora sempre teremos um ID
+                url += "?checklist_id=" + checklistId;
+
+                window.location.href = url;
+            }
+
+            // Função para capturar as imagens dos gráficos
+            function getChartImages() {
+                return new Promise((resolve) => {
+                    // Salva o estado atual
+                    const activeTab = document.querySelector('.nav-link.active');
+                    const activePane = document.querySelector('.tab-pane.show.active');
+
+                    // Força a exibição de todas as tabs para garantir que os gráficos sejam renderizados
+                    document.querySelectorAll('.nav-link').forEach(tab => {
+                        const tabPane = document.querySelector(tab.dataset.bsTarget);
+                        if (tabPane) {
+                            tabPane.classList.add('show', 'active');
+                        }
+                    });
+
+                    // Força o update dos gráficos para garantir que estejam renderizados
+                    if (typeof barChart !== 'undefined') barChart.update();
+                    if (typeof radarChart !== 'undefined') radarChart.update();
+                    if (typeof barChartItems2 !== 'undefined') barChartItems2.update();
+
+                    // Aguarda mais tempo para garantir a renderização completa
+                    setTimeout(() => {
+                        try {
+                            var barChartCanvas = document.getElementById('barChart');
+                            var radarChartCanvas = document.getElementById('radarChart');
+                            var barChartItems2Canvas = document.getElementById('barChartItems2');
+
+                            // Verifica se os canvas estão visíveis e renderizados
+                            var barChartImage = (barChartCanvas && barChartCanvas.width > 0 && barChartCanvas
+                                    .height > 0) ?
+                                barChartCanvas.toDataURL('image/png', 1.0) : null;
+
+                            var radarChartImage = (radarChartCanvas && radarChartCanvas.width > 0 &&
+                                    radarChartCanvas.height > 0) ?
+                                radarChartCanvas.toDataURL('image/png', 1.0) : null;
+
+                            var barChartItems2Image = (barChartItems2Canvas && barChartItems2Canvas.width > 0 &&
+                                    barChartItems2Canvas.height > 0) ?
+                                barChartItems2Canvas.toDataURL('image/png', 1.0) : null;
+
+                            // Restaura a visualização original
+                            document.querySelectorAll('.nav-link').forEach(tab => {
+                                const tabPane = document.querySelector(tab.dataset.bsTarget);
+                                if (tabPane) {
+                                    tabPane.classList.remove('show', 'active');
+                                }
+                            });
+
+                            // Reativa a tab inicial
+                            if (activeTab && activePane) {
+                                activeTab.classList.add('active');
+                                activePane.classList.add('show', 'active');
+                            } else {
+                                document.querySelector('#bar-chart').classList.add('show', 'active');
+                            }
+
+                            console.log('Imagens capturadas:', {
+                                barChart: barChartImage ? 'OK' : 'FAIL',
+                                radarChart: radarChartImage ? 'OK' : 'FAIL',
+                                barChartItems2: barChartItems2Image ? 'OK' : 'FAIL'
+                            });
+
+                            resolve({
+                                barChartImage: barChartImage || 'data:,',
+                                radarChartImage: radarChartImage || 'data:,',
+                                barChartItems2Image: barChartItems2Image || 'data:,'
+                            });
+                        } catch (error) {
+                            console.error('Erro ao capturar imagens:', error);
+                            resolve({
+                                barChartImage: 'data:,',
+                                radarChartImage: 'data:,',
+                                barChartItems2Image: 'data:,'
+                            });
+                        }
+                    }, 2000); // Aumentado para 2 segundos para garantir a renderização completa
+                });
+            }
+
+            // Evento para o botão de gerar PDF
+            document.getElementById('generatePdfBtn').addEventListener('click', async function(e) {
+                e.preventDefault();
+
+                const button = this;
+                try {
+                    // Mostra spinner com texto
+                    button.disabled = true;
+                    button.innerHTML = `
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     Gerando PDF...
                 `;
 
-                const images = await getChartImages();
+                    const images = await getChartImages();
 
-                document.getElementById('barChartImageInput').value = images.barChartImage;
-                document.getElementById('radarChartImageInput').value = images.radarChartImage;
-                document.getElementById('barChartItems2ImageInput').value = images.barChartItems2Image;
+                    document.getElementById('barChartImageInput').value = images.barChartImage;
+                    document.getElementById('radarChartImageInput').value = images.radarChartImage;
+                    document.getElementById('barChartItems2ImageInput').value = images.barChartItems2Image;
 
-                // Verifica se as imagens foram geradas corretamente
-                if (images.barChartImage === 'data:,' ||
-                    images.radarChartImage === 'data:,' ||
-                    images.barChartItems2Image === 'data:,') {
-                    throw new Error('Falha ao gerar uma ou mais imagens dos gráficos');
+                    // Verifica se as imagens foram geradas corretamente
+                    if (images.barChartImage === 'data:,' ||
+                        images.radarChartImage === 'data:,' ||
+                        images.barChartItems2Image === 'data:,') {
+                        throw new Error('Falha ao gerar uma ou mais imagens dos gráficos');
+                    }
+
+                    document.getElementById('pdfForm').submit();
+                } catch (error) {
+                    console.error('Erro ao gerar PDF:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.'
+                    });
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="bi bi-filetype-pdf"></i> Gerar PDF';
                 }
-
-                document.getElementById('pdfForm').submit();
-            } catch (error) {
-                console.error('Erro ao gerar PDF:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.'
-                });
-            } finally {
-                button.disabled = false;
-                button.innerHTML = '<i class="bi bi-filetype-pdf"></i> Gerar PDF';
-            }
-        });
-    </script>
-@endpush
+            });
+        </script>
+    @endpush
 
 @endsection
