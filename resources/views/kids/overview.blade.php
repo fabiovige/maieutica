@@ -430,7 +430,7 @@
                         borderWidth: 1
                     },
                     {
-                        label: 'Itens Testados',
+                        label: 'Itens Avaliados',
                         data: testedItems,
                         backgroundColor: barColors.map(color => addTransparency(color, '60')),
                         borderColor: barColors,
@@ -439,14 +439,14 @@
                     {
                         label: 'Itens Válidos',
                         data: validItems,
-                        backgroundColor: barColors.map(color => addTransparency(color, '40')),
+                        backgroundColor: barColors.map(color => addTransparency(color, '20')),
                         borderColor: barColors,
                         borderWidth: 1
                     },
                     {
                         label: 'Itens Inválidos',
                         data: invalidItems,
-                        backgroundColor: barColors.map(color => addTransparency(color, '20')),
+                        backgroundColor: barColors.map(color => addTransparency(color, '80')),
                         borderColor: barColors,
                         borderWidth: 1
                     }]
@@ -455,10 +455,27 @@
                     responsive: true,
                     scales: {
                         x: {
-                            stacked: true
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Domínios'
+                            }
                         },
                         y: {
-                            stacked: true
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Quantidade de Itens'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw;
+                                }
+                            }
                         }
                     }
                 }
