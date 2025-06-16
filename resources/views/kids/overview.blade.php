@@ -95,7 +95,7 @@
                         <div class="progress" role="progressbar" aria-label="{{ $kid->name }}"
                             aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100" style="height: 30px">
                             <div class="progress-bar progress-bar-striped"
-                                style="width: {{ $averagePercentage }}%; background-color: {{ get_progress_color($averagePercentage) }}">
+                                style="width: {{ $averagePercentage }}%; background: {{ get_progress_gradient($averagePercentage) }}">
                                 {{ $averagePercentage }}%
                             </div>
                         </div>
@@ -190,7 +190,7 @@
                                                             aria-valuenow="{{ $domain['percentage'] }}" aria-valuemin="0"
                                                             aria-valuemax="100">
                                                             <div class="progress-bar"
-                                                                style="width: {{ $domain['percentage'] }}%; background-color: {{ get_progress_color($domain['percentage']) }}">
+                                                                style="width: {{ $domain['percentage'] }}%; background: {{ get_progress_gradient($domain['percentage']) }}">
                                                             </div>
                                                         </div>
                                                         {{ $domain['percentage'] }}%
@@ -228,7 +228,7 @@
                                                                 aria-valuenow="{{ $area['percentage'] }}" aria-valuemin="0"
                                                                 aria-valuemax="100">
                                                                 <div class="progress-bar"
-                                                                    style="width: {{ $area['percentage'] }}%; background-color: {{ get_progress_color($area['percentage']) }}">
+                                                                    style="width: {{ $area['percentage'] }}%; background: {{ get_progress_gradient($area['percentage']) }}">
                                                                 </div>
                                                             </div>
                                                             {{ $area['percentage'] }}%
@@ -260,9 +260,13 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // Registrar o plugin
+        Chart.register(ChartDataLabels);
+
         // Verificar se os dados dos domínios existem antes de renderizar os gráficos
         @if(isset($domainData) && count($domainData) > 0)
             const domainData = @json($domainData);
@@ -273,24 +277,31 @@
             const totalItems = domainData.map(domain => domain.itemsTotal);
             const testedItems = domainData.map(domain => domain.itemsTested);
 
+            // Cores do enum ProgressColors
+            const progressColors = {
+                0: '{{ get_progress_color(0) }}',
+                10: '{{ get_progress_color(10) }}',
+                20: '{{ get_progress_color(20) }}',
+                30: '{{ get_progress_color(30) }}',
+                40: '{{ get_progress_color(40) }}',
+                50: '{{ get_progress_color(50) }}',
+                60: '{{ get_progress_color(60) }}',
+                70: '{{ get_progress_color(70) }}',
+                80: '{{ get_progress_color(80) }}',
+                90: '{{ get_progress_color(90) }}',
+                100: '{{ get_progress_color(100) }}'
+            };
+
             // Função para obter a cor baseada no percentual
             function getProgressColor(percentage) {
-                const colors = {
-                    0: '#a84a69',    // Mais escuro para 0%
-                    10: '#a34677',
-                    20: '#a7527f',
-                    30: '#ab5e88',
-                    40: '#af6a90',
-                    50: '#b37698',
-                    60: '#b782a1',
-                    70: '#bb8ea9',
-                    80: '#bf9ab1',
-                    90: '#c3a6ba',
-                    100: '#c7b2c2'   // Mais claro para 100%
-                };
+                const rounded = Math.round(percentage / 10) * 10;
+                const safe = Math.max(0, Math.min(100, rounded));
+                return progressColors[safe];
+            }
 
-                const roundedPercentage = Math.round(percentage / 10) * 10;
-                return colors[roundedPercentage] || colors[0];
+            // Função para adicionar transparência à cor
+            function addTransparency(color, alpha) {
+                return color + alpha;
             }
 
             var ctxBar = document.getElementById('barChart').getContext('2d');
@@ -307,7 +318,7 @@
                         label: 'Percentual de Habilidades Adquiridas',
                         data: domainPercentages,
                         backgroundColor: barColors,
-                        borderColor: barColors.map(color => color.replace('0.6', '1')),
+                        borderColor: barColors,
                         borderWidth: 1
                     }]
                 },
@@ -344,6 +355,21 @@
                                     return context.parsed.x + '%';
                                 }
                             }
+                        },
+                        datalabels: {
+                            color: '#000',
+                            anchor: 'end',
+                            align: 'right',
+                            offset: 4,
+                            formatter: function(value) {
+                                return value + '%';
+                            },
+                            font: {
+                                weight: 'bold'
+                            },
+                            padding: {
+                                right: 4
+                            }
                         }
                     }
                 }
@@ -357,7 +383,7 @@
                     datasets: [{
                         label: 'Percentual de Habilidades Adquiridas',
                         data: domainPercentages,
-                        backgroundColor: barColors.map(color => color.replace('1', '0.1')),
+                        backgroundColor: barColors.map(color => addTransparency(color, '80')),
                         borderColor: barColors,
                         pointBackgroundColor: barColors,
                         pointBorderColor: '#fff',
@@ -399,28 +425,28 @@
                     datasets: [{
                         label: 'Total Itens',
                         data: totalItems,
-                        backgroundColor: barColors.map(color => color.replace('1', '0.6')),
+                        backgroundColor: barColors.map(color => addTransparency(color, '80')),
                         borderColor: barColors,
                         borderWidth: 1
                     },
                     {
                         label: 'Itens Testados',
                         data: testedItems,
-                        backgroundColor: barColors.map(color => color.replace('1', '0.6')),
+                        backgroundColor: barColors.map(color => addTransparency(color, '60')),
                         borderColor: barColors,
                         borderWidth: 1
                     },
                     {
                         label: 'Itens Válidos',
                         data: validItems,
-                        backgroundColor: barColors.map(color => color.replace('1', '0.6')),
+                        backgroundColor: barColors.map(color => addTransparency(color, '40')),
                         borderColor: barColors,
                         borderWidth: 1
                     },
                     {
                         label: 'Itens Inválidos',
                         data: invalidItems,
-                        backgroundColor: barColors.map(color => color.replace('1', '0.6')),
+                        backgroundColor: barColors.map(color => addTransparency(color, '20')),
                         borderColor: barColors,
                         borderWidth: 1
                     }]

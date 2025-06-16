@@ -23,3 +23,17 @@ if (!function_exists('get_progress_color')) {
         return ProgressColors::getColorForPercentage($percentage);
     }
 }
+
+if (!function_exists('get_progress_gradient')) {
+    function get_progress_gradient(float $percentage): string
+    {
+        return ProgressColors::getGradientForPercentage($percentage);
+    }
+}
+
+if (!function_exists('get_chart_gradient')) {
+    function get_chart_gradient(float $percentage): string
+    {
+        return ProgressColors::getGradientForChart($percentage);
+    }
+}
