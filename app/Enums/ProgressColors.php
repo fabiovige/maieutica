@@ -4,17 +4,17 @@ namespace App\Enums;
 
 enum ProgressColors: string
 {
-    case PERCENT_0 = '#a84a69';    // Mais escuro para 0%
-    case PERCENT_10 = '#a34677';
-    case PERCENT_20 = '#a7527f';
-    case PERCENT_30 = '#ab5e88';
-    case PERCENT_40 = '#af6a90';
-    case PERCENT_50 = '#b37698';
-    case PERCENT_60 = '#b782a1';
+    case PERCENT_0 = '#6a2046';    // Mais escuro para 0%
+    case PERCENT_10 = '#8a2e5c';   // Escuro
+    case PERCENT_20 = '#a34677';
+    case PERCENT_30 = '#a7527f';
+    case PERCENT_40 = '#ab5e88';
+    case PERCENT_50 = '#af6a90';
+    case PERCENT_60 = '#b37698';
     case PERCENT_70 = '#bb8ea9';
     case PERCENT_80 = '#bf9ab1';
     case PERCENT_90 = '#c3a6ba';
-    case PERCENT_100 = '#c7b2c2';   // Mais claro para 100%
+    case PERCENT_100 = '#f7e6f2';  // Mais claro para 100%
 
     public static function getColorForPercentage(float $percentage): string
     {
