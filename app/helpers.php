@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\ProgressColors;
+
 if (! function_exists('label_case')) {
 
     function label_case($text)
@@ -12,5 +14,12 @@ if (! function_exists('label_case')) {
         $new_text = preg_replace('!\s+!', ' ', $new_text);
 
         return $new_text;
+    }
+}
+
+if (!function_exists('get_progress_color')) {
+    function get_progress_color(float $percentage): string
+    {
+        return ProgressColors::getColorForPercentage($percentage);
     }
 }
