@@ -63,7 +63,12 @@
 }
 
 /* Classes de progress bars */
-.progress-bar {
+/* .progress-bar {
+    background-color: var(--color-primary) !important;
+} */
+
+/* Progress bars específicas que devem usar cor primária */
+.progress-bar-primary {
     background-color: var(--color-primary) !important;
 }
 

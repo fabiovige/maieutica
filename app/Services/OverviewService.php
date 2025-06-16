@@ -175,6 +175,7 @@ class OverviewService
                 'code' => $domain->id,
                 'name' => $domain->name,
                 'initial' => $domain->initial,
+                'abbreviation' => $domain->initial,
                 'itemsTested' => $itemsTested,
                 'itemsValid' => $itemsValid,
                 'itemsInvalid' => $itemsInvalid,

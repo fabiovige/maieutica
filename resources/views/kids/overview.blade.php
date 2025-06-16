@@ -156,7 +156,7 @@
                     </div>
                     <div class="tab-pane fade" id="radar-chart" role="tabpanel" aria-labelledby="radar-tab">
                         <div class="mt-3">
-                            <canvas id="radarChart" width="150" height="150"></canvas>
+                            <canvas id="radarChart" width="400" height="400"></canvas>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="domain-chart" role="tabpanel" aria-labelledby="domain-tab">
@@ -190,7 +190,7 @@
                                                             aria-valuenow="{{ $domain['percentage'] }}" aria-valuemin="0"
                                                             aria-valuemax="100">
                                                             <div class="progress-bar"
-                                                                style="width: {{ $domain['percentage'] }}%; background-color: {{ get_progress_color($domain['percentage']) }}">
+                                                                style="width: {{ $domain['percentage'] }}%; background-color: {{ get_progress_color($domain['percentage']) }} !important">
                                                             </div>
                                                         </div>
                                                         {{ $domain['percentage'] }}%
@@ -228,7 +228,7 @@
                                                                 aria-valuenow="{{ $area['percentage'] }}" aria-valuemin="0"
                                                                 aria-valuemax="100">
                                                                 <div class="progress-bar"
-                                                                    style="width: {{ $area['percentage'] }}%; background-color: {{ get_progress_color($area['percentage']) }}">
+                                                                    style="width: {{ $area['percentage'] }}%; background-color: {{ get_progress_color($area['percentage']) }} !important">
                                                                 </div>
                                                             </div>
                                                             {{ $area['percentage'] }}%
@@ -379,7 +379,7 @@
             var radarChart = new Chart(ctxRadar, {
                 type: 'radar',
                 data: {
-                    labels: domainNames,
+                    labels: domainData.map(domain => domain.abbreviation),
                     datasets: [{
                         label: 'Percentual de Habilidades Adquiridas',
                         data: domainPercentages,
