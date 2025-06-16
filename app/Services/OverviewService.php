@@ -92,9 +92,9 @@ class OverviewService
         $developmentalAgeInMonths = $ageInMonths * ($totalPercentage / 100);
         $delayInMonths = $ageInMonths - $developmentalAgeInMonths;
 
-        // Identificar áreas frágeis (percentual < 100%)
+        // Identificar áreas frágeis (percentual <= 50% e com itens testados)
         $weakAreas = array_filter($domainData, function ($domain) {
-            return $domain['percentage'] < 100;
+            return $domain['percentage'] <= 50 && $domain['itemsTested'] > 0;
         });
 
         // Ordenar áreas frágeis
@@ -175,6 +175,7 @@ class OverviewService
                 'code' => $domain->id,
                 'name' => $domain->name,
                 'initial' => $domain->initial,
+                'abbreviation' => $domain->initial,
                 'itemsTested' => $itemsTested,
                 'itemsValid' => $itemsValid,
                 'itemsInvalid' => $itemsInvalid,

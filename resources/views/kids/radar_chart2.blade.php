@@ -16,7 +16,7 @@ Comparativo
 @endsection
 
 @section('content')
-<div class="container-fluid">
+
     <!-- Info Card da Criança -->
     <div class="row mb-4">
         <div class="col-12">
@@ -162,7 +162,7 @@ Comparativo
             </div>
         </div>
     </div>
-</div>
+
 @endsection
 
 @push('scripts')

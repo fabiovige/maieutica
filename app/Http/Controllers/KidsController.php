@@ -1467,7 +1467,7 @@ class KidsController extends Controller
         $this->addChartToPdf($pdf, $barChartImage, 'Gráfico de Barras: Percentual de Habilidades', 170);
 
         $pdf->AddPage();
-        $this->addChartToPdf($pdf, $radarChartImage, 'Gráfico de Radar: Análise de Competências', 170);
+        $this->addChartToPdf($pdf, $radarChartImage, 'Gráfico de Radar: Análise de Competências', 306);
 
         $pdf->AddPage();
         $this->addChartToPdf($pdf, $barChartItems2Image, 'Análise Geral dos Itens', 170);
@@ -1492,13 +1492,20 @@ class KidsController extends Controller
             <tbody>';
 
         foreach ($data['domainData'] as $domain) {
+            $color = $this->getProgressColor($domain['percentage']);
             $html .= '<tr>
                 <td nowrap="nowrap">' . $domain['name'] . '</td>
                 <td style="text-align: center;">' . $domain['itemsTotal'] . '</td>
                 <td style="text-align: center;">' . $domain['itemsTested'] . '</td>
                 <td style="text-align: center;">' . $domain['itemsValid'] . '</td>
                 <td style="text-align: center;">' . $domain['itemsInvalid'] . '</td>
-                <td style="text-align: center;"> (' . $domain['percentage'] . '%)</td>
+                <td style="text-align: left;">
+                    <div style="position: relative; width: 100%;">
+                        <div style="width: ' . $domain['percentage'] . '%; background-color: ' . $color . '; color: white; text-align: left; padding: 2px; border-radius: 3px;">
+                            ' . $domain['percentage'] . '%
+                        </div>
+                    </div>
+                </td>
             </tr>';
         }
 
@@ -1523,10 +1530,16 @@ class KidsController extends Controller
                     <tbody>';
 
         foreach ($data['weakAreas'] as $domain) {
-
+            $color = $this->getProgressColor($domain['percentage']);
             $html .= '<tr>
                 <td style="white-space: nowrap;">' . $domain['name'] . '</td>
-                <td style="text-align: center; white-space: nowrap;"> (' . $domain['percentage'] . '%)</td>
+                <td style="text-align: left;">
+                    <div style="position: relative; width: 100%;">
+                        <div style="width: ' . $domain['percentage'] . '%; background-color: ' . $color . '; color: white; text-align: left; padding: 2px; border-radius: 3px;">
+                            ' . $domain['percentage'] . '%
+                        </div>
+                    </div>
+                </td>
             </tr>';
         }
 
@@ -1541,45 +1554,101 @@ class KidsController extends Controller
     // Método auxiliar para adicionar gráficos ao PDF
     private function addChartToPdf($pdf, $imageData, $title, $width = null, $height = null)
     {
-        if ($imageData) {
+        // Adicionar título sempre, mesmo se não houver imagem
+        $pdf->Ln(10);
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, $title, 0, 1, 'C');
+
+        if ($imageData && $imageData !== 'data:,') {
             try {
-                // Decodificar a imagem base64
-                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
+                // Verificar se a imagem tem conteúdo válido
+                if (strpos($imageData, 'data:image') === 0) {
+                    // Decodificar a imagem base64
+                    $decodedImage = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
 
-                // Criar um caminho absoluto para o arquivo temporário
-                $tempDir = storage_path('app/temp');
+                    if ($decodedImage && strlen($decodedImage) > 100) { // Verificar se tem conteúdo mínimo
+                        // Criar um caminho absoluto para o arquivo temporário
+                        $tempDir = storage_path('app/temp');
 
-                // Garantir que o diretório existe com permissões corretas
-                if (!file_exists($tempDir)) {
-                    mkdir($tempDir, 0755, true);
-                }
+                        // Garantir que o diretório existe com permissões corretas
+                        if (!file_exists($tempDir)) {
+                            mkdir($tempDir, 0755, true);
+                        }
 
-                // Criar nome único para o arquivo
-                $tempFileName = uniqid('chart_') . '.png';
-                $tempImagePath = $tempDir . DIRECTORY_SEPARATOR . $tempFileName;
+                        // Criar nome único para o arquivo
+                        $tempFileName = uniqid('chart_') . '.png';
+                        $tempImagePath = $tempDir . DIRECTORY_SEPARATOR . $tempFileName;
 
-                // Salvar a imagem
-                if (file_put_contents($tempImagePath, $imageData)) {
-                    // Verificar se o arquivo existe e é legível
-                    if (file_exists($tempImagePath) && is_readable($tempImagePath)) {
-                        // Adicionar título
-                        $pdf->Ln(10);
-                        $pdf->SetFont('helvetica', 'B', 12);
-                        $pdf->Cell(0, 10, $title, 0, 1, 'C');
+                        // Salvar a imagem
+                        if (file_put_contents($tempImagePath, $decodedImage)) {
+                            // Verificar se o arquivo existe e é legível
+                            if (file_exists($tempImagePath) && is_readable($tempImagePath) && filesize($tempImagePath) > 100) {
+                                // Calcular a posição X para centralizar a imagem
+                                $pageWidth = $pdf->getPageWidth();
+                                $x = ($pageWidth - $width) / 2;
 
-                        // Adicionar imagem com caminho absoluto
-                        $pdf->Image($tempImagePath, '', '', $width, $height, 'PNG');
+                                // Adicionar imagem centralizada
+                                $pdf->Image($tempImagePath, $x, '', $width, $height, 'PNG');
+                                \Log::info("Gráfico '$title' adicionado com sucesso ao PDF");
+                            } else {
+                                \Log::warning("Arquivo de imagem não é válido para '$title'");
+                                $this->addErrorMessage($pdf, "Gráfico não disponível");
+                            }
+
+                            // Remover o arquivo temporário
+                            if (file_exists($tempImagePath)) {
+                                unlink($tempImagePath);
+                            }
+                        } else {
+                            \Log::error("Falha ao salvar arquivo temporário para '$title'");
+                            $this->addErrorMessage($pdf, "Erro ao processar gráfico");
+                        }
+                    } else {
+                        \Log::warning("Dados de imagem insuficientes para '$title'");
+                        $this->addErrorMessage($pdf, "Dados de gráfico insuficientes");
                     }
-
-                    // Remover o arquivo temporário
-                    if (file_exists($tempImagePath)) {
-                        unlink($tempImagePath);
-                    }
+                } else {
+                    \Log::warning("Formato de imagem inválido para '$title'");
+                    $this->addErrorMessage($pdf, "Formato de gráfico inválido");
                 }
             } catch (Exception $e) {
-                \Log::error('Erro ao processar imagem para PDF: ' . $e->getMessage());
-                \Log::error('Caminho da imagem: ' . $tempImagePath);
+                \Log::error("Erro ao processar imagem para PDF '$title': " . $e->getMessage());
+                $this->addErrorMessage($pdf, "Erro ao carregar gráfico: " . $e->getMessage());
             }
+        } else {
+            \Log::warning("Nenhuma imagem fornecida para '$title'");
+            $this->addErrorMessage($pdf, "Gráfico não foi gerado");
         }
+    }
+
+    private function addErrorMessage($pdf, $message)
+    {
+        $pdf->Ln(20);
+        $pdf->SetFont('helvetica', 'I', 10);
+        $pdf->SetTextColor(128, 128, 128); // Cor cinza
+        $pdf->Cell(0, 10, $message, 0, 1, 'C');
+        $pdf->SetTextColor(0, 0, 0); // Restaurar cor preta
+        $pdf->Ln(20);
+    }
+
+    private function getProgressColor($percentage)
+    {
+        $roundedPercentage = (int) round($percentage / 10) * 10;
+        $roundedPercentage = max(0, min(100, $roundedPercentage));
+
+        return match($roundedPercentage) {
+            0 => '#6a2046',    // Mais escuro para 0%
+            10 => '#8a2e5c',   // Escuro
+            20 => '#a34677',
+            30 => '#a7527f',
+            40 => '#ab5e88',
+            50 => '#af6a90',
+            60 => '#b37698',
+            70 => '#bb8ea9',
+            80 => '#bf9ab1',
+            90 => '#c3a6ba',
+            100 => '#f7e6f2',  // Mais claro para 100%
+            default => '#6a2046',
+        };
     }
 }

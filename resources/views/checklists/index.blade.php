@@ -205,7 +205,7 @@
                                     <div class="progress" role="progressbar" aria-label="checklist{{ $checklist->id }}"
                                         aria-valuenow="{{ $checklist->developmentPercentage }}" aria-valuemin="0"
                                         aria-valuemax="100">
-                                        <div class="progress-bar" style="width: {{ $checklist->developmentPercentage }}%">
+                                        <div class="progress-bar" style="width: {{ $checklist->developmentPercentage }}%; background-color: {{ get_progress_color($checklist->developmentPercentage) }} !important">
                                         </div>
                                     </div>
 
