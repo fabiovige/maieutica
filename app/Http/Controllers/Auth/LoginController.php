@@ -138,4 +138,44 @@ class LoginController extends Controller
         // Se falhar, retorna com erro
         return $this->sendFailedLoginResponse($request);
     }
+
+    /**
+     * Attempt to log the user into the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function attemptLogin(Request $request)
+    {
+        return $this->guard()->attempt(
+            $this->credentials($request), $request->boolean('remember')
+        );
+    }
+
+    /**
+     * Send the response after the user was authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendLoginResponse(Request $request)
+    {
+        $request->session()->regenerate();
+
+        $this->clearLoginAttempts($request);
+
+        if ($response = $this->authenticated($request, $this->guard()->user())) {
+            return $response;
+        }
+
+        // Log para debug do remember me
+        if ($request->boolean('remember')) {
+            Log::info('Login com "Lembrar-me" ativado', [
+                'user_id' => $this->guard()->user()->id,
+                'email' => $this->guard()->user()->email,
+            ]);
+        }
+
+        return redirect()->intended($this->redirectPath());
+    }
 }

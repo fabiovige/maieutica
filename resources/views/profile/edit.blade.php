@@ -180,7 +180,7 @@
                     <h5 class="card-title mb-0">Alterar Senha</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('profile.update') }}" method="POST">
+                    <form action="{{ route('profile.password') }}" method="POST">
                         @csrf
                         @method('PUT')
 
