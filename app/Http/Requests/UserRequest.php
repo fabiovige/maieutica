@@ -31,6 +31,14 @@ class UserRequest extends FormRequest
                         'max:15',
                     ],
                     'role_id' => 'required',
+                    // Campos de endereço
+                    'cep' => 'nullable|string|max:9',
+                    'logradouro' => 'nullable|string|max:255',
+                    'numero' => 'nullable|string|max:20',
+                    'complemento' => 'nullable|string|max:255',
+                    'bairro' => 'nullable|string|max:255',
+                    'cidade' => 'nullable|string|max:255',
+                    'estado' => 'nullable|string|max:2',
                 ];
 
             case 'PUT':
@@ -44,6 +52,14 @@ class UserRequest extends FormRequest
                         'max:15',
                     ],
                     // 'role_id' => 'required',
+                    // Campos de endereço
+                    'cep' => 'nullable|string|max:9',
+                    'logradouro' => 'nullable|string|max:255',
+                    'numero' => 'nullable|string|max:20',
+                    'complemento' => 'nullable|string|max:255',
+                    'bairro' => 'nullable|string|max:255',
+                    'cidade' => 'nullable|string|max:255',
+                    'estado' => 'nullable|string|max:2',
                 ];
 
             default:
@@ -57,6 +73,26 @@ class UserRequest extends FormRequest
             'role_id' => 'papél',
             'responsible' => 'responsável',
             'type' => 'Tipo de acesso',
+            'cep' => 'CEP',
+            'logradouro' => 'logradouro',
+            'numero' => 'número',
+            'complemento' => 'complemento',
+            'bairro' => 'bairro',
+            'cidade' => 'cidade',
+            'estado' => 'estado',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'cep.max' => 'O CEP deve ter no máximo 9 caracteres',
+            'logradouro.max' => 'O logradouro deve ter no máximo 255 caracteres',
+            'numero.max' => 'O número deve ter no máximo 20 caracteres',
+            'complemento.max' => 'O complemento deve ter no máximo 255 caracteres',
+            'bairro.max' => 'O bairro deve ter no máximo 255 caracteres',
+            'cidade.max' => 'A cidade deve ter no máximo 255 caracteres',
+            'estado.max' => 'O estado deve ter no máximo 2 caracteres',
         ];
     }
 }

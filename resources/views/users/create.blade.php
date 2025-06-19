@@ -23,7 +23,6 @@
                     @csrf
                     <div class="card-body">
 
-
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="name" class="form-label">Nome</label>
@@ -82,10 +81,22 @@
                                 </div>
                             </div>
 
+                            <!-- Seção de Endereço -->
+                            <div class="col-12">
+                                <h5 class="mb-3">
+                                    <i class="bi bi-geo-alt"></i>
+                                    Endereço
+                                </h5>
+                            </div>
+
                             <div class="col-md-4">
-                                <label for="cep" class="form-label">CEP</label>
+                                <label for="cep" class="form-label">
+                                    <i class="bi bi-search"></i>
+                                    CEP
+                                </label>
                                 <input type="text" class="form-control @error('cep') is-invalid @enderror" id="cep"
-                                    name="cep" value="{{ old('cep') }}">
+                                    name="cep" value="{{ old('cep') }}" placeholder="00000-000" maxlength="9">
+                                <small class="form-text text-muted">Digite o CEP para preenchimento automático</small>
                                 @error('cep')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -94,7 +105,7 @@
                             <div class="col-md-6">
                                 <label for="logradouro" class="form-label">Logradouro</label>
                                 <input type="text" class="form-control @error('logradouro') is-invalid @enderror"
-                                    id="logradouro" name="logradouro" value="{{ old('logradouro') }}">
+                                    id="logradouro" name="logradouro" value="{{ old('logradouro') }}" readonly>
                                 @error('logradouro')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -103,7 +114,7 @@
                             <div class="col-md-2">
                                 <label for="numero" class="form-label">Número</label>
                                 <input type="text" class="form-control @error('numero') is-invalid @enderror"
-                                    id="numero" name="numero" value="{{ old('numero') }}">
+                                    id="numero" name="numero" value="{{ old('numero') }}" placeholder="123">
                                 @error('numero')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -112,7 +123,8 @@
                             <div class="col-md-4">
                                 <label for="complemento" class="form-label">Complemento</label>
                                 <input type="text" class="form-control @error('complemento') is-invalid @enderror"
-                                    id="complemento" name="complemento" value="{{ old('complemento') }}">
+                                    id="complemento" name="complemento" value="{{ old('complemento') }}"
+                                    placeholder="Apto 101">
                                 @error('complemento')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -121,7 +133,7 @@
                             <div class="col-md-4">
                                 <label for="bairro" class="form-label">Bairro</label>
                                 <input type="text" class="form-control @error('bairro') is-invalid @enderror"
-                                    id="bairro" name="bairro" value="{{ old('bairro') }}">
+                                    id="bairro" name="bairro" value="{{ old('bairro') }}" readonly>
                                 @error('bairro')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -130,7 +142,7 @@
                             <div class="col-md-3">
                                 <label for="cidade" class="form-label">Cidade</label>
                                 <input type="text" class="form-control @error('cidade') is-invalid @enderror"
-                                    id="cidade" name="cidade" value="{{ old('cidade') }}">
+                                    id="cidade" name="cidade" value="{{ old('cidade') }}" readonly>
                                 @error('cidade')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -139,13 +151,12 @@
                             <div class="col-md-1">
                                 <label for="estado" class="form-label">UF</label>
                                 <input type="text" class="form-control @error('estado') is-invalid @enderror"
-                                    id="estado" name="estado" value="{{ old('estado') }}">
+                                    id="estado" name="estado" value="{{ old('estado') }}" readonly>
                                 @error('estado')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-
 
                     </div>
                     <div class="card-footer bg-transparent mt-4">
@@ -161,13 +172,20 @@
         </div>
     @endsection
 
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('css/cep-autocomplete.css') }}">
+    @endpush
+
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+        <script src="{{ asset('js/cep-autocomplete.js') }}"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $('input[name="phone"]').mask('(00) 00000-0000');
-                $('input[name="cep"]').mask('00000-000');
+                if (typeof $.fn.mask !== 'undefined') {
+                    $('input[name="phone"]').mask('(00) 00000-0000');
+                    $('input[name="cep"]').mask('00000-000');
+                }
             });
         </script>
     @endpush

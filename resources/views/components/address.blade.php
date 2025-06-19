@@ -7,11 +7,16 @@
 <!-- cep -->
 <div class="row">
     <div class="mb-2 col-md-4">
-        <label for="cep">Informe o cep</label> <br>
+        <label for="cep">
+            <i class="bi bi-search"></i>
+            Informe o CEP
+        </label> <br>
 
         <div class="input-group">
-            <input class="form-control @error('cep') is-invalid @enderror" type="text" name="cep" id="cep" value="{{ old('cep', $model->postal_code ?? null) }}" maxlength="8" >
+            <input class="form-control @error('cep') is-invalid @enderror" type="text" name="cep" id="cep"
+                   value="{{ old('cep', $model->postal_code ?? null) }}" maxlength="9" placeholder="00000-000">
         </div>
+        <small class="form-text text-muted">Digite o CEP para preenchimento automático</small>
 
         @error('cep')
         <div class="invalid-feedback">
@@ -28,7 +33,7 @@
         <label for="logradouro">Logradouro</label> <br>
         <input class="form-control @error('logradouro') is-invalid @enderror" type="text"
         id="logradouro" name="logradouro"
-        value="{{ old('logradouro', $model->street ?? null) }}" maxlength="50" >
+        value="{{ old('logradouro', $model->street ?? null) }}" maxlength="50" readonly>
         @error('logradouro')
         <div class="invalid-feedback">
             {{ $message }}
@@ -40,7 +45,7 @@
         <label for="numero">Número</label> <br>
         <input class="form-control @error('numero') is-invalid @enderror" type="text"
         id="numero" name="numero"
-        value="{{ old('numero', $model->number ?? null) }}" maxlength="10">
+        value="{{ old('numero', $model->number ?? null) }}" maxlength="10" placeholder="123">
         @error('numero')
         <div class="invalid-feedback">
             {{ $message }}
@@ -51,7 +56,8 @@
     <div class="mb-2 col-md-4">
         <label for="complemento">Complemento (opcional)</label> <br>
         <input class="form-control @error('complemento') is-invalid @enderror" type="text"
-        id="complemento" name="complemento" value="{{ old('complemento', $model->complement ?? null) }}" maxlength="50" >
+        id="complemento" name="complemento" value="{{ old('complemento', $model->complement ?? null) }}"
+        maxlength="50" placeholder="Apto 101">
         @error('complemento')
         <div class="invalid-feedback">
             {{ $message }}
@@ -67,7 +73,7 @@
         <label for="bairro">Bairro</label> <br>
         <input class="form-control @error('bairro') is-invalid @enderror" type="text"
         id="bairro" name="bairro"
-        value="{{ old('bairro', $model->neighborhood ?? null) }}" maxlength="50"  >
+        value="{{ old('bairro', $model->neighborhood ?? null) }}" maxlength="50" readonly>
         @error('bairro')
         <div class="invalid-feedback">
             {{ $message }}
@@ -77,7 +83,7 @@
     <div class="mb-2 col-md-4">
         <label for="cidade">Cidade</label> <br>
         <input class="form-control @error('cidade') is-invalid @enderror" type="text"
-        id="cidade" name="cidade" value="{{ old('cidade', $model->city ?? null) }}" maxlength="50"  >
+        id="cidade" name="cidade" value="{{ old('cidade', $model->city ?? null) }}" maxlength="50" readonly>
         @error('cidade')
         <div class="invalid-feedback">
             {{ $message }}
@@ -87,7 +93,7 @@
     <div class="mb-2 col-md-4">
         <label for="estado">Estado</label> <br>
         <input class="form-control @error('estado') is-invalid @enderror" type="text"
-        id="estado" name="estado" value="{{ old('estado', $model->state ?? null) }}" maxlength="50"  >
+        id="estado" name="estado" value="{{ old('estado', $model->state ?? null) }}" maxlength="50" readonly>
         @error('estado')
         <div class="invalid-feedback">
             {{ $message }}
@@ -96,60 +102,19 @@
     </div>
 </div>
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/cep-autocomplete.css') }}">
+@endpush
 
-
-@push ('scripts')
-
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
+@push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="{{ asset('js/cep-autocomplete.js') }}"></script>
     <script type="text/javascript">
-
-        var zipCodeField = document.querySelector('#cep')
-        //var submitButton = document.querySelector('#btnConsultarCep')
-
-        var logradouro = document.querySelector('#logradouro')
-        var bairro = document.querySelector('#bairro')
-        var cidade = document.querySelector('#cidade')
-        var estado = document.querySelector('#estado')
-        var numero = document.querySelector('#numero')
-        var complemento = document.querySelector('#complemento')
-
-
-        //submitButton.addEventListener('click', run)
-
-        // Evento para quando o usuário terminar de digitar o CEP
-        zipCodeField.addEventListener('keyup', function(event) {
-            var zipCode = zipCodeField.value;
-            console.log(zipCode);
-            // Executa a função se o CEP tiver exatamente 8 dígitos
-            if (zipCode.length === 8) {
-                run();  // Chama a função de busca de CEP
+        $(document).ready(function() {
+            if (typeof $.fn.mask !== 'undefined') {
+                $('input[name="cep"]').mask('00000-000');
             }
         });
-
-        function run(){
-            var zipCode = zipCodeField.value
-
-            if(zipCode.length < 8){
-                zipCodeField.focus()
-                return ;
-            }
-            axios
-                .get('https://viacep.com.br/ws/' + zipCode + '/json/')
-                .then(function(response) {
-                    console.log(response.data)
-                    logradouro.value = response.data.logradouro
-                    bairro.value = response.data.bairro
-                    cidade.value = response.data.localidade
-                    estado.value = response.data.uf
-                    numero.value = ''
-                    complemento.value = ''
-                    numero.focus()
-                })
-                .catch(function(error) {
-                    console.log(error)
-                })
-
-        }
     </script>
 @endpush
