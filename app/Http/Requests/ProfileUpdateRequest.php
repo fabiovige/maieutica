@@ -23,7 +23,6 @@ class ProfileUpdateRequest extends FormRequest
             'bairro' => ['required', 'string'],
             'cidade' => ['required', 'string'],
             'estado' => ['required', 'string'],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
     }
 
@@ -38,8 +37,6 @@ class ProfileUpdateRequest extends FormRequest
             'bairro.required' => 'O bairro é obrigatório',
             'cidade.required' => 'A cidade é obrigatória',
             'estado.required' => 'O estado é obrigatório',
-            'password.min' => 'A nova senha deve ter pelo menos 8 caracteres',
-            'password.confirmed' => 'A confirmação da nova senha não confere',
         ];
     }
 }

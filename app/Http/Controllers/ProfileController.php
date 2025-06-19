@@ -46,12 +46,6 @@ class ProfileController extends Controller
 
             $user->update($userData);
 
-            // Se a senha foi fornecida, atualiza
-            if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
-                $user->save();
-            }
-
             DB::commit();
             flash(self::MSG_UPDATE_SUCCESS)->success();
             Log::info('Perfil atualizado com sucesso', ['user_id' => $user->id]);
@@ -109,6 +103,34 @@ class ProfileController extends Controller
             flash('Erro ao atualizar foto de perfil.')->error();
 
             return redirect()->back();
+        }
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'password.required' => 'A nova senha é obrigatória',
+            'password.min' => 'A nova senha deve ter pelo menos 8 caracteres',
+            'password.confirmed' => 'A confirmação da nova senha não confere',
+        ]);
+
+        $user = auth()->user();
+
+        try {
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            flash(self::MSG_PASSWORD_SUCCESS)->success();
+            Log::info('Senha atualizada com sucesso', ['user_id' => $user->id]);
+
+            return redirect()->route('profile.edit');
+        } catch (Exception $e) {
+            Log::error('Erro ao atualizar senha: '.$e->getMessage());
+            flash(self::MSG_PASSWORD_ERROR)->error();
+
+            return redirect()->back()->withInput();
         }
     }
 }
