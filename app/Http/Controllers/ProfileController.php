@@ -53,7 +53,7 @@ class ProfileController extends Controller
             return redirect()->route('profile.edit');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao atualizar perfil: '.$e->getMessage());
+            Log::error('Erro ao atualizar perfil: ' . $e->getMessage());
             flash($e->getMessage() ?: self::MSG_UPDATE_ERROR)->error();
 
             return redirect()->back()->withInput();
@@ -83,11 +83,11 @@ class ProfileController extends Controller
 
                 // Salva novo avatar
                 $file = $request->file('avatar');
-                $fileName = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move($path, $fileName);
 
                 // Salva o caminho relativo no banco
-                $user->avatar = 'images/avatars/'.$fileName;
+                $user->avatar = 'images/avatars/' . $fileName;
                 $user->save();
 
                 flash('Foto de perfil atualizada com sucesso!')->success();
@@ -99,7 +99,7 @@ class ProfileController extends Controller
 
             return redirect()->route('profile.edit');
         } catch (Exception $e) {
-            Log::error('Erro ao atualizar avatar: '.$e->getMessage());
+            Log::error('Erro ao atualizar avatar: ' . $e->getMessage());
             flash('Erro ao atualizar foto de perfil.')->error();
 
             return redirect()->back();
@@ -127,7 +127,7 @@ class ProfileController extends Controller
 
             return redirect()->route('profile.edit');
         } catch (Exception $e) {
-            Log::error('Erro ao atualizar senha: '.$e->getMessage());
+            Log::error('Erro ao atualizar senha: ' . $e->getMessage());
             flash(self::MSG_PASSWORD_ERROR)->error();
 
             return redirect()->back()->withInput();
