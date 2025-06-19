@@ -108,4 +108,26 @@ return [
 
     'password_timeout' => 10800,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Security Settings
+    |--------------------------------------------------------------------------
+    |
+    | Additional security configurations for the application.
+    |
+    */
+
+    'security' => [
+        'max_login_attempts' => 5,
+        'lockout_duration' => 15, // minutes
+        'password_history' => 3, // number of previous passwords to remember
+        'session_timeout' => 120, // minutes
+        'password_min_length' => 8,
+        'password_require_mixed_case' => true,
+        'password_require_numbers' => true,
+        'password_require_symbols' => false,
+        'session_regenerate' => true,
+        'prevent_concurrent_logins' => false,
+    ],
+
 ];

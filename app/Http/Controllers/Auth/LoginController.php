@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\LoginRequest;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -42,6 +43,7 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+        $this->middleware('throttle:5,1')->only('login'); // 5 tentativas por minuto
     }
 
     public function showLoginForm()
@@ -153,6 +155,33 @@ class LoginController extends Controller
     }
 
     /**
+     * Get the failed login response instance.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        // Incrementar contador de tentativas falhadas
+        $key = 'login_attempts_' . $request->ip();
+        $attempts = cache()->get($key, 0) + 1;
+        cache()->put($key, $attempts, now()->addMinutes(config('auth.security.lockout_duration', 15)));
+
+        // Log de tentativa de login falhada
+        Log::warning('Tentativa de login falhada', [
+            'email' => $request->email,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'attempts' => $attempts,
+            'timestamp' => now(),
+        ]);
+
+        throw ValidationException::withMessages([
+            'email' => [trans('auth.failed')],
+        ]);
+    }
+
+    /**
      * Send the response after the user was authenticated.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -163,6 +192,10 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         $this->clearLoginAttempts($request);
+
+        // Limpar contador de tentativas falhadas após login bem-sucedido
+        $key = 'login_attempts_' . $request->ip();
+        cache()->forget($key);
 
         if ($response = $this->authenticated($request, $this->guard()->user())) {
             return $response;

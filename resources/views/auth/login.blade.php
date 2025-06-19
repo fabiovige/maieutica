@@ -17,6 +17,9 @@
     <style>
         body {
             background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
         .login-container {
@@ -25,6 +28,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         .login-card {
@@ -33,6 +37,7 @@
             border: none;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background: white;
         }
 
         .login-header {
@@ -40,6 +45,12 @@
             padding: 20px;
             border-radius: 10px 10px 0 0;
             text-align: center;
+        }
+
+        .login-header h4 {
+            margin: 0;
+            color: #333;
+            font-weight: 600;
         }
 
         .login-body {
@@ -52,6 +63,7 @@
             font-weight: 500;
             font-size: 1.1rem;
             margin-top: 1rem;
+            border-radius: 5px;
         }
 
         .form-floating {
@@ -66,18 +78,28 @@
             left: 15px;
             z-index: 4;
             color: #6c757d;
+            font-size: 16px;
         }
 
         .form-floating input {
             padding-left: 45px !important;
+            height: 58px;
+            border-radius: 5px;
         }
 
         .form-floating label {
             padding-left: 45px;
+            color: #6c757d;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         }
 
         .invalid-feedback {
             display: block;
+            font-size: 0.875rem;
         }
 
         .forgot-password {
@@ -92,10 +114,12 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            transition: color 0.2s;
         }
 
         .forgot-password a:hover {
             color: #0d6efd;
+            text-decoration: none;
         }
 
         .form-check {
@@ -107,15 +131,43 @@
 
         .form-check-input {
             margin-top: 0;
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            user-select: none;
         }
 
         .alert-danger {
             border-left: 4px solid #dc3545;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
         }
 
         .alert-danger ul {
             padding-left: 1rem;
             margin-bottom: 0;
+        }
+
+        .alert-danger li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 10px;
+            }
+
+            .login-body {
+                padding: 20px;
+            }
+
+            .login-card {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -176,7 +228,9 @@
 
                     <div class="row mb-3">
                         <div class="col-md-12">
-                            {!! htmlFormSnippet() !!}
+                            <div style="display: flex; justify-content: center;">
+                                {!! htmlFormSnippet() !!}
+                            </div>
                         </div>
                     </div>
 
