@@ -1,0 +1,51 @@
+/* Estilos para o autocomplete de CEP */
+
+/* Indicador de carregamento */
+.loading {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236c757d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Campos desabilitados */
+.form-control:disabled {
+    background-color: #f8f9fa;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+/* Estilo para campos de endereço preenchidos automaticamente */
+.form-control[readonly] {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+/* Tooltip para campos desabilitados */
+.form-control:disabled::placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Indicador visual de que o campo foi preenchido automaticamente */
+.form-control.auto-filled {
+    border-left: 3px solid #28a745;
+    background-color: #f8fff9;
+}
+
+/* Hover effect para campos desabilitados */
+.form-control:disabled:hover {
+    border-color: #dee2e6;
+}
+
+/* Focus effect para campos desabilitados */
+.form-control:disabled:focus {
+    border-color: #dee2e6;
+    box-shadow: none;
+}
