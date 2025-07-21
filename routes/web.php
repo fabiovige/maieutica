@@ -94,6 +94,11 @@ Route::middleware(['auth'])->group(function () {
     Route::put('professionals/{professional}', [ProfessionalController::class, 'update'])
         ->name('professionals.update')
         ->middleware('auth');
+
+    // TUTORIAL
+    Route::get('/tutorial',  [TutorialController::class, 'index'])->name('tutorial.index');
+    Route::get('/tutorial/users',  [TutorialController::class, 'users'])->name('tutorial.users');
+    Route::get('/tutorial/checklists',  [TutorialController::class, 'checklists'])->name('tutorial.checklists');
 });
 
 // Data Table Ajax
@@ -120,6 +125,3 @@ Route::get('/analysis/{kidId}/level/{levelId}/{firstChecklistId?}/{secondCheckli
 Route::get('/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
 // routes/web.php
 Route::post('/kids/{kidId}/overview/generate-pdf', [KidsController::class, 'generatePdf'])->name('kids.generatePdf');
-
-// TUTORIAL
-Route::get('/tutorial',  [TutorialController::class, 'index'])->name('tutorial.index');
