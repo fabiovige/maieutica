@@ -6,6 +6,7 @@ use App\Http\Controllers\KidsController;
 use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TutorialController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -93,6 +94,11 @@ Route::middleware(['auth'])->group(function () {
     Route::put('professionals/{professional}', [ProfessionalController::class, 'update'])
         ->name('professionals.update')
         ->middleware('auth');
+
+    // TUTORIAL
+    Route::get('/tutorial',  [TutorialController::class, 'index'])->name('tutorial.index');
+    Route::get('/tutorial/users',  [TutorialController::class, 'users'])->name('tutorial.users');
+    Route::get('/tutorial/checklists',  [TutorialController::class, 'checklists'])->name('tutorial.checklists');
 });
 
 // Data Table Ajax

@@ -15,10 +15,10 @@
                         <a href="#" class="text-muted small text-decoration-none">
                             <i class="bi bi-shield-check"></i> Privacidade
                         </a>
-                        <a href="#" class="text-muted small text-decoration-none">
-                            <i class="bi bi-question-circle"></i> Ajuda
+                        <a href="{{ route('tutorial.index') }}" class="text-muted small text-decoration-none">
+                            <i class="bi bi-question-circle"></i> Tutorial
                         </a>
-                        <span class="badge bg-primary">
+                        <span class="badge bg-secondary">
                             <i class="bi bi-code-slash"></i> v{{ config('app.version') }}
                         </span>
                     </div>

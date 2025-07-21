@@ -44,4 +44,13 @@
                href="{{ route('competences.index') }}">Competências</a>
         </li>
     @endcan
+
+    <!-- Tutorial - Disponível para todos os usuários -->
+    <li class="nav-item">
+        <a class="nav-link @if (request()->is('tutorial*')) active @endif"
+           aria-current="page"
+           href="{{ route('tutorial.index') }}">
+           <i class="bi bi-book me-1"></i>Tutorial
+        </a>
+    </li>
 </ul>
