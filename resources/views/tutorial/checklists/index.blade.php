@@ -55,7 +55,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const videoModal = document.getElementById('videoModal');
     const videoFrame = document.getElementById('videoFrame');
-    const videoUrl = 'https://www.youtube.com/embed/ysS-a5Z-f44?hd=1&vq=hd1080&quality=hd1080';
+    const videoUrl = 'https://www.youtube.com/embed/7KLduXWrcCM?hd=1&vq=hd1080&quality=hd1080';
     
     videoModal.addEventListener('show.bs.modal', function () {
         videoFrame.src = videoUrl;
