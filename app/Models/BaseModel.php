@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use app\Models\Log as LogModel;
-use app\Models\User;
+use App\Models\Log as LogModel;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Services\Log;
+namespace App\Services\Log;
 
 use Monolog\Logger;
 

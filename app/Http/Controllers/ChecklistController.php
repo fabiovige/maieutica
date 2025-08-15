@@ -158,7 +158,7 @@ class ChecklistController extends Controller
                         $notes = [];
                         foreach ($components as $competence_id) {
                             $chechlistCompetente = \App\Models\ChecklistCompetence::where('checklist_id', $checklistAtual->id)->where('competence_id', $competence_id)->first();
-                            $notes[$competence_id] = ['note' => $chechlistCompetente ? $chechlistCompetente['note'] : 0];
+                            $notes[$competence_id] = ['note' => $chechlistCompetente ? $chechlistCompetente->note : 0];
                         }
                         $checklist->competences()->syncWithoutDetaching($notes);
                     }
@@ -442,7 +442,7 @@ class ChecklistController extends Controller
         return $averagePercentage;
     }
 
-    public function clonarChecklist(Request $request, $checklistId = null)
+    public function clonarChecklist(Request $request, $id = null)
     {
         $this->authorize('create', Checklist::class);
 
@@ -455,14 +455,7 @@ class ChecklistController extends Controller
         try {
             DB::beginTransaction();
 
-            $checklistAtual = Checklist::where('situation', 'a')
-                ->when($request->kid_id, function ($query) use ($request) {
-                    return $query->where('kid_id', $request->kid_id);
-                })
-                ->when($checklistId, function ($query) use ($checklistId) {
-                    return $query->where('id', $checklistId);
-                })
-                ->firstOrFail();
+            $checklistAtual = Checklist::where('id', $id)->firstOrFail();
 
 
             $data = [];
@@ -492,7 +485,7 @@ class ChecklistController extends Controller
                 $notes = [];
                 foreach ($components as $c => $competence_id) {
                     $chechlistCompetente = ChecklistCompetence::where('checklist_id', $checklistAtual->id)->where('competence_id', $competence_id)->first();
-                    $notes[$competence_id] = ['note' => $chechlistCompetente['note']];
+                    $notes[$competence_id] = ['note' => $chechlistCompetente ? $chechlistCompetente->note : 0];
                 }
                 $checklist->competences()->syncWithoutDetaching($notes);
             }
@@ -504,10 +497,18 @@ class ChecklistController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
 
-            $message = label_case('Fill Checklist ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Clone Checklist Error: ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
 
-            log($message, $e->getMessage());
-            flash(self::MSG_CLONE_ERROR)->success();
+            Log::error($message, [
+                'exception' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'kid_id' => $request->kid_id ?? null,
+                'checklist_id' => $id ?? null
+            ]);
+            
+            flash(self::MSG_CLONE_ERROR)->error();
 
             return redirect()->route('checklists.index');
         }
