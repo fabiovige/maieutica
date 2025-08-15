@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Services\Log;
+namespace App\Services\Log;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -19,47 +19,55 @@ class DatabaseHandler extends AbstractProcessingHandler
 
     protected function write(array $record): void
     {
-        dd($record);
-        if (! empty($record['message']) && $record['level_name'] != 'ERROR') {
-            $this->createLog(
-                null,
-                null,
-                $this->log::ACTION_INFO,
-                $record['message']
-            );
+        try {
+            if (! empty($record['message']) && $record['level_name'] != 'ERROR') {
+                $this->createLog(
+                    null,
+                    null,
+                    $this->log::ACTION_INFO,
+                    $record['message']
+                );
 
-            return;
+                return;
+            }
+
+            $model = Arr::get($record['context'], 0);
+
+            if (! $model instanceof Model) {
+                return;
+            }
+
+            if ($model->log == false) {
+                return;
+            }
+
+            $this->isDelete = Arr::get($record['context'], 1);
+
+            $action = $this->getAction($model);
+            $description = $this->getDescription($action, $model);
+
+            $this->createLog(get_class($model), $model->getKey(), $action, $description);
+        } catch (\Exception $e) {
+            // Fallback para log de arquivo em caso de erro
+            \Illuminate\Support\Facades\Log::error('Database logging failed: ' . $e->getMessage());
         }
-
-        $model = Arr::get($record['context'], 0);
-
-        if (! $model instanceof Model) {
-            return;
-        }
-
-        if ($model->log == false) {
-            return;
-        }
-
-        $this->isDelete = Arr::get($record['context'], 1);
-
-        $action = $this->getAction($model);
-        $description = $this->getDescription($action, $model);
-
-        $this->createLog(get_class($model), $model->getKey(), $action, $description);
     }
 
     private function createLog($object, $objectId, $action, $description)
     {
-        dd('create log');
-        $this->log::create(
-            [
-                'object' => $object,
-                'object_id' => $objectId,
-                'action' => $action,
-                'description' => $description,
-            ]
-        );
+        try {
+            $this->log::create(
+                [
+                    'object' => $object,
+                    'object_id' => $objectId,
+                    'action' => $action,
+                    'description' => $description,
+                ]
+            );
+        } catch (\Exception $e) {
+            // Fallback para log de arquivo em caso de erro
+            \Illuminate\Support\Facades\Log::error('Failed to create log entry: ' . $e->getMessage());
+        }
     }
 
     private function getDescription($action, $model)
