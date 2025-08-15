@@ -26,6 +26,14 @@
                             </button>
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <p class="mb-0">Aprenda como clonar uma checklist</p>
+                            <button type="button" class="btn btn-primary" onclick="openVideoModal('Como Realizar uma Avaliação', 'Nz472Chbwrs')">
+                                <i class="bi bi-play-circle me-2"></i>Assistir Vídeo
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -62,32 +70,41 @@
 
 @push('scripts')
 <script>
-// Função global para abrir modal de vídeo dinamicamente
-function openVideoModal(title, videoId) {
-    const modal = document.getElementById('videoModal');
-    const modalTitle = document.getElementById('videoModalLabel');
-    const videoFrame = document.getElementById('videoFrame');
+(function() {
+    'use strict';
     
-    // Atualiza o título do modal
-    modalTitle.innerHTML = '<i class="bi bi-play-circle me-2"></i>' + title;
+    window.openVideoModal = function(title, videoId) {
+        if (typeof bootstrap === 'undefined') {
+            console.error('Bootstrap não disponível');
+            return;
+        }
+        
+        var modal = document.getElementById('videoModal');
+        var modalTitle = document.getElementById('videoModalLabel');
+        var videoFrame = document.getElementById('videoFrame');
+        
+        if (!modal || !modalTitle || !videoFrame) {
+            console.error('Elementos não encontrados');
+            return;
+        }
+        
+        modalTitle.innerHTML = '<i class="bi bi-play-circle me-2"></i>' + title;
+        videoFrame.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=0&rel=0';
+        
+        var bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+    };
     
-    // Configura a URL do vídeo
-    const videoUrl = `https://www.youtube.com/embed/${videoId}?hd=1&vq=hd1080&quality=hd1080`;
-    videoFrame.src = videoUrl;
-    
-    // Abre o modal
-    const bootstrapModal = new bootstrap.Modal(modal);
-    bootstrapModal.show();
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const videoModal = document.getElementById('videoModal');
-    const videoFrame = document.getElementById('videoFrame');
-    
-    // Limpa o iframe quando o modal é fechado
-    videoModal.addEventListener('hide.bs.modal', function () {
-        videoFrame.src = '';
+    document.addEventListener('DOMContentLoaded', function() {
+        var videoModal = document.getElementById('videoModal');
+        var videoFrame = document.getElementById('videoFrame');
+        
+        if (videoModal && videoFrame) {
+            videoModal.addEventListener('hide.bs.modal', function() {
+                videoFrame.src = '';
+            });
+        }
     });
-});
+})();
 </script>
 @endpush 
