@@ -19,18 +19,15 @@ class HomeController extends Controller
 
     public function index()
     {
-        // Cards principais
         $totalKids = Kid::count();
         $totalChecklists = Checklist::count();
         $checklistsEmAndamento = Checklist::where('situation', 'a')->count();
         $totalProfessionals = Professional::count();
 
-        // Lista de crianças com paginação e cálculo de progresso
         $kids = Kid::with(['responsible', 'professionals', 'checklists'])
             ->latest()
             ->paginate(10);
 
-        // Calculando o progresso para cada criança
         foreach ($kids as $kid) {
             $kid->progress = $kid->checklists->isNotEmpty()
                 ? $this->checklistService->percentualDesenvolvimento($kid->checklists->last()->id)

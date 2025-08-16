@@ -1,0 +1,27 @@
+# Ignore compiled files
+/public/js/**
+/public/css/**
+/public/mix-manifest.json
+
+# Ignore vendor files
+/vendor/**
+/node_modules/**
+
+# Ignore Laravel storage
+/storage/**
+/bootstrap/cache/**
+
+# Ignore compiled Vue components
+*.min.js
+*.min.css
+
+# Ignore package files
+package-lock.json
+composer.lock
+
+# Ignore log files
+*.log
+
+# Ignore Docker files
+Dockerfile
+docker-compose.yml
