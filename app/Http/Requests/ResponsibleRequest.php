@@ -43,7 +43,7 @@ class ResponsibleRequest extends FormRequest
 
                 return [
                     'name' => 'required|min:3|max:100',
-                    'email' => 'required|email|min:3|max:200|unique:responsibles,email,'.$responsibleId,
+                    'email' => 'required|email|min:3|max:200|unique:responsibles,email,' . $responsibleId,
                     'cell' => 'required|celular_com_ddd',
                     'user_id' => 'nullable|exists:users,id',
                 ];

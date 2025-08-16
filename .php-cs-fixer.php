@@ -5,13 +5,13 @@ $config = new PhpCsFixer\Config();
 return $config
     ->setRules([
         '@PSR12' => true,
-        'new_with_braces' => false,
         'array_indentation' => true,
         'array_syntax' => ['syntax' => 'short'],
         'combine_consecutive_unsets' => true,
-        'multiline_whitespace_before_semicolons' => true,
         'single_quote' => true,
-        'blank_line_before_statement' => true,
+        'blank_line_before_statement' => [
+            'statements' => ['return', 'throw', 'try'],
+        ],
         'braces' => [
             'allow_single_line_closure' => true,
         ],
@@ -26,7 +26,6 @@ return $config
         'no_whitespace_before_comma_in_array' => true,
         'no_whitespace_in_blank_line' => true,
         'object_operator_without_whitespace' => true,
-        'single_blank_line_before_namespace' => true,
         'ternary_operator_spaces' => true,
         'trailing_comma_in_multiline' => true,
         'trim_array_spaces' => true,

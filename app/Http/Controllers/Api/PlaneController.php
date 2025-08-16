@@ -23,7 +23,6 @@ class PlaneController
             ->orderBy('id', 'DESC')->first();
 
         return new PlaneResource($plane);
-
     }
 
     public function showByKids($id, $checklist_id)

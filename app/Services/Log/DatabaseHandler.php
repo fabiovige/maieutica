@@ -20,7 +20,7 @@ class DatabaseHandler extends AbstractProcessingHandler
     protected function write(array $record): void
     {
         try {
-            if (! empty($record['message']) && $record['level_name'] != 'ERROR') {
+            if (!empty($record['message']) && $record['level_name'] != 'ERROR') {
                 $this->createLog(
                     null,
                     null,
@@ -33,7 +33,7 @@ class DatabaseHandler extends AbstractProcessingHandler
 
             $model = Arr::get($record['context'], 0);
 
-            if (! $model instanceof Model) {
+            if (!$model instanceof Model) {
                 return;
             }
 
@@ -94,7 +94,7 @@ class DatabaseHandler extends AbstractProcessingHandler
             return $this->log::ACTION_REMOVE;
         }
 
-        if (! $model->getOriginal()) {
+        if (!$model->getOriginal()) {
             return $this->log::ACTION_INSERT;
         }
 

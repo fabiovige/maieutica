@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
-    const MSG_UPDATE_SUCCESS = 'Perfil atualizado com sucesso!';
+    public const MSG_UPDATE_SUCCESS = 'Perfil atualizado com sucesso!';
 
-    const MSG_UPDATE_ERROR = 'Erro ao atualizar perfil.';
+    public const MSG_UPDATE_ERROR = 'Erro ao atualizar perfil.';
 
-    const MSG_PASSWORD_SUCCESS = 'Senha alterada com sucesso!';
+    public const MSG_PASSWORD_SUCCESS = 'Senha alterada com sucesso!';
 
-    const MSG_PASSWORD_ERROR = 'Erro ao alterar senha.';
+    public const MSG_PASSWORD_ERROR = 'Erro ao alterar senha.';
 
     public function edit()
     {
@@ -31,6 +31,7 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         DB::beginTransaction();
+
         try {
             $userData = [
                 'name' => $request->name,
@@ -77,7 +78,7 @@ class ProfileController extends Controller
 
                 // Cria o diretório se não existir
                 $path = public_path('images/avatars');
-                if (! file_exists($path)) {
+                if (!file_exists($path)) {
                     mkdir($path, 0777, true);
                 }
 

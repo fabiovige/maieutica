@@ -11,7 +11,9 @@ class KidObserver
      *
      * @return void
      */
-    public function created(Kid $kid) {}
+    public function created(Kid $kid)
+    {
+    }
 
     /**
      * Handle the Kid "updated" event.
@@ -28,7 +30,9 @@ class KidObserver
      *
      * @return void
      */
-    public function deleted(Kid $kid) {}
+    public function deleted(Kid $kid)
+    {
+    }
 
     /**
      * Handle the Kid "restored" event.

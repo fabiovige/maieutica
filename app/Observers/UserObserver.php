@@ -27,9 +27,8 @@ class UserObserver
             // O Observer é responsável por enviar o email de boas-vindas
             $notification = new WelcomeNotification($user, $user->temporaryPassword);
             $user->notify($notification);
-
         } catch (\Exception $e) {
-            Log::error('Erro no UserObserver: '.$e->getMessage());
+            Log::error('Erro no UserObserver: ' . $e->getMessage());
         }
     }
 
@@ -62,7 +61,6 @@ class UserObserver
                 'updated_at' => $user->updated_at,
                 'updated_by' => auth()->user()->id,
             ]);
-
         } catch (\Exception $e) {
             // Registrar o erro no log
             Log::error('Falha ao enviar o e-mail de atualização', [
@@ -84,10 +82,8 @@ class UserObserver
     {
         // dd('deleted');
         if ($user->trashed()) {
-
             $admin = User::where('role_id', 1)->first(); // Ajuste a query conforme a role de admin
             if ($admin) {
-
                 // Criar a instância do Mailable e depois chamar onQueue()
                 $email = (new UserDeletedMail($user))->onQueue('emails');
 

@@ -50,6 +50,6 @@ class Controller extends BaseController
 
     public function defineRole($value): string
     {
-        return 'ROLE_'.Str::upper(Str::slug($value, '_'));
+        return 'ROLE_' . Str::upper(Str::slug($value, '_'));
     }
 }

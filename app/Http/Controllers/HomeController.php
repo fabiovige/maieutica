@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Checklist;
 use App\Models\Kid;
 use App\Models\Professional;
-use Illuminate\Support\Facades\DB;
-use App\Services\OverviewService;
 use App\Services\ChecklistService;
 
 class HomeController extends Controller

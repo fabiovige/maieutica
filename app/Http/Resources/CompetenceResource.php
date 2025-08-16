@@ -8,7 +8,6 @@ class CompetenceResource extends JsonResource
 {
     public function toArray($request)
     {
-
         // $pivot = ($this->checklists()->first() ? $this->checklists()->first()->pivot : false);
 
         return [

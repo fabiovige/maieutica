@@ -34,12 +34,12 @@ class WelcomeNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-            ->subject('Bem-vindo ao '.config('app.name'))
-            ->greeting('Olá '.$this->user->name)
+        return (new MailMessage())
+            ->subject('Bem-vindo ao ' . config('app.name'))
+            ->greeting('Olá ' . $this->user->name)
             ->line('Sua conta foi criada com sucesso!')
             ->line('Use seu email para acessar o sistema.')
-            ->line('Sua senha temporária é: '.$this->password)
+            ->line('Sua senha temporária é: ' . $this->password)
             ->action('Acessar o sistema', url('/'))
             ->line('Por favor, altere sua senha no primeiro acesso por questões de segurança.');
     }

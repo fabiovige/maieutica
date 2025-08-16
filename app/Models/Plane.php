@@ -13,7 +13,7 @@ class Plane extends Model
     use HasFactory;
     use SoftDeletes;
 
-    const NOTES_DESCRIPTION = [
+    public const NOTES_DESCRIPTION = [
         0 => 'Não observado',
         1 => 'Não desenvolvido',
         2 => 'Em desenvolvimento',

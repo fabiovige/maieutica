@@ -17,7 +17,7 @@ class ResponsibleController extends Controller
     public function index()
     {
         // $this->authorize('viewAny', Responsible::class);
-        $message = label_case('Index Responsibles ').' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+        $message = label_case('Index Responsibles ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::debug($message);
 
         return view('responsibles.index');
@@ -25,7 +25,6 @@ class ResponsibleController extends Controller
 
     public function index_data()
     {
-
         if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
             $data = Responsible::select('id', 'name', 'email', 'cell');
         } else {
@@ -52,7 +51,7 @@ class ResponsibleController extends Controller
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
                 if (auth()->user()->can('update', $data)) {
-                    return '<a class="btn btn-sm btn-success" href="'.route('responsibles.edit', $data->id).'"><i class="bi bi-edit"></i> Editar</a>';
+                    return '<a class="btn btn-sm btn-success" href="' . route('responsibles.edit', $data->id) . '"><i class="bi bi-edit"></i> Editar</a>';
                 }
             })
             ->editColumn('name', function ($data) {
@@ -76,13 +75,12 @@ class ResponsibleController extends Controller
 
     public function store(ResponsibleRequest $request)
     {
-        $responsible = new Responsible;
+        $responsible = new Responsible();
         $data = $request->all();
         $data['created_by'] = Auth::id();
 
         $findUser = User::where('email', '=', $data['email']);
         if ($data['allow']) {
-
             if ($findUser->count() == 0) {
                 $dataUser['name'] = $data['name'];
                 $dataUser['password'] = bcrypt('password');
@@ -114,7 +112,7 @@ class ResponsibleController extends Controller
             ]);
         } catch (Exception $e) {
             flash(self::MSG_NOT_FOUND)->warning();
-            $message = label_case('Update Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -124,6 +122,7 @@ class ResponsibleController extends Controller
     public function update(ResponsibleRequest $request, $id)
     {
         DB::beginTransaction();
+
         try {
             $data = $request->all();
             $data['updated_by'] = Auth::id();
@@ -131,7 +130,6 @@ class ResponsibleController extends Controller
             $user = User::where('email', '=', $data['email']);
 
             if (isset($data['allow'])) {
-
                 if ($user->count() > 0) {
                     $this->emailDuplicate($data['email']);
                     $dataUser['allow'] = true;
@@ -164,13 +162,13 @@ class ResponsibleController extends Controller
             }
             $responsible->update($data);
             DB::commit();
-            Log::info('Responsible updated by user: '.auth()->user()->name.'(ID:'.auth()->user()->id.')');
+            Log::info('Responsible updated by user: ' . auth()->user()->name . '(ID:' . auth()->user()->id . ')');
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
             return redirect()->route('responsibles.index');
         } catch (Exception $e) {
             DB::rollBack();
-            $message = label_case('Update Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Update Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             flash(self::MSG_UPDATE_ERROR)->warning();
@@ -206,7 +204,7 @@ class ResponsibleController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flash(self::MSG_DELETE_SUCCESS)->warning();
-            $message = label_case('Delete Responsible '.$e->getMessage()).' | User:'.auth()->user()->name.'(ID:'.auth()->user()->id.')';
+            $message = label_case('Delete Responsible ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();

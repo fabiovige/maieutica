@@ -35,7 +35,7 @@ class Responsible extends Model
 
     public function getCellAttribute($value)
     {
-        return '('.substr($value, 0, 2).') '.substr($value, 2, 5).'-'.substr($value, 7, 4);
+        return '(' . substr($value, 0, 2) . ') ' . substr($value, 2, 5) . '-' . substr($value, 7, 4);
     }
 
     public function setCellAttribute($value)

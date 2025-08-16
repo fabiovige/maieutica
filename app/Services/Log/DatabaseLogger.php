@@ -17,7 +17,7 @@ class DatabaseLogger
     {
         $logger = new Logger('local');
         $logger->pushHandler(
-            new DatabaseHandler(new $config['with']['logModel'])
+            new DatabaseHandler(new $config['with']['logModel']())
         );
 
         return $logger;

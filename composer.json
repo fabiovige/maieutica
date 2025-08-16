@@ -80,6 +80,21 @@
         ],
         "fresh": [
             "@php artisan migrate:fresh --seed"
+        ],
+        "cs-fixer-check": [
+            "vendor/bin/php-cs-fixer check app/ --diff"
+        ],
+        "cs-fixer-fix": [
+            "vendor/bin/php-cs-fixer fix app/"
+        ],
+        "cs-fixer-check-all": [
+            "vendor/bin/php-cs-fixer check app/ --format=txt"
+        ],
+        "cs-fixer-dry-run": [
+            "vendor/bin/php-cs-fixer fix app/ --dry-run --diff"
+        ],
+        "code-style": [
+            "@cs-fixer-fix"
         ]
     },
     "extra": {

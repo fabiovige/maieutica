@@ -17,7 +17,7 @@ class ReCaptchaServiceProvider extends ServiceProvider
         $this->app->bind('recaptcha.http', function ($app) {
             return new Client([
                 'verify' => false, // Desativa a verificação SSL
-                'timeout' => config('recaptcha.curl_timeout', 10)
+                'timeout' => config('recaptcha.curl_timeout', 10),
             ]);
         });
     }

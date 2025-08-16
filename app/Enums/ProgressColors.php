@@ -21,7 +21,7 @@ enum ProgressColors: string
         $roundedPercentage = (int) round($percentage / 10) * 10;
         $roundedPercentage = max(0, min(100, $roundedPercentage));
 
-        return match($roundedPercentage) {
+        return match ($roundedPercentage) {
             0 => self::PERCENT_0->value,
             10 => self::PERCENT_10->value,
             20 => self::PERCENT_20->value,

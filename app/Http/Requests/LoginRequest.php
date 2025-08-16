@@ -29,7 +29,7 @@ class LoginRequest extends FormRequest
                         ->post('https://www.google.com/recaptcha/api/siteverify', [
                             'secret' => config('recaptcha.api_secret_key'),
                             'response' => $value,
-                            'remoteip' => request()->ip()
+                            'remoteip' => request()->ip(),
                         ]);
 
                     if (!$response->json('success')) {
@@ -41,7 +41,7 @@ class LoginRequest extends FormRequest
                         $fail('Erro na verificação do reCAPTCHA.');
                     }
                 }
-            }]
+            }],
         ];
     }
 

@@ -23,7 +23,7 @@ class MyPdf extends TCPDF
         $this->SetSubject(config('app.description'));
 
         // set default header data
-        $this->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 009', PDF_HEADER_STRING);
+        $this->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE . ' 009', PDF_HEADER_STRING);
 
         // set header and footer fonts
         $this->setHeaderFont([PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN]);
@@ -49,7 +49,7 @@ class MyPdf extends TCPDF
         $this->SetFont('helvetica', '', 10);
 
         // Title
-        $this->Cell(0, -10, config('app.name').' - '.config('app.description').'.', 0, false, 'C', 0, '', 0, false, 'M', 'M');
+        $this->Cell(0, -10, config('app.name') . ' - ' . config('app.description') . '.', 0, false, 'C', 0, '', 0, false, 'M', 'M');
     }
 
     // Page footer
@@ -78,6 +78,6 @@ class MyPdf extends TCPDF
         $this->Cell(0, 4, $txt3, 0, false, 'C', 0, '', 0, false, 'T', 'M');
 
         $this->ln(2);
-        $this->Cell(0, 10, 'Página.: '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C');
+        $this->Cell(0, 10, 'Página.: ' . $this->getAliasNumPage() . '/' . $this->getAliasNbPages(), 0, false, 'C');
     }
 }

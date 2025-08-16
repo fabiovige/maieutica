@@ -39,7 +39,7 @@ class ProfessionalController extends Controller
     {
         try {
             //$professional->load(['user', 'specialty']);
-            
+
             $specialties = Specialty::orderBy('name')->get();
 
             return view('professionals.edit', compact('professional', 'specialties'));
@@ -132,7 +132,7 @@ class ProfessionalController extends Controller
                 'specialty_id' => 'required',
                 'registration_number' => 'required',
             ], [
-                'phone.required' => 'O campo telefone é obrigatório.'
+                'phone.required' => 'O campo telefone é obrigatório.',
             ]);
 
             DB::beginTransaction();
@@ -143,7 +143,7 @@ class ProfessionalController extends Controller
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'allow' => $request->has('allow'),
-                'updated_by' => auth()->id()
+                'updated_by' => auth()->id(),
             ]);
 
             // Atualizar dados do profissional
@@ -151,12 +151,13 @@ class ProfessionalController extends Controller
                 'specialty_id' => $request->specialty_id,
                 'registration_number' => $request->registration_number,
                 'bio' => $request->bio,
-                'updated_by' => auth()->id()
+                'updated_by' => auth()->id(),
             ]);
 
             DB::commit();
 
             flash('Profissional atualizado com sucesso!')->success();
+
             return redirect()->route('professionals.index');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
@@ -166,6 +167,7 @@ class ProfessionalController extends Controller
             DB::rollBack();
             Log::error('Erro ao atualizar profissional: ' . $e->getMessage());
             flash('Erro ao atualizar o profissional')->warning();
+
             return redirect()->back()->withInput();
         }
     }
@@ -176,7 +178,7 @@ class ProfessionalController extends Controller
             DB::beginTransaction();
 
             $user = $professional->user->first();
-            if (! $user) {
+            if (!$user) {
                 throw new \Exception('Usuário não encontrado');
             }
 
@@ -204,7 +206,7 @@ class ProfessionalController extends Controller
             DB::beginTransaction();
 
             $user = $professional->user->first();
-            if (! $user) {
+            if (!$user) {
                 throw new \Exception('Usuário não encontrado');
             }
 

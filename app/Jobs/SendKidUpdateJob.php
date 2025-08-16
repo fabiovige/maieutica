@@ -38,7 +38,6 @@ class SendKidUpdateJob implements ShouldQueue
      */
     public function handle()
     {
-
         $admin = User::where('id', '=', 2)->get();
         Notification::send($admin, new KidUpdateNotification($this->kid));
     }

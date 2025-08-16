@@ -10,7 +10,7 @@ class PlaneAutomaticController extends Controller
 {
     public function index($kidId = null, $checklistId = null)
     {
-        if (! $kidId && ! $checklistId) {
+        if (!$kidId && !$checklistId) {
             return redirect()->back()->with('error', 'ID não informado');
         }
 
@@ -28,16 +28,16 @@ class PlaneAutomaticController extends Controller
             3 => 'Desenvolvido',
         ];
 
-        $data =  [
+        $data = [
             'kid' => $kid,
             'checklist' => $checklist,
             'statusAvaliation' => $statusAvaliation,
             'notesDescription' => $notesDescription,
             'planes' => $planes,
             'plane' => $plane,
-            'data' => now()
+            'data' => now(),
         ];
 
-        return view('plane_automatic.index',$data);
+        return view('plane_automatic.index', $data);
     }
 }

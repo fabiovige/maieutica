@@ -113,6 +113,22 @@ docker compose exec app php artisan db:seed
 docker compose exec app php artisan tinker
 ```
 
+### Code Quality (PHP CS Fixer)
+```bash
+# Usando aliases do Composer (Recomendado)
+docker compose exec app composer cs-fixer-check     # Verificar problemas com diff
+docker compose exec app composer cs-fixer-fix       # Corrigir problemas automaticamente
+docker compose exec app composer cs-fixer-check-all # Lista todos os arquivos com problemas
+docker compose exec app composer cs-fixer-dry-run   # Ver o que seria corrigido (sem aplicar)
+docker compose exec app composer code-style         # Alias curto para corrigir estilo
+
+# Comandos diretos (quando precisar de mais controle)
+docker compose exec app php vendor/bin/php-cs-fixer check app/ --diff
+docker compose exec app php vendor/bin/php-cs-fixer fix app/
+docker compose exec app php vendor/bin/php-cs-fixer check --diff app/Http/Controllers/HomeController.php
+docker compose exec app php vendor/bin/php-cs-fixer fix app/Http/Controllers/HomeController.php
+```
+
 ### Logs e Monitoramento
 ```bash
 # Ver logs dos containers

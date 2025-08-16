@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\Checklist;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Auth\Access\Response;
 
 class ChecklistPolicy
 {
@@ -35,13 +34,16 @@ class ChecklistPolicy
      */
     public function view(User $user, Checklist $checklist): bool
     {
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) return true;
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
+            return true;
+        }
         if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
             return $checklist->created_by === $user->id;
         }
         if (method_exists($user, 'hasRole') && $user->hasRole('pais')) {
             return $checklist->kid->responsible_id === $user->id;
         }
+
         return false;
     }
 
@@ -58,10 +60,13 @@ class ChecklistPolicy
      */
     public function update(User $user, Checklist $checklist): bool
     {
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) return true;
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
+            return true;
+        }
         if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
             return $checklist->created_by === $user->id;
         }
+
         return false;
     }
 
@@ -70,10 +75,13 @@ class ChecklistPolicy
      */
     public function delete(User $user, Checklist $checklist): bool
     {
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) return true;
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
+            return true;
+        }
         if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
             return $checklist->created_by === $user->id;
         }
+
         return false;
     }
 

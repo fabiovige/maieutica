@@ -38,7 +38,7 @@ class User extends Authenticatable
         'state',
         'provider_id',
         'provider_email',
-        'provider_avatar'
+        'provider_avatar',
     ];
 
     protected $hidden = [

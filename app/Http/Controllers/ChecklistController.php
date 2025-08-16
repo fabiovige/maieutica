@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ChecklistRequest;
 use App\Models\Checklist;
 use App\Models\ChecklistCompetence;
-use App\Models\ChecklistRegister;
 use App\Models\Competence;
 use App\Models\Domain;
 use App\Models\Kid;
@@ -16,11 +15,9 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class ChecklistController extends Controller
 {
-
     protected $checklistService;
 
     public function __construct(ChecklistService $checklistService)
@@ -44,12 +41,10 @@ class ChecklistController extends Controller
                 if ($kid) {
                     $queryChecklists->where('kid_id', $request->kidId);
                 } elseif (auth()->user()->hasRole('pais')) {
-
                     $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
                     $queryChecklists->whereIn('kid_id', $kids);
                 }
             } elseif (auth()->user()->hasRole('professional')) {
-
                 $professionalId = auth()->user()->professional->first()->id;
                 $queryChecklists->whereHas('kid.professionals', function ($query) use ($professionalId) {
                     $query->where('professional_id', $professionalId);
@@ -68,7 +63,7 @@ class ChecklistController extends Controller
 
             $data = [
                 'checklists' => $checklists,
-                'kid' => $kid
+                'kid' => $kid,
             ];
 
             return view('checklists.index', $data);
@@ -275,11 +270,12 @@ class ChecklistController extends Controller
             // Redirecionamento condicional
             if ($request->has('kidId') || $request->query('kidId')) {
                 $kidId = $request->input('kidId', $request->query('kidId', $checklist->kid_id));
+
                 return redirect()->to('checklists?kidId=' . $kidId);
             }
+
             return redirect()->route('checklists.index');
         } catch (\Exception $e) {
-
             $message = label_case('Update Checklists ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
@@ -328,6 +324,7 @@ class ChecklistController extends Controller
     {
         $checklist = Checklist::findOrFail($id);
         $this->authorize('view', $checklist);
+
         try {
             $message = label_case('Fill Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
@@ -375,7 +372,8 @@ class ChecklistController extends Controller
         }
     }
 
-    public function percentualDesenvolvimento($checklistId){
+    public function percentualDesenvolvimento($checklistId)
+    {
         return $this->checklistService->percentualDesenvolvimento($checklistId);
     }
 
@@ -385,7 +383,7 @@ class ChecklistController extends Controller
         $currentChecklist = Checklist::findOrFail($checklistId);
 
         // Verificar se o checklist foi encontrado
-        if (! $currentChecklist) {
+        if (!$currentChecklist) {
             throw new Exception('Checklist não encontrado!');
         }
 
@@ -446,7 +444,7 @@ class ChecklistController extends Controller
     {
         $this->authorize('create', Checklist::class);
 
-        if (! auth()->user()->can('create checklists')) {
+        if (!auth()->user()->can('create checklists')) {
             flash('Você não tem permissão para clonar checklists.')->warning();
 
             return redirect()->route('checklists.index');
@@ -505,9 +503,9 @@ class ChecklistController extends Controller
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
                 'kid_id' => $request->kid_id ?? null,
-                'checklist_id' => $id ?? null
+                'checklist_id' => $id ?? null,
             ]);
-            
+
             flash(self::MSG_CLONE_ERROR)->error();
 
             return redirect()->route('checklists.index');

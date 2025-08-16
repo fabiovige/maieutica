@@ -6,7 +6,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -64,6 +63,7 @@ class Checklist extends Model
             // Se o checklist for retroativo (data diferente de hoje), não fecha os outros e mantém fechado
             if (isset($checklist->created_at) && !Carbon::parse($checklist->created_at)->isToday()) {
                 $checklist->situation = 'f';
+
                 return;
             }
             // Se for de hoje, fecha os anteriores e mantém aberto
@@ -128,7 +128,7 @@ class Checklist extends Model
                     1 => 'Em desenvolvimento',
                     2 => 'Não desenvolvido',
                     3 => 'Desenvolvido'
-                }
+                },
             ];
         });
 
@@ -146,6 +146,7 @@ class Checklist extends Model
             if ($result) {
                 $note->total_competences = $result->total_competences;
             }
+
             return $note;
         });
     }

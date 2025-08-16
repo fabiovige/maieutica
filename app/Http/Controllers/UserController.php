@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\Role;
 use App\Models\User;
-use App\Notifications\WelcomeNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -17,14 +16,16 @@ use App\Models\Professional;
 
 class UserController extends Controller
 {
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     public function index()
     {
         $this->authorize('view users');
 
         $users = User::query()
-            ->when(! auth()->user()->hasRole('superadmin'), function ($query) {
+            ->when(!auth()->user()->hasRole('superadmin'), function ($query) {
                 $query->where('name', '!=', 'Super Admin');
             })
             ->orderBy('created_at', 'desc')
@@ -39,7 +40,6 @@ class UserController extends Controller
         $this->authorize('update', $user);
 
         try {
-
             $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 
             $message = label_case('Edit User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -59,6 +59,7 @@ class UserController extends Controller
     public function show($id)
     {
         $this->authorize('view', User::class);
+
         try {
             $user = User::findOrFail($id);
             $roles = Role::all();
@@ -96,9 +97,10 @@ class UserController extends Controller
         $this->authorize('create', User::class);
 
         DB::beginTransaction();
+
         try {
             $data = $request->all();
-            $data['type'] = (! isset($request->type)) ? User::TYPE_I : $data['type'];
+            $data['type'] = (!isset($request->type)) ? User::TYPE_I : $data['type'];
 
             $temporaryPassword = Str::random(10); // Gera a senha temporária
             $hashedPassword = bcrypt($temporaryPassword); // Gera o hash da senha
@@ -161,9 +163,10 @@ class UserController extends Controller
         $this->authorize('update', $user);
 
         DB::beginTransaction();
+
         try {
             $data = $request->all();
-            $data['type'] = (! isset($data['type'])) ? User::TYPE_I : $data['type'];
+            $data['type'] = (!isset($data['type'])) ? User::TYPE_I : $data['type'];
 
             $userData = [
                 'name' => $request->name,
@@ -213,6 +216,7 @@ class UserController extends Controller
         $this->authorize('delete', $user);
 
         DB::beginTransaction();
+
         try {
             // Verifica se o usuário autenticado está tentando excluir a si mesmo
             if (auth()->id() == $user->id) {

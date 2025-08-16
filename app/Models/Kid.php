@@ -90,7 +90,7 @@ class Kid extends BaseModel
 
     public function getAgeAttribute()
     {
-        if (! $this->birth_date) {
+        if (!$this->birth_date) {
             return null;
         }
 
@@ -102,10 +102,10 @@ class Kid extends BaseModel
             $months = $birthDate->diffInMonths($now) % 12;
 
             if ($years > 0) {
-                return $years.'a '.$months.'m';
+                return $years . 'a ' . $months . 'm';
             }
 
-            return $months.' meses';
+            return $months . ' meses';
         } catch (\Exception $e) {
             return null;
         }
@@ -113,9 +113,10 @@ class Kid extends BaseModel
 
     public function getBirthDateAttribute($value)
     {
-        if (! $value) {
+        if (!$value) {
             return null;
         }
+
         try {
             return Carbon::parse($value)->format('d/m/Y');
         } catch (\Exception $e) {
@@ -125,7 +126,7 @@ class Kid extends BaseModel
 
     public function setBirthDateAttribute($value)
     {
-        if (! $value) {
+        if (!$value) {
             $this->attributes['birth_date'] = null;
 
             return;
@@ -145,7 +146,7 @@ class Kid extends BaseModel
 
     public function getMonthsAttribute()
     {
-        if (! $this->birth_date) {
+        if (!$this->birth_date) {
             return null;
         }
 
@@ -160,7 +161,7 @@ class Kid extends BaseModel
 
     public function getFullNameMonthsAttribute()
     {
-        if (! $this->birth_date) {
+        if (!$this->birth_date) {
             return null;
         }
 
@@ -169,7 +170,7 @@ class Kid extends BaseModel
             $month = $birthDate->diffInMonths(Carbon::now());
             $formattedDate = $birthDate->format('d/m/Y');
 
-            return 'Cod. '.$this->id.' - '.' Nascido em: '.$formattedDate.' ('.$month.' meses)';
+            return 'Cod. ' . $this->id . ' - ' . ' Nascido em: ' . $formattedDate . ' (' . $month . ' meses)';
         } catch (\Exception $e) {
             return 'Data inválida';
         }
@@ -187,7 +188,7 @@ class Kid extends BaseModel
         if (count($words) >= 2) {
             // Primeira letra do primeiro e último nome
             return mb_strtoupper(
-                mb_substr($words[0], 0, 1).
+                mb_substr($words[0], 0, 1) .
                 mb_substr(end($words), 0, 1)
             );
         }

@@ -16,7 +16,7 @@ class AclMiddleware
         $user = Auth::user();
 
         // Se o usuário não estiver permitido (flag 'allow'), faz logout.
-        if (! $user->allow) {
+        if (!$user->allow) {
             Auth::guard()->logout();
 
             return redirect()->route('login')->withErrors('Acesso negado.');

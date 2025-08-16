@@ -2,8 +2,7 @@
 
 use App\Enums\ProgressColors;
 
-if (! function_exists('label_case')) {
-
+if (!function_exists('label_case')) {
     function label_case($text)
     {
         $order = ['_', '-'];

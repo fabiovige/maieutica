@@ -53,7 +53,7 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        if (! $user->allow) {
+        if (!$user->allow) {
             Auth::logout();
 
             return back()->withErrors(['email' => 'Esta conta está desativada.']);
@@ -79,12 +79,12 @@ class LoginController extends Controller
 
             $user = User::where('email', $googleUser->getEmail())->first();
 
-            if (! $user) {
+            if (!$user) {
                 return redirect()->route('login')
                     ->withErrors(['email' => 'Não foi encontrada uma conta com este e-mail.']);
             }
 
-            if (! $user->allow) {
+            if (!$user->allow) {
                 return redirect()->route('login')
                     ->withErrors(['email' => 'Esta conta está desativada.']);
             }
@@ -150,7 +150,8 @@ class LoginController extends Controller
     protected function attemptLogin(Request $request)
     {
         return $this->guard()->attempt(
-            $this->credentials($request), $request->boolean('remember')
+            $this->credentials($request),
+            $request->boolean('remember')
         );
     }
 

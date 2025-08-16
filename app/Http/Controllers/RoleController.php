@@ -14,14 +14,14 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class RoleController extends Controller
 {
-    const MSG_CREATE_SUCCESS = 'Perfil criado com sucesso!';
-    const MSG_CREATE_ERROR = 'Erro ao criar perfil.';
-    const MSG_UPDATE_SUCCESS = 'Perfil atualizado com sucesso!';
-    const MSG_UPDATE_ERROR = 'Erro ao atualizar perfil.';
-    const MSG_DELETE_SUCCESS = 'Perfil excluído com sucesso!';
-    const MSG_DELETE_ERROR = 'Erro ao excluir perfil.';
-    const MSG_NOT_FOUND = 'Perfil não encontrado.';
-    const MSG_DELETE_ROLE_SELF = 'Você não pode excluir seu próprio perfil.';
+    public const MSG_CREATE_SUCCESS = 'Perfil criado com sucesso!';
+    public const MSG_CREATE_ERROR = 'Erro ao criar perfil.';
+    public const MSG_UPDATE_SUCCESS = 'Perfil atualizado com sucesso!';
+    public const MSG_UPDATE_ERROR = 'Erro ao atualizar perfil.';
+    public const MSG_DELETE_SUCCESS = 'Perfil excluído com sucesso!';
+    public const MSG_DELETE_ERROR = 'Erro ao excluir perfil.';
+    public const MSG_NOT_FOUND = 'Perfil não encontrado.';
+    public const MSG_DELETE_ROLE_SELF = 'Você não pode excluir seu próprio perfil.';
 
     private $role;
 
@@ -60,6 +60,7 @@ class RoleController extends Controller
     public function store(RoleRequest $request)
     {
         DB::beginTransaction();
+
         try {
             // Obtém os dados do request e adiciona o ID do usuário que criou o role
             $data = $request->all();
@@ -144,6 +145,7 @@ class RoleController extends Controller
     public function update(RoleRequest $request, $id)
     {
         DB::beginTransaction();
+
         try {
             // Busca o role pelo ID
             $role = SpatieRole::findOrFail($id);

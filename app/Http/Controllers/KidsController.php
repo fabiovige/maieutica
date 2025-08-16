@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\KidRequest;
-use App\Jobs\SendKidUpdateJob;
 use App\Models\Checklist;
 use App\Models\Competence;
 use App\Models\Domain;
@@ -80,6 +79,7 @@ class KidsController extends Controller
         $this->authorize('create', Kid::class);
 
         DB::beginTransaction();
+
         try {
             $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
@@ -103,7 +103,7 @@ class KidsController extends Controller
                 if ($professional) {
                     $kid->professionals()->attach($professional->id, [
                         'created_at' => now(),
-                        'updated_at' => now()
+                        'updated_at' => now(),
                     ]);
                 }
             }
@@ -117,7 +117,6 @@ class KidsController extends Controller
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
-
             DB::rollBack();
             flash(self::MSG_CREATE_ERROR)->warning();
             $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -127,7 +126,9 @@ class KidsController extends Controller
         }
     }
 
-    public function show(Kid $kid) {}
+    public function show(Kid $kid)
+    {
+    }
 
     public function showPlane(Kid $kid, $checklistId = null)
     {
@@ -171,7 +172,6 @@ class KidsController extends Controller
 
             return view('kids.show', $data);
         } catch (Exception $e) {
-
             $message = label_case('Error show kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
@@ -184,19 +184,20 @@ class KidsController extends Controller
     public function edit(Kid $kid)
     {
         $this->authorize('update', $kid);
+
         try {
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
             // Verificando se o papel 'pais' existe, caso contrário lançar exceção
             $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (! $parentRole) {
+            if (!$parentRole) {
                 throw new Exception("O papel 'pais' não existe no sistema.");
             }
 
             // Verificando se o papel 'professional' existe, caso contrário lançar exceção
             $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (! $professionalRole) {
+            if (!$professionalRole) {
                 throw new Exception("O papel 'professional' não existe no sistema.");
             }
 
@@ -235,13 +236,13 @@ class KidsController extends Controller
 
             // Verificando se o papel 'pais' existe, caso contrário lançar exceção
             $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (! $parentRole) {
+            if (!$parentRole) {
                 throw new Exception("O papel 'pais' não existe no sistema.");
             }
 
             // Verificando se o papel 'professional' existe, caso contrário lançar exceção
             $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (! $professionalRole) {
+            if (!$professionalRole) {
                 throw new Exception("O papel 'professional' não existe no sistema.");
             }
 
@@ -274,7 +275,7 @@ class KidsController extends Controller
             'ethnicity' => 'required|string',
             //'responsible_id' => 'required|exists:users,id',
             'professionals' => 'array',
-            'professionals.*' => 'exists:professionals,id'
+            'professionals.*' => 'exists:professionals,id',
         ]);
 
         try {
@@ -298,7 +299,7 @@ class KidsController extends Controller
                 $syncData[$professionalId] = [
                     'is_primary' => $professionalId == $primaryProfessional,
                     'created_at' => now(),
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ];
             }
 
@@ -324,6 +325,7 @@ class KidsController extends Controller
     public function destroy(Kid $kid)
     {
         $this->authorize('delete', $kid);
+
         try {
             $message = label_case('Destroy Kids ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
@@ -333,7 +335,6 @@ class KidsController extends Controller
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
-
             $message = label_case('Destroy Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
@@ -388,7 +389,6 @@ class KidsController extends Controller
                 $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
 
                 foreach ($v['competences'] as $k => $competence) {
-
                     if ($countCompetences == 8) {
                         $pdf->AddPage();
                         $countCompetences = 1;
@@ -515,7 +515,6 @@ class KidsController extends Controller
                 $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
 
                 foreach ($v['competences'] as $k => $competence) {
-
                     if ($countCompetences == 8) {
                         $pdf->AddPage();
                         $countCompetences = 1;
@@ -609,7 +608,6 @@ class KidsController extends Controller
                 $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
 
                 foreach ($v['competences'] as $k => $competence) {
-
                     if ($countCompetences == 8) {
                         $pdf->AddPage();
                         $countCompetences = 1;
@@ -714,7 +712,7 @@ class KidsController extends Controller
 
                 // Cria o diretório se não existir
                 $path = public_path('images/kids');
-                if (! file_exists($path)) {
+                if (!file_exists($path)) {
                     mkdir($path, 0777, true);
                 }
 
@@ -931,7 +929,6 @@ class KidsController extends Controller
                     $statusColor = 'red';
                 }
             } elseif ($currentStatusValue === 1) {
-
                 // Difícil de obter ou não avaliado
                 if ($ageInmonths < $competence->percentil_25) {
                     $status = 'Dentro do esperado'; // Difícil de obter, mas ainda dentro da faixa esperada (<25%)
@@ -1165,7 +1162,7 @@ class KidsController extends Controller
             ->first();
 
         // Verificar se existe um checklist atual
-        if (! $currentChecklist) {
+        if (!$currentChecklist) {
             throw new Exception('Nenhum checklist encontrado!');
         }
 
@@ -1337,6 +1334,7 @@ class KidsController extends Controller
 
         if (!$currentChecklist) {
             flash('Não é possível gerar PDF. Esta criança não possui checklist avaliado.')->warning();
+
             return redirect()->back();
         }
 
@@ -1346,7 +1344,7 @@ class KidsController extends Controller
         $currentDate = Carbon::now()->format('d/m/Y');
 
         // Montar a saída com informação do checklist
-        $checklistInfo = $checklistId ? "Checklist #" . $currentChecklist->id : "Checklist Atual";
+        $checklistInfo = $checklistId ? 'Checklist #' . $currentChecklist->id : 'Checklist Atual';
         $periodAvaliable = "Período de avaliação: {$createdAt} até {$currentDate} ({$checklistInfo})";
 
         // Criar uma nova instância do PDF
@@ -1592,7 +1590,7 @@ class KidsController extends Controller
                                 \Log::info("Gráfico '$title' adicionado com sucesso ao PDF");
                             } else {
                                 \Log::warning("Arquivo de imagem não é válido para '$title'");
-                                $this->addErrorMessage($pdf, "Gráfico não disponível");
+                                $this->addErrorMessage($pdf, 'Gráfico não disponível');
                             }
 
                             // Remover o arquivo temporário
@@ -1601,23 +1599,23 @@ class KidsController extends Controller
                             }
                         } else {
                             \Log::error("Falha ao salvar arquivo temporário para '$title'");
-                            $this->addErrorMessage($pdf, "Erro ao processar gráfico");
+                            $this->addErrorMessage($pdf, 'Erro ao processar gráfico');
                         }
                     } else {
                         \Log::warning("Dados de imagem insuficientes para '$title'");
-                        $this->addErrorMessage($pdf, "Dados de gráfico insuficientes");
+                        $this->addErrorMessage($pdf, 'Dados de gráfico insuficientes');
                     }
                 } else {
                     \Log::warning("Formato de imagem inválido para '$title'");
-                    $this->addErrorMessage($pdf, "Formato de gráfico inválido");
+                    $this->addErrorMessage($pdf, 'Formato de gráfico inválido');
                 }
             } catch (Exception $e) {
                 \Log::error("Erro ao processar imagem para PDF '$title': " . $e->getMessage());
-                $this->addErrorMessage($pdf, "Erro ao carregar gráfico: " . $e->getMessage());
+                $this->addErrorMessage($pdf, 'Erro ao carregar gráfico: ' . $e->getMessage());
             }
         } else {
             \Log::warning("Nenhuma imagem fornecida para '$title'");
-            $this->addErrorMessage($pdf, "Gráfico não foi gerado");
+            $this->addErrorMessage($pdf, 'Gráfico não foi gerado');
         }
     }
 
@@ -1636,7 +1634,7 @@ class KidsController extends Controller
         $roundedPercentage = (int) round($percentage / 10) * 10;
         $roundedPercentage = max(0, min(100, $roundedPercentage));
 
-        return match($roundedPercentage) {
+        return match ($roundedPercentage) {
             0 => '#6a2046',    // Mais escuro para 0%
             10 => '#8a2e5c',   // Escuro
             20 => '#a34677',

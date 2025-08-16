@@ -44,7 +44,7 @@ class UserRequest extends FormRequest
             case 'PUT':
                 return [
                     'name' => 'required|string|max:150',
-                    'email' => 'required|string|email|max:150|unique:users,email,'.$this->route('user'),
+                    'email' => 'required|string|email|max:150|unique:users,email,' . $this->route('user'),
                     'phone' => [
                         'nullable', // Permite que o campo seja opcional
                         'string',

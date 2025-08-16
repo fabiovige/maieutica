@@ -14,7 +14,7 @@ class Specialty extends Model
         'description',
         'created_by',
         'updated_by',
-        'deleted_by'
+        'deleted_by',
     ];
 
     protected $dates = [

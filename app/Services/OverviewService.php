@@ -58,7 +58,7 @@ class OverviewService
                 'levels' => [],
                 'domains' => collect([]),
                 'averagePercentage' => 0,
-                'checklistId' => $checklistId
+                'checklistId' => $checklistId,
             ];
         }
 
