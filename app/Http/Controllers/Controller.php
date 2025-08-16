@@ -14,7 +14,7 @@ class Controller extends BaseController
     use DispatchesJobs;
     use ValidatesRequests;
 
-    public $paginate = 15;
+    public int $paginate = 15;
 
     public const MSG_CLONE_SUCCESS = 'Checklist clonado com sucesso.';
 
@@ -48,7 +48,7 @@ class Controller extends BaseController
 
     public const ID_ADMIN = 2;
 
-    public function defineRole($value): string
+    public function defineRole(string $value): string
     {
         return 'ROLE_' . Str::upper(Str::slug($value, '_'));
     }

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Contracts\KidRepositoryInterface;
 use App\Http\Requests\KidRequest;
 use App\Models\Checklist;
 use App\Models\Competence;
@@ -9,10 +12,12 @@ use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
 use App\Models\User;
+use App\Services\KidService;
 use App\Services\OverviewService;
 use App\Util\MyPdf;
-use Auth;
 use Exception;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -21,14 +26,13 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class KidsController extends Controller
 {
-    protected $overviewService;
+    public function __construct(
+        private readonly OverviewService $overviewService,
+        private readonly KidService $kidService,
+        private readonly KidRepositoryInterface $kidRepository
+    ) {}
 
-    public function __construct(OverviewService $overviewService)
-    {
-        $this->overviewService = $overviewService;
-    }
-
-    public function index()
+    public function index(): mixed
     {
         $this->authorize('view kids');
 
@@ -36,37 +40,17 @@ class KidsController extends Controller
             return $this->index_data();
         }
 
-        // Buscar crianças com paginação (15 por página)
-        $kids = Kid::query()
-            ->when(auth()->user()->hasRole('pais'), function ($query) {
-                return $query->where('responsible_id', auth()->user()->id);
-            })
-            ->when(auth()->user()->hasRole('professional'), function ($query) {
-                $professionalId = auth()->user()->professional->first()->id;
-
-                return $query->whereHas('professionals', function ($q) use ($professionalId) {
-                    $q->where('professional_id', $professionalId);
-                });
-            })
-            ->orderBy('name')
-            ->paginate(15);
+        $kids = $this->kidService->getPaginatedKidsForUser(15);
 
         return view('kids.index', compact('kids'));
     }
 
-    public function create()
+    public function create(): View
     {
         $this->authorize('create', Kid::class);
 
-        // Buscar usuários com o papel 'professional'
-        $professions = User::whereHas('roles', function ($query) {
-            $query->where('name', 'professional');
-        })->get();
-
-        // Buscar usuários com o papel 'pais'
-        $responsibles = User::whereHas('roles', function ($query) {
-            $query->where('name', 'pais');
-        })->get();
+        $professions = $this->kidService->getProfessionalsForSelect();
+        $responsibles = $this->kidService->getParentsForSelect();
 
         $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
@@ -74,50 +58,20 @@ class KidsController extends Controller
         return view('kids.create', compact('professions', 'responsibles'));
     }
 
-    public function store(KidRequest $request)
+    public function store(KidRequest $request): RedirectResponse
     {
         $this->authorize('create', Kid::class);
-
-        DB::beginTransaction();
 
         try {
             $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            $kidData = [
-                'name' => $request->name,
-                'birth_date' => $request->birth_date,
-                'gender' => $request->gender,
-                'ethnicity' => $request->ethnicity,
-                'responsible_id' => $request->responsible_id,
-                'created_by' => auth()->user()->id,
-            ];
-
-            $kid = Kid::create($kidData);
-
-
-            // Se o usuário logado for profissional, adiciona ele como profissional da criança
-            if (Auth::user()->hasRole('professional')) {
-                $professional = Auth::user()->professional->first();
-
-                if ($professional) {
-                    $kid->professionals()->attach($professional->id, [
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
-
-
-            Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
+            $this->kidService->createKid($request->validated());
 
             flash(self::MSG_CREATE_SUCCESS)->success();
 
-            DB::commit();
-
             return redirect()->route('kids.index');
         } catch (Exception $e) {
-            DB::rollBack();
             flash(self::MSG_CREATE_ERROR)->warning();
             $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
@@ -126,11 +80,11 @@ class KidsController extends Controller
         }
     }
 
-    public function show(Kid $kid)
+    public function show(Kid $kid): void
     {
     }
 
-    public function showPlane(Kid $kid, $checklistId = null)
+    public function showPlane(Kid $kid, ?int $checklistId = null): View|RedirectResponse
     {
         $this->authorize('plane manual checklist', $kid);
 
@@ -181,7 +135,7 @@ class KidsController extends Controller
         }
     }
 
-    public function edit(Kid $kid)
+    public function edit(Kid $kid): View|RedirectResponse
     {
         $this->authorize('update', $kid);
 
@@ -189,31 +143,19 @@ class KidsController extends Controller
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            // Verificando se o papel 'pais' existe, caso contrário lançar exceção
+            // Verificando se os papeis existem
             $parentRole = SpatieRole::where('name', 'pais')->first();
             if (!$parentRole) {
                 throw new Exception("O papel 'pais' não existe no sistema.");
             }
 
-            // Verificando se o papel 'professional' existe, caso contrário lançar exceção
             $professionalRole = SpatieRole::where('name', 'professional')->first();
             if (!$professionalRole) {
                 throw new Exception("O papel 'professional' não existe no sistema.");
             }
 
-            // Buscando usuários com o papel 'pais'
-            $responsibles = User::whereHas('roles', function ($query) {
-                $query->where('name', 'pais');
-            })->get();
-
-            // Buscando usuários com o papel 'professional'
-            $professions = User::whereHas('roles', function ($query) {
-                $query->where('name', 'professional');
-            })->with(['professional.specialty'])
-                ->whereHas('professional', function ($query) {
-                    $query->whereNotNull('specialty_id');
-                })->get();
-
+            $responsibles = $this->kidService->getParentsForSelect();
+            $professions = $this->kidService->getProfessionalsForSelect();
 
             return view('kids.edit', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
@@ -225,7 +167,7 @@ class KidsController extends Controller
         }
     }
 
-    public function eyeKid($id)
+    public function eyeKid(int $id): View|RedirectResponse
     {
         $kid = Kid::findOrFail($id);
         $this->authorize('view', $kid);
@@ -266,53 +208,29 @@ class KidsController extends Controller
         }
     }
 
-    public function update(Request $request, Kid $kid)
+    public function update(Request $request, Kid $kid): RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'birth_date' => 'required|date_format:d/m/Y|before:today|after:1900-01-01',
             'gender' => 'required|string',
             'ethnicity' => 'required|string',
-            //'responsible_id' => 'required|exists:users,id',
             'professionals' => 'array',
             'professionals.*' => 'exists:professionals,id',
         ]);
 
         try {
-            DB::beginTransaction();
-
-            $kid->update([
-                'name' => $validated['name'],
-                'birth_date' => $validated['birth_date'],
-                'gender' => $validated['gender'],
-                'ethnicity' => $validated['ethnicity'],
+            $updateData = array_merge($validated, [
                 'responsible_id' => $request->input('responsible_id'),
+                'primary_professional' => $request->input('primary_professional'),
             ]);
 
-            // Sincroniza os profissionais
-            $professionals = $request->input('professionals', []);
-            $primaryProfessional = $request->input('primary_professional');
-
-            // Prepara os dados para sync
-            $syncData = [];
-            foreach ($professionals as $professionalId) {
-                $syncData[$professionalId] = [
-                    'is_primary' => $professionalId == $primaryProfessional,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
-
-            // Sincroniza os profissionais mantendo o is_primary
-            $kid->professionals()->sync($syncData);
-
-            DB::commit();
+            $this->kidService->updateKid($kid->id, $updateData);
 
             return redirect()
                 ->route('kids.index')
                 ->with('success', 'Criança atualizada com sucesso!');
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (Exception $e) {
             Log::error('Erro ao atualizar criança: ' . $e->getMessage());
 
             return redirect()
@@ -322,7 +240,7 @@ class KidsController extends Controller
         }
     }
 
-    public function destroy(Kid $kid)
+    public function destroy(Kid $kid): RedirectResponse
     {
         $this->authorize('delete', $kid);
 
@@ -330,7 +248,7 @@ class KidsController extends Controller
             $message = label_case('Destroy Kids ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            $kid->delete();
+            $this->kidService->deleteKid($kid->id);
             flash(self::MSG_DELETE_SUCCESS)->success();
 
             return redirect()->route('kids.index');
@@ -344,7 +262,7 @@ class KidsController extends Controller
         }
     }
 
-    public function pdfPlane($id)
+    public function pdfPlane(int $id): void
     {
         try {
             $plane = Plane::findOrFail($id);
@@ -427,7 +345,7 @@ class KidsController extends Controller
         }
     }
 
-    public function pdfPlaneAuto($kidId, $checklislId, $note)
+    public function pdfPlaneAuto(int $kidId, int $checklistId, int $note)
     {
         $this->authorize('plane automatic checklist');
 
@@ -436,7 +354,7 @@ class KidsController extends Controller
             $kid = Kid::findOrFail($kidId);
 
             // Verificar se o checklist existe
-            $checklist = Checklist::findOrFail($checklislId);
+            $checklist = Checklist::findOrFail($checklistId);
 
             // Verificar se o checklist pertence ao kid
             if ($checklist->kid_id != $kidId) {
@@ -545,16 +463,18 @@ class KidsController extends Controller
 
             return redirect()->back();
         }
+        
+        return redirect()->back();
     }
 
-    public function pdfPlaneAutoView($kidId, $checklislId, $planeId)
+    public function pdfPlaneAutoView(int $kidId, int $checklistId, int $planeId)
     {
         try {
             // Primeiro, verificar se o kid existe
             $kid = Kid::findOrFail($kidId);
 
             // Verificar se o checklist existe
-            $checklist = Checklist::findOrFail($checklislId);
+            $checklist = Checklist::findOrFail($checklistId);
 
             // Verificar se o checklist pertence ao kid
             if ($checklist->kid_id != $kidId) {
@@ -591,7 +511,7 @@ class KidsController extends Controller
 
             $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'));
+            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'), null);
 
             $totalDomain = count($arr);
             $countDomain = 1;
@@ -638,9 +558,11 @@ class KidsController extends Controller
 
             return redirect()->back();
         }
+        
+        return redirect()->back();
     }
 
-    private function preferences(&$pdf, $kid, $therapist, $plane_id, $date, $planeName)
+    private function preferences(MyPdf &$pdf, Kid $kid, string $therapist, int $planeId, string $date, ?string $planeName = null): void
     {
         $preferences = [
             'HideToolbar' => true,
@@ -665,7 +587,7 @@ class KidsController extends Controller
         $pdf->AddPage();
 
         $pdf->SetFont('helvetica', '', 18);
-        $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
+        $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: ' . $planeId, 0, 1, 'C');
 
         $pdf->SetFont('helvetica', '', 16);
         $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
@@ -694,7 +616,7 @@ class KidsController extends Controller
         }
     }
 
-    public function uploadPhoto(Request $request, Kid $kid)
+    public function uploadPhoto(Request $request, Kid $kid): RedirectResponse
     {
         try {
             $request->validate([
@@ -702,33 +624,8 @@ class KidsController extends Controller
             ]);
 
             if ($request->hasFile('photo')) {
-                // Remove foto antiga se existir
-                if ($kid->photo) {
-                    $oldPhotoPath = public_path('images/kids/' . $kid->photo);
-                    if (file_exists($oldPhotoPath)) {
-                        unlink($oldPhotoPath);
-                    }
-                }
-
-                // Cria o diretório se não existir
-                $path = public_path('images/kids');
-                if (!file_exists($path)) {
-                    mkdir($path, 0777, true);
-                }
-
-                // Salva nova foto
-                $file = $request->file('photo');
-                $fileName = time() . '_' . $kid->id . '.' . $file->getClientOriginalExtension();
-                $file->move($path, $fileName);
-
-                // Salva o caminho relativo no banco
-                $kid->update(['photo' => 'images/kids/' . $fileName]);
-
+                $this->kidService->uploadPhoto($kid->id, $request->file('photo'));
                 flash('Foto atualizada com sucesso!')->success();
-                Log::info('Foto da criança atualizada', [
-                    'kid_id' => $kid->id,
-                    'path' => $kid->photo,
-                ]);
             }
 
             return redirect()->back();
@@ -740,7 +637,7 @@ class KidsController extends Controller
         }
     }
 
-    public function showRadarChart($kidId, $levelId)
+    public function showRadarChart(int $kidId, int $levelId): View
     {
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
@@ -801,7 +698,7 @@ class KidsController extends Controller
         return view('kids.radar_chart', compact('kid', 'ageInMonths', 'levelId', 'radarDataDomains', 'domains'));
     }
 
-    public function showDomainDetails($kidId, $levelId, $domainId, $checklistId = null)
+    public function showDomainDetails(int $kidId, int $levelId, int $domainId, ?int $checklistId = null): View
     {
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
@@ -998,7 +895,7 @@ class KidsController extends Controller
         return view('kids.domain_details', $data);
     }
 
-    public function showRadarChart2($kidId, $levelId, $firstChecklistId = null, $secondChecklistId = null)
+    public function showRadarChart2(int $kidId, int $levelId, ?int $firstChecklistId = null, ?int $secondChecklistId = null): View
     {
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
@@ -1134,7 +1031,7 @@ class KidsController extends Controller
         return view('kids.radar_chart2', $data);
     }
 
-    private function getStatusValue($note)
+    private function getStatusValue(?int $note): int
     {
         if ($note == 1) {
             return 1; // Difícil de obter
@@ -1147,7 +1044,7 @@ class KidsController extends Controller
         }
     }
 
-    public function overviewOld($kidId, $levelId = null, $checklistId = null)
+    public function overviewOld(int $kidId, ?int $levelId = null, ?int $checklistId = null): View
     {
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
@@ -1302,7 +1199,7 @@ class KidsController extends Controller
         ));
     }
 
-    public function overview(Request $request, $kidId, $levelId = null)
+    public function overview(Request $request, int $kidId, ?int $levelId = null): View
     {
         // Capturar checklistId da query string
         $checklistId = $request->query('checklist_id');
@@ -1314,7 +1211,7 @@ class KidsController extends Controller
         return view('kids.overview', $data);
     }
 
-    public function generatePdf(Request $request, $kidId, $levelId = null)
+    public function generatePdf(Request $request, int $kidId, ?int $levelId = null): RedirectResponse|\Illuminate\Http\Response
     {
         // Capturar checklistId da query string
         $checklistId = $request->query('checklist_id');
@@ -1550,7 +1447,7 @@ class KidsController extends Controller
     }
 
     // Método auxiliar para adicionar gráficos ao PDF
-    private function addChartToPdf($pdf, $imageData, $title, $width = null, $height = null)
+    private function addChartToPdf(MyPdf $pdf, ?string $imageData, string $title, ?int $width = null, ?int $height = null): void
     {
         // Adicionar título sempre, mesmo se não houver imagem
         $pdf->Ln(10);
@@ -1619,7 +1516,7 @@ class KidsController extends Controller
         }
     }
 
-    private function addErrorMessage($pdf, $message)
+    private function addErrorMessage(MyPdf $pdf, string $message): void
     {
         $pdf->Ln(20);
         $pdf->SetFont('helvetica', 'I', 10);
@@ -1629,7 +1526,7 @@ class KidsController extends Controller
         $pdf->Ln(20);
     }
 
-    private function getProgressColor($percentage)
+    private function getProgressColor(float $percentage): string
     {
         $roundedPercentage = (int) round($percentage / 10) * 10;
         $roundedPercentage = max(0, min(100, $roundedPercentage));
