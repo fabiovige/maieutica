@@ -1,4 +1,4 @@
-git tag -a 1.10.0 -m "Release 1.10.0 - feat: docker2"
+git tag -a 1.10.2 -m "Release 1.10.2 - feat: docker2"
 
 git push --tags
 
