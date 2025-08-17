@@ -2,6 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Communication Language
+**ALWAYS COMMUNICATE IN BRAZILIAN PORTUGUESE** - All interactions with the user must be in Portuguese from Brazil.
+
 ## Project Overview
 
 Maiêutica is a web platform for psychological clinics specializing in cognitive assessment of children. It's a Laravel 9 application with Vue 3 frontend, running in Docker containers for development and production.

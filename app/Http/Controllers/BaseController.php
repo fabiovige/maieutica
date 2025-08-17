@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 
 abstract class BaseController extends Controller
@@ -39,26 +40,26 @@ abstract class BaseController extends Controller
             $filters = $this->buildFilters($request);
             $data = $dataCallback($filters);
 
-            return view($viewName, array_merge([
+            return \view($viewName, array_merge([
                 'kids' => $data,
                 'filters' => $filters,
                 'defaultPerPage' => self::DEFAULT_PER_PAGE,
             ], $additionalData));
 
         } catch (Exception $e) {
-            $message = 'Erro ao carregar lista: ' . $e->getMessage() . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = 'Erro ao carregar lista: ' . $e->getMessage() . ' | User:' . Auth::user()->name . '(ID:' . Auth::user()->id . ')';
             Log::error($message);
 
-            flash('Erro ao carregar a lista. Tente novamente.')->error();
-            return view($viewName, array_merge([
-                'kids' => collect(),
+            \flash('Erro ao carregar a lista. Tente novamente.')->error();
+            return \view($viewName, array_merge([
+                'kids' => \collect(),
                 'filters' => [],
                 'defaultPerPage' => self::DEFAULT_PER_PAGE,
             ], $additionalData));
         }
     }
 
-    private function handleAjaxIndexRequest(Request $request, callable $dataCallback): \Illuminate\Http\JsonResponse
+    private function handleAjaxIndexRequest(Request $request, callable $dataCallback): mixed
     {
         try {
             $filters = $this->buildFilters($request);
@@ -75,12 +76,12 @@ abstract class BaseController extends Controller
                 ]
             ];
 
-            return response()->json($responseData);
+            return \response()->json($responseData);
         } catch (Exception $e) {
-            $message = 'Erro ao carregar dados AJAX: ' . $e->getMessage() . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = 'Erro ao carregar dados AJAX: ' . $e->getMessage() . ' | User:' . Auth::user()->name . '(ID:' . Auth::user()->id . ')';
             Log::error($message);
 
-            return response()->json([
+            return \response()->json([
                 'error' => 'Erro ao carregar dados. Tente novamente.'
             ], 500);
         }

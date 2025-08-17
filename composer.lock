@@ -7410,13 +7410,13 @@
             },
             "type": "library",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "2.15-dev"
-                },
                 "laravel": {
                     "providers": [
                         "Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider"
                     ]
+                },
+                "branch-alias": {
+                    "dev-master": "2.15-dev"
                 }
             },
             "autoload": {
