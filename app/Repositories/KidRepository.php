@@ -91,6 +91,12 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
                   ->orWhereHas('responsible', function ($q) use ($search) {
                       $q->where('name', 'like', "%{$search}%");
                   });
+                
+                // Se o termo de busca for numérico, buscar por idade também
+                if (is_numeric($search)) {
+                    $searchAge = (int) $search;
+                    $q->orWhereRaw('TIMESTAMPDIFF(YEAR, STR_TO_DATE(birth_date, "%d/%m/%Y"), CURDATE()) = ?', [$searchAge]);
+                }
             });
         }
 
@@ -106,6 +112,9 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
                 break;
             case 'birth_date':
                 $query->orderBy('birth_date', $sortDirection);
+                break;
+            case 'age':
+                $query->orderByRaw('TIMESTAMPDIFF(YEAR, STR_TO_DATE(birth_date, "%d/%m/%Y"), CURDATE()) ' . $sortDirection);
                 break;
             case 'created_at':
                 $query->orderBy('created_at', $sortDirection);

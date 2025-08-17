@@ -129,6 +129,9 @@ docker compose exec app php artisan key:generate
 - **NEVER ADD COMMENTS**: Code should be self-explanatory through clear naming and structure
 - **UX/UI FIRST**: Always prioritize user experience - intuitive interfaces, responsive design, and smooth interactions
 - **LEAN CODING**: Avoid unnecessary code - write only what's needed, refactor when appropriate, keep it simple
+- **FOCUS ON SOLUTION**: Do exactly what is asked, nothing more, nothing less
+- **NO UNNECESSARY FEATURES**: Never add visual feedback, tooltips, or interface changes unless explicitly requested
+- **MINIMAL APPROACH**: Implement only the specific functionality requested without additional "improvements"
 
 ### Backend (Laravel)
 - Use Eloquent efficiently with eager loading to prevent N+1 queries

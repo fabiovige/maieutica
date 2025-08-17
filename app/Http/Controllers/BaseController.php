@@ -10,12 +10,15 @@ use Exception;
 
 abstract class BaseController extends Controller
 {
+    protected const DEFAULT_PER_PAGE = 10;
+    protected const ALLOWED_PER_PAGE = [5, 10, 15, 25, 50];
+
     protected function buildFilters(Request $request, array $defaultFilters = []): array
     {
-        $perPage = (int) $request->get('per_page', 15);
+        $perPage = (int) $request->get('per_page', self::DEFAULT_PER_PAGE);
         
-        if (!in_array($perPage, [5, 10, 15, 25, 50])) {
-            $perPage = 15;
+        if (!in_array($perPage, self::ALLOWED_PER_PAGE)) {
+            $perPage = self::DEFAULT_PER_PAGE;
         }
 
         return array_merge($defaultFilters, [
@@ -39,6 +42,7 @@ abstract class BaseController extends Controller
             return view($viewName, array_merge([
                 'kids' => $data,
                 'filters' => $filters,
+                'defaultPerPage' => self::DEFAULT_PER_PAGE,
             ], $additionalData));
 
         } catch (Exception $e) {
@@ -48,7 +52,8 @@ abstract class BaseController extends Controller
             flash('Erro ao carregar a lista. Tente novamente.')->error();
             return view($viewName, array_merge([
                 'kids' => collect(),
-                'filters' => []
+                'filters' => [],
+                'defaultPerPage' => self::DEFAULT_PER_PAGE,
             ], $additionalData));
         }
     }

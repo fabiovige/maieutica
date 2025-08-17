@@ -31,12 +31,12 @@ Crianças
                 </small>
             @endif
         </div>
-        <button 
-            class="btn btn-sm btn-outline-secondary" 
-            type="button" 
-            data-bs-toggle="collapse" 
-            data-bs-target="#filterCollapse" 
-            aria-expanded="true" 
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#filterCollapse"
+            aria-expanded="true"
             aria-controls="filterCollapse"
             id="filterToggleBtn"
             title="Expandir/Recolher Filtros"
@@ -48,34 +48,17 @@ Crianças
         <div class="card-body">
             <form method="GET" action="{{ route('kids.index') }}" id="filter-form">
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="search" class="form-label">Buscar por Nome ou Responsável</label>
-                        <input 
-                            type="text" 
-                            class="form-control" 
-                            id="search" 
-                            name="search" 
-                            value="{{ $filters['search'] ?? '' }}" 
-                            placeholder="Digite o nome da criança ou responsável..."
+                    <div class="col-md-10">
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="search"
+                            name="search"
+                            value="{{ $filters['search'] ?? '' }}"
+                            placeholder="Digite o nome da criança, responsável ou idade..."
                         >
                     </div>
-                    <div class="col-md-3">
-                        <label for="sort_by" class="form-label">Ordenar por</label>
-                        <select class="form-select" id="sort_by" name="sort_by">
-                            <option value="name" {{ ($filters['sort_by'] ?? 'name') == 'name' ? 'selected' : '' }}>Nome</option>
-                            <option value="responsible" {{ ($filters['sort_by'] ?? '') == 'responsible' ? 'selected' : '' }}>Responsável</option>
-                            <option value="birth_date" {{ ($filters['sort_by'] ?? '') == 'birth_date' ? 'selected' : '' }}>Data Nascimento</option>
-                            <option value="created_at" {{ ($filters['sort_by'] ?? '') == 'created_at' ? 'selected' : '' }}>Data Cadastro</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="sort_direction" class="form-label">Direção</label>
-                        <select class="form-select" id="sort_direction" name="sort_direction">
-                            <option value="asc" {{ ($filters['sort_direction'] ?? 'asc') == 'asc' ? 'selected' : '' }}>Crescente</option>
-                            <option value="desc" {{ ($filters['sort_direction'] ?? '') == 'desc' ? 'selected' : '' }}>Decrescente</option>
-                        </select>
-                    </div>
-                    <div class="col-md-1 d-flex align-items-end">
+                    <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-outline-primary me-2">
                             <i class="bi bi-search"></i>
                         </button>
@@ -137,7 +120,14 @@ Crianças
                     @endif
                 </a>
             </th>
-            <th class="align-middle">Idade</th>
+            <th class="align-middle">
+                <a href="?{{ http_build_query(array_merge($filters, ['sort_by' => 'age', 'sort_direction' => ($filters['sort_by'] ?? '') == 'age' && ($filters['sort_direction'] ?? '') == 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-dark">
+                    Idade
+                    @if (($filters['sort_by'] ?? '') == 'age')
+                        <i class="bi bi-arrow-{{ ($filters['sort_direction'] ?? '') == 'asc' ? 'up' : 'down' }}"></i>
+                    @endif
+                </a>
+            </th>
             <th width="100">Ações</th>
         </tr>
     </thead>
@@ -234,11 +224,11 @@ Crianças
         <div class="d-flex align-items-center">
             <label for="per_page_pagination" class="form-label me-2 mb-0 text-muted small">Itens por página:</label>
             <select class="form-select form-select-sm" id="per_page_pagination" style="width: auto; min-width: 70px;" onchange="changePagination(this.value)">
-                <option value="5" {{ ($filters['per_page'] ?? 15) == 5 ? 'selected' : '' }}>5</option>
-                <option value="10" {{ ($filters['per_page'] ?? 15) == 10 ? 'selected' : '' }}>10</option>
-                <option value="15" {{ ($filters['per_page'] ?? 15) == 15 ? 'selected' : '' }}>15</option>
-                <option value="25" {{ ($filters['per_page'] ?? 15) == 25 ? 'selected' : '' }}>25</option>
-                <option value="50" {{ ($filters['per_page'] ?? 15) == 50 ? 'selected' : '' }}>50</option>
+                <option value="5" {{ ($filters['per_page'] ?? $defaultPerPage) == 5 ? 'selected' : '' }}>5</option>
+                <option value="10" {{ ($filters['per_page'] ?? $defaultPerPage) == 10 ? 'selected' : '' }}>10</option>
+                <option value="15" {{ ($filters['per_page'] ?? $defaultPerPage) == 15 ? 'selected' : '' }}>15</option>
+                <option value="25" {{ ($filters['per_page'] ?? $defaultPerPage) == 25 ? 'selected' : '' }}>25</option>
+                <option value="50" {{ ($filters['per_page'] ?? $defaultPerPage) == 50 ? 'selected' : '' }}>50</option>
             </select>
         </div>
     </div>
@@ -249,68 +239,35 @@ Crianças
 @endif
 
 <script>
-// Função global para alterar paginação
 function changePagination(perPageValue) {
     var searchValue = document.getElementById('search') ? document.getElementById('search').value : '';
-    var sortByValue = document.getElementById('sort_by') ? document.getElementById('sort_by').value : 'name';
-    var sortDirectionValue = document.getElementById('sort_direction') ? document.getElementById('sort_direction').value : 'asc';
-    
-    // Construir URL com parâmetros
+
     var url = '{{ route("kids.index") }}' + '?per_page=' + perPageValue;
     if (searchValue) url += '&search=' + encodeURIComponent(searchValue);
-    if (sortByValue) url += '&sort_by=' + encodeURIComponent(sortByValue);
-    if (sortDirectionValue) url += '&sort_direction=' + encodeURIComponent(sortDirectionValue);
-    
-    // Recarregar a página com novos parâmetros
+
+    var currentSortBy = '{{ $filters["sort_by"] ?? "" }}';
+    var currentSortDirection = '{{ $filters["sort_direction"] ?? "" }}';
+    if (currentSortBy) url += '&sort_by=' + encodeURIComponent(currentSortBy);
+    if (currentSortDirection) url += '&sort_direction=' + encodeURIComponent(currentSortDirection);
+
     window.location.href = url;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-submit do formulário de busca quando o usuário para de digitar
-    let searchTimeout;
     const searchInput = document.getElementById('search');
     const filterForm = document.getElementById('filter-form');
-    const sortBySelect = document.getElementById('sort_by');
-    const sortDirectionSelect = document.getElementById('sort_direction');
 
-    // Busca automática com delay
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(function() {
-                filterForm.submit();
-            }, 500); // 500ms de delay
-        });
-    }
-
-    // Auto-submit quando alterar ordenação
-    if (sortBySelect) {
-        sortBySelect.addEventListener('change', function() {
-            filterForm.submit();
-        });
-    }
-
-    if (sortDirectionSelect) {
-        sortDirectionSelect.addEventListener('change', function() {
-            filterForm.submit();
-        });
-    }
-
-    // A paginação agora usa onchange="changePagination(this.value)" no HTML
-
-    // Loading state durante as requisições
     filterForm.addEventListener('submit', function() {
         const submitBtn = filterForm.querySelector('button[type="submit"]');
         const searchIcon = submitBtn.querySelector('i');
-        
+
         if (searchIcon) {
             searchIcon.className = 'bi bi-arrow-repeat';
             searchIcon.style.animation = 'spin 1s linear infinite';
         }
-        
+
         submitBtn.disabled = true;
-        
-        // CSS para animação de loading
+
         if (!document.querySelector('#loading-style')) {
             const style = document.createElement('style');
             style.id = 'loading-style';
@@ -324,18 +281,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Highlight dos resultados de busca
     const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
     if (searchTerm) {
         const tableRows = document.querySelectorAll('tbody tr');
         tableRows.forEach(row => {
-            const nameCell = row.cells[2]; // Célula do nome
-            const responsibleCell = row.cells[3]; // Célula do responsável
-            
+            const nameCell = row.cells[2];
+            const responsibleCell = row.cells[3];
+
             if (nameCell && nameCell.textContent.toLowerCase().includes(searchTerm)) {
                 highlightText(nameCell, searchTerm);
             }
-            
+
             if (responsibleCell && responsibleCell.textContent.toLowerCase().includes(searchTerm)) {
                 highlightText(responsibleCell, searchTerm);
             }
@@ -349,60 +305,51 @@ document.addEventListener('DOMContentLoaded', function() {
         element.innerHTML = highlightedText;
     }
 
-    // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-        // Ctrl+F para focar no campo de busca
         if (e.ctrlKey && e.key === 'f') {
             e.preventDefault();
             searchInput.focus();
             searchInput.select();
         }
-        
-        // Escape para limpar busca
+
         if (e.key === 'Escape' && document.activeElement === searchInput) {
             searchInput.value = '';
             filterForm.submit();
         }
     });
 
-    // Tooltip para informações adicionais
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
-    // Controle do collapse de filtros
     const filterCollapseEl = document.getElementById('filterCollapse');
     const filterToggleIcon = document.getElementById('filterToggleIcon');
     const filterToggleBtn = document.getElementById('filterToggleBtn');
-    
+
     if (filterCollapseEl && filterToggleIcon) {
-        // Inicializar tooltip para o botão de filtro
         if (filterToggleBtn) {
             new bootstrap.Tooltip(filterToggleBtn);
         }
-        
-        // Restaurar estado salvo do localStorage
+
         const savedState = localStorage.getItem('kidsFilterCollapsed');
         if (savedState === 'true') {
             filterCollapseEl.classList.remove('show');
             filterToggleIcon.className = 'bi bi-chevron-down';
             filterToggleBtn.setAttribute('aria-expanded', 'false');
         }
-        
-        // Event listeners para mudanças de estado
+
         filterCollapseEl.addEventListener('show.bs.collapse', function() {
             filterToggleIcon.className = 'bi bi-chevron-up';
             localStorage.setItem('kidsFilterCollapsed', 'false');
         });
-        
+
         filterCollapseEl.addEventListener('hide.bs.collapse', function() {
             filterToggleIcon.className = 'bi bi-chevron-down';
             localStorage.setItem('kidsFilterCollapsed', 'true');
         });
     }
-    
-    // Paginação implementada via onchange no HTML
+
 });
 </script>
 
