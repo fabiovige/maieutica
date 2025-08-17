@@ -125,6 +125,11 @@ docker compose exec app php artisan key:generate
 
 ## Code Quality Guidelines
 
+### Core Development Principles
+- **NEVER ADD COMMENTS**: Code should be self-explanatory through clear naming and structure
+- **UX/UI FIRST**: Always prioritize user experience - intuitive interfaces, responsive design, and smooth interactions
+- **LEAN CODING**: Avoid unnecessary code - write only what's needed, refactor when appropriate, keep it simple
+
 ### Backend (Laravel)
 - Use Eloquent efficiently with eager loading to prevent N+1 queries
 - Implement business logic in Service classes, keep Controllers thin
@@ -138,6 +143,7 @@ docker compose exec app php artisan key:generate
 - Validate forms using vee-validate
 - Optimize for performance and accessibility
 - Maintain consistent styling with Bootstrap 5
+- Focus on smooth animations and responsive interactions
 
 ### Database
 - Use migrations for all schema changes
