@@ -23,53 +23,69 @@ Crianças
 <!-- Filtros de busca -->
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h6>
-        @if($kids->total() > 0)
-            <small class="text-muted">
-                {{ $kids->total() }} {{ $kids->total() == 1 ? 'criança encontrada' : 'crianças encontradas' }}
-            </small>
-        @endif
+        <div class="d-flex align-items-center">
+            <h6 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h6>
+            @if($kids->total() > 0)
+                <small class="text-muted ms-3">
+                    {{ $kids->total() }} {{ $kids->total() == 1 ? 'criança encontrada' : 'crianças encontradas' }}
+                </small>
+            @endif
+        </div>
+        <button 
+            class="btn btn-sm btn-outline-secondary" 
+            type="button" 
+            data-bs-toggle="collapse" 
+            data-bs-target="#filterCollapse" 
+            aria-expanded="true" 
+            aria-controls="filterCollapse"
+            id="filterToggleBtn"
+            title="Expandir/Recolher Filtros"
+        >
+            <i class="bi bi-chevron-up" id="filterToggleIcon"></i>
+        </button>
     </div>
-    <div class="card-body">
-        <form method="GET" action="{{ route('kids.index') }}" id="filter-form">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="search" class="form-label">Buscar por Nome ou Responsável</label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="search" 
-                        name="search" 
-                        value="{{ $filters['search'] ?? '' }}" 
-                        placeholder="Digite o nome da criança ou responsável..."
-                    >
+    <div class="collapse show" id="filterCollapse">
+        <div class="card-body">
+            <form method="GET" action="{{ route('kids.index') }}" id="filter-form">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="search" class="form-label">Buscar por Nome ou Responsável</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="search" 
+                            name="search" 
+                            value="{{ $filters['search'] ?? '' }}" 
+                            placeholder="Digite o nome da criança ou responsável..."
+                        >
+                    </div>
+                    <div class="col-md-3">
+                        <label for="sort_by" class="form-label">Ordenar por</label>
+                        <select class="form-select" id="sort_by" name="sort_by">
+                            <option value="name" {{ ($filters['sort_by'] ?? 'name') == 'name' ? 'selected' : '' }}>Nome</option>
+                            <option value="responsible" {{ ($filters['sort_by'] ?? '') == 'responsible' ? 'selected' : '' }}>Responsável</option>
+                            <option value="birth_date" {{ ($filters['sort_by'] ?? '') == 'birth_date' ? 'selected' : '' }}>Data Nascimento</option>
+                            <option value="created_at" {{ ($filters['sort_by'] ?? '') == 'created_at' ? 'selected' : '' }}>Data Cadastro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="sort_direction" class="form-label">Direção</label>
+                        <select class="form-select" id="sort_direction" name="sort_direction">
+                            <option value="asc" {{ ($filters['sort_direction'] ?? 'asc') == 'asc' ? 'selected' : '' }}>Crescente</option>
+                            <option value="desc" {{ ($filters['sort_direction'] ?? '') == 'desc' ? 'selected' : '' }}>Decrescente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-outline-primary me-2">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="{{ route('kids.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label for="sort_by" class="form-label">Ordenar por</label>
-                    <select class="form-select" id="sort_by" name="sort_by">
-                        <option value="name" {{ ($filters['sort_by'] ?? 'name') == 'name' ? 'selected' : '' }}>Nome</option>
-                        <option value="responsible" {{ ($filters['sort_by'] ?? '') == 'responsible' ? 'selected' : '' }}>Responsável</option>
-                        <option value="birth_date" {{ ($filters['sort_by'] ?? '') == 'birth_date' ? 'selected' : '' }}>Data Nascimento</option>
-                        <option value="created_at" {{ ($filters['sort_by'] ?? '') == 'created_at' ? 'selected' : '' }}>Data Cadastro</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="sort_direction" class="form-label">Direção</label>
-                    <select class="form-select" id="sort_direction" name="sort_direction">
-                        <option value="asc" {{ ($filters['sort_direction'] ?? 'asc') == 'asc' ? 'selected' : '' }}>Crescente</option>
-                        <option value="desc" {{ ($filters['sort_direction'] ?? '') == 'desc' ? 'selected' : '' }}>Decrescente</option>
-                    </select>
-                </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="submit" class="btn btn-outline-primary me-2">
-                        <i class="bi bi-search"></i>
-                    </button>
-                    <a href="{{ route('kids.index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-clockwise"></i>
-                    </a>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -355,6 +371,37 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
+    // Controle do collapse de filtros
+    const filterCollapseEl = document.getElementById('filterCollapse');
+    const filterToggleIcon = document.getElementById('filterToggleIcon');
+    const filterToggleBtn = document.getElementById('filterToggleBtn');
+    
+    if (filterCollapseEl && filterToggleIcon) {
+        // Inicializar tooltip para o botão de filtro
+        if (filterToggleBtn) {
+            new bootstrap.Tooltip(filterToggleBtn);
+        }
+        
+        // Restaurar estado salvo do localStorage
+        const savedState = localStorage.getItem('kidsFilterCollapsed');
+        if (savedState === 'true') {
+            filterCollapseEl.classList.remove('show');
+            filterToggleIcon.className = 'bi bi-chevron-down';
+            filterToggleBtn.setAttribute('aria-expanded', 'false');
+        }
+        
+        // Event listeners para mudanças de estado
+        filterCollapseEl.addEventListener('show.bs.collapse', function() {
+            filterToggleIcon.className = 'bi bi-chevron-up';
+            localStorage.setItem('kidsFilterCollapsed', 'false');
+        });
+        
+        filterCollapseEl.addEventListener('hide.bs.collapse', function() {
+            filterToggleIcon.className = 'bi bi-chevron-down';
+            localStorage.setItem('kidsFilterCollapsed', 'true');
+        });
+    }
+    
     // Paginação implementada via onchange no HTML
 });
 </script>
