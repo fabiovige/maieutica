@@ -210,19 +210,45 @@ Crianças
         @endforeach
     </tbody>
 </table>
-<div class="d-flex justify-content-between align-items-center">
-    <div class="text-muted">
-        Mostrando {{ $kids->firstItem() }} a {{ $kids->lastItem() }} de {{ $kids->total() }} resultados
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
+        <div class="text-muted">
+            Mostrando {{ $kids->firstItem() }} a {{ $kids->lastItem() }} de {{ $kids->total() }} resultados
+        </div>
+        <div class="d-flex align-items-center">
+            <label for="per_page_pagination" class="form-label me-2 mb-0 text-muted small">Itens por página:</label>
+            <select class="form-select form-select-sm" id="per_page_pagination" style="width: auto; min-width: 70px;" onchange="changePagination(this.value)">
+                <option value="5" {{ ($filters['per_page'] ?? 15) == 5 ? 'selected' : '' }}>5</option>
+                <option value="10" {{ ($filters['per_page'] ?? 15) == 10 ? 'selected' : '' }}>10</option>
+                <option value="15" {{ ($filters['per_page'] ?? 15) == 15 ? 'selected' : '' }}>15</option>
+                <option value="25" {{ ($filters['per_page'] ?? 15) == 25 ? 'selected' : '' }}>25</option>
+                <option value="50" {{ ($filters['per_page'] ?? 15) == 50 ? 'selected' : '' }}>50</option>
+            </select>
+        </div>
     </div>
-    <div>
+    <div class="align-self-end align-self-md-center">
         {{ $kids->links() }}
     </div>
 </div>
 @endif
-@endsection
 
-@section('scripts')
 <script>
+// Função global para alterar paginação
+function changePagination(perPageValue) {
+    var searchValue = document.getElementById('search') ? document.getElementById('search').value : '';
+    var sortByValue = document.getElementById('sort_by') ? document.getElementById('sort_by').value : 'name';
+    var sortDirectionValue = document.getElementById('sort_direction') ? document.getElementById('sort_direction').value : 'asc';
+    
+    // Construir URL com parâmetros
+    var url = '{{ route("kids.index") }}' + '?per_page=' + perPageValue;
+    if (searchValue) url += '&search=' + encodeURIComponent(searchValue);
+    if (sortByValue) url += '&sort_by=' + encodeURIComponent(sortByValue);
+    if (sortDirectionValue) url += '&sort_direction=' + encodeURIComponent(sortDirectionValue);
+    
+    // Recarregar a página com novos parâmetros
+    window.location.href = url;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-submit do formulário de busca quando o usuário para de digitar
     let searchTimeout;
@@ -253,6 +279,8 @@ document.addEventListener('DOMContentLoaded', function() {
             filterForm.submit();
         });
     }
+
+    // A paginação agora usa onchange="changePagination(this.value)" no HTML
 
     // Loading state durante as requisições
     filterForm.addEventListener('submit', function() {
@@ -326,6 +354,9 @@ document.addEventListener('DOMContentLoaded', function() {
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+
+    // Paginação implementada via onchange no HTML
 });
 </script>
+
 @endsection

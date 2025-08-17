@@ -41,13 +41,21 @@ class KidsController extends Controller
                 return $this->index_data($request);
             }
 
+            $perPage = (int) $request->get('per_page', 15);
+            
+            // Validar valores permitidos para per_page
+            if (!in_array($perPage, [5, 10, 15, 25, 50])) {
+                $perPage = 15;
+            }
+
             $filters = [
                 'search' => $request->get('search'),
                 'sort_by' => $request->get('sort_by', 'name'),
                 'sort_direction' => $request->get('sort_direction', 'asc'),
+                'per_page' => $perPage,
             ];
 
-            $kids = $this->kidService->getPaginatedKidsForUser(15, $filters);
+            $kids = $this->kidService->getPaginatedKidsForUser($perPage, $filters);
 
             return view('kids.index', compact('kids', 'filters'));
         } catch (Exception $e) {
@@ -62,13 +70,21 @@ class KidsController extends Controller
     private function index_data(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
+            $perPage = (int) $request->get('per_page', 15);
+            
+            // Validar valores permitidos para per_page
+            if (!in_array($perPage, [5, 10, 15, 25, 50])) {
+                $perPage = 15;
+            }
+
             $filters = [
                 'search' => $request->get('search'),
                 'sort_by' => $request->get('sort_by', 'name'),
                 'sort_direction' => $request->get('sort_direction', 'asc'),
+                'per_page' => $perPage,
             ];
 
-            $kids = $this->kidService->getPaginatedKidsForUser(15, $filters);
+            $kids = $this->kidService->getPaginatedKidsForUser($perPage, $filters);
 
             $data = [
                 'kids' => $kids->items(),
