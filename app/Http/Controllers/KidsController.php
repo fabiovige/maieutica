@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role as SpatieRole;
 
-class KidsController extends Controller
+class KidsController extends BaseController
 {
     public function __construct(
         private readonly OverviewService $overviewService,
@@ -36,77 +36,13 @@ class KidsController extends Controller
     {
         $this->authorize('view kids');
 
-        try {
-            if ($request->ajax()) {
-                return $this->index_data($request);
-            }
-
-            $perPage = (int) $request->get('per_page', 15);
-            
-            // Validar valores permitidos para per_page
-            if (!in_array($perPage, [5, 10, 15, 25, 50])) {
-                $perPage = 15;
-            }
-
-            $filters = [
-                'search' => $request->get('search'),
-                'sort_by' => $request->get('sort_by', 'name'),
-                'sort_direction' => $request->get('sort_direction', 'asc'),
-                'per_page' => $perPage,
-            ];
-
-            $kids = $this->kidService->getPaginatedKidsForUser($perPage, $filters);
-
-            return view('kids.index', compact('kids', 'filters'));
-        } catch (Exception $e) {
-            $message = 'Erro ao carregar lista de crianças: ' . $e->getMessage() . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            flash('Erro ao carregar a lista de crianças. Tente novamente.')->error();
-            return view('kids.index', ['kids' => collect(), 'filters' => []]);
-        }
+        return $this->handleIndexRequest(
+            $request,
+            fn($filters) => $this->kidService->getPaginatedKidsForUser($filters['per_page'], $filters),
+            'kids.index'
+        );
     }
 
-    private function index_data(Request $request): \Illuminate\Http\JsonResponse
-    {
-        try {
-            $perPage = (int) $request->get('per_page', 15);
-            
-            // Validar valores permitidos para per_page
-            if (!in_array($perPage, [5, 10, 15, 25, 50])) {
-                $perPage = 15;
-            }
-
-            $filters = [
-                'search' => $request->get('search'),
-                'sort_by' => $request->get('sort_by', 'name'),
-                'sort_direction' => $request->get('sort_direction', 'asc'),
-                'per_page' => $perPage,
-            ];
-
-            $kids = $this->kidService->getPaginatedKidsForUser($perPage, $filters);
-
-            $data = [
-                'kids' => $kids->items(),
-                'pagination' => [
-                    'current_page' => $kids->currentPage(),
-                    'last_page' => $kids->lastPage(),
-                    'per_page' => $kids->perPage(),
-                    'total' => $kids->total(),
-                    'has_more_pages' => $kids->hasMorePages(),
-                ]
-            ];
-
-            return response()->json($data);
-        } catch (Exception $e) {
-            $message = 'Erro ao carregar dados AJAX: ' . $e->getMessage() . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return response()->json([
-                'error' => 'Erro ao carregar dados. Tente novamente.'
-            ], 500);
-        }
-    }
 
     public function create(): View
     {
