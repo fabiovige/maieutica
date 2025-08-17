@@ -32,17 +32,64 @@ class KidsController extends Controller
         private readonly KidRepositoryInterface $kidRepository
     ) {}
 
-    public function index(): mixed
+    public function index(Request $request): mixed
     {
         $this->authorize('view kids');
 
-        if (request()->ajax()) {
-            return $this->index_data();
+        try {
+            if ($request->ajax()) {
+                return $this->index_data($request);
+            }
+
+            $filters = [
+                'search' => $request->get('search'),
+                'sort_by' => $request->get('sort_by', 'name'),
+                'sort_direction' => $request->get('sort_direction', 'asc'),
+            ];
+
+            $kids = $this->kidService->getPaginatedKidsForUser(15, $filters);
+
+            return view('kids.index', compact('kids', 'filters'));
+        } catch (Exception $e) {
+            $message = 'Erro ao carregar lista de crianças: ' . $e->getMessage() . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
+
+            flash('Erro ao carregar a lista de crianças. Tente novamente.')->error();
+            return view('kids.index', ['kids' => collect(), 'filters' => []]);
         }
+    }
 
-        $kids = $this->kidService->getPaginatedKidsForUser(15);
+    private function index_data(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $filters = [
+                'search' => $request->get('search'),
+                'sort_by' => $request->get('sort_by', 'name'),
+                'sort_direction' => $request->get('sort_direction', 'asc'),
+            ];
 
-        return view('kids.index', compact('kids'));
+            $kids = $this->kidService->getPaginatedKidsForUser(15, $filters);
+
+            $data = [
+                'kids' => $kids->items(),
+                'pagination' => [
+                    'current_page' => $kids->currentPage(),
+                    'last_page' => $kids->lastPage(),
+                    'per_page' => $kids->perPage(),
+                    'total' => $kids->total(),
+                    'has_more_pages' => $kids->hasMorePages(),
+                ]
+            ];
+
+            return response()->json($data);
+        } catch (Exception $e) {
+            $message = 'Erro ao carregar dados AJAX: ' . $e->getMessage() . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
+
+            return response()->json([
+                'error' => 'Erro ao carregar dados. Tente novamente.'
+            ], 500);
+        }
     }
 
     public function create(): View

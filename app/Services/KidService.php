@@ -25,9 +25,9 @@ class KidService
         return $this->kidRepository->getKidsForUser();
     }
 
-    public function getPaginatedKidsForUser(int $perPage = 15): LengthAwarePaginator
+    public function getPaginatedKidsForUser(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        return $this->kidRepository->paginateForUser($perPage);
+        return $this->kidRepository->paginateForUser($perPage, $filters);
     }
 
     public function findKidById(int $id): ?Kid

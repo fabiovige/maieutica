@@ -61,7 +61,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
         return $this->model->with($relations)->get();
     }
 
-    public function paginateForUser(int $perPage = 15): LengthAwarePaginator
+    public function paginateForUser(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
         $user = Auth::user();
         
@@ -69,8 +69,9 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
             return $this->model->newQuery()->paginate($perPage);
         }
 
-        $query = $this->model->newQuery();
+        $query = $this->model->newQuery()->with(['responsible', 'professionals']);
 
+        // Aplicar filtros de role
         if ($user->hasRole('pais')) {
             $query->where('responsible_id', $user->id);
         } elseif ($user->hasRole('professional')) {
@@ -82,7 +83,39 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
             }
         }
 
-        return $query->orderBy('name')->paginate($perPage);
+        // Aplicar filtro de busca
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhereHas('responsible', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Aplicar ordenação
+        $sortBy = $filters['sort_by'] ?? 'name';
+        $sortDirection = $filters['sort_direction'] ?? 'asc';
+
+        switch ($sortBy) {
+            case 'responsible':
+                $query->leftJoin('users as responsible', 'kids.responsible_id', '=', 'responsible.id')
+                      ->orderBy('responsible.name', $sortDirection)
+                      ->select('kids.*');
+                break;
+            case 'birth_date':
+                $query->orderBy('birth_date', $sortDirection);
+                break;
+            case 'created_at':
+                $query->orderBy('created_at', $sortDirection);
+                break;
+            default:
+                $query->orderBy('name', $sortDirection);
+                break;
+        }
+
+        return $query->paginate($perPage)->appends($filters);
     }
 
     public function getKidsForProfessional(int $professionalId): Collection

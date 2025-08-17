@@ -20,7 +20,7 @@ interface KidRepositoryInterface extends BaseRepositoryInterface
     
     public function getKidsWithRelations(array $relations = ['professionals', 'responsible', 'checklists']): Collection;
     
-    public function paginateForUser(int $perPage = 15): LengthAwarePaginator;
+    public function paginateForUser(int $perPage = 15, array $filters = []): LengthAwarePaginator;
     
     public function getKidsForProfessional(int $professionalId): Collection;
     
