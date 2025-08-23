@@ -17,7 +17,7 @@ abstract class BaseController extends Controller
     protected function buildFilters(Request $request, array $defaultFilters = []): array
     {
         $perPage = (int) $request->get('per_page', self::DEFAULT_PER_PAGE);
-        
+
         if (!in_array($perPage, self::ALLOWED_PER_PAGE)) {
             $perPage = self::DEFAULT_PER_PAGE;
         }
@@ -45,12 +45,12 @@ abstract class BaseController extends Controller
                 'filters' => $filters,
                 'defaultPerPage' => self::DEFAULT_PER_PAGE,
             ], $additionalData));
-
         } catch (Exception $e) {
             $message = 'Erro ao carregar lista: ' . $e->getMessage() . ' | User:' . Auth::user()->name . '(ID:' . Auth::user()->id . ')';
             Log::error($message);
 
             \flash('Erro ao carregar a lista. Tente novamente.')->error();
+
             return \view($viewName, array_merge([
                 'kids' => \collect(),
                 'filters' => [],
@@ -73,7 +73,7 @@ abstract class BaseController extends Controller
                     'per_page' => $data->perPage(),
                     'total' => $data->total(),
                     'has_more_pages' => $data->hasMorePages(),
-                ]
+                ],
             ];
 
             return \response()->json($responseData);
@@ -82,7 +82,7 @@ abstract class BaseController extends Controller
             Log::error($message);
 
             return \response()->json([
-                'error' => 'Erro ao carregar dados. Tente novamente.'
+                'error' => 'Erro ao carregar dados. Tente novamente.',
             ], 500);
         }
     }

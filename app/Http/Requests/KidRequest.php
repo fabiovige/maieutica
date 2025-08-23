@@ -29,6 +29,7 @@ class KidRequest extends FormRequest
             'gender' => 'required|in:M,F',
             'ethnicity' => 'nullable|string|in:branco,pardo,negro,indigena,amarelo,multiracial,nao_declarado,outro',
             'responsible_id' => 'nullable|exists:users,id',
+            'primary_professional' => 'nullable|exists:users,id',
             'professionals' => 'nullable|array',
             'professionals.*' => 'exists:users,id',
         ];
@@ -42,6 +43,7 @@ class KidRequest extends FormRequest
             'gender' => 'Gênero',
             'ethnicity' => 'Etnia',
             'responsible_id' => 'Responsável',
+            'primary_professional' => 'Profissional Principal',
             'professionals' => 'Profissionais',
         ];
     }
@@ -55,6 +57,7 @@ class KidRequest extends FormRequest
             'gender.in' => 'Gênero inválido',
             'ethnicity.in' => 'Etnia inválida',
             'responsible_id.exists' => 'Responsável inválido',
+            'primary_professional.exists' => 'Profissional principal inválido',
             'professionals.*.exists' => 'Profissional inválido',
         ];
     }

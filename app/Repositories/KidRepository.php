@@ -20,7 +20,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
     public function getKidsForUser(): Collection
     {
         $user = Auth::user();
-        
+
         if (!$user) {
             return new Collection();
         }
@@ -64,7 +64,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
     public function paginateForUser(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
         $user = Auth::user();
-        
+
         if (!$user) {
             return $this->model->newQuery()->paginate($perPage);
         }
@@ -91,7 +91,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
                   ->orWhereHas('responsible', function ($q) use ($search) {
                       $q->where('name', 'like', "%{$search}%");
                   });
-                
+
                 // Se o termo de busca for numérico, buscar por idade também
                 if (is_numeric($search)) {
                     $searchAge = (int) $search;
@@ -135,7 +135,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
     public function attachProfessional(int $kidId, int $professionalId, array $pivotData = []): bool
     {
         $kid = $this->find($kidId);
-        
+
         if (!$kid) {
             return false;
         }
@@ -146,27 +146,27 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
         ];
 
         $kid->professionals()->attach($professionalId, array_merge($defaultPivotData, $pivotData));
-        
+
         return true;
     }
 
     public function detachProfessional(int $kidId, int $professionalId): bool
     {
         $kid = $this->find($kidId);
-        
+
         if (!$kid) {
             return false;
         }
 
         $kid->professionals()->detach($professionalId);
-        
+
         return true;
     }
 
     public function syncProfessionals(int $kidId, array $professionalIds): bool
     {
         $kid = $this->find($kidId);
-        
+
         if (!$kid) {
             return false;
         }
@@ -182,7 +182,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
         }
 
         $kid->professionals()->sync($syncData);
-        
+
         return true;
     }
 

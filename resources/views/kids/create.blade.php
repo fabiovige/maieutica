@@ -94,6 +94,78 @@
                 </div>
             </div>
 
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Responsáveis e Profissionais</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="responsible_id" class="form-label">Responsável <span class="text-muted">(opcional)</span></label>
+                                <select class="form-select @error('responsible_id') is-invalid @enderror"
+                                        id="responsible_id" name="responsible_id">
+                                    <option value="">Selecione um responsável...</option>
+                                    @foreach($responsibles as $responsible)
+                                        <option value="{{ $responsible->id }}" {{ old('responsible_id') == $responsible->id ? 'selected' : '' }}>
+                                            {{ $responsible->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('responsible_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="primary_professional" class="form-label">Profissional Principal <span class="text-muted">(opcional)</span></label>
+                                <select class="form-select @error('primary_professional') is-invalid @enderror"
+                                        id="primary_professional" name="primary_professional">
+                                    <option value="">Selecione um profissional...</option>
+                                    @foreach($professions as $professional)
+                                        <option value="{{ $professional->id }}" {{ old('primary_professional') == $professional->id ? 'selected' : '' }}>
+                                            {{ $professional->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('primary_professional')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Profissionais Adicionais <span class="text-muted">(opcional)</span></label>
+                                <div class="row">
+                                    @foreach($professions as $professional)
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       value="{{ $professional->id }}" 
+                                                       id="professional_{{ $professional->id }}"
+                                                       name="professionals[]"
+                                                       {{ in_array($professional->id, old('professionals', [])) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="professional_{{ $professional->id }}">
+                                                    {{ $professional->name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @error('professionals')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card-footer bg-transparent mt-4">
                 <div class="d-flex justify-content-start gap-2">
                     <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>

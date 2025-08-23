@@ -18,7 +18,8 @@ class KidService
 {
     public function __construct(
         private readonly KidRepositoryInterface $kidRepository
-    ) {}
+    ) {
+    }
 
     public function getAllKidsForUser(): Collection
     {
@@ -38,7 +39,7 @@ class KidService
     public function createKid(array $data): Kid
     {
         DB::beginTransaction();
-        
+
         try {
             $kidData = [
                 'name' => $data['name'],
@@ -69,6 +70,7 @@ class KidService
                 'error' => $e->getMessage(),
                 'user_id' => Auth::id(),
             ]);
+
             throw $e;
         }
     }
@@ -76,7 +78,7 @@ class KidService
     public function updateKid(int $kidId, array $data): bool
     {
         DB::beginTransaction();
-        
+
         try {
             $updateData = [
                 'name' => $data['name'],
@@ -107,6 +109,7 @@ class KidService
                 'error' => $e->getMessage(),
                 'user_id' => Auth::id(),
             ]);
+
             throw $e;
         }
     }
@@ -128,6 +131,7 @@ class KidService
                 'error' => $e->getMessage(),
                 'user_id' => Auth::id(),
             ]);
+
             throw $e;
         }
     }
@@ -136,7 +140,7 @@ class KidService
     {
         try {
             $kid = $this->findKidById($kidId);
-            
+
             if (!$kid) {
                 return false;
             }
@@ -169,6 +173,7 @@ class KidService
                 'kid_id' => $kidId,
                 'error' => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }
@@ -193,7 +198,7 @@ class KidService
     private function attachCurrentProfessionalToKid(int $kidId): void
     {
         $professional = Auth::user()->professional->first();
-        
+
         if ($professional) {
             $this->kidRepository->attachProfessional($kidId, $professional->id, [
                 'created_at' => now(),
@@ -205,7 +210,7 @@ class KidService
     private function syncProfessionalsForKid(int $kidId, array $professionals, ?string $primaryProfessional = null): void
     {
         $syncData = [];
-        
+
         foreach ($professionals as $professionalId) {
             $syncData[$professionalId] = [
                 'is_primary' => $professionalId == $primaryProfessional,

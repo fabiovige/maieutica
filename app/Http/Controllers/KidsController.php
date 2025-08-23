@@ -30,7 +30,8 @@ class KidsController extends BaseController
         private readonly OverviewService $overviewService,
         private readonly KidService $kidService,
         private readonly KidRepositoryInterface $kidRepository
-    ) {}
+    ) {
+    }
 
     public function index(Request $request): mixed
     {
@@ -38,7 +39,7 @@ class KidsController extends BaseController
 
         return $this->handleIndexRequest(
             $request,
-            fn($filters) => $this->kidService->getPaginatedKidsForUser($filters['per_page'], $filters),
+            fn ($filters) => $this->kidService->getPaginatedKidsForUser($filters['per_page'], $filters),
             'kids.index'
         );
     }
@@ -462,7 +463,7 @@ class KidsController extends BaseController
 
             return redirect()->back();
         }
-        
+
         return redirect()->back();
     }
 
@@ -557,7 +558,7 @@ class KidsController extends BaseController
 
             return redirect()->back();
         }
-        
+
         return redirect()->back();
     }
 

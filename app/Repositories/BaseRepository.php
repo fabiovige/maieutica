@@ -36,7 +36,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function update(int $id, array $data): bool
     {
         $model = $this->model->find($id);
-        
+
         if (!$model) {
             return false;
         }
@@ -47,7 +47,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function delete(int $id): bool
     {
         $model = $this->model->find($id);
-        
+
         if (!$model) {
             return false;
         }
