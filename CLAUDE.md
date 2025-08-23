@@ -156,3 +156,6 @@ docker compose exec app php artisan key:generate
 - Implement proper indexing for performance
 - Use soft deletes for recoverable records
 - Normalize schemas to avoid redundancy
+- to memorize
+- to memorize
+- to memorize

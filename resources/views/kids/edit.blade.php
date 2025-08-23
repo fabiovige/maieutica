@@ -132,94 +132,77 @@
 
 
 
-                @if (auth()->user()->hasRole('pais'))
-                    @foreach ($kid->professionals as $professional)
-                        <input type="hidden" name="professionals[]" value="{{ $professional->id }}">
-                    @endforeach
-                    <input type="hidden" name="responsible_id" value="{{ auth()->id() }}">
-                @else
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Vínculos</h5>
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Responsáveis e Profissionais</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="responsible_id" class="form-label">Responsável <span class="text-muted">(opcional)</span></label>
+                                <select class="form-select @error('responsible_id') is-invalid @enderror"
+                                        id="responsible_id" name="responsible_id">
+                                    <option value="">Selecione um responsável...</option>
+                                    @foreach($responsibles as $responsible)
+                                        <option value="{{ $responsible->id }}" {{ old('responsible_id', $kid->responsible_id) == $responsible->id ? 'selected' : '' }}>
+                                            {{ $responsible->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('responsible_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                @if (!auth()->user()->hasRole('professional'))
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="professionals" class="form-label">Profissionais</label>
-                                            <div class="card">
-                                                <div class="card-body p-0">
-                                                    <div class="list-group list-group-flush">
-                                                        @foreach ($professions as $profession)
-                                                            <div class="list-group-item">
-                                                                <div class="d-flex align-items-center">
-                                                                    <div class="form-check">
-                                                                        <input type="checkbox" class="form-check-input"
-                                                                            name="professionals[]"
-                                                                            value="{{ optional($profession->professional->first())->id }}"
-                                                                            id="prof_{{ $profession->id }}"
-                                                                            {{ optional($profession->professional->first())->id && in_array(optional($profession->professional->first())->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}
-                                                                            {{ !optional($profession->professional->first())->id ? 'disabled' : '' }}>
-                                                                    </div>
-                                                                    <div class="ms-3">
-                                                                        <label class="form-check-label"
-                                                                            for="prof_{{ $profession->id }}">
-                                                                            {{ $profession->name }}
-                                                                            @if ($profession->professional->first())
-                                                                                <small class="text-muted">
-                                                                                    ({{ $profession->professional->first()->specialty->name }}
-                                                                                    - CRM:
-                                                                                    {{ $profession->professional->first()->registration_number }})
-                                                                                </small>
-                                                                            @else
-                                                                                <small class="text-danger">
-                                                                                    (Perfil profissional não configurado)
-                                                                                </small>
-                                                                            @endif
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            @error('professionals')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            <div class="form-text">
-                                                Selecione os profissionais e indique qual é o principal.
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
-                                    <input type="hidden" name="professionals[]"
-                                        value="{{ auth()->user()->professional->first()->id }}">
-                                @endif
 
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="responsible_id" class="form-label">Responsável</label>
-                                        <select class="form-select @error('responsible_id') is-invalid @enderror"
-                                            id="responsible_id" name="responsible_id">
-                                            <option value="">Selecione...</option>
-                                            @foreach ($responsibles as $responsible)
-                                                <option value="{{ $responsible->id }}"
-                                                    {{ old('responsible_id', $kid->responsible_id) == $responsible->id ? 'selected' : '' }}>
-                                                    {{ $responsible->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('responsible_id')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="primary_professional" class="form-label">Profissional Principal <span class="text-muted">(opcional)</span></label>
+                                <select class="form-select @error('primary_professional') is-invalid @enderror"
+                                        id="primary_professional" name="primary_professional">
+                                    <option value="">Selecione um profissional...</option>
+                                    @foreach($professions as $professional)
+                                        <option value="{{ $professional->id }}" {{ old('primary_professional', $kid->primary_professional) == $professional->id ? 'selected' : '' }}>
+                                            {{ $professional->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('primary_professional')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
-                @endif
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Profissionais Adicionais <span class="text-muted">(opcional)</span></label>
+                                <div class="row">
+                                    @foreach($professions as $professional)
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       value="{{ $professional->id }}" 
+                                                       id="professional_{{ $professional->id }}"
+                                                       name="professionals[]"
+                                                       {{ in_array($professional->id, old('professionals', $kid->professionals->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="professional_{{ $professional->id }}">
+                                                    {{ $professional->name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @error('professionals')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
                 <div class="card-footer bg-transparent mt-4">
@@ -235,88 +218,3 @@
     </div>
 @endsection
 
-@push('scripts')
-    <script>
-        $(document).ready(function() {
-            // Debug do formulário
-            $('#kidForm').on('submit', function(e) {
-                e.preventDefault(); // Previne o envio temporariamente para debug
-
-                // Log dos valores selecionados
-                const selectedProfessionals = [];
-                document.querySelectorAll('input[name="professionals[]"]:checked').forEach(checkbox => {
-                    selectedProfessionals.push(checkbox.value);
-                });
-
-                const primaryProfessional = document.querySelector(
-                    'input[name="primary_professional"]:checked')?.value;
-
-                this.submit();
-
-            });
-
-            // Quando um checkbox de profissional é alterado
-            document.querySelectorAll('input[name="professionals[]"]').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const professionalId = this.value;
-                    const radioButton = document.querySelector(
-                        `input[name="primary_professional"][value="${professionalId}"]`);
-
-                    console.log('Checkbox alterado:', professionalId, this.checked);
-                    console.log('Radio button encontrado:', radioButton);
-
-                    if (radioButton) {
-                        if (this.checked) {
-                            radioButton.disabled = false;
-
-                            // Se for o único profissional selecionado, marca como principal
-                            const checkedBoxes = document.querySelectorAll(
-                                'input[name="professionals[]"]:checked');
-                            if (checkedBoxes.length === 1) {
-                                radioButton.checked = true;
-                                console.log('Marcando como principal:', professionalId);
-                            }
-                        } else {
-                            radioButton.disabled = true;
-
-                            // Se este era o principal, seleciona outro como principal
-                            if (radioButton.checked) {
-                                radioButton.checked = false;
-                                const firstChecked = document.querySelector(
-                                    'input[name="professionals[]"]:checked');
-                                if (firstChecked) {
-                                    const firstRadio = document.querySelector(
-                                        `input[name="primary_professional"][value="${firstChecked.value}"]`
-                                    );
-                                    if (firstRadio) {
-                                        firstRadio.checked = true;
-                                        console.log('Novo principal:', firstChecked.value);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            });
-
-            // Inicialização
-            document.querySelectorAll('input[name="professionals[]"]').forEach(checkbox => {
-                if (checkbox.checked) {
-                    const professionalId = checkbox.value;
-                    const radioButton = document.querySelector(
-                        `input[name="primary_professional"][value="${professionalId}"]`);
-                    if (radioButton) {
-                        radioButton.disabled = false;
-                    }
-                }
-            });
-
-            // Adicionar evento de clique nos radio buttons
-            document.querySelectorAll('input[name="primary_professional"]').forEach(radio => {
-                radio.addEventListener('click', function() {
-                    console.log('Radio selecionado:', this.value);
-                });
-            });
-        });
-    </script>
-@endpush

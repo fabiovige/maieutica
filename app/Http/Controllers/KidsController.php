@@ -143,17 +143,6 @@ class KidsController extends BaseController
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            // Verificando se os papeis existem
-            $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (!$parentRole) {
-                throw new Exception("O papel 'pais' não existe no sistema.");
-            }
-
-            $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (!$professionalRole) {
-                throw new Exception("O papel 'professional' não existe no sistema.");
-            }
-
             $responsibles = $this->kidService->getParentsForSelect();
             $professions = $this->kidService->getProfessionalsForSelect();
 
@@ -208,35 +197,25 @@ class KidsController extends BaseController
         }
     }
 
-    public function update(Request $request, Kid $kid): RedirectResponse
+    public function update(KidRequest $request, Kid $kid): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'birth_date' => 'required|date_format:d/m/Y|before:today|after:1900-01-01',
-            'gender' => 'required|string',
-            'ethnicity' => 'required|string',
-            'professionals' => 'array',
-            'professionals.*' => 'exists:professionals,id',
-        ]);
+        $this->authorize('update', $kid);
 
         try {
-            $updateData = array_merge($validated, [
-                'responsible_id' => $request->input('responsible_id'),
-                'primary_professional' => $request->input('primary_professional'),
-            ]);
+            $message = label_case('Update Kids ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::info($message);
 
-            $this->kidService->updateKid($kid->id, $updateData);
+            $this->kidService->updateKid($kid->id, $request->validated());
 
-            return redirect()
-                ->route('kids.index')
-                ->with('success', 'Criança atualizada com sucesso!');
+            flash(self::MSG_UPDATE_SUCCESS)->success();
+
+            return redirect()->route('kids.index');
         } catch (Exception $e) {
-            Log::error('Erro ao atualizar criança: ' . $e->getMessage());
+            flash(self::MSG_UPDATE_ERROR)->warning();
+            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
 
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Erro ao atualizar criança. Por favor, tente novamente.');
+            return redirect()->back();
         }
     }
 
