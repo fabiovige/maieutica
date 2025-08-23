@@ -27,10 +27,11 @@ abstract class BaseController extends Controller
             'sort_by' => $request->get('sort_by', 'name'),
             'sort_direction' => $request->get('sort_direction', 'asc'),
             'per_page' => $perPage,
+            'page' => $request->get('page', 1),
         ]);
     }
 
-    protected function handleIndexRequest(Request $request, callable $dataCallback, string $viewName, array $additionalData = []): mixed
+    protected function handleIndexRequest(Request $request, callable $dataCallback, string $viewName, array $additionalData = [], string $dataKey = null): mixed
     {
         try {
             if ($request->ajax()) {
@@ -40,8 +41,13 @@ abstract class BaseController extends Controller
             $filters = $this->buildFilters($request);
             $data = $dataCallback($filters);
 
+            // Determina a chave baseada no nome da view se não fornecida
+            if ($dataKey === null) {
+                $dataKey = $this->getDataKeyFromViewName($viewName);
+            }
+
             return \view($viewName, array_merge([
-                'kids' => $data,
+                $dataKey => $data,
                 'filters' => $filters,
                 'defaultPerPage' => self::DEFAULT_PER_PAGE,
             ], $additionalData));
@@ -51,12 +57,23 @@ abstract class BaseController extends Controller
 
             \flash('Erro ao carregar a lista. Tente novamente.')->error();
 
+            if ($dataKey === null) {
+                $dataKey = $this->getDataKeyFromViewName($viewName);
+            }
+
             return \view($viewName, array_merge([
-                'kids' => \collect(),
+                $dataKey => \collect(),
                 'filters' => [],
                 'defaultPerPage' => self::DEFAULT_PER_PAGE,
             ], $additionalData));
         }
+    }
+
+    private function getDataKeyFromViewName(string $viewName): string
+    {
+        // Extrai o nome do módulo da view (ex: 'users.index' -> 'users')
+        $parts = explode('.', $viewName);
+        return $parts[0] ?? 'data';
     }
 
     private function handleAjaxIndexRequest(Request $request, callable $dataCallback): mixed

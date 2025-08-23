@@ -1,42 +1,41 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role as SpatieRole;
-use App\Models\Professional;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
-    public function __construct()
-    {
+    public function __construct(
+        private readonly UserService $userService
+    ) {
     }
 
-    public function index()
+    public function index(Request $request): mixed
     {
         $this->authorize('view users');
 
-        $users = User::query()
-            ->when(!auth()->user()->hasRole('superadmin'), function ($query) {
-                $query->where('name', '!=', 'Super Admin');
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-
-        return view('users.index', compact('users'));
+        return $this->handleIndexRequest(
+            $request,
+            fn ($filters) => $this->userService->getPaginatedUsers($filters['per_page'], $filters),
+            'users.index'
+        );
     }
 
-    public function edit($id)
+    public function edit(User $user): View|RedirectResponse
     {
-        $user = User::findOrFail($id);
         $this->authorize('update', $user);
 
         try {
@@ -56,12 +55,11 @@ class UserController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(User $user): View|RedirectResponse
     {
         $this->authorize('view', User::class);
 
         try {
-            $user = User::findOrFail($id);
             $roles = Role::all();
 
             $message = label_case('Show User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -69,9 +67,7 @@ class UserController extends Controller
 
             return view('users.show', compact('user', 'roles'));
         } catch (Exception $e) {
-            $message = self::MSG_NOT_FOUND;
-
-            flash($message)->warning();
+            flash(self::MSG_NOT_FOUND)->warning();
 
             $message = label_case('Show User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
@@ -80,7 +76,7 @@ class UserController extends Controller
         }
     }
 
-    public function create()
+    public function create(): View
     {
         $this->authorize('create', User::class);
 
@@ -92,118 +88,43 @@ class UserController extends Controller
         return view('users.create', compact('roles'));
     }
 
-    public function store(UserRequest $request)
+    public function store(UserRequest $request): RedirectResponse
     {
         $this->authorize('create', User::class);
 
-        DB::beginTransaction();
-
         try {
-            $data = $request->all();
-            $data['type'] = (!isset($request->type)) ? User::TYPE_I : $data['type'];
+            $message = label_case('Store User ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::info($message);
 
-            $temporaryPassword = Str::random(10); // Gera a senha temporária
-            $hashedPassword = bcrypt($temporaryPassword); // Gera o hash da senha
-
-            $userData = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'postal_code' => $request->cep,
-                'street' => $request->logradouro,
-                'number' => $request->numero,
-                'complement' => $request->complemento,
-                'neighborhood' => $request->bairro,
-                'city' => $request->cidade,
-                'state' => $request->estado,
-                'password' => $hashedPassword,
-                'role_id' => 3,
-                'created_by' => auth()->user()->id,
-                'allow' => (bool) isset($request->allow),
-                'type' => $data['type'],
-            ];
-
-            $user = new User($userData);
-            $user->temporaryPassword = $temporaryPassword;
-            $user->save();
-
-
-            // Atribui o papel (role)
-            $role = SpatieRole::find($data['role_id']);
-            $user->syncRoles([]);
-            $user->assignRole($role->name);
-
-            // Se for profissional, criar registro na tabela professionals
-            if ($role->name === 'professional') {
-                Professional::create([
-                    'specialty_id' => 1, // ID padrão, pode ser ajustado conforme necessidade
-                    'registration_number' => 'Pendente',
-                    'created_by' => auth()->id(),
-                ])->user()->attach($user->id);
-            }
-
-            DB::commit();
+            $this->userService->createUser($request->validated());
 
             flash(self::MSG_CREATE_SUCCESS)->success();
-            Log::notice('Usuário criado com sucesso. ID: ' . $user->id . ' Email: ' . $user->email);
 
             return redirect()->route('users.index');
         } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('Erro ao criar usuário: ' . $e->getMessage());
             flash(self::MSG_CREATE_ERROR)->warning();
+            $message = label_case('Store User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
 
             return redirect()->back();
         }
     }
 
-    public function update(UserRequest $request, $id)
+    public function update(UserRequest $request, User $user): RedirectResponse
     {
-        $user = User::findOrFail($id);
         $this->authorize('update', $user);
 
-        DB::beginTransaction();
-
         try {
-            $data = $request->all();
-            $data['type'] = (!isset($data['type'])) ? User::TYPE_I : $data['type'];
+            $message = label_case('Update User ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::info($message);
 
-            $userData = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'postal_code' => $request->cep,
-                'street' => $request->logradouro,
-                'number' => $request->numero,
-                'complement' => $request->complemento,
-                'neighborhood' => $request->bairro,
-                'city' => $request->cidade,
-                'state' => $request->estado, // Ou você pode gerar uma senha aleatória
-                'role_id' => $request->role_id, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
-                'updated_by' => auth()->user()->id,
-                'allow' => (bool) isset($request->allow),
-                'type' => $data['type'],
-            ];
-
-            $user->update($userData);
-
-            $role = SpatieRole::find($data['role_id']);
-            $user->syncRoles([]);
-            $user->assignRole($role->name);
-            $user->save();
-
-            DB::commit();
+            $this->userService->updateUser($user->id, $request->validated());
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
-            $message = label_case('Update User ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::notice($message);
-
-            return redirect()->route('users.edit', $id);
+            return redirect()->route('users.edit', $user->id);
         } catch (Exception $e) {
-            DB::rollBack();
             flash(self::MSG_UPDATE_ERROR)->warning();
-
             $message = label_case('Update User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
@@ -211,79 +132,41 @@ class UserController extends Controller
         }
     }
 
-    public function destroy(User $user)
+    public function destroy(User $user): RedirectResponse
     {
         $this->authorize('delete', $user);
 
-        DB::beginTransaction();
-
         try {
-            // Verifica se o usuário autenticado está tentando excluir a si mesmo
-            if (auth()->id() == $user->id) {
-                $message = label_case('Attempted to delete self. ' . self::MSG_DELETE_USER_SELF) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
-                Log::alert($message);
+            $message = label_case('Destroy User ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::info($message);
 
-                // Lança uma exceção para bloquear a operação
-                throw new \Exception(self::MSG_DELETE_USER_SELF);
-            }
+            $this->userService->deleteUser($user);
 
-            // Verifica se o usuário tem papéis atribuídos
-            if ($user->roles()->count() > 0) {
-                $message = label_case('Attempted to delete user with roles. ' . self::MSG_DELETE_USER_WITH_ROLE) . ' | User: ' . $user->name . ' (ID: ' . $user->id . ')';
-                Log::alert($message);
-
-                // Lança uma exceção para impedir a exclusão de usuários com papéis
-                throw new Exception(self::MSG_DELETE_USER_WITH_ROLE);
-            }
-
-            // Marca o usuário como deletado por
-            $user->deleted_by = auth()->id();
-            $user->save(); // Usa save() em vez de update() quando há apenas uma mudança
-
-            // Exclui o usuário
-            $user->delete();
-
-            DB::commit();
-
-            // Exibe a mensagem de sucesso
             flash(self::MSG_DELETE_SUCCESS)->success();
 
-            // Registra a ação de exclusão no log
-            $message = label_case('User deleted successfully. ' . self::MSG_DELETE_SUCCESS) . ' | Deleted User: ' . $user->name . ' (ID: ' . $user->id . ')';
-            Log::notice($message);
-
-            // Redireciona para a lista de usuários
             return redirect()->route('users.index');
         } catch (Exception $e) {
-            DB::rollBack();
-
-            // Exibe uma mensagem de erro ao usuário
             flash($e->getMessage())->warning();
-
-            // Registra o erro no log
-            $message = label_case('Error while deleting user: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
+            $message = label_case('Destroy User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
-            // Redireciona de volta
             return redirect()->back();
         }
     }
 
-    public function pdf($id)
+    public function pdf(User $user)
     {
         try {
-            $user = User::findOrFail($id);
-
             $pdf = PDF::loadView('users.show', compact('user'));
 
-            $message = label_case('PDF Users Teste ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            $message = label_case('PDF Users ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::info($message);
 
-            return $pdf->download('user.pdf');
+            return $pdf->download("user-{$user->id}.pdf");
         } catch (Exception $e) {
-            flash(self::MSG_DELETE_ERROR)->warning();
+            flash(self::MSG_NOT_FOUND)->warning();
 
-            $message = label_case('Destroy Users ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('PDF User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
