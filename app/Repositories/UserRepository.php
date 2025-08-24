@@ -28,9 +28,30 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return $user->fresh();
     }
 
+    public function find(int $id): ?User
+    {
+        return Cache::remember(
+            "user.{$id}",
+            now()->addMinutes(30),
+            fn () => parent::find($id)
+        );
+    }
+
+
+    public function update(int $id, array $data): bool
+    {
+        $result = parent::update($id, $data);
+        
+        if ($result) {
+            $this->clearCache();
+        }
+        
+        return $result;
+    }
+
     public function updateUser(int $id, array $data): User
     {
-        $user = $this->findById($id);
+        $user = $this->find($id);
         
         if (!$user) {
             throw new ModelNotFoundException("User with ID {$id} not found");
@@ -43,9 +64,10 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return $user->fresh();
     }
 
-    public function update(int $id, array $data): bool
+
+    public function delete(int $id): bool
     {
-        $result = parent::update($id, $data);
+        $result = parent::delete($id);
         
         if ($result) {
             $this->clearCache();
@@ -63,25 +85,15 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return $result;
     }
 
-    public function delete(int $id): bool
-    {
-        $result = parent::delete($id);
-        
-        if ($result) {
-            $this->clearCache();
-        }
-        
-        return $result;
-    }
-
-    public function findById(int $id): ?User
+    public function exists(int $id): bool
     {
         return Cache::remember(
-            "user.{$id}",
-            now()->addMinutes(30),
-            fn () => $this->find($id)
+            "user.exists.{$id}",
+            now()->addMinutes(15),
+            fn () => parent::exists($id)
         );
     }
+
 
     public function findByEmail(string $email): ?User
     {
@@ -204,14 +216,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         );
     }
 
-    public function existsById(int $id): bool
-    {
-        return Cache::remember(
-            "user.exists.{$id}",
-            now()->addMinutes(15),
-            fn () => $this->exists($id)
-        );
-    }
 
     public function hasRoles(User $user): bool
     {

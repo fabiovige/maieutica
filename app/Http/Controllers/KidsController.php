@@ -49,35 +49,28 @@ class KidsController extends BaseController
     {
         $this->authorize('create', Kid::class);
 
-        $professions = $this->kidService->getProfessionalsForSelect();
-        $responsibles = $this->kidService->getParentsForSelect();
-
-        $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
-
-        return view('kids.create', compact('professions', 'responsibles'));
+        return $this->handleCreateRequest(
+            fn() => [
+                'professions' => $this->kidService->getProfessionalsForSelect(),
+                'responsibles' => $this->kidService->getParentsForSelect()
+            ],
+            'kids.create',
+            [],
+            'Erro ao carregar formulário de criação',
+            'kids.index'
+        );
     }
 
     public function store(KidRequest $request): RedirectResponse
     {
         $this->authorize('create', Kid::class);
 
-        try {
-            $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
-            $this->kidService->createKid($request->validated());
-
-            flash(self::MSG_CREATE_SUCCESS)->success();
-
-            return redirect()->route('kids.index');
-        } catch (Exception $e) {
-            flash(self::MSG_CREATE_ERROR)->warning();
-            $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return redirect()->route('kids.index');
-        }
+        return $this->handleStoreRequest(
+            fn() => $this->kidService->createKid($request->validated()),
+            self::MSG_CREATE_SUCCESS,
+            self::MSG_CREATE_ERROR,
+            'kids.index'
+        );
     }
 
     public function show(Kid $kid): void
@@ -139,21 +132,17 @@ class KidsController extends BaseController
     {
         $this->authorize('update', $kid);
 
-        try {
-            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
-            $responsibles = $this->kidService->getParentsForSelect();
-            $professions = $this->kidService->getProfessionalsForSelect();
-
-            return view('kids.edit', compact('kid', 'responsibles', 'professions'));
-        } catch (Exception $e) {
-            flash($e->getMessage())->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return redirect()->back();
-        }
+        return $this->handleViewRequest(
+            fn() => [
+                'kid' => $kid,
+                'responsibles' => $this->kidService->getParentsForSelect(),
+                'professions' => $this->kidService->getProfessionalsForSelect()
+            ],
+            'kids.edit',
+            [],
+            'Erro ao carregar dados da criança',
+            'kids.index'
+        );
     }
 
     public function eyeKid(int $id): View|RedirectResponse
@@ -161,84 +150,42 @@ class KidsController extends BaseController
         $kid = Kid::findOrFail($id);
         $this->authorize('view', $kid);
 
-        try {
-            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
-            // Verificando se o papel 'pais' existe, caso contrário lançar exceção
-            $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (!$parentRole) {
-                throw new Exception("O papel 'pais' não existe no sistema.");
-            }
-
-            // Verificando se o papel 'professional' existe, caso contrário lançar exceção
-            $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (!$professionalRole) {
-                throw new Exception("O papel 'professional' não existe no sistema.");
-            }
-
-            // Buscando usuários com o papel 'pais'
-            $responsibles = User::whereHas('roles', function ($query) {
-                $query->where('name', 'pais');
-            })->get();
-
-            // Buscando usuários com o papel 'professional'
-            $professions = User::whereHas('roles', function ($query) {
-                $query->where('name', 'professional');
-            })->get();
-
-            return view('kids.eye', compact('kid', 'responsibles', 'professions'));
-        } catch (Exception $e) {
-            flash($e->getMessage())->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return redirect()->back();
-        }
+        return $this->handleViewRequest(
+            fn() => [
+                'kid' => $kid,
+                'responsibles' => $this->kidService->getParentsForSelect(),
+                'professions' => $this->kidService->getProfessionalsForSelect()
+            ],
+            'kids.eye',
+            [],
+            'Erro ao carregar dados da criança',
+            'kids.index',
+            'Edit Kids'
+        );
     }
 
     public function update(KidRequest $request, Kid $kid): RedirectResponse
     {
         $this->authorize('update', $kid);
 
-        try {
-            $message = label_case('Update Kids ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
-            $this->kidService->updateKid($kid->id, $request->validated());
-
-            flash(self::MSG_UPDATE_SUCCESS)->success();
-
-            return redirect()->route('kids.index');
-        } catch (Exception $e) {
-            flash(self::MSG_UPDATE_ERROR)->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return redirect()->back();
-        }
+        return $this->handleUpdateRequest(
+            fn() => $this->kidService->updateKid($kid->id, $request->validated()),
+            self::MSG_UPDATE_SUCCESS,
+            self::MSG_UPDATE_ERROR,
+            'kids.index'
+        );
     }
 
     public function destroy(Kid $kid): RedirectResponse
     {
         $this->authorize('delete', $kid);
 
-        try {
-            $message = label_case('Destroy Kids ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
-            $this->kidService->deleteKid($kid->id);
-            flash(self::MSG_DELETE_SUCCESS)->success();
-
-            return redirect()->route('kids.index');
-        } catch (Exception $e) {
-            $message = label_case('Destroy Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            flash(self::MSG_NOT_FOUND)->warning();
-
-            return redirect()->back();
-        }
+        return $this->handleUpdateRequest(
+            fn() => $this->kidService->deleteKid($kid->id),
+            self::MSG_DELETE_SUCCESS,
+            self::MSG_DELETE_ERROR,
+            'kids.index'
+        );
     }
 
     public function pdfPlane(int $id): void
