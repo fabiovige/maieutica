@@ -51,7 +51,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     public function updateUser(int $id, array $data): User
     {
-        $user = $this->find($id);
+        $user = $this->findById($id);
         
         if (!$user) {
             throw new ModelNotFoundException("User with ID {$id} not found");
@@ -85,7 +85,16 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return $result;
     }
 
-    public function exists(int $id): bool
+    public function findById(int $id): ?User
+    {
+        return Cache::remember(
+            "user.{$id}",
+            now()->addMinutes(30),
+            fn () => parent::find($id)
+        );
+    }
+
+    public function existsById(int $id): bool
     {
         return Cache::remember(
             "user.exists.{$id}",
