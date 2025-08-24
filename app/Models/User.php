@@ -18,6 +18,7 @@ class User extends Authenticatable
     use SoftDeletes;
 
     public $temporaryPassword;
+    public $temporary_password; // Para uso no Observer
 
     protected $fillable = [
         'name',
@@ -77,6 +78,111 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function professionals()
+    {
+        return $this->belongsToMany(Professional::class, 'user_professional');
+    }
+
+    // === REGRAS DE NEGÓCIO ===
+    
+    public function isActive(): bool
+    {
+        return (bool) $this->allow;
+    }
+
+    public function canBeDeleted(): bool
+    {
+        return empty($this->isDeletionAllowed());
+    }
+
+    public function isDeletionAllowed(): array
+    {
+        $errors = [];
+        
+        if (auth()->id() === $this->id) {
+            $errors[] = 'Não é possível excluir seu próprio usuário';
+        }
+
+        if ($this->roles()->exists()) {
+            $errors[] = 'Não é possível excluir usuário com perfis atribuídos';
+        }
+
+        return $errors;
+    }
+
+    public function hasTemporaryPassword(): bool
+    {
+        return !$this->password_changed_at || 
+               now()->diffInDays($this->password_changed_at) > 90;
+    }
+
+    public function isValidUser(): bool
+    {
+        return $this->isActive() && 
+               $this->email_verified_at !== null && 
+               !$this->deleted_at;
+    }
+
+    public function needsPasswordChange(): bool
+    {
+        return $this->hasTemporaryPassword();
+    }
+
+    public function markPasswordAsChanged(): void
+    {
+        $this->update(['password_changed_at' => now()]);
+    }
+
+    public function hasProfessionalRole(): bool
+    {
+        return $this->hasRole('professional');
+    }
+
+    public function sanitizeData(array $data): array
+    {
+        return [
+            'name' => strip_tags($data['name']),
+            'email' => filter_var($data['email'], FILTER_SANITIZE_EMAIL),
+            'phone' => isset($data['phone']) ? preg_replace('/[^0-9()\\s-]/', '', $data['phone']) : null,
+            'postal_code' => isset($data['cep']) ? preg_replace('/[^0-9-]/', '', $data['cep']) : null,
+            'street' => isset($data['logradouro']) ? strip_tags($data['logradouro']) : null,
+            'number' => isset($data['numero']) ? strip_tags($data['numero']) : null,
+            'complement' => isset($data['complemento']) ? strip_tags($data['complemento']) : null,
+            'neighborhood' => isset($data['bairro']) ? strip_tags($data['bairro']) : null,
+            'city' => isset($data['cidade']) ? strip_tags($data['cidade']) : null,
+            'state' => isset($data['estado']) ? strtoupper(strip_tags($data['estado'])) : null,
+            'allow' => (bool) ($data['allow'] ?? true), // PADRÃO: usuário ativo
+            'type' => $data['type'] ?? self::TYPE_I,
+        ];
+    }
+
+    public function getStatusBadgeClass(): string
+    {
+        return $this->isActive() ? 'bg-success' : 'bg-danger';
+    }
+
+    public function getStatusText(): string
+    {
+        return $this->isActive() ? 'Ativo' : 'Inativo';
+    }
+
+    public function getDisplayName(): string
+    {
+        return $this->name;
+    }
+
+    public function getInitials(): string
+    {
+        return strtoupper(substr($this->name, 0, 1));
+    }
+
+    public function hasCompleteProfile(): bool
+    {
+        return !empty($this->name) && 
+               !empty($this->email) && 
+               $this->email_verified_at !== null;
     }
 
     public function isSuperAdmin(): bool

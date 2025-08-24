@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class PasswordService
 {
@@ -41,6 +41,21 @@ class PasswordService
     public function isTemporary(string $password): bool
     {
         return preg_match('/^[A-Za-z0-9!@#$%&*]{12}$/', $password) === 1;
+    }
+
+    public function requiresPasswordChange($user): bool
+    {
+        if (!$user->password_changed_at) {
+            return true;
+        }
+        
+        $daysSinceChange = Carbon::now()->diffInDays($user->password_changed_at);
+        return $daysSinceChange > 90;
+    }
+
+    public function markPasswordAsChanged($user): void
+    {
+        $user->update(['password_changed_at' => Carbon::now()]);
     }
 
     public function validatePasswordStrength(string $password): array

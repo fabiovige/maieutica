@@ -11,6 +11,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class UserService
@@ -26,10 +28,19 @@ class UserService
     {
         return DB::transaction(function () use ($data) {
             $userData = $this->prepareUserData($data);
+            
+            // Armazenar senha temporária para o Observer acessar
+            Session::put('user_creation_temp_password', $userData['temporary_password']);
+            
             $user = $this->userRepository->create($userData);
 
             $role = $this->assignRoleToUser($user, $data['role_id']);
             $this->handleRoleSpecificCreation($user, $role->name, $data);
+
+            $this->notifyUserCreated($user, $userData['temporary_password']);
+            
+            // Limpar senha da sessão
+            Session::forget('user_creation_temp_password');
 
             return $user;
         });
@@ -43,7 +54,7 @@ class UserService
 
             if (isset($data['role_id'])) {
                 $role = $this->assignRoleToUser($user, $data['role_id']);
-                $this->handleRoleSpecificCreation($user, $role->name, $data);
+                $this->handleRoleSpecificUpdate($user, $role->name, $data);
             }
 
             return $user;
@@ -53,9 +64,13 @@ class UserService
     public function deleteUser(User $user): bool
     {
         return DB::transaction(function () use ($user) {
-            $this->validateUserDeletion($user);
+            $errors = $user->isDeletionAllowed();
             
-            $this->userRepository->markAsDeleted($user, auth()->id());
+            if (!empty($errors)) {
+                throw new \Exception(implode(', ', $errors));
+            }
+            
+            $this->userRepository->markAsDeleted($user, Auth::id());
             
             return $this->userRepository->deleteUser($user);
         });
@@ -109,45 +124,27 @@ class UserService
     private function prepareUserData(array $data): array
     {
         $temporaryPassword = $this->passwordService->generateTemporaryPassword();
+        $userModel = new User();
+        $sanitizedData = $userModel->sanitizeData($data);
         
-        return [
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'postal_code' => $data['cep'] ?? null,
-            'street' => $data['logradouro'] ?? null,
-            'number' => $data['numero'] ?? null,
-            'complement' => $data['complemento'] ?? null,
-            'neighborhood' => $data['bairro'] ?? null,
-            'city' => $data['cidade'] ?? null,
-            'state' => $data['estado'] ?? null,
+        return array_merge($sanitizedData, [
             'password' => Hash::make($temporaryPassword),
-            'created_by' => auth()->id(),
-            'allow' => (bool) ($data['allow'] ?? false),
-            'type' => $data['type'] ?? User::TYPE_I,
-        ];
+            'created_by' => Auth::id(),
+            'temporary_password' => $temporaryPassword,
+        ]);
     }
 
     private function prepareUserDataForUpdate(array $data): array
     {
-        return [
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'postal_code' => $data['cep'] ?? null,
-            'street' => $data['logradouro'] ?? null,
-            'number' => $data['numero'] ?? null,
-            'complement' => $data['complemento'] ?? null,
-            'neighborhood' => $data['bairro'] ?? null,
-            'city' => $data['cidade'] ?? null,
-            'state' => $data['estado'] ?? null,
-            'updated_by' => auth()->id(),
-            'allow' => (bool) ($data['allow'] ?? false),
-            'type' => $data['type'] ?? User::TYPE_I,
-        ];
+        $userModel = new User();
+        $sanitizedData = $userModel->sanitizeData($data);
+        
+        return array_merge($sanitizedData, [
+            'updated_by' => Auth::id(),
+        ]);
     }
 
-    private function assignRoleToUser(User $user, int $roleId): SpatieRole
+    private function assignRoleToUser(User $user, int|string $roleId): SpatieRole
     {
         $role = SpatieRole::findOrFail($roleId);
         $user->syncRoles([]);
@@ -162,14 +159,18 @@ class UserService
         $strategy->createUser($user, $data);
     }
 
-    private function validateUserDeletion(User $user): void
+    private function handleRoleSpecificUpdate(User $user, string $roleName, array $data): void
     {
-        if (auth()->id() === $user->id) {
-            throw new \Exception('Não é possível excluir seu próprio usuário');
-        }
-
-        if ($this->userRepository->hasRoles($user)) {
-            throw new \Exception('Não é possível excluir usuário com perfis atribuídos');
-        }
+        $strategy = $this->strategyFactory->getStrategy($roleName);
+        $strategy->updateUser($user, $data);
     }
+
+
+    private function notifyUserCreated(User $user, string $temporaryPassword): void
+    {
+        Session::flash('success', 'Usuário criado com sucesso!');
+        Session::flash('user_password', $temporaryPassword);
+        Session::flash('user_email', $user->email);
+    }
+
 }

@@ -60,9 +60,12 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label for="phone" class="form-label">Telefone</label>
+                                <label for="phone" class="form-label">
+                                    Telefone <small class="text-muted">(opcional)</small>
+                                </label>
                                 <input type="text" class="form-control @error('phone') is-invalid @enderror"
-                                    id="phone" name="phone" value="{{ old('phone') }}">
+                                    id="phone" name="phone" value="{{ old('phone') }}" 
+                                    placeholder="(11) 99999-9999" maxlength="15">
                                 @error('phone')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -71,7 +74,7 @@
                             <div class="col-12">
                                 <div class="form-check">
                                     <input type="checkbox" class="form-check-input @error('allow') is-invalid @enderror"
-                                        id="allow" name="allow" value="1" {{ old('allow') ? 'checked' : '' }}>
+                                        id="allow" name="allow" value="1" {{ old('allow', true) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="allow">
                                         Liberado para acessar o sistema
                                     </label>
@@ -85,7 +88,7 @@
                             <div class="col-12">
                                 <h5 class="mb-3">
                                     <i class="bi bi-geo-alt"></i>
-                                    Endereço
+                                    Endereço <small class="text-muted">(opcional)</small>
                                 </h5>
                             </div>
 
@@ -170,22 +173,58 @@
                 </form>
             </div>
         </div>
-    @endsection
 
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/cep-autocomplete.css') }}">
-    @endpush
-
-    @push('scripts')
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-        <script src="{{ asset('js/cep-autocomplete.js') }}"></script>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                if (typeof $.fn.mask !== 'undefined') {
-                    $('input[name="phone"]').mask('(00) 00000-0000');
-                    $('input[name="cep"]').mask('00000-000');
+        <script>
+            setTimeout(function() {
+                // CEP Autocomplete
+                const cepInput = document.getElementById('cep');
+                if (cepInput) {
+                    cepInput.addEventListener('input', function() {
+                        let cep = this.value.replace(/\D/g, '');
+                        
+                        if (cep.length === 8) {
+                            fetch('https://viacep.com.br/ws/' + cep + '/json/')
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (!data.erro) {
+                                        document.getElementById('logradouro').value = data.logradouro || '';
+                                        document.getElementById('bairro').value = data.bairro || '';
+                                        document.getElementById('cidade').value = data.localidade || '';
+                                        document.getElementById('estado').value = data.uf || '';
+                                        document.getElementById('numero').focus();
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Erro ao buscar CEP:', error);
+                                });
+                        }
+                    });
                 }
-            });
+
+                // Máscara de telefone
+                const phoneInput = document.getElementById('phone');
+                if (phoneInput) {
+                    phoneInput.addEventListener('input', function() {
+                        let phone = this.value.replace(/\D/g, '');
+                        
+                        if (phone.length <= 11) {
+                            if (phone.length <= 2) {
+                                this.value = phone;
+                            } else if (phone.length <= 7) {
+                                this.value = `(${phone.substring(0, 2)}) ${phone.substring(2)}`;
+                            } else {
+                                this.value = `(${phone.substring(0, 2)}) ${phone.substring(2, 7)}-${phone.substring(7, 11)}`;
+                            }
+                        }
+                    });
+
+                    // Permitir apenas números
+                    phoneInput.addEventListener('keypress', function(e) {
+                        if (!/\d/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                            e.preventDefault();
+                        }
+                    });
+                }
+            }, 500);
         </script>
-    @endpush
+    @endsection

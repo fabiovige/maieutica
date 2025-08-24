@@ -44,6 +44,16 @@ services:
     networks:
       - maieutica-network
 
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: maieutica-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - maieutica-network
+
 volumes:
   mysql_data:
     driver: local

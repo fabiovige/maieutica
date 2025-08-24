@@ -25,8 +25,23 @@ class UserObserver
             ]);
 
             // O Observer é responsável por enviar o email de boas-vindas
-            $notification = new WelcomeNotification($user, $user->temporaryPassword);
-            $user->notify($notification);
+            $temporaryPassword = session('user_creation_temp_password');
+            
+            \Log::info('UserObserver: Senha temporária', [
+                'user_id' => $user->id,
+                'temporary_password' => $temporaryPassword,
+                'session_password' => session('user_creation_temp_password', 'SESSION_NULL'),
+            ]);
+            
+            if ($temporaryPassword) {
+                $notification = new WelcomeNotification($user, $temporaryPassword);
+                $user->notify($notification);
+            } else {
+                \Log::warning('UserObserver: Senha temporária não encontrada na sessão', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                ]);
+            }
         } catch (\Exception $e) {
             Log::error('Erro no UserObserver: ' . $e->getMessage());
         }

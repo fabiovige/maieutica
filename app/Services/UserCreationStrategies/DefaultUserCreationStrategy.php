@@ -14,6 +14,11 @@ class DefaultUserCreationStrategy implements UserCreationStrategyInterface
         // Para roles como 'pais', 'admin', etc.
     }
 
+    public function updateUser(User $user, array $data): void
+    {
+        // Estratégia padrão para update - não faz nada adicional
+    }
+
     public function supports(string $roleName): bool
     {
         // Suporta todos os roles não especializados

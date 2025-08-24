@@ -84,7 +84,79 @@
         </div>
     @endif
 @else
-    <table class="table table-hover table-bordered align-middle mt-3">
+    <!-- Mobile View -->
+    <div class="d-lg-none">
+        @foreach ($users as $user)
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        @if ($user->avatar && file_exists(public_path('images/avatars/' . $user->avatar)))
+                            <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ $user->name }}" 
+                                 class="rounded-circle me-3" width="50" height="50" 
+                                 style="object-fit: cover;">
+                        @else
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                 style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <span class="text-white fw-bold">
+                                    {{ $user->getInitials() }}
+                                </span>
+                            </div>
+                        @endif
+                        
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">{{ $user->name }}</h6>
+                            <small class="text-muted">ID: {{ $user->id }}</small>
+                        </div>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                    data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('users.show', $user->id) }}">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" 
+                                          class="d-inline" onsubmit="return confirm('Confirma exclusão?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="bi bi-trash"></i> Excluir
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <p class="mb-1"><strong>Email:</strong> {{ $user->email }}</p>
+                    <p class="mb-1">
+                        <strong>Perfil:</strong>
+                        @foreach ($user->roles as $role)
+                            <span class="badge bg-info">{{ $role->name }}</span>
+                        @endforeach
+                    </p>
+                    <p class="mb-0">
+                        <strong>Status:</strong>
+                        <span class="badge {{ $user->getStatusBadgeClass() }}">{{ $user->getStatusText() }}</span>
+                    </p>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <!-- Desktop Table -->
+    <table class="table table-hover table-bordered align-middle mt-3 d-none d-lg-table">
         <thead>
             <tr>
                 <th style="width: 60px" class="text-center align-middle">
@@ -136,14 +208,17 @@
                 <tr>
                     <td class="text-center align-middle">{{ $user->id }}</td>
                     <td class="text-center align-middle">
-                        <div class="d-flex align-items-center">
-                            @if ($user->avatar && file_exists(public_path($user->avatar)))
-                                <img src="{{ asset($user->avatar) }}" alt="{{ $user->name }}"
-                                    class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;">
+                        <div class="d-flex align-items-center justify-content-center">
+                            @if ($user->avatar && file_exists(public_path('images/avatars/' . $user->avatar)))
+                                <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ $user->name }}" 
+                                     class="rounded-circle" width="40" height="40" 
+                                     style="object-fit: cover;">
                             @else
-                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-                                    style="width: 40px; height: 40px">
-                                    <i class="bi bi-person text-white"></i>
+                                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <span class="text-white fw-bold">
+                                        {{ $user->getInitials() }}
+                                    </span>
                                 </div>
                             @endif
                         </div>
@@ -164,11 +239,7 @@
                         @endforeach
                     </td>
                     <td class="align-middle">
-                        @if ($user->allow)
-                            <span class="badge bg-success">Ativo</span>
-                        @else
-                            <span class="badge bg-warning">Inativo</span>
-                        @endif
+                        <span class="badge {{ $user->getStatusBadgeClass() }}">{{ $user->getStatusText() }}</span>
                     </td>
                     <td class="align-middle">
                         <div class="dropdown">

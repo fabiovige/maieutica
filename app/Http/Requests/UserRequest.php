@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
@@ -25,12 +26,14 @@ class UserRequest extends FormRequest
                     'name' => 'required|string|max:150',
                     'email' => 'required|string|email|max:150|unique:users,email',
                     'phone' => [
-                        'nullable', // Permite que o campo seja opcional
+                        'nullable',
                         'string',
-                        'regex:/^\(\d{2}\)\s\d{5}-\d{4}$/', // Exige o formato "11 99999-8888"
+                        'regex:/^\(\d{2}\)\s\d{5}-\d{4}$/', // Formato (11) 99999-9999
                         'max:15',
                     ],
-                    'role_id' => 'required',
+                    'role_id' => 'required|exists:roles,id',
+                    'allow' => 'nullable|boolean',
+                    'type' => 'nullable|string|in:i,e',
                     // Campos de endereço
                     'cep' => 'nullable|string|max:9',
                     'logradouro' => 'nullable|string|max:255',
@@ -44,14 +47,22 @@ class UserRequest extends FormRequest
             case 'PUT':
                 return [
                     'name' => 'required|string|max:150',
-                    'email' => 'required|string|email|max:150|unique:users,email,' . $this->route('user'),
-                    'phone' => [
-                        'nullable', // Permite que o campo seja opcional
+                    'email' => [
+                        'required',
                         'string',
-                        'regex:/^\(\d{2}\)\s\d{5}-\d{4}$/', // Exige o formato "11 99999-8888"
+                        'email',
+                        'max:150',
+                        Rule::unique('users')->ignore($this->route('user'))
+                    ],
+                    'phone' => [
+                        'nullable',
+                        'string',
+                        'regex:/^\(\d{2}\)\s\d{5}-\d{4}$/', // Formato (11) 99999-9999
                         'max:15',
                     ],
-                    // 'role_id' => 'required',
+                    'role_id' => 'required|exists:roles,id',
+                    'allow' => 'nullable|boolean',
+                    'type' => 'nullable|string|in:i,e',
                     // Campos de endereço
                     'cep' => 'nullable|string|max:9',
                     'logradouro' => 'nullable|string|max:255',
@@ -93,6 +104,7 @@ class UserRequest extends FormRequest
             'bairro.max' => 'O bairro deve ter no máximo 255 caracteres',
             'cidade.max' => 'A cidade deve ter no máximo 255 caracteres',
             'estado.max' => 'O estado deve ter no máximo 2 caracteres',
+            'phone.regex' => 'O telefone deve estar no formato (11) 99999-9999',
         ];
     }
 }

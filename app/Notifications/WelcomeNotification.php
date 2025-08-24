@@ -39,7 +39,7 @@ class WelcomeNotification extends Notification implements ShouldQueue
             ->greeting('Olá ' . $this->user->name)
             ->line('Sua conta foi criada com sucesso!')
             ->line('Use seu email para acessar o sistema.')
-            ->line('Sua senha temporária é: ' . $this->password)
+            ->line('Sua senha temporária é: ' . ($this->password ?: 'NÃO INFORMADA - ERRO!'))
             ->action('Acessar o sistema', url('/'))
             ->line('Por favor, altere sua senha no primeiro acesso por questões de segurança.');
     }

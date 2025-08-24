@@ -1,8 +1,39 @@
 @if(session()->has('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
+        
+        @if(session()->has('user_password') && session()->has('user_email'))
+            <hr>
+            <div class="mt-3">
+                <h6><i class="bi bi-key"></i> Dados de Acesso:</h6>
+                <p class="mb-1"><strong>Email:</strong> {{ session('user_email') }}</p>
+                <p class="mb-0">
+                    <strong>Senha Temporária:</strong> 
+                    <code id="tempPassword">{{ session('user_password') }}</code>
+                    <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="copyToClipboard()">
+                        <i class="bi bi-clipboard"></i> Copiar
+                    </button>
+                </p>
+                <small class="text-muted">
+                    <i class="bi bi-info-circle"></i> 
+                    Esta senha deve ser alterada no primeiro acesso.
+                </small>
+            </div>
+        @endif
+        
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    
+    @if(session()->has('user_password'))
+        <script>
+            function copyToClipboard() {
+                const tempPassword = document.getElementById('tempPassword').textContent;
+                navigator.clipboard.writeText(tempPassword).then(() => {
+                    alert('Senha copiada para a área de transferência!');
+                });
+            }
+        </script>
+    @endif
 @endif
 
 @if(session()->has('error'))
