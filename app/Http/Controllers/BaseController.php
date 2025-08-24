@@ -103,4 +103,71 @@ abstract class BaseController extends Controller
             ], 500);
         }
     }
+
+    protected function handleViewRequest(callable $dataCallback, string $viewName, array $additionalData = [], string $errorMessage = 'Erro ao carregar dados.', string $redirectRoute = null): mixed
+    {
+        try {
+            $data = $dataCallback();
+
+            if (is_array($data)) {
+                return \view($viewName, \array_merge($data, $additionalData));
+            }
+
+            if (!$data) {
+                \flash('Item não encontrado.')->error();
+                return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
+            }
+
+            return \view($viewName, \array_merge(compact('data'), $additionalData));
+        } catch (Exception $e) {
+            Log::error($errorMessage . ': ' . $e->getMessage());
+            \flash($errorMessage)->error();
+            return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
+        }
+    }
+
+    protected function handleCreateRequest(callable $dataCallback, string $viewName, array $additionalData = [], string $errorMessage = 'Erro ao carregar formulário.', string $redirectRoute = null): mixed
+    {
+        try {
+            $data = $dataCallback();
+            return \view($viewName, \array_merge($data, $additionalData));
+        } catch (Exception $e) {
+            Log::error($errorMessage . ': ' . $e->getMessage());
+            \flash($errorMessage)->error();
+            return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
+        }
+    }
+
+    protected function handleStoreRequest(callable $storeCallback, string $successMessage = 'Item criado com sucesso.', string $errorMessage = 'Erro ao criar item.', string $redirectRoute = null): mixed
+    {
+        try {
+            $storeCallback();
+            \flash($successMessage)->success();
+            return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
+        } catch (Exception $e) {
+            Log::error($errorMessage . ': ' . $e->getMessage());
+            \flash($errorMessage)->error();
+            return \redirect()->back()->withInput();
+        }
+    }
+
+    protected function handleUpdateRequest(callable $updateCallback, string $successMessage = 'Item atualizado com sucesso.', string $errorMessage = 'Erro ao atualizar item.', string $redirectRoute = null): mixed
+    {
+        try {
+            $updateCallback();
+            \flash($successMessage)->success();
+            return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
+        } catch (Exception $e) {
+            Log::error($errorMessage . ': ' . $e->getMessage());
+            \flash($errorMessage)->error();
+            return \redirect()->back()->withInput();
+        }
+    }
+
+    private function getDefaultIndexRoute(): string
+    {
+        $className = class_basename($this);
+        $routeName = strtolower(str_replace('Controller', '', $className));
+        return $routeName . '.index';
+    }
 }
