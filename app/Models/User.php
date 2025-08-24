@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasResourceAuthorization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,6 +14,7 @@ class User extends Authenticatable
 {
     use HasApiTokens;
     use HasFactory;
+    use HasResourceAuthorization;
     use HasRoles;
     use Notifiable;
     use SoftDeletes;
@@ -185,37 +187,6 @@ class User extends Authenticatable
                $this->email_verified_at !== null;
     }
 
-    public function isSuperAdmin(): bool
-    {
-        if ($this->role) {
-            return $this->role->id == 1;
-        }
-
-        return false;
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->hasRole('admin');
-    }
-
-    public function isProfessional(): bool
-    {
-        if ($this->role) {
-            return $this->role->id == self::ROLE_PROFESSION;
-        }
-
-        return false;
-    }
-
-    public function isPais(): bool
-    {
-        if ($this->role) {
-            return $this->role->id == self::ROLE_PAIS;
-        }
-
-        return false;
-    }
 
     public function scopeGetUsers()
     {

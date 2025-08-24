@@ -25,7 +25,9 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
             return new Collection();
         }
 
-        return $this->getKidsByRole($user->roles->first()?->name ?? '', $user->id);
+        return $user->getAccessibleKidsQuery()
+            ->with(['professionals', 'responsible', 'checklists'])
+            ->get();
     }
 
     public function getKidsByRole(string $role, ?int $userId = null): Collection
@@ -69,19 +71,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
             return $this->model->newQuery()->paginate($perPage);
         }
 
-        $query = $this->model->newQuery()->with(['responsible', 'professionals']);
-
-        // Aplicar filtros de role
-        if ($user->hasRole('pais')) {
-            $query->where('responsible_id', $user->id);
-        } elseif ($user->hasRole('professional')) {
-            $professionalId = $user->professional->first()?->id;
-            if ($professionalId) {
-                $query->whereHas('professionals', function ($q) use ($professionalId) {
-                    $q->where('professional_id', $professionalId);
-                });
-            }
-        }
+        $query = $user->getAccessibleKidsQuery()->with(['responsible', 'professionals']);
 
         // Aplicar filtro de busca
         if (!empty($filters['search'])) {

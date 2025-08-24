@@ -19,12 +19,30 @@ class HomeController extends Controller
 
     public function index()
     {
-        $totalKids = Kid::count();
-        $totalChecklists = Checklist::count();
-        $checklistsEmAndamento = Checklist::where('situation', 'a')->count();
-        $totalProfessionals = Professional::count();
+        $user = auth()->user();
 
-        $kids = Kid::with(['responsible', 'professionals', 'checklists'])
+        // Usar o sistema RBAC agnóstico para obter apenas dados acessíveis
+        $accessibleKidsQuery = $user->getAccessibleKidsQuery();
+        
+        $totalKids = $accessibleKidsQuery->count();
+        
+        // Para checklists, usar apenas os das crianças acessíveis
+        $accessibleKidIds = $accessibleKidsQuery->pluck('id');
+        $totalChecklists = Checklist::whereIn('kid_id', $accessibleKidIds)->count();
+        $checklistsEmAndamento = Checklist::whereIn('kid_id', $accessibleKidIds)
+            ->where('situation', 'a')->count();
+
+        // Profissionais - se pode gerenciar todos os recursos, mostra todos, senão mostra contexto
+        if ($user->can('manage all resources')) {
+            $totalProfessionals = Professional::count();
+        } else {
+            // Para profissionais não-admin, mostra apenas profissionais relacionados às suas crianças
+            $totalProfessionals = Professional::whereHas('kids', function($query) use ($accessibleKidIds) {
+                $query->whereIn('kids.id', $accessibleKidIds);
+            })->distinct()->count();
+        }
+
+        $kids = $accessibleKidsQuery->with(['responsible', 'professionals', 'checklists'])
             ->latest()
             ->paginate(10);
 
