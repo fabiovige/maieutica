@@ -410,46 +410,55 @@ class ChecklistController extends BaseController
     {
         $this->authorize('create', Checklist::class);
 
-        return $this->handleStoreRequest(
-            function() use ($request, $id) {
-                DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
-                $checklistAtual = Checklist::where('id', $id)->firstOrFail();
+            $checklistAtual = Checklist::where('id', $id)->firstOrFail();
 
-                $data = [
-                    'kid_id' => $checklistAtual->kid_id,
-                    'situation' => 'a',
-                    'level' => $checklistAtual->level,
-                    'created_by' => Auth::id(),
-                ];
+            $data = [
+                'kid_id' => $checklistAtual->kid_id,
+                'situation' => 'a',
+                'level' => $checklistAtual->level,
+                'created_by' => Auth::id(),
+            ];
 
-                $checklist = Checklist::create($data);
+            $checklist = Checklist::create($data);
 
-                Plane::create([
-                    'kid_id' => $checklistAtual->kid_id,
-                    'checklist_id' => $checklist->id,
-                    'created_by' => Auth::id(),
-                ]);
+            Plane::create([
+                'kid_id' => $checklistAtual->kid_id,
+                'checklist_id' => $checklist->id,
+                'created_by' => Auth::id(),
+            ]);
 
-                $arrLevel = range(1, $data['level']);
+            $arrLevel = range(1, $data['level']);
 
-                foreach ($arrLevel as $level) {
-                    $components = Competence::where('level_id', $level)->pluck('id')->toArray();
-                    $notes = [];
-                    foreach ($components as $competence_id) {
-                        $chechlistCompetente = ChecklistCompetence::where('checklist_id', $checklistAtual->id)
-                            ->where('competence_id', $competence_id)
-                            ->first();
-                        $notes[$competence_id] = ['note' => $chechlistCompetente ? $chechlistCompetente->note : 0];
-                    }
-                    $checklist->competences()->syncWithoutDetaching($notes);
+            foreach ($arrLevel as $level) {
+                $components = Competence::where('level_id', $level)->pluck('id')->toArray();
+                $notes = [];
+                foreach ($components as $competence_id) {
+                    $chechlistCompetente = ChecklistCompetence::where('checklist_id', $checklistAtual->id)
+                        ->where('competence_id', $competence_id)
+                        ->first();
+                    $notes[$competence_id] = ['note' => $chechlistCompetente ? $chechlistCompetente->note : 0];
                 }
+                $checklist->competences()->syncWithoutDetaching($notes);
+            }
 
-                DB::commit();
-            },
-            self::MSG_CLONE_SUCCESS,
-            self::MSG_CLONE_ERROR,
-            'checklists.index'
-        );
+            DB::commit();
+            
+            flash(self::MSG_CLONE_SUCCESS)->success();
+            
+            // Se há kidId na request, mantém na URL de retorno
+            if ($request->has('kidId')) {
+                return redirect()->route('checklists.index', ['kidId' => $request->get('kidId')]);
+            }
+            
+            return redirect()->route('checklists.index');
+
+        } catch (Exception $e) {
+            Log::error(self::MSG_CLONE_ERROR . ': ' . $e->getMessage());
+            flash(self::MSG_CLONE_ERROR)->error();
+            return redirect()->back()->withInput();
+        }
     }
 }

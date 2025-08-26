@@ -300,7 +300,7 @@
                                                     @endcan
                                                     @can('clone checklists')
                                                         <li><a class="dropdown-item"
-                                                                href="{{ route('checklists.clonar', ['id' => $checklist->id, 'kid_id' => $checklist->kid_id]) }}">
+                                                                href="{{ route('checklists.clonar', array_merge(['id' => $checklist->id, 'kid_id' => $checklist->kid_id], $kid ? ['kidId' => $kid->id] : [])) }}">
                                                                 <i class="bi bi-copy"></i> Clonar
                                                             </a></li>
                                                     @endcan
