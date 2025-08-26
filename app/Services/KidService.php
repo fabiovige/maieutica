@@ -52,7 +52,7 @@ class KidService
 
             $kid = $this->kidRepository->create($kidData);
 
-            if (Auth::user()->hasRole('professional')) {
+            if (Auth::user()->can('attach-to-kids-as-professional')) {
                 $this->attachCurrentProfessionalToKid($kid->id);
             }
 

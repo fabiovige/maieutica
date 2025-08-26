@@ -256,17 +256,17 @@
                                     <td>
                                         <div class="dropdown">
                                             @php
-                                                $isAdmin = auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('superadmin'));
+                                                $canOverrideStatus = auth()->check() && auth()->user()->can('override-checklist-status');
                                             @endphp
                                             @can('edit checklists')
                                                 <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
                                                     id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
-                                                    @if($checklist->situation_label !== 'Aberto' && !$isAdmin) disabled @endif>
+                                                    @if($checklist->situation_label !== 'Aberto' && !$canOverrideStatus) disabled @endif>
                                                     Ações
                                                 </button>
                                             @endcan
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                @if ($checklist->situation_label === 'Aberto' || $isAdmin)
+                                                @if ($checklist->situation_label === 'Aberto' || $canOverrideStatus)
                                                     @can('edit checklists')
                                                         <li><a class="dropdown-item"
                                                                 href="{{ isset($kid) ? route('checklists.edit', ['checklist' => $checklist->id, 'kidId' => $kid->id]) : route('checklists.edit', $checklist->id) }}">

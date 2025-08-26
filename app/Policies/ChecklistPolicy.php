@@ -12,21 +12,18 @@ class ChecklistPolicy
 
     /**
      * Método executado antes de qualquer outra permissão.
-     * Permite todas as ações para superadmin e admin.
-     *
-     * @param  string  $ability
-     * @return bool|null
+     * Permite todas as ações para usuários com permissão bypass-all-checks
      */
     public function before(User $user, $ability)
     {
-        if (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('superadmin'))) {
+        if ($user->can('bypass-all-checks')) {
             return true;
         }
     }
 
     public function viewAny(User $user): bool
     {
-        return (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('professional') || $user->hasRole('pais') || $user->hasRole('superadmin')));
+        return $user->can('list checklists');
     }
 
     /**
@@ -34,16 +31,22 @@ class ChecklistPolicy
      */
     public function view(User $user, Checklist $checklist): bool
     {
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
-            return true;
-        }
-        if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
-            return $checklist->created_by === $user->id;
-        }
-        if (method_exists($user, 'hasRole') && $user->hasRole('pais')) {
+        if ($user->can('view checklists')) {
+            // Verifica se tem permissão para ver todos ou se é o criador
+            if ($user->can('view-all-kids')) {
+                return true;
+            }
+            
+            // Professional só pode ver checklists que criou ou de crianças associadas
+            if ($user->can('attach-to-kids-as-professional')) {
+                return $checklist->created_by === $user->id || 
+                       $checklist->kid->professionals->contains($user->id);
+            }
+            
+            // Responsável só pode ver checklists de suas crianças
             return $checklist->kid->responsible_id === $user->id;
         }
-
+        
         return false;
     }
 
@@ -52,7 +55,7 @@ class ChecklistPolicy
      */
     public function create(User $user): bool
     {
-        return (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('professional')));
+        return $user->can('create checklists');
     }
 
     /**
@@ -60,13 +63,23 @@ class ChecklistPolicy
      */
     public function update(User $user, Checklist $checklist): bool
     {
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
-            return true;
+        if ($user->can('edit checklists')) {
+            // Admin/Superadmin podem editar qualquer checklist
+            if ($user->can('manage-system')) {
+                return true;
+            }
+            
+            // Verifica se o checklist está fechado e se tem permissão para override
+            if ($checklist->situation !== 'a' && !$user->can('override-checklist-status')) {
+                return false;
+            }
+            
+            // Professional só pode editar checklists que criou
+            if ($user->can('attach-to-kids-as-professional')) {
+                return $checklist->created_by === $user->id;
+            }
         }
-        if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
-            return $checklist->created_by === $user->id;
-        }
-
+        
         return false;
     }
 
@@ -75,13 +88,18 @@ class ChecklistPolicy
      */
     public function delete(User $user, Checklist $checklist): bool
     {
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
-            return true;
+        if ($user->can('remove checklists')) {
+            // Admin/Superadmin podem deletar qualquer checklist
+            if ($user->can('manage-system')) {
+                return true;
+            }
+            
+            // Professional só pode deletar checklists que criou
+            if ($user->can('attach-to-kids-as-professional')) {
+                return $checklist->created_by === $user->id;
+            }
         }
-        if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
-            return $checklist->created_by === $user->id;
-        }
-
+        
         return false;
     }
 
@@ -90,7 +108,7 @@ class ChecklistPolicy
      */
     public function restore(User $user, Checklist $checklist): bool
     {
-        return (method_exists($user, 'hasRole') && $user->hasRole('admin'));
+        return $user->can('manage-system');
     }
 
     /**
@@ -98,6 +116,6 @@ class ChecklistPolicy
      */
     public function forceDelete(User $user, Checklist $checklist): bool
     {
-        return (method_exists($user, 'hasRole') && $user->hasRole('admin'));
+        return $user->can('manage-system');
     }
 }

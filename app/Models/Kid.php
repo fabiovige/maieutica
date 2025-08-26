@@ -51,7 +51,7 @@ class Kid extends BaseModel
     // Adicionando o Scope Local
     public function scopeForProfessional(Builder $query)
     {
-        if (Auth::check() && Auth::user()->hasRole('professional')) {
+        if (Auth::check() && Auth::user()->can('attach-to-kids-as-professional')) {
             return $query->whereHas('professionals', function ($query) {
                 $query->where('users.id', Auth::id());
             });
@@ -210,18 +210,22 @@ class Kid extends BaseModel
     public static function getKids()
     {
         $query = Kid::query();
+        $user = auth()->user();
 
-        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+        if ($user->can('view-all-kids')) {
+            // Admin/Superadmin podem ver todas as crianças
             $query->with(['professionals', 'responsible', 'checklists']);
-        } elseif (auth()->user()->hasRole('professional')) {
-            $query->where(function ($query) {
-                $query->whereHas('professionals', function ($q) {
-                    $q->where('users.id', auth()->user()->id);
-                })->orWhere('created_by', auth()->user()->id);
+        } elseif ($user->can('attach-to-kids-as-professional')) {
+            // Professional vê apenas crianças associadas ou criadas por ele
+            $query->where(function ($query) use ($user) {
+                $query->whereHas('professionals', function ($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                })->orWhere('created_by', $user->id);
             })
                 ->with(['professionals', 'responsible', 'checklists']);
-        } elseif (auth()->user()->hasRole('pais')) {
-            $query->where('responsible_id', auth()->user()->id)
+        } else {
+            // Pais/Responsáveis veem apenas suas crianças
+            $query->where('responsible_id', $user->id)
                 ->with(['professionals', 'responsible', 'checklists']);
         }
 

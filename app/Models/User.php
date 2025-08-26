@@ -139,7 +139,7 @@ class User extends Authenticatable
 
     public function hasProfessionalRole(): bool
     {
-        return $this->hasRole('professional');
+        return $this->can('attach-to-kids-as-professional');
     }
 
     public function sanitizeData(array $data): array

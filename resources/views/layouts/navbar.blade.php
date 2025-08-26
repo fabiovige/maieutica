@@ -35,13 +35,13 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->hasRole('admin') || auth()->user()->can('view competences'))
+                    @can('view competences')
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('competences.*') ? 'active' : '' }}" href="{{ route('competences.index') }}">
                                 <i class="bi bi-bookmark-star"></i> Competências
                             </a>
                         </li>
-                    @endif
+                    @endcan
 
                     @if(auth()->user()->can('view users'))
                         <li class="nav-item">
@@ -59,13 +59,13 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->hasRole('admin') && auth()->user()->can('view logs'))
+                    @can('view logs')
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('logs.*') ? 'active' : '' }}" href="{{ route('log-viewer::dashboard') }}">
                                 <i class="bi bi-journal-text"></i> Logs
                             </a>
                         </li>
-                    @endif
+                    @endcan
 
                     @if(auth()->user()->can('view professionals'))
                         <li class="nav-item">

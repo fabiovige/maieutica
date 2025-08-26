@@ -117,9 +117,11 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     {
         $query = $this->model->query()->with('roles');
 
-        // Filtro para não mostrar Super Admin para usuários não super admin
-        if (!auth()->user()?->hasRole('superadmin')) {
-            $query->where('name', '!=', 'Super Admin');
+        // Filtro para não mostrar Super Admin para usuários sem permissão total
+        if (!auth()->user()?->can('bypass-all-checks')) {
+            $query->whereDoesntHave('roles', function($q) {
+                $q->where('name', 'superadmin');
+            });
         }
 
         // Filtro de busca geral
@@ -202,8 +204,10 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             now()->addHours(1),
             function () {
                 return $this->model->query()
-                    ->when(!auth()->user()?->hasRole('superadmin'), function ($query) {
-                        $query->where('name', '!=', 'Super Admin');
+                    ->when(!auth()->user()?->can('bypass-all-checks'), function ($query) {
+                        $query->whereDoesntHave('roles', function($q) {
+                            $q->where('name', 'superadmin');
+                        });
                     })
                     ->orderBy('name')
                     ->pluck('name', 'id')

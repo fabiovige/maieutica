@@ -76,6 +76,16 @@ class RoleAndPermissionSeeder extends Seeder
 
             // Permissões Adicionais
             'manage dashboard',
+            'view logs',
+            'view competences',
+            
+            // Permissões Administrativas Especiais
+            'bypass-all-checks',  // Para superadmin ter acesso total
+            'manage-system',      // Para admin gerenciar o sistema
+            'override-checklist-status', // Permite editar checklists fechados
+            'attach-to-kids-as-professional', // Permite se auto-adicionar como profissional
+            'view-all-kids',      // Ver todas as crianças sem restrição
+            'view-all-users',     // Ver todos os usuários sem restrição
         ];
 
         foreach ($permissions as $permission) {
@@ -96,12 +106,14 @@ class RoleAndPermissionSeeder extends Seeder
             'edit kids',
 
             'list checklists',
+            'view checklists',
             'create checklists',
             'edit checklists',
             'clone checklists',
             'plane automatic checklist',
             'plane manual checklist',
             'avaliation checklist',
+            'fill checklists',
 
             'list planes',
             'view planes',
@@ -111,7 +123,11 @@ class RoleAndPermissionSeeder extends Seeder
 
             // Competences
             'list competences',
+            'view competences',
             'edit competences',
+            
+            // Permissão especial para profissionais
+            'attach-to-kids-as-professional',
         ]);
 
         // Pais tem permissões limitadas aos seus filhos e checklists
