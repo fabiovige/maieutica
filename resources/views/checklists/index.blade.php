@@ -159,40 +159,42 @@
 
 @section('content')
 
-    <x-data-filter :filters="[
-        [
-            'type' => 'text',
-            'name' => 'search',
-            'placeholder' => 'Digite o nome da criança ou descrição do checklist...',
-            'value' => $filters['search'] ?? '',
-            'class' => 'col-md-6',
-        ],
-        [
-            'type' => 'select',
-            'name' => 'situation',
-            'options' => [
-                '' => 'Todas as situações',
-                'a' => 'Aberto',
-                'f' => 'Fechado',
+    @unless($kid)
+        <x-data-filter :filters="[
+            [
+                'type' => 'text',
+                'name' => 'search',
+                'placeholder' => 'Digite o nome da criança ou descrição do checklist...',
+                'value' => $filters['search'] ?? '',
+                'class' => 'col-md-6',
             ],
-            'value' => $filters['situation'] ?? '',
-            'class' => 'col-md-2',
-        ],
-        [
-            'type' => 'select',
-            'name' => 'level',
-            'options' => [
-                '' => 'Todos os níveis',
-                '1' => 'Nível 1',
-                '2' => 'Nível 2',
-                '3' => 'Nível 3',
-                '4' => 'Nível 4',
+            [
+                'type' => 'select',
+                'name' => 'situation',
+                'options' => [
+                    '' => 'Todas as situações',
+                    'a' => 'Aberto',
+                    'f' => 'Fechado',
+                ],
+                'value' => $filters['situation'] ?? '',
+                'class' => 'col-md-2',
             ],
-            'value' => $filters['level'] ?? '',
-            'class' => 'col-md-2',
-        ],
-    ]" action-route="checklists.index" :hidden-fields="$kid ? ['kidId' => $kid->id] : []" :total-results="isset($checklists) ? $checklists->total() : 0"
-        entity-name="checklist" />
+            [
+                'type' => 'select',
+                'name' => 'level',
+                'options' => [
+                    '' => 'Todos os níveis',
+                    '1' => 'Nível 1',
+                    '2' => 'Nível 2',
+                    '3' => 'Nível 3',
+                    '4' => 'Nível 4',
+                ],
+                'value' => $filters['level'] ?? '',
+                'class' => 'col-md-2',
+            ],
+        ]" action-route="checklists.index" :total-results="isset($checklists) ? $checklists->total() : 0"
+            entity-name="checklist" />
+    @endunless
 
     @if (isset($kid))
         <div class="row mb-4">

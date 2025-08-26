@@ -32,8 +32,8 @@
           <div class="card-body">
             <h6 class="card-title">Gráfico de Desenvolvimento</h6>
             <div class="d-flex justify-content-center">
-              <div style="width: 500px; height: 500px;">
-                <RadarChart :chartData="testRadar" :options="radarOptions" />
+              <div style="width: 600px; height: 600px;">
+                <RadarChart :chartData="testRadar" :options="radarOptions" :width="600" :height="600" />
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@
       const testRadar = ref({})
       const radarOptions = ref({
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             position: 'bottom',
@@ -115,13 +115,13 @@
             beginAtZero: true,
             pointLabels: {
               font: {
-                size: 12,
+                size: 14,
                 weight: 'bold'
               }
             },
             ticks: {
               font: {
-                size: 10
+                size: 12
               }
             }
           }
