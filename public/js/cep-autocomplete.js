@@ -80,10 +80,6 @@ function initCepAutocomplete() {
             // Desabilita campos durante a busca
             disableAddressFields();
 
-            // Mostra indicador de carregamento
-            if (cepInput) {
-                cepInput.classList.add('loading');
-            }
 
             const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
 
@@ -93,11 +89,11 @@ function initCepAutocomplete() {
 
             const data = await response.json();
 
-            if (data.erro) {
+            if (data.erro === "true" || data.erro === true) {
                 // CEP não encontrado
                 clearAddressFields();
                 enableAddressFields();
-                alert('CEP não encontrado. Por favor, verifique o CEP informado.');
+                showToast('CEP não encontrado. Por favor, verifique o CEP informado.', 'error');
                 return;
             }
 
@@ -125,12 +121,9 @@ function initCepAutocomplete() {
             console.error('Erro ao buscar CEP:', error);
             clearAddressFields();
             enableAddressFields();
-            alert('Erro ao buscar CEP. Tente novamente.');
+            showToast('Erro ao buscar CEP. Tente novamente.', 'error');
         } finally {
-            // Remove indicador de carregamento
-            if (cepInput) {
-                cepInput.classList.remove('loading');
-            }
+
         }
     }
 
