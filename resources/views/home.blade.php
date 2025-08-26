@@ -9,99 +9,73 @@
     </nav>
     @endsection @section('content')
 
-    <div class="row g-3 mb-4">
-        <!-- Total de Crianças -->
+    <div class="row g-4 mb-4">
+        <!-- Pacientes Ativos -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card bg-primary-lightest">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="fw-semibold d-block mb-1 text-primary">Crianças</span>
-                            <h3 class="card-title mb-0 text-primary">
-                                {{ $totalKids }}
-                            </h3>
-                            <small class="fw-semibold text-primary">
-                                <i class="bi bi-people-fill"></i> Total cadastrado
-                            </small>
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1 fs-6">Pacientes Ativos</p>
+                            <h2 class="mb-0 fw-bold" style="color: var(--color-primary-darkest);">{{ $totalKids }}</h2>
+                            <small class="text-muted">Total em acompanhamento</small>
                         </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded">
-                                <i class="bi bi-people-fill fs-4 text-white"></i>
-                            </span>
+                        <div class="bg-light rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-people fs-4" style="color: var(--color-primary);"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Total de Checklists -->
+        <!-- Avaliações em Andamento -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card bg-primary-lightest">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="fw-semibold d-block mb-1 text-primary">Checklists</span>
-                            <h3 class="card-title mb-0 text-primary">
-                                {{ $totalChecklists }}
-                            </h3>
-                            <small class="fw-semibold text-primary">
-                                <i class="bi bi-clipboard2-check-fill"></i> Total de
-                                avaliações
-                            </small>
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1 fs-6">Em Avaliação</p>
+                            <h2 class="mb-0 fw-bold" style="color: var(--color-primary-darkest);">{{ $checklistsEmAndamento }}</h2>
+                            <small class="text-muted">Processos ativos</small>
                         </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded">
-                                <i class="bi bi-clipboard2-check-fill fs-4 text-white"></i>
-                            </span>
+                        <div class="bg-light rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-clock fs-4" style="color: var(--color-primary);"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Checklists em Andamento -->
+        <!-- Avaliações Concluídas -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card bg-primary-lightest">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="fw-semibold d-block mb-1 text-primary">Em Andamento</span>
-                            <h3 class="card-title mb-0 text-primary">
-                                {{ $checklistsEmAndamento }}
-                            </h3>
-                            <small class="fw-semibold text-primary">
-                                <i class="bi bi-hourglass-split"></i> Checklists
-                                ativos
-                            </small>
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1 fs-6">Concluídas</p>
+                            <h2 class="mb-0 fw-bold" style="color: var(--color-primary-darkest);">{{ $checklistsConcluidos }}</h2>
+                            <small class="text-muted">Avaliações finalizadas</small>
                         </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded">
-                                <i class="bi bi-hourglass-split fs-4 text-white"></i>
-                            </span>
+                        <div class="bg-light rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-check-circle fs-4" style="color: var(--color-primary);"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Total de Profissionais -->
+        <!-- Avaliações Este Mês -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card bg-primary-lightest">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="fw-semibold d-block mb-1 text-primary">Profissionais</span>
-                            <h3 class="card-title mb-0 text-primary">
-                                {{ $totalProfessionals }}
-                            </h3>
-                            <small class="fw-semibold text-primary">
-                                <i class="bi bi-person-badge-fill"></i> Equipe total
-                            </small>
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1 fs-6">Este Mês</p>
+                            <h2 class="mb-0 fw-bold" style="color: var(--color-primary-darkest);">{{ $avaliacoesEstesMes }}</h2>
+                            <small class="text-muted">Novas avaliações</small>
                         </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded">
-                                <i class="bi bi-person-badge-fill fs-4 text-white"></i>
-                            </span>
+                        <div class="bg-light rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-calendar-check fs-4" style="color: var(--color-primary);"></i>
                         </div>
                     </div>
                 </div>

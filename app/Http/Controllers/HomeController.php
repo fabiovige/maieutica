@@ -6,6 +6,7 @@ use App\Models\Checklist;
 use App\Models\Kid;
 use App\Models\Professional;
 use App\Services\ChecklistService;
+use Carbon\Carbon;
 
 class HomeController extends Controller
 {
@@ -52,10 +53,21 @@ class HomeController extends Controller
                 : 0;
         }
 
+        // Dados adicionais para clínica médica
+        $checklistsConcluidos = Checklist::whereIn('kid_id', $accessibleKidIds)
+            ->where('situation', 'c')->count();
+        
+        $avaliacoesEstesMes = Checklist::whereIn('kid_id', $accessibleKidIds)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+
         return view('home', compact(
             'totalKids',
-            'totalChecklists',
+            'totalChecklists', 
             'checklistsEmAndamento',
+            'checklistsConcluidos',
+            'avaliacoesEstesMes',
             'totalProfessionals',
             'kids'
         ));
