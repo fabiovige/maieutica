@@ -94,77 +94,16 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-4">
-                                <label for="cep" class="form-label">
-                                    <i class="bi bi-search"></i>
-                                    CEP
-                                </label>
-                                <input type="text" class="form-control @error('cep') is-invalid @enderror"
-                                       id="cep" name="cep" value="{{ old('cep', $user->postal_code) }}" placeholder="00000-000" maxlength="9">
-                                <small class="form-text text-muted">Digite o CEP para preenchimento automático</small>
-                                @error('cep')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="logradouro" class="form-label">Logradouro</label>
-                                <input type="text" class="form-control @error('logradouro') is-invalid @enderror"
-                                       id="logradouro" name="logradouro" value="{{ old('logradouro', $user->street) }}" readonly>
-                                @error('logradouro')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-2">
-                                <label for="numero" class="form-label">Número</label>
-                                <input type="text" class="form-control @error('numero') is-invalid @enderror"
-                                       id="numero" name="numero" value="{{ old('numero', $user->number) }}" placeholder="123">
-                                @error('numero')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="complemento" class="form-label">Complemento</label>
-                                <input type="text" class="form-control @error('complemento') is-invalid @enderror"
-                                       id="complemento" name="complemento" value="{{ old('complemento', $user->complement) }}" placeholder="Apto 101">
-                                @error('complemento')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="bairro" class="form-label">Bairro</label>
-                                <input type="text" class="form-control @error('bairro') is-invalid @enderror"
-                                       id="bairro" name="bairro" value="{{ old('bairro', $user->neighborhood) }}" readonly>
-                                @error('bairro')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="cidade" class="form-label">Cidade</label>
-                                <input type="text" class="form-control @error('cidade') is-invalid @enderror"
-                                       id="cidade" name="cidade" value="{{ old('cidade', $user->city) }}" readonly>
-                                @error('cidade')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="estado" class="form-label">Estado</label>
-                                <input type="text" class="form-control @error('estado') is-invalid @enderror"
-                                       id="estado" name="estado" value="{{ old('estado', $user->state) }}" readonly>
-                                @error('estado')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+                            <x-address-form 
+                                :cep="old('cep', $user->postal_code)"
+                                :logradouro="old('logradouro', $user->street)"
+                                :numero="old('numero', $user->number)"
+                                :complemento="old('complemento', $user->complement)"
+                                :bairro="old('bairro', $user->neighborhood)"
+                                :cidade="old('cidade', $user->city)"
+                                :estado="old('estado', $user->state)"
+                                title="Endereço"
+                            />
 
                         <div class="d-flex justify-content-start gap-2">
                             <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
@@ -221,19 +160,13 @@
     </div>
 @endsection
 
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/cep-autocomplete.css') }}">
-@endpush
-
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-    <script src="{{ asset('js/cep-autocomplete.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             if (typeof $.fn.mask !== 'undefined') {
                 $('input[name="phone"]').mask('(00) 00000-0000');
-                $('input[name="cep"]').mask('00000-000');
             }
         });
     </script>

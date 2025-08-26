@@ -84,81 +84,17 @@
                                 </div>
                             </div>
 
-                            <!-- Seção de Endereço -->
-                            <div class="col-12">
-                                <h5 class="mb-3">
-                                    <i class="bi bi-geo-alt"></i>
-                                    Endereço <small class="text-muted">(opcional)</small>
-                                </h5>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="cep" class="form-label">
-                                    <i class="bi bi-search"></i>
-                                    CEP
-                                </label>
-                                <input type="text" class="form-control @error('cep') is-invalid @enderror" id="cep"
-                                    name="cep" value="{{ old('cep') }}" placeholder="00000-000" maxlength="9">
-                                <small class="form-text text-muted">Digite o CEP para preenchimento automático</small>
-                                @error('cep')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="logradouro" class="form-label">Logradouro</label>
-                                <input type="text" class="form-control @error('logradouro') is-invalid @enderror"
-                                    id="logradouro" name="logradouro" value="{{ old('logradouro') }}" readonly>
-                                @error('logradouro')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-2">
-                                <label for="numero" class="form-label">Número</label>
-                                <input type="text" class="form-control @error('numero') is-invalid @enderror"
-                                    id="numero" name="numero" value="{{ old('numero') }}" placeholder="123">
-                                @error('numero')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="complemento" class="form-label">Complemento</label>
-                                <input type="text" class="form-control @error('complemento') is-invalid @enderror"
-                                    id="complemento" name="complemento" value="{{ old('complemento') }}"
-                                    placeholder="Apto 101">
-                                @error('complemento')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="bairro" class="form-label">Bairro</label>
-                                <input type="text" class="form-control @error('bairro') is-invalid @enderror"
-                                    id="bairro" name="bairro" value="{{ old('bairro') }}" readonly>
-                                @error('bairro')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-3">
-                                <label for="cidade" class="form-label">Cidade</label>
-                                <input type="text" class="form-control @error('cidade') is-invalid @enderror"
-                                    id="cidade" name="cidade" value="{{ old('cidade') }}" readonly>
-                                @error('cidade')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-1">
-                                <label for="estado" class="form-label">UF</label>
-                                <input type="text" class="form-control @error('estado') is-invalid @enderror"
-                                    id="estado" name="estado" value="{{ old('estado') }}" readonly>
-                                @error('estado')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            <x-address-form 
+                                :cep="old('cep')"
+                                :logradouro="old('logradouro')"
+                                :numero="old('numero')"
+                                :complemento="old('complemento')"
+                                :bairro="old('bairro')"
+                                :cidade="old('cidade')"
+                                :estado="old('estado')"
+                                title="Endereço"
+                                :required="false"
+                            />
                         </div>
 
                     </div>
@@ -174,34 +110,10 @@
             </div>
         </div>
 
+        @push('scripts')
         <script>
-            setTimeout(function() {
-                // CEP Autocomplete
-                const cepInput = document.getElementById('cep');
-                if (cepInput) {
-                    cepInput.addEventListener('input', function() {
-                        let cep = this.value.replace(/\D/g, '');
-                        
-                        if (cep.length === 8) {
-                            fetch('https://viacep.com.br/ws/' + cep + '/json/')
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (!data.erro) {
-                                        document.getElementById('logradouro').value = data.logradouro || '';
-                                        document.getElementById('bairro').value = data.bairro || '';
-                                        document.getElementById('cidade').value = data.localidade || '';
-                                        document.getElementById('estado').value = data.uf || '';
-                                        document.getElementById('numero').focus();
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Erro ao buscar CEP:', error);
-                                });
-                        }
-                    });
-                }
-
-                // Máscara de telefone
+            // Máscara de telefone
+            document.addEventListener('DOMContentLoaded', function() {
                 const phoneInput = document.getElementById('phone');
                 if (phoneInput) {
                     phoneInput.addEventListener('input', function() {
@@ -218,13 +130,13 @@
                         }
                     });
 
-                    // Permitir apenas números
                     phoneInput.addEventListener('keypress', function(e) {
                         if (!/\d/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
                             e.preventDefault();
                         }
                     });
                 }
-            }, 500);
+            });
         </script>
+        @endpush
     @endsection
