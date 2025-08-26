@@ -15,6 +15,12 @@
     {!! htmlScriptTagJsApi() !!}
 
     <style>
+        :root {
+            --color-primary: #AD6E9B;
+            --color-primary-darker: #844773;
+            --color-primary-darkest: #5B214C;
+        }
+
         body {
             background-color: #f8f9fa;
             margin: 0;
@@ -28,29 +34,30 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            box-sizing: border-box;
         }
 
         .login-card {
             width: 100%;
-            max-width: 400px;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 380px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
             background: white;
         }
 
         .login-header {
-            background: #d7e2ec;
-            padding: 20px;
-            border-radius: 10px 10px 0 0;
+            background: #ffffff;
+            padding: 30px 30px 10px 30px;
+            border-bottom: 1px solid #dee2e6;
             text-align: center;
         }
 
         .login-header h4 {
             margin: 0;
-            color: #333;
-            font-weight: 600;
+            color: var(--color-primary-darkest);
+            font-weight: 500;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
         }
 
         .login-body {
@@ -61,9 +68,16 @@
             width: 100%;
             padding: 12px;
             font-weight: 500;
-            font-size: 1.1rem;
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            color: white;
+            border-radius: 4px;
             margin-top: 1rem;
-            border-radius: 5px;
+        }
+
+        .btn-login:hover {
+            background-color: var(--color-primary-darker);
+            border-color: var(--color-primary-darker);
         }
 
         .form-floating {
@@ -71,35 +85,45 @@
             position: relative;
         }
 
-        .form-floating .bi {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            left: 15px;
-            z-index: 4;
-            color: #6c757d;
-            font-size: 16px;
-        }
-
         .form-floating input {
-            padding-left: 45px !important;
-            height: 58px;
-            border-radius: 5px;
+            height: 56px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
         }
 
         .form-floating label {
-            padding-left: 45px;
             color: #6c757d;
         }
 
-        .form-control:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            z-index: 10;
+            padding: 5px;
+            font-size: 18px;
         }
 
-        .invalid-feedback {
-            display: block;
-            font-size: 0.875rem;
+        .password-toggle:hover {
+            color: var(--color-primary);
+        }
+
+        .form-control:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 0.2rem rgba(173, 110, 155, 0.25);
+        }
+
+        .form-control:-webkit-autofill,
+        .form-control:-webkit-autofill:hover,
+        .form-control:-webkit-autofill:focus,
+        .form-control:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #495057 !important;
         }
 
         .forgot-password {
@@ -108,65 +132,76 @@
         }
 
         .forgot-password a {
-            color: #6c757d;
+            color: var(--color-primary);
             font-size: 0.9rem;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.2s;
         }
 
         .forgot-password a:hover {
-            color: #0d6efd;
-            text-decoration: none;
+            color: var(--color-primary-darker);
         }
 
         .form-check {
-            display: flex;
-            align-items: center;
-            gap: 8px;
             margin-bottom: 1.5rem;
         }
 
-        .form-check-input {
-            margin-top: 0;
-            cursor: pointer;
+        .form-check-input:checked {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
         }
 
         .form-check-label {
-            cursor: pointer;
-            user-select: none;
+            color: #495057;
         }
 
         .alert-danger {
-            border-left: 4px solid #dc3545;
+            border: 1px solid #f5c6cb;
             background-color: #f8d7da;
-            border-color: #f5c6cb;
             color: #721c24;
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
         }
 
         .alert-danger ul {
-            padding-left: 1rem;
-            margin-bottom: 0;
+            margin: 0;
+            padding-left: 20px;
         }
 
-        .alert-danger li {
-            margin-bottom: 0.25rem;
+        .recaptcha-container {
+            margin: 1.5rem 0;
         }
 
-        /* Responsividade */
+        .g-recaptcha {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .g-recaptcha > div {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .g-recaptcha iframe {
+            width: 100% !important;
+            height: 78px !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .g-recaptcha div[style] {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
         @media (max-width: 480px) {
             .login-container {
-                padding: 10px;
+                padding: 15px;
             }
 
-            .login-body {
+            .login-body, .login-header {
                 padding: 20px;
-            }
-
-            .login-card {
-                max-width: 100%;
             }
         }
     </style>
@@ -177,7 +212,6 @@
         <div class="card login-card">
             <div class="login-header">
                 <h4 class="mb-0">
-                    <i class="bi bi-shield-lock me-2"></i>
                     {{ config('app.name') }}
                 </h4>
             </div>
@@ -196,7 +230,6 @@
                     @csrf
 
                     <div class="form-floating">
-                        <i class="bi bi-envelope"></i>
                         <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
                             name="email" value="{{ old('email') }}" placeholder="nome@exemplo.com" required
                             autofocus>
@@ -204,15 +237,16 @@
                     </div>
 
                     <div class="form-floating">
-                        <i class="bi bi-key"></i>
                         <input type="password" class="form-control @error('password') is-invalid @enderror"
                             id="password" name="password" placeholder="Senha" required>
                         <label for="password">Senha</label>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i class="bi bi-eye" id="toggleIcon"></i>
+                        </button>
                     </div>
 
                     <div class="forgot-password">
                         <a href="{{ route('password.request') }}">
-                            <i class="bi bi-question-circle"></i>
                             Esqueceu sua senha?
                         </a>
                     </div>
@@ -221,21 +255,15 @@
                         <input class="form-check-input" type="checkbox" name="remember" id="remember"
                             {{ old('remember') ? 'checked' : '' }}>
                         <label class="form-check-label" for="remember">
-                            <i class="bi bi-clock-history me-1"></i>
                             Lembrar-me
                         </label>
                     </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div style="display: flex; justify-content: center;">
-                                {!! htmlFormSnippet() !!}
-                            </div>
-                        </div>
+                    <div class="recaptcha-container">
+                        {!! htmlFormSnippet() !!}
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-login">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>
                         Entrar
                     </button>
                 </form>
@@ -245,6 +273,21 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'bi bi-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'bi bi-eye';
+            }
+        }
+    </script>
 </body>
 
 </html>
