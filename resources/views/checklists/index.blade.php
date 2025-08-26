@@ -156,13 +156,54 @@
 @endsection
 
 @section('content')
+
+<x-data-filter
+    :filters="[
+        [
+            'type' => 'text',
+            'name' => 'search',
+            'placeholder' => 'Digite o nome da criança ou descrição do checklist...',
+            'value' => $filters['search'] ?? '',
+            'class' => 'col-md-6'
+        ],
+        [
+            'type' => 'select',
+            'name' => 'situation',
+            'options' => [
+                '' => 'Todas as situações',
+                'a' => 'Aberto',
+                'f' => 'Fechado'
+            ],
+            'value' => $filters['situation'] ?? '',
+            'class' => 'col-md-2'
+        ],
+        [
+            'type' => 'select',
+            'name' => 'level',
+            'options' => [
+                '' => 'Todos os níveis',
+                '1' => 'Nível 1',
+                '2' => 'Nível 2',
+                '3' => 'Nível 3',
+                '4' => 'Nível 4'
+            ],
+            'value' => $filters['level'] ?? '',
+            'class' => 'col-md-2'
+        ]
+    ]"
+    action-route="checklists.index"
+    :hidden-fields="$kid ? ['kidId' => $kid->id] : []"
+    :total-results="isset($checklists) ? $checklists->total() : 0"
+    entity-name="checklist"
+/>
+
+@if (isset($kid))
     <div class="row mb-4">
-        @if (isset($kid))
-            <div class="col-md-12">
-                <x-kid-info-card :kid="$kid" />
-            </div>
-        @endif
+        <div class="col-md-12">
+            <x-kid-info-card :kid="$kid" />
+        </div>
     </div>
+@endif
 
     <div class="row">
         <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-12' }}">
@@ -250,6 +291,12 @@
                                                                 <i class="bi bi-file-earmark-pdf"></i> Plano Automático
                                                             </a></li>
                                                     @endcan
+                                                    @can('view checklists')
+                                                        <li><a class="dropdown-item"
+                                                                href="{{ route('checklists.chart', $checklist->id) }}">
+                                                                <i class="bi bi-pie-chart"></i> Esfera
+                                                            </a></li>
+                                                    @endcan
                                                     @can('clone checklists')
                                                         <li><a class="dropdown-item"
                                                                 href="{{ route('checklists.clonar', ['id' => $checklist->id, 'kid_id' => $checklist->kid_id]) }}">
@@ -266,6 +313,10 @@
                     @endif
                 </tbody>
             </table>
+
+            @if(isset($checklists) && method_exists($checklists, 'links'))
+                <x-data-pagination :paginator="$checklists" :default-per-page="$defaultPerPage" />
+            @endif
 
         </div>
         @if (isset($kid))

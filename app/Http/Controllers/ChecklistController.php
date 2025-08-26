@@ -10,82 +10,84 @@ use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
 use App\Services\ChecklistService;
+use App\Contracts\ChecklistRepositoryInterface;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
-class ChecklistController extends Controller
+class ChecklistController extends BaseController
 {
     protected $checklistService;
+    protected $checklistRepository;
 
-    public function __construct(ChecklistService $checklistService)
-    {
+    public function __construct(
+        ChecklistService $checklistService,
+        ChecklistRepositoryInterface $checklistRepository
+    ) {
         $this->checklistService = $checklistService;
+        $this->checklistRepository = $checklistRepository;
     }
 
     public function index(Request $request)
     {
-        try {
-            $this->authorize('viewAny', Checklist::class);
+        $this->authorize('viewAny', Checklist::class);
 
-            $message = label_case('Index Checklists ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::debug($message);
+        $kid = $request->kidId ? Kid::findOrFail($request->kidId) : null;
 
-            $queryChecklists = Checklist::getChecklists();
-
-            $kid = $request->kidId ? Kid::findOrFail($request->kidId) : null;
-
-            if ($request->kidId || auth()->user()->hasRole('pais')) {
+        return $this->handleIndexRequest(
+            $request,
+            function ($filters) use ($request, $kid) {
                 if ($kid) {
-                    $queryChecklists->where('kid_id', $request->kidId);
-                } elseif (auth()->user()->hasRole('pais')) {
-                    $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
-                    $queryChecklists->whereIn('kid_id', $kids);
+                    $checklists = $this->checklistRepository->getChecklistsByKid($kid->id, $filters);
+                } else {
+                    $checklists = $this->checklistRepository->getChecklistsForUser(auth()->id(), $filters);
                 }
-            } elseif (auth()->user()->hasRole('professional')) {
-                $professionalId = auth()->user()->professional->first()->id;
-                $queryChecklists->whereHas('kid.professionals', function ($query) use ($professionalId) {
-                    $query->where('professional_id', $professionalId);
-                });
-            }
 
+                foreach ($checklists as $checklist) {
+                    $checklist->developmentPercentage = $this->checklistService->percentualDesenvolvimento($checklist->id);
+                    
+                    // Formatar dados para exibição
+                    $checklist->status_badge = '<span class="badge bg-' . 
+                        ($checklist->situation == 'a' ? 'success' : 'secondary') . '">' . 
+                        ($checklist->situation == 'a' ? 'Aberto' : 'Fechado') . '</span>';
+                    
+                    $checklist->formatted_date = $checklist->created_at->format('d/m/Y');
+                    
+                    $percentage = $checklist->developmentPercentage ?? 0;
+                    $color = $percentage < 30 ? 'danger' : ($percentage < 70 ? 'warning' : 'success');
+                    $checklist->progress_bar = '<div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-' . $color . '" role="progressbar" 
+                             style="width: ' . $percentage . '%;" 
+                             aria-valuenow="' . $percentage . '" 
+                             aria-valuemin="0" aria-valuemax="100">' . 
+                             number_format($percentage, 1) . '%
+                        </div>
+                    </div>';
+                }
 
-            $checklists = $queryChecklists->with('competences')
-                ->orderBy('created_at', 'desc')
-                ->orderBy('id', 'desc')
-                ->get();
-
-            foreach ($checklists as $checklist) {
-                $checklist->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);
-            }
-
-            $data = [
-                'checklists' => $checklists,
-                'kid' => $kid,
-            ];
-
-            return view('checklists.index', $data);
-        } catch (Exception $e) {
-            dd($e->getMessage());
-            flash($e->getMessage())->warning();
-            $message = label_case('Index Checklists ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return redirect()->back();
-        }
+                return $checklists;
+            },
+            'checklists.index',
+            ['kid' => $kid],
+            'checklists'
+        );
     }
 
     public function create()
     {
         $this->authorize('create', Checklist::class);
 
-        $message = label_case('Create Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
-        $kids = Kid::getKids();
-
-        return view('checklists.create', compact('kids'));
+        return $this->handleCreateRequest(
+            fn() => [
+                'kids' => Kid::getKids()
+            ],
+            'checklists.create',
+            [],
+            'Erro ao carregar formulário de criação',
+            'checklists.index'
+        );
     }
 
     public function store(ChecklistRequest $request)
@@ -208,44 +210,31 @@ class ChecklistController extends Controller
         $checklist = Checklist::findOrFail($id);
         $this->authorize('view', $checklist);
 
-        try {
-            $message = label_case('Edit Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
-            return view('checklists.show', [
-                'checklist' => $checklist,
-            ]);
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-            $message = label_case('Update Checklist ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            flash(self::MSG_UPDATE_ERROR)->warning();
-
-            return redirect()->back();
-        }
+        return $this->handleViewRequest(
+            fn() => [
+                'checklist' => $checklist
+            ],
+            'checklists.show',
+            [],
+            'Erro ao carregar dados do checklist',
+            'checklists.index'
+        );
     }
 
     public function edit($id)
     {
-        $this->authorize('update', Checklist::findOrFail($id));
+        $checklist = Checklist::findOrFail($id);
+        $this->authorize('update', $checklist);
 
-        try {
-            $message = label_case('Edit Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
-            $checklist = Checklist::findOrFail($id);
-
-            return view('checklists.edit', [
-                'checklist' => $checklist,
-            ]);
-        } catch (\Exception $e) {
-            flash(self::MSG_UPDATE_ERROR)->warning();
-            $message = label_case('Update Checklist ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return redirect()->back();
-        }
+        return $this->handleViewRequest(
+            fn() => [
+                'checklist' => $checklist
+            ],
+            'checklists.edit',
+            [],
+            'Erro ao carregar dados do checklist',
+            'checklists.index'
+        );
     }
 
     public function update(ChecklistRequest $request, $id)
@@ -254,33 +243,27 @@ class ChecklistController extends Controller
         $this->authorize('update', $checklist);
 
         try {
-            $message = label_case('Update Checklists ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
             $data = $request->all();
             $data['updated_by'] = Auth::id();
-            // Permitir atualização manual da situação (aberto/fechado)
+            
             if (isset($data['situation'])) {
                 $checklist->situation = $data['situation'];
             }
+            
             $checklist->update($data);
-
+            
             flash(self::MSG_UPDATE_SUCCESS)->success();
-
+            
             // Redirecionamento condicional
             if ($request->has('kidId') || $request->query('kidId')) {
                 $kidId = $request->input('kidId', $request->query('kidId', $checklist->kid_id));
-
                 return redirect()->to('checklists?kidId=' . $kidId);
             }
-
+            
             return redirect()->route('checklists.index');
         } catch (\Exception $e) {
-            $message = label_case('Update Checklists ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            flash(self::MSG_UPDATE_ERROR)->warning();
-
+            Log::error(self::MSG_UPDATE_ERROR . ': ' . $e->getMessage());
+            flash(self::MSG_UPDATE_ERROR)->error();
             return redirect()->back();
         }
     }
@@ -290,34 +273,22 @@ class ChecklistController extends Controller
         $checklist = Checklist::findOrFail($id);
         $this->authorize('delete', $checklist);
 
-        try {
-            $message = label_case('Destroy Checklist ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-            if ($checklist->planes()->exists()) {
-                foreach ($checklist->planes as $plane) {
-                    $plane->deleted_by = Auth::id(); // Atribui o usuário que deletou
-                    $plane->save(); // Salva as alterações no banco de dados
-                    $plane->delete(); // Realiza a exclusão (soft delete, se for o caso)
+        return $this->handleUpdateRequest(
+            function() use ($checklist) {
+                if ($checklist->planes()->exists()) {
+                    foreach ($checklist->planes as $plane) {
+                        $plane->deleted_by = Auth::id();
+                        $plane->save();
+                        $plane->delete();
+                    }
                 }
-            }
-
-            // Exclui o Checklist
-            $checklist->deleted_by = Auth::id();
-            $checklist->save();
-            $checklist->delete();
-
-            flash(self::MSG_DELETE_SUCCESS)->success();
-
-            return redirect()->route('checklists.index');
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-            $message = label_case('Destroy Checklist ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            flash(self::MSG_NOT_FOUND)->warning();
-
-            return redirect()->back();
-        }
+                
+                $this->checklistRepository->markAsDeleted($checklist, Auth::id());
+            },
+            self::MSG_DELETE_SUCCESS,
+            self::MSG_DELETE_ERROR,
+            'checklists.index'
+        );
     }
 
     public function fill($id)
@@ -370,11 +341,6 @@ class ChecklistController extends Controller
 
             return redirect()->back();
         }
-    }
-
-    public function percentualDesenvolvimento($checklistId)
-    {
-        return $this->checklistService->percentualDesenvolvimento($checklistId);
     }
 
     public function percentualDesenvolvimentoOld($checklistId)
@@ -444,71 +410,46 @@ class ChecklistController extends Controller
     {
         $this->authorize('create', Checklist::class);
 
-        if (!auth()->user()->can('create checklists')) {
-            flash('Você não tem permissão para clonar checklists.')->warning();
+        return $this->handleStoreRequest(
+            function() use ($request, $id) {
+                DB::beginTransaction();
 
-            return redirect()->route('checklists.index');
-        }
+                $checklistAtual = Checklist::where('id', $id)->firstOrFail();
 
-        try {
-            DB::beginTransaction();
+                $data = [
+                    'kid_id' => $checklistAtual->kid_id,
+                    'situation' => 'a',
+                    'level' => $checklistAtual->level,
+                    'created_by' => Auth::id(),
+                ];
 
-            $checklistAtual = Checklist::where('id', $id)->firstOrFail();
+                $checklist = Checklist::create($data);
 
+                Plane::create([
+                    'kid_id' => $checklistAtual->kid_id,
+                    'checklist_id' => $checklist->id,
+                    'created_by' => Auth::id(),
+                ]);
 
-            $data = [];
-            $data['kid_id'] = $checklistAtual->kid_id;
-            $data['situation'] = 'a';
-            $data['level'] = $checklistAtual->level;
-            $data['created_by'] = Auth::id();
+                $arrLevel = range(1, $data['level']);
 
-            // checklist
-            $checklist = Checklist::create($data);
-
-            // Plane
-            $plane = Plane::create([
-                'kid_id' => $checklistAtual->kid_id,
-                'checklist_id' => $checklist->id,
-                'created_by' => Auth::id(),
-            ]);
-
-            // levels
-            $arrLevel = [];
-            for ($i = 1; $i <= $data['level']; $i++) {
-                $arrLevel[] = $i;
-            }
-
-            foreach ($arrLevel as $c => $level) {
-                $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();
-                $notes = [];
-                foreach ($components as $c => $competence_id) {
-                    $chechlistCompetente = ChecklistCompetence::where('checklist_id', $checklistAtual->id)->where('competence_id', $competence_id)->first();
-                    $notes[$competence_id] = ['note' => $chechlistCompetente ? $chechlistCompetente->note : 0];
+                foreach ($arrLevel as $level) {
+                    $components = Competence::where('level_id', $level)->pluck('id')->toArray();
+                    $notes = [];
+                    foreach ($components as $competence_id) {
+                        $chechlistCompetente = ChecklistCompetence::where('checklist_id', $checklistAtual->id)
+                            ->where('competence_id', $competence_id)
+                            ->first();
+                        $notes[$competence_id] = ['note' => $chechlistCompetente ? $chechlistCompetente->note : 0];
+                    }
+                    $checklist->competences()->syncWithoutDetaching($notes);
                 }
-                $checklist->competences()->syncWithoutDetaching($notes);
-            }
 
-            DB::commit();
-            flash(self::MSG_CLONE_SUCCESS)->success();
-
-            return redirect()->route('checklists.index', ['kidId' => $request->kid_id]);
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            $message = label_case('Clone Checklist Error: ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-
-            Log::error($message, [
-                'exception' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-                'kid_id' => $request->kid_id ?? null,
-                'checklist_id' => $id ?? null,
-            ]);
-
-            flash(self::MSG_CLONE_ERROR)->error();
-
-            return redirect()->route('checklists.index');
-        }
+                DB::commit();
+            },
+            self::MSG_CLONE_SUCCESS,
+            self::MSG_CLONE_ERROR,
+            'checklists.index'
+        );
     }
 }

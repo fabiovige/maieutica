@@ -90,32 +90,6 @@ class Checklist extends Model
         return $queryBuilder->get();
     }
 
-    public static function getChecklists()
-    {
-        $query = self::query();
-
-        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
-            // Superadmin ou admin pode ver todos os checklists e seus relacionamentos
-            $query->with(['kid']);
-        } elseif (auth()->user()->hasRole('professional')) {
-            $professionalId = auth()->user()->professional->first()->id;
-
-            $query->whereHas('kid', function ($q) use ($professionalId) {
-                $q->whereHas('professionals', function ($q) use ($professionalId) {
-                    $q->where('professional_id', $professionalId);
-                });
-            })
-                ->with(['kid']);
-        } elseif (auth()->user()->hasRole('pais')) {
-            // Pais podem ver checklists associados às crianças pelas quais são responsáveis
-            $query->whereHas('kid', function ($q) {
-                $q->where('responsible_id', auth()->user()->id);
-            })
-                ->with(['kid']);
-        }
-
-        return $query;
-    }
 
     public function getStatusAvaliation($checklistId)
     {

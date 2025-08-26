@@ -118,7 +118,7 @@ abstract class BaseController extends Controller
                 return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
             }
 
-            return \view($viewName, \array_merge(compact('data'), $additionalData));
+            return \view($viewName, \array_merge(['data' => $data], $additionalData));
         } catch (Exception $e) {
             Log::error($errorMessage . ': ' . $e->getMessage());
             \flash($errorMessage)->error();

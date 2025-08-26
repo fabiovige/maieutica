@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Contracts\ChecklistRepositoryInterface;
 use App\Contracts\KidRepositoryInterface;
 use App\Contracts\ProfessionalRepositoryInterface;
 use App\Contracts\UserRepositoryInterface;
+use App\Models\Checklist;
 use App\Models\Kid;
 use App\Models\Professional;
 use App\Models\User;
+use App\Repositories\ChecklistRepository;
 use App\Repositories\KidRepository;
 use App\Repositories\ProfessionalRepository;
 use App\Repositories\UserRepository;
@@ -31,8 +34,9 @@ class RepositoryServiceProvider extends ServiceProvider
             return new ProfessionalRepository(new Professional());
         });
 
-        // Caso queira registrar outros repositórios no futuro
-        // $this->app->bind(ChecklistRepositoryInterface::class, ChecklistRepository::class);
+        $this->app->bind(ChecklistRepositoryInterface::class, function ($app) {
+            return new ChecklistRepository(new Checklist());
+        });
     }
 
     public function boot(): void
