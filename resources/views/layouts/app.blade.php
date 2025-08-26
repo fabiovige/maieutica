@@ -54,8 +54,39 @@
                                 </ol>
                             </nav>
                         </div>
-                        <div class="d-flex align-items-center">
+                        <div class="d-flex align-items-center gap-3">
                             @yield('actions')
+                            @auth
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                                        @if(auth()->user()->avatar && file_exists(public_path(auth()->user()->avatar)))
+                                            <img src="{{ asset(auth()->user()->avatar) }}"
+                                                 alt="Avatar"
+                                                 class="rounded-circle me-2"
+                                                 style="width: 24px; height: 24px; object-fit: cover;">
+                                        @else
+                                            <i class="bi bi-person-circle me-2"></i>
+                                        @endif
+                                        {{ auth()->user()->name }}
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a href="{{ route('profile.edit') }}" class="dropdown-item">
+                                                <i class="bi bi-person me-2"></i> Meu Perfil
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form method="POST" action="{{ route('logout') }}">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-box-arrow-right me-2"></i> Sair
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            @endauth
                         </div>
                     </div>
                 </div>

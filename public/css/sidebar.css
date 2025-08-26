@@ -57,21 +57,6 @@
     text-align: center;
 }
 
-.sidebar-footer {
-    padding: 20px;
-    border-top: 1px solid #b8cde0;
-}
-
-.sidebar-footer .btn-outline-light {
-    border-color: #844773;
-    color: #844773;
-}
-
-.sidebar-footer .btn-outline-light:hover {
-    background: #b8cde0;
-    border-color: #AD6E9B;
-    color: #5B214C;
-}
 
 .main-content {
     flex: 1;

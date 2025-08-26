@@ -98,26 +98,4 @@
         @endauth
     </nav>
 
-    <div class="sidebar-footer">
-        <div class="dropdown dropup w-100">
-            <button class="btn btn-outline-light w-100 dropdown-toggle d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown">
-                <span><i class="bi bi-gear me-2"></i>Configurações</span>
-            </button>
-            <ul class="dropdown-menu w-100">
-                <li>
-                    <a href="{{ route('profile.edit') }}" class="dropdown-item">
-                        <i class="bi bi-person"></i> Meu Perfil
-                    </a>
-                </li>
-                <li>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="dropdown-item">
-                            <i class="bi bi-box-arrow-right"></i> Sair
-                        </button>
-                    </form>
-                </li>
-            </ul>
-        </div>
-    </div>
 </aside>
