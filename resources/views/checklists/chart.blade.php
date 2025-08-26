@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('title')
+    Gráficos de Desenvolvimento
+@endsection
+
 @section('breadcrumb')
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -11,17 +15,15 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-md-12 ">
-            <h5>
-                {{ $checklist->kid->name }}, Nascido(a) em: {{ $checklist->kid->birth_date }}
-            </h5>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <x-kid-info-card :kid="$checklist->kid" />
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-12 ">
-            <div class="card mt-2">
+        <div class="col-md-12">
+            <div class="card">
                 <div class="card-body">
                     <div id="app">
                         <Charts :checklist-id="{{$checklist->id}}" :checklists="{{$checklists->toJson()}}"></Charts>
@@ -29,7 +31,12 @@
                 </div>
             </div>
         </div>
-        @include('includes.information-register', ['data' => $checklist, 'can' => 'remove checklists', 'action' => 'checklists.destroy'])
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            @include('includes.information-register', ['data' => $checklist, 'can' => 'remove checklists', 'action' => 'checklists.destroy'])
+        </div>
     </div>
 @endsection
 
