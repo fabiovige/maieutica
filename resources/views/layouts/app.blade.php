@@ -54,8 +54,7 @@
                                 </ol>
                             </nav>
                         </div>
-                        <div class="d-flex align-items-center gap-3">
-                            @yield('actions')
+                        <div class="d-flex align-items-center">
                             @auth
                                 <div class="dropdown">
                                     <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
@@ -94,7 +93,12 @@
 
             <div class="content-header">
                 <div class="container-fluid">
-                    <h5 class="mb-0 fw-bold">@yield('title')</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">@yield('title')</h5>
+                        <div class="d-flex align-items-center">
+                            @yield('actions')
+                        </div>
+                    </div>
                 </div>
             </div>
 
