@@ -46,13 +46,15 @@
                                 <label class="form-label">Tipo de Checklist</label>
                                 <div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="checklistType" id="checklistTypeAtual" value="atual" checked>
+                                        <input class="form-check-input" type="radio" name="checklistType"
+                                            id="checklistTypeAtual" value="atual" checked>
                                         <label class="form-check-label" for="checklistTypeAtual">
                                             Checklist com base no atual
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="checklistType" id="checklistTypeRetro" value="retro">
+                                        <input class="form-check-input" type="radio" name="checklistType"
+                                            id="checklistTypeRetro" value="retro">
                                         <label class="form-check-label" for="checklistTypeRetro">
                                             Checklist com data retroativa
                                         </label>
@@ -81,17 +83,17 @@
                     dateModal.show();
                 }
 
-                document.addEventListener('DOMContentLoaded', function () {
+                document.addEventListener('DOMContentLoaded', function() {
                     window.kidId = "{{ $kid->id }}";
                     // Alternar exibição do campo de data
-                    document.getElementById('checklistTypeAtual').addEventListener('change', function () {
+                    document.getElementById('checklistTypeAtual').addEventListener('change', function() {
                         document.getElementById('retroactiveDateGroup').style.display = 'none';
                     });
-                    document.getElementById('checklistTypeRetro').addEventListener('change', function () {
+                    document.getElementById('checklistTypeRetro').addEventListener('change', function() {
                         document.getElementById('retroactiveDateGroup').style.display = 'block';
                     });
 
-                    document.getElementById('confirmDateBtn').addEventListener('click', function () {
+                    document.getElementById('confirmDateBtn').addEventListener('click', function() {
                         var type = document.querySelector('input[name="checklistType"]:checked').value;
                         if (type === 'retro') {
                             var date = document.getElementById('retroactiveDate').value;
@@ -157,14 +159,13 @@
 
 @section('content')
 
-<x-data-filter
-    :filters="[
+    <x-data-filter :filters="[
         [
             'type' => 'text',
             'name' => 'search',
             'placeholder' => 'Digite o nome da criança ou descrição do checklist...',
             'value' => $filters['search'] ?? '',
-            'class' => 'col-md-6'
+            'class' => 'col-md-6',
         ],
         [
             'type' => 'select',
@@ -172,10 +173,10 @@
             'options' => [
                 '' => 'Todas as situações',
                 'a' => 'Aberto',
-                'f' => 'Fechado'
+                'f' => 'Fechado',
             ],
             'value' => $filters['situation'] ?? '',
-            'class' => 'col-md-2'
+            'class' => 'col-md-2',
         ],
         [
             'type' => 'select',
@@ -185,25 +186,21 @@
                 '1' => 'Nível 1',
                 '2' => 'Nível 2',
                 '3' => 'Nível 3',
-                '4' => 'Nível 4'
+                '4' => 'Nível 4',
             ],
             'value' => $filters['level'] ?? '',
-            'class' => 'col-md-2'
-        ]
-    ]"
-    action-route="checklists.index"
-    :hidden-fields="$kid ? ['kidId' => $kid->id] : []"
-    :total-results="isset($checklists) ? $checklists->total() : 0"
-    entity-name="checklist"
-/>
+            'class' => 'col-md-2',
+        ],
+    ]" action-route="checklists.index" :hidden-fields="$kid ? ['kidId' => $kid->id] : []" :total-results="isset($checklists) ? $checklists->total() : 0"
+        entity-name="checklist" />
 
-@if (isset($kid))
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <x-kid-info-card :kid="$kid" />
+    @if (isset($kid))
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <x-kid-info-card :kid="$kid" />
+            </div>
         </div>
-    </div>
-@endif
+    @endif
 
     <div class="row">
         <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-12' }}">
@@ -246,7 +243,8 @@
                                     <div class="progress" role="progressbar" aria-label="checklist{{ $checklist->id }}"
                                         aria-valuenow="{{ $checklist->developmentPercentage }}" aria-valuemin="0"
                                         aria-valuemax="100">
-                                        <div class="progress-bar" style="width: {{ $checklist->developmentPercentage }}%; background-color: {{ get_progress_color($checklist->developmentPercentage) }} !important">
+                                        <div class="progress-bar"
+                                            style="width: {{ $checklist->developmentPercentage }}%; background-color: {{ get_progress_color($checklist->developmentPercentage) }} !important">
                                         </div>
                                     </div>
 
@@ -256,12 +254,13 @@
                                     <td>
                                         <div class="dropdown">
                                             @php
-                                                $canOverrideStatus = auth()->check() && auth()->user()->can('override-checklist-status');
+                                                $canOverrideStatus =
+                                                    auth()->check() && auth()->user()->can('override-checklist-status');
                                             @endphp
                                             @can('edit checklists')
                                                 <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
                                                     id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
-                                                    @if($checklist->situation_label !== 'Aberto' && !$canOverrideStatus) disabled @endif>
+                                                    @if ($checklist->situation_label !== 'Aberto' && !$canOverrideStatus) disabled @endif>
                                                     Ações
                                                 </button>
                                             @endcan
@@ -314,7 +313,7 @@
                 </tbody>
             </table>
 
-            @if(isset($checklists) && method_exists($checklists, 'links'))
+            @if (isset($checklists) && method_exists($checklists, 'links'))
                 <x-data-pagination :paginator="$checklists" :default-per-page="$defaultPerPage" />
             @endif
 

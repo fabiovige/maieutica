@@ -136,6 +136,13 @@ docker compose exec app php artisan key:generate
 - **NO UNNECESSARY FEATURES**: Never add visual feedback, tooltips, or interface changes unless explicitly requested
 - **MINIMAL APPROACH**: Implement only the specific functionality requested without additional "improvements"
 
+### CRITICAL DEVELOPMENT CONSTRAINTS
+- **NEVER MODIFY LAYOUT STRUCTURE**: The current breadcrumb system in `layouts/app.blade.php` works perfectly and must NOT be changed
+- **PRESERVE EXISTING PATTERNS**: Follow existing patterns for breadcrumbs using `@section('breadcrumb-items')` and `@section('actions')`
+- **TEST SMALL CHANGES**: When making UI improvements, test incrementally and never break existing functionality
+- **ROLLBACK ON FAILURE**: If a change breaks anything, immediately acknowledge failure and revert changes
+- **STABILITY OVER INNOVATION**: This is production code - stability is more important than creating new components
+
 ### Backend (Laravel)
 - Use Eloquent efficiently with eager loading to prevent N+1 queries
 - Implement business logic in Service classes, keep Controllers thin

@@ -3,12 +3,10 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSRF Token -->
-    <meta name="csrf-token"
-          content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name') }} - {{ config('app.description') }} - by fabiovige</title>
 
@@ -31,11 +29,11 @@
         <div class="container mt-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
-                    <h4 class="mb-0 fw-bold">@yield('title')</h4>
+                    <h5 class="mb-0 fw-bold">@yield('title')</h5>
                     <div class="text-muted fw-light">|</div>
                     <nav aria-label="breadcrumb" class="mb-0">
                         <ol class="breadcrumb breadcrumb-modern mb-0">
-                            @if(request()->routeIs('home.index'))
+                            @if (request()->routeIs('home.index'))
                                 <li class="breadcrumb-item active">
                                     <i class="bi bi-house-door"></i> Home
                                 </li>
