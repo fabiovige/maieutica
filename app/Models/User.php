@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasResourceAuthorization;
+use App\Traits\HasRoleAuthorization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,7 +15,14 @@ class User extends Authenticatable
 {
     use HasApiTokens;
     use HasFactory;
-    use HasResourceAuthorization;
+    use HasResourceAuthorization, HasRoleAuthorization {
+        HasRoleAuthorization::canViewKid insteadof HasResourceAuthorization;
+        HasRoleAuthorization::canEditKid insteadof HasResourceAuthorization;
+        HasRoleAuthorization::getAccessibleKidsQuery insteadof HasResourceAuthorization;
+        HasResourceAuthorization::canViewKid as canViewKidByPermission;
+        HasResourceAuthorization::canEditKid as canEditKidByPermission;
+        HasResourceAuthorization::getAccessibleKidsQuery as getAccessibleKidsQueryByPermission;
+    }
     use HasRoles;
     use Notifiable;
     use SoftDeletes;

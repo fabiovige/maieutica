@@ -69,7 +69,7 @@
             </form>
         </div>
 
-        @include('includes.information-register', ['data' => $role])
+        @include('includes.information-register', ['data' => $role, 'can' => 'remove roles', 'action' => 'roles.destroy'])
 
     </div>
 

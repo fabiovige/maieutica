@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        @include('includes.information-register', ['data' => $user, 'action' => 'users.destroy'])
+        @include('includes.information-register', ['data' => $user, 'can' => 'remove users', 'action' => 'users.destroy'])
 
     </div>
 

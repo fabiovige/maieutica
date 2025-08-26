@@ -24,12 +24,12 @@
             <div class="card mt-2">
                 <div class="card-body">
                     <div id="app">
-                        <Charts :checklist_id="{{$checklist->id}}"></Charts>
+                        <Charts :checklist-id="{{$checklist->id}}" :checklists="{{$checklists->toJson()}}"></Charts>
                     </div>
                 </div>
             </div>
         </div>
-        @include('includes.information-register', ['data' => $checklist])
+        @include('includes.information-register', ['data' => $checklist, 'can' => 'remove checklists', 'action' => 'checklists.destroy'])
     </div>
 @endsection
 

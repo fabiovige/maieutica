@@ -3,28 +3,52 @@
     <loading :active="isLoading" :is-full-page="fullPage"></loading>
 
     <div class="row">
-      <div class="col-md-3">
-        <label class="mt-2">Checklist</label>
-        <select v-model="search_checklist" class="form-select">
-          <option v-for="checklist in checklists" :value="checklist.id">
-            {{ checklist.created_at }} Cod. {{ checklist.id }}
-          </option>
-        </select>
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h6 class="card-title">Filtros</h6>
+            
+            <div class="mb-3">
+              <label class="form-label">Checklist</label>
+              <select v-model="search_checklist" class="form-select">
+                <option v-for="checklist in checklists" :value="checklist.id">
+                  {{ checklist.created_at }} Cod. {{ checklist.id }}
+                </option>
+              </select>
+            </div>
 
-        <label class="mt-2">Nível</label>
-        <select v-model="search_level" class="form-select" @change="getLevels">
-          <option v-for="level_id in levels" :value="level_id">Nível {{ level_id }}</option>
-        </select>
+            <div class="mb-3">
+              <label class="form-label">Nível</label>
+              <select v-model="search_level" class="form-select" @change="getLevels">
+                <option v-for="level_id in levels" :value="level_id">Nível {{ level_id }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="col-md-7 char">
-        <RadarChart :chartData="testRadar" />
+      <div class="col-md-8">
+        <div class="card h-100">
+          <div class="card-body">
+            <h6 class="card-title">Gráfico de Desenvolvimento</h6>
+            <div class="d-flex justify-content-center">
+              <div style="width: 500px; height: 500px;">
+                <RadarChart :chartData="testRadar" :options="radarOptions" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-md-12" style="barHeight">
-        <BarChart :chartData="testRadar" :height="120" />
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="card-title">Gráfico de Barras</h6>
+            <BarChart :chartData="testRadar" :height="120" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -50,7 +74,16 @@
       RadarChart,
       BarChart,
     },
-    props: ['checklists'],
+    props: {
+      checklistId: {
+        type: [String, Number],
+        required: true
+      },
+      checklists: {
+        type: Array,
+        required: true
+      }
+    },
     setup(props) {
       const fullPage = ref(true)
       const { note, initial, color, age, isLoading, getPercentageConsolidate, getPercentageLevel } =
@@ -63,13 +96,46 @@
       const checklists = ref(props.checklists)
       const testData = ref({})
       const testRadar = ref({})
+      const radarOptions = ref({
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              font: {
+                size: 14
+              }
+            }
+          }
+        },
+        scales: {
+          r: {
+            beginAtZero: true,
+            pointLabels: {
+              font: {
+                size: 12,
+                weight: 'bold'
+              }
+            },
+            ticks: {
+              font: {
+                size: 10
+              }
+            }
+          }
+        }
+      })
 
       onMounted(() => {
-        selectChecklist()
-        getPercentageConsolidate(checklists.value[0].id)
-        getChecklist(checklists.value[0].id)
-        dataTest()
-        dataRadar()
+        if (checklists.value && checklists.value.length > 0) {
+          selectChecklist()
+          getPercentageConsolidate(props.checklistId || checklists.value[0].id)
+          getChecklist(props.checklistId || checklists.value[0].id)
+          dataTest()
+          dataRadar()
+        }
       })
 
       watch(search_checklist, (checklist_id, previous) => {
@@ -81,7 +147,7 @@
       })
 
       function selectChecklist() {
-        search_checklist.value = checklists.value[0].id
+        search_checklist.value = props.checklistId || (checklists.value[0] ? checklists.value[0].id : null)
       }
 
       function dataTest() {
@@ -136,6 +202,7 @@
         fullPage,
         testData,
         testRadar,
+        radarOptions,
         checklist_id,
         search_checklist,
         checklists,
