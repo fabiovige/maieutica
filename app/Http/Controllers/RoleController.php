@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 use Spatie\Permission\Models\Role as SpatieRole;
 
-class RoleController extends Controller
+class RoleController extends BaseController
 {
     public const MSG_CREATE_SUCCESS = 'Perfil criado com sucesso!';
     public const MSG_CREATE_ERROR = 'Erro ao criar perfil.';
@@ -34,16 +34,44 @@ class RoleController extends Controller
         $this->middleware('permission:view roles')->only(['index', 'show']);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('view roles');
 
-        $roles = SpatieRole::query()
-            ->where('name', '!=', 'superadmin')
-            ->orderBy('name')
-            ->paginate(15);
+        return $this->handleIndexRequest(
+            $request,
+            function ($filters) {
+                $query = SpatieRole::query()->with('permissions');
+                
+                // Filtrar roles (não mostrar superadmin para não superadmins)
+                if (!auth()->user()->can('bypass-all-checks')) {
+                    $query->where('name', '!=', 'superadmin');
+                }
 
-        return view('roles.index', compact('roles'));
+                // Filtro de busca por nome
+                if (!empty($filters['search'])) {
+                    $query->where('name', 'like', '%' . $filters['search'] . '%');
+                }
+
+                // Filtro por número de permissões
+                if (!empty($filters['permission_count'])) {
+                    $query->withCount('permissions')
+                          ->having('permissions_count', '>=', $filters['permission_count']);
+                }
+
+                // Filtro por permissão específica
+                if (!empty($filters['has_permission'])) {
+                    $query->whereHas('permissions', function ($q) use ($filters) {
+                        $q->where('name', 'like', '%' . $filters['has_permission'] . '%');
+                    });
+                }
+
+                return $query->orderBy('name')->paginate(15);
+            },
+            'roles.index',
+            [],
+            'roles'
+        );
     }
 
     public function create()
