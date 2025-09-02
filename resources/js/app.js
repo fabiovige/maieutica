@@ -99,6 +99,7 @@ import Select2 from 'vue3-select2-component'
 import VueSweetalert2 from 'vue-sweetalert2'
 import Resume from './components/Resume'
 import Resumekid from './components/Resumekid'
+import KidsViewToggle from './components/KidsViewToggle'
 
 const app = createApp({
   setup() {
@@ -114,5 +115,6 @@ app.component('Planes', Planes)
 app.component('Dashboard', Dashboard)
 app.component('Resume', Resume)
 app.component('Resumekid', Resumekid)
+app.component('KidsViewToggle', KidsViewToggle)
 app.component('Select2', Select2)
 app.mount('#app')

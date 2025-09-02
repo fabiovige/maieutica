@@ -104,7 +104,7 @@
             </div>
 
             <main class="content-body">
-                <div class="container-fluid">
+                <div class="container-fluid" id="app">
                     @include('layouts.messages')
                     @yield('content')
                 </div>
