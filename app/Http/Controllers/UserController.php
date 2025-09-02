@@ -108,8 +108,7 @@ class UserController extends BaseController
             self::MSG_UPDATE_SUCCESS,
             self::MSG_UPDATE_ERROR,
             "users.edit",
-            $user->id,
-            'Update User'
+            $user->id
         );
     }
 

@@ -113,10 +113,16 @@
                                 'checklists_url' => route('checklists.index', ['kidId' => $kid->id])
                             ];
                         })->toArray();
+                        
+                        $permissions = [
+                            'canViewOverview' => auth()->user()->can('view kids') || auth()->user()->can('generate reports'),
+                            'canViewChecklists' => auth()->user()->can('view checklists') || auth()->user()->can('create checklists')
+                        ];
                     @endphp
                     
                     <kids-view-toggle 
                         :kids-data='@json($kidsArray)'
+                        :permissions='@json($permissions)'
                     ></kids-view-toggle>
                     
                     <div class="d-flex justify-content-end mt-4">

@@ -200,7 +200,9 @@
                         @endif
                     </a>
                 </th>
-                <th width="100">Ações</th>
+                @if(auth()->user()->can('edit users') || auth()->user()->can('view users') || auth()->user()->can('delete users'))
+                    <th width="100">Ações</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -241,47 +243,49 @@
                     <td class="align-middle">
                         <span class="badge {{ $user->getStatusBadgeClass() }}">{{ $user->getStatusText() }}</span>
                     </td>
-                    <td class="align-middle">
-                        <div class="dropdown">
-                            <button
-                                class="btn btn-sm btn-secondary dropdown-toggle"
-                                type="button"
-                                id="dropdownMenuButton{{ $user->id }}"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                Ações
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $user->id }}">
-                                @can('edit users')
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
-                                            <i class="bi bi-pencil"></i> Editar
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('view users')
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('users.show', $user->id) }}">
-                                            <i class="bi bi-eye"></i> Visualizar
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('delete users')
-                                    <li>
-                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" 
-                                              onsubmit="return confirm('Tem certeza que deseja excluir este usuário?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="bi bi-trash"></i> Excluir
-                                            </button>
-                                        </form>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </div>
-                    </td>
+                    @if(auth()->user()->can('edit users') || auth()->user()->can('view users') || auth()->user()->can('delete users'))
+                        <td class="align-middle">
+                            <div class="dropdown">
+                                <button
+                                    class="btn btn-sm btn-secondary dropdown-toggle"
+                                    type="button"
+                                    id="dropdownMenuButton{{ $user->id }}"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    Ações
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $user->id }}">
+                                    @can('edit users')
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
+                                                <i class="bi bi-pencil"></i> Editar
+                                            </a>
+                                        </li>
+                                    @endcan
+                                    @can('view users')
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('users.show', $user->id) }}">
+                                                <i class="bi bi-eye"></i> Visualizar
+                                            </a>
+                                        </li>
+                                    @endcan
+                                    @can('delete users')
+                                        <li>
+                                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" 
+                                                  onsubmit="return confirm('Tem certeza que deseja excluir este usuário?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="bi bi-trash"></i> Excluir
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endcan
+                                </ul>
+                            </div>
+                        </td>
+                    @endif
                 </tr>
             @endforeach
         </tbody>

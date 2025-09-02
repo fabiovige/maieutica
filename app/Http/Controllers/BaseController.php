@@ -151,11 +151,18 @@ abstract class BaseController extends Controller
         }
     }
 
-    protected function handleUpdateRequest(callable $updateCallback, string $successMessage = 'Item atualizado com sucesso.', string $errorMessage = 'Erro ao atualizar item.', string $redirectRoute = null): mixed
+    protected function handleUpdateRequest(callable $updateCallback, string $successMessage = 'Item atualizado com sucesso.', string $errorMessage = 'Erro ao atualizar item.', string $redirectRoute = null, $routeParameter = null): mixed
     {
         try {
             $updateCallback();
             \flash($successMessage)->success();
+            
+            // Se há rota e parâmetro, usar ambos
+            if ($redirectRoute && $routeParameter !== null) {
+                return \redirect()->route($redirectRoute, $routeParameter);
+            }
+            
+            // Se há apenas a rota, usar rota padrão
             return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
         } catch (Exception $e) {
             Log::error($errorMessage . ': ' . $e->getMessage());

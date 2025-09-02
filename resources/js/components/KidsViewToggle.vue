@@ -109,17 +109,24 @@
                             </div>
 
                             <!-- Action Buttons -->
-                            <div class="d-flex gap-2">
-                                <a :href="kid.overview_url" 
+                            <div v-if="permissions.canViewOverview || permissions.canViewChecklists" class="d-flex gap-2">
+                                <a v-if="permissions.canViewOverview"
+                                   :href="kid.overview_url" 
                                    class="btn btn-sm btn-primary flex-fill">
                                     <i class="bi bi-graph-up me-1"></i>
                                     Desenvolvimento
                                 </a>
-                                <a :href="kid.checklists_url" 
+                                <a v-if="permissions.canViewChecklists"
+                                   :href="kid.checklists_url" 
                                    class="btn btn-sm btn-outline-primary flex-fill">
                                     <i class="bi bi-list-check me-1"></i>
                                     Checklists
                                 </a>
+                            </div>
+                            
+                            <!-- Mensagem quando não há permissões -->
+                            <div v-else class="text-center py-2">
+                                <small class="text-muted">Sem permissões para ações</small>
                             </div>
                         </div>
                     </div>
@@ -146,7 +153,7 @@
                             <th>Profissionais</th>
                             <th>Checklist</th>
                             <th style="width: 150px;">Progresso</th>
-                            <th style="width: 200px;" class="text-end">Ações</th>
+                            <th v-if="permissions.canViewOverview || permissions.canViewChecklists" style="width: 200px;" class="text-end">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -206,14 +213,16 @@
                                     <span class="ms-2 small fw-bold">{{ kid.progress }}%</span>
                                 </div>
                             </td>
-                            <td class="text-end">
+                            <td v-if="permissions.canViewOverview || permissions.canViewChecklists" class="text-end">
                                 <div class="btn-group btn-group-sm">
-                                    <a :href="kid.overview_url" 
+                                    <a v-if="permissions.canViewOverview"
+                                       :href="kid.overview_url" 
                                        class="btn btn-outline-primary"
                                        title="Desenvolvimento">
                                         <i class="bi bi-graph-up"></i>
                                     </a>
-                                    <a :href="kid.checklists_url" 
+                                    <a v-if="permissions.canViewChecklists"
+                                       :href="kid.checklists_url" 
                                        class="btn btn-outline-primary"
                                        title="Checklists">
                                         <i class="bi bi-list-check"></i>
@@ -222,7 +231,7 @@
                             </td>
                         </tr>
                         <tr v-if="kids.length === 0">
-                            <td colspan="8" class="text-center py-4">
+                            <td :colspan="permissions.canViewOverview || permissions.canViewChecklists ? 8 : 7" class="text-center py-4">
                                 <i class="bi bi-people fs-3 text-muted mb-2 d-block"></i>
                                 <p class="text-muted mb-0">Nenhuma criança cadastrada</p>
                             </td>
@@ -241,6 +250,13 @@ export default {
         kidsData: {
             type: Array,
             required: true
+        },
+        permissions: {
+            type: Object,
+            default: () => ({
+                canViewOverview: false,
+                canViewChecklists: false
+            })
         }
     },
     data() {
