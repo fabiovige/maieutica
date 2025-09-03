@@ -45,6 +45,7 @@ Route::get('/', function () {
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->middleware(['auth'])->name('home.index');
 
+
 Route::middleware(['auth'])->group(function () {
 
     // checklists

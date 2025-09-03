@@ -39,14 +39,24 @@ class ChecklistController extends BaseController
         return $this->handleIndexRequest(
             $request,
             function ($filters) use ($request, $kid) {
+                // Adicionar filtros específicos de checklist
+                $filters['situation'] = $request->get('situation');
+                $filters['level'] = $request->get('level');
+                
+                
                 if ($kid) {
                     $checklists = $this->checklistRepository->getChecklistsByKid($kid->id, $filters);
                 } else {
                     $checklists = $this->checklistRepository->getChecklistsForUser(auth()->id(), $filters);
                 }
 
+                // Calcular percentuais de desenvolvimento em lote (muito mais rápido!)
+                $checklistIds = $checklists->pluck('id')->toArray();
+                $percentages = $this->checklistService->percentualDesenvolvimentoBatch($checklistIds);
+
                 foreach ($checklists as $checklist) {
-                    $checklist->developmentPercentage = $this->checklistService->percentualDesenvolvimento($checklist->id);
+                    $percentage = $percentages[$checklist->id] ?? 0;
+                    $checklist->developmentPercentage = $percentage;
                     
                     // Formatar dados para exibição
                     $checklist->status_badge = '<span class="badge bg-' . 
@@ -55,7 +65,6 @@ class ChecklistController extends BaseController
                     
                     $checklist->formatted_date = $checklist->created_at->format('d/m/Y');
                     
-                    $percentage = $checklist->developmentPercentage ?? 0;
                     $color = $percentage < 30 ? 'danger' : ($percentage < 70 ? 'warning' : 'success');
                     $checklist->progress_bar = '<div class="progress" style="height: 20px;">
                         <div class="progress-bar bg-' . $color . '" role="progressbar" 

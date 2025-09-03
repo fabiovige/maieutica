@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Checklist;
-use App\Models\Competence;
-use App\Models\Domain;
 use Illuminate\Support\Facades\DB;
 
 class ChecklistService
@@ -17,50 +14,57 @@ class ChecklistService
      */
     public function percentualDesenvolvimento($checklistId)
     {
-        // Obter o checklist pelo ID
-        $currentChecklist = Checklist::findOrFail($checklistId);
+        // Query otimizada que calcula tudo numa só consulta
+        $result = DB::table('checklist_competence')
+            ->where('checklist_id', $checklistId)
+            ->where('note', '<>', 0)
+            ->selectRaw('
+                COUNT(*) as total_tested,
+                COUNT(CASE WHEN note = 3 THEN 1 END) as total_valid
+            ')
+            ->first();
 
-        // Obter todos os domínios
-        $domains = Domain::all();
-
-        // Variáveis para calcular o percentual de progresso
-        $totalItemsTested = 0;
-        $totalItemsValid = 0;
-
-        foreach ($domains as $domain) {
-            // Obter todas as competências do domínio
-            $competences = Competence::where('domain_id', $domain->id)->get();
-
-            // Obter as avaliações do checklist atual para as competências selecionadas
-            $currentEvaluations = DB::table('checklist_competence')
-                ->where('checklist_id', $currentChecklist->id)
-                ->where('note', '<>', 0) // Considera apenas as avaliações com nota
-                ->whereIn('competence_id', $competences->pluck('id'))
-                ->select('competence_id', 'note')
-                ->get()
-                ->keyBy('competence_id');
-
-            $itemsTested = $currentEvaluations->count();
-
-            $itemsValid = 0;
-            foreach ($competences as $competence) {
-                $evaluation = $currentEvaluations->get($competence->id);
-
-                if ($evaluation && $evaluation->note == 3) { // note 3 significa 'Consistente'
-                    $itemsValid++;
-                }
-            }
-
-            // Somar os itens testados e válidos
-            $totalItemsTested += $itemsTested;
-            $totalItemsValid += $itemsValid;
-        }
-
-        // Calcular o percentual total
-        if ($totalItemsTested > 0) {
-            return round(($totalItemsValid / $totalItemsTested) * 100, 2);
+        if ($result && $result->total_tested > 0) {
+            return round(($result->total_valid / $result->total_tested) * 100, 2);
         }
 
         return 0;
+    }
+
+    /**
+     * Calcula percentuais para múltiplos checklists de uma vez
+     *
+     * @param array $checklistIds
+     * @return array
+     */
+    public function percentualDesenvolvimentoBatch(array $checklistIds): array
+    {
+        if (empty($checklistIds)) {
+            return [];
+        }
+
+        $results = DB::table('checklist_competence')
+            ->whereIn('checklist_id', $checklistIds)
+            ->where('note', '<>', 0)
+            ->selectRaw('
+                checklist_id,
+                COUNT(*) as total_tested,
+                COUNT(CASE WHEN note = 3 THEN 1 END) as total_valid
+            ')
+            ->groupBy('checklist_id')
+            ->get()
+            ->keyBy('checklist_id');
+
+        $percentages = [];
+        foreach ($checklistIds as $id) {
+            $result = $results->get($id);
+            if ($result && $result->total_tested > 0) {
+                $percentages[$id] = round(($result->total_valid / $result->total_tested) * 100, 2);
+            } else {
+                $percentages[$id] = 0;
+            }
+        }
+
+        return $percentages;
     }
 }
