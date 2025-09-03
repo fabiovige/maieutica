@@ -71,7 +71,11 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
             return $this->model->newQuery()->paginate($perPage)->withQueryString();
         }
 
-        $query = $user->getAccessibleKidsQuery()->with(['responsible', 'professionals']);
+        $query = $user->getAccessibleKidsQuery()->with([
+            'responsible:id,name,email',
+            'professionals:id,registration_number',
+            'professionals.specialty:id,name'
+        ])->withCount('checklists');
 
         // Aplicar filtro de busca
         if (!empty($filters['search'])) {

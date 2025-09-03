@@ -47,10 +47,14 @@
         </div>
     @else
         <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 text-dark">
+                    <i class="bi bi-person-circle"></i> Informações da Criança
+                </h6>
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <h3>Informações da Criança</h3>
 
                         <!-- Seletor de Checklist -->
                         <div class="form-group mb-3">
@@ -94,7 +98,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h3>Progresso Geral</h3>
+                        <h6 class="text-muted mb-3">Progresso Geral</h6>
                         <div class="progress" role="progressbar" aria-label="{{ $kid->name }}"
                             aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100"
                             style="height: 30px">
@@ -121,11 +125,13 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-12 col-md-12 col-lg-12 my-3">
-                <h3>Análise geral dos itens</h3>
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 text-dark">
+                    <i class="bi bi-graph-up"></i> Análise geral dos itens
+                </h6>
             </div>
-        </div>
+            <div class="card-body p-0">
 
         <div class="row">
             <div class="col-md-12">
@@ -169,7 +175,7 @@
                             <div class="row mt-3">
                                 <div class="col-md-8">
                                     <!-- Tabela de Detalhes por Domínio -->
-                                    <h3>Domínios</h3>
+                                    <h6 class="text-muted mb-3">Domínios</h6>
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
@@ -215,7 +221,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <!-- Áreas Frágeis -->
-                                    <h3>Áreas Frágeis</h3>
+                                    <h6 class="text-muted mb-3">Áreas Frágeis</h6>
                                     @if (count($weakAreas) > 0)
                                         <table class="table table-bordered">
                                             <thead>
@@ -261,6 +267,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     @endif
 
