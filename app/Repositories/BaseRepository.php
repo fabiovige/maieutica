@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Contracts\BaseRepositoryInterface;
+use App\Traits\HasPagination;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class BaseRepository implements BaseRepositoryInterface
 {
+    use HasPagination;
     protected Model $model;
 
     public function __construct(Model $model)
@@ -57,7 +59,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->paginate($perPage);
+        return $this->paginateWithQueryString($this->model->newQuery(), $perPage);
     }
 
     public function findBy(string $field, mixed $value): Collection

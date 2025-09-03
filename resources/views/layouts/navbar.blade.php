@@ -51,7 +51,7 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->can('view roles'))
+                    @if(auth()->user()->can('list roles'))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
                                 <i class="bi bi-shield-lock"></i> Perfis

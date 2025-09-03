@@ -66,7 +66,9 @@
                             <th style="width: 60px;" class="text-center">ID</th>
                             <th>Nome</th>
                             <th>Permissões</th>
-                            <th class="text-center" style="width: 120px;">Ações</th>
+                            @if(auth()->user()->can('view roles') || auth()->user()->can('edit roles') || auth()->user()->can('remove roles'))
+                                <th class="text-center" style="width: 120px;">Ações</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -92,29 +94,36 @@
                                         @endif
                                     </div>
                                 </td>
-                                <td class="text-center">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
-                                            id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Ações
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            @can('edit roles')
-                                                <li><a class="dropdown-item" href="{{ route('roles.edit', $role->id) }}">
-                                                        <i class="bi bi-pencil"></i> Editar
-                                                    </a></li>
-                                            @endcan
-                                            @can('remove roles')
-                                                <li><button type="button" class="dropdown-item" data-bs-toggle="modal"
-                                                        data-bs-target="#deleteModal"
-                                                        data-url="{{ route('roles.destroy', $role->id) }}"
-                                                        data-name="{{ $role->name }}">
-                                                        <i class="bi bi-trash"></i> Excluir
-                                                    </button></li>
-                                            @endcan
-                                        </ul>
-                                    </div>
-                                </td>
+                                @if(auth()->user()->can('view roles') || auth()->user()->can('edit roles') || auth()->user()->can('remove roles'))
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
+                                                id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Ações
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                @can('view roles')
+                                                    <li><a class="dropdown-item" href="{{ route('roles.show', $role->id) }}">
+                                                            <i class="bi bi-eye"></i> Visualizar
+                                                        </a></li>
+                                                @endcan
+                                                @can('edit roles')
+                                                    <li><a class="dropdown-item" href="{{ route('roles.edit', $role->id) }}">
+                                                            <i class="bi bi-pencil"></i> Editar
+                                                        </a></li>
+                                                @endcan
+                                                @can('remove roles')
+                                                    <li><button type="button" class="dropdown-item" data-bs-toggle="modal"
+                                                            data-bs-target="#deleteModal"
+                                                            data-url="{{ route('roles.destroy', $role->id) }}"
+                                                            data-name="{{ $role->name }}">
+                                                            <i class="bi bi-trash"></i> Excluir
+                                                        </button></li>
+                                                @endcan
+                                            </ul>
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>

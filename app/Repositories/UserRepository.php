@@ -189,12 +189,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 $query->orderBy('name', 'asc');
         }
 
-        $paginator = $query->paginate($perPage);
-        
-        // Preserva os parâmetros de filtro na paginação
-        $paginator->appends($filters);
-        
-        return $paginator;
+        return $query->paginate($perPage)->withQueryString();
     }
 
     public function getAllForSelect(): array

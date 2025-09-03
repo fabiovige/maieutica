@@ -54,7 +54,7 @@ class ChecklistRepository extends BaseRepository implements ChecklistRepositoryI
             $query->orderBy('id', 'desc');
         }
 
-        return $query->paginate($perPage);
+        return $query->paginate($perPage)->withQueryString();
     }
 
     public function getChecklistsForUser(int $userId, array $filters = []): LengthAwarePaginator

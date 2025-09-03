@@ -28,12 +28,12 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
             });
 
         if (!empty($filters['search'])) {
-            $query = $this->applySearchFilter($query, $filters['search']);
+            $query = $this->applySearchFilterProfessional($query, $filters['search']);
         }
 
-        $query = $this->applySortFilter($query, $filters);
+        $query = $this->applySortFilterProfessional($query, $filters);
 
-        return $query->paginate($perPage);
+        return $this->paginateWithQueryString($query, $perPage);
     }
 
     public function findBySpecialty(int $specialtyId): Collection
@@ -84,7 +84,7 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
     }
 
 
-    private function applySearchFilter($query, string $search)
+    private function applySearchFilterProfessional($query, string $search)
     {
         return $query->where(function ($q) use ($search) {
             $q->whereHas('user', function ($userQuery) use ($search) {
@@ -99,7 +99,7 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
         });
     }
 
-    private function applySortFilter($query, array $filters)
+    private function applySortFilterProfessional($query, array $filters)
     {
         $sortBy = $filters['sort_by'] ?? 'name';
         $sortDirection = $filters['sort_direction'] ?? 'asc';

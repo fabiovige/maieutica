@@ -27,7 +27,7 @@ class ProfessionalController extends BaseController
     public function show(int $id)
     {
         return $this->handleViewRequest(
-            fn() => $this->professionalService->findProfessionalById($id),
+            fn() => ['professional' => $this->professionalService->findProfessionalById($id)],
             'professionals.show',
             [],
             'Erro ao visualizar profissional',

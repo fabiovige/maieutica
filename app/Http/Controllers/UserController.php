@@ -52,7 +52,7 @@ class UserController extends BaseController
 
     public function show(User $user): View|RedirectResponse
     {
-        $this->authorize('view', User::class);
+        $this->authorize('view', $user);
 
         try {
             $roles = Role::all();

@@ -217,9 +217,9 @@
                         <th>Status</th>
                         <th>Data de criação</th>
                         <th>Média Geral do Desenvolvimento</th>
-                        @can('edit checklists')
+                        @if(auth()->user()->can('view checklists') || auth()->user()->can('edit checklists') || auth()->user()->can('avaliation checklist') || auth()->user()->can('plane manual checklist') || auth()->user()->can('plane automatic checklist') || auth()->user()->can('clone checklists'))
                             <th width="100">Ações</th>
-                        @endcan
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -252,20 +252,18 @@
 
                                     {{ $checklist->developmentPercentage }}%
                                 </td>
-                                @can('edit checklists')
+                                @if(auth()->user()->can('view checklists') || auth()->user()->can('edit checklists') || auth()->user()->can('avaliation checklist') || auth()->user()->can('plane manual checklist') || auth()->user()->can('plane automatic checklist') || auth()->user()->can('clone checklists'))
                                     <td>
                                         <div class="dropdown">
                                             @php
                                                 $canOverrideStatus =
                                                     auth()->check() && auth()->user()->can('override-checklist-status');
                                             @endphp
-                                            @can('edit checklists')
-                                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
-                                                    id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
-                                                    @if ($checklist->situation_label !== 'Aberto' && !$canOverrideStatus) disabled @endif>
-                                                    Ações
-                                                </button>
-                                            @endcan
+                                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
+                                                id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
+                                                @if ($checklist->situation_label !== 'Aberto' && !$canOverrideStatus) disabled @endif>
+                                                Ações
+                                            </button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                                 @if ($checklist->situation_label === 'Aberto' || $canOverrideStatus)
                                                     @can('edit checklists')
@@ -308,7 +306,7 @@
                                             </ul>
                                         </div>
                                     </td>
-                                @endcan
+                                @endif
                             </tr>
                         @endforeach
                     @endif

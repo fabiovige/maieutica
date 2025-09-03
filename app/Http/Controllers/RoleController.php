@@ -31,12 +31,13 @@ class RoleController extends BaseController
         $this->middleware('permission:create roles')->only(['create', 'store']);
         $this->middleware('permission:edit roles')->only(['edit', 'update']);
         $this->middleware('permission:delete roles')->only('destroy');
-        $this->middleware('permission:view roles')->only(['index', 'show']);
+        $this->middleware('permission:list roles')->only(['index']);
+        $this->middleware('permission:view roles')->only(['show']);
     }
 
     public function index(Request $request)
     {
-        $this->authorize('view roles');
+        $this->authorize('list roles');
 
         return $this->handleIndexRequest(
             $request,
@@ -66,7 +67,7 @@ class RoleController extends BaseController
                     });
                 }
 
-                return $query->orderBy('name')->paginate(15);
+                return $query->orderBy('name')->paginate($filters['per_page'])->withQueryString();
             },
             'roles.index',
             [],

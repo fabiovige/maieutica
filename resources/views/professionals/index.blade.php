@@ -129,7 +129,7 @@
                             @endif
                         </a>
                     </th>
-                    @if(auth()->user()->can('edit professionals') || auth()->user()->can('deactivate professionals') || auth()->user()->can('activate professionals'))
+                    @if(auth()->user()->can('view professionals') || auth()->user()->can('edit professionals') || auth()->user()->can('deactivate professionals') || auth()->user()->can('activate professionals'))
                         <th width="100">Ações</th>
                     @endif
                 </tr>
@@ -178,7 +178,7 @@
                                 <span class="badge bg-danger">Inativo</span>
                             @endif
                         </td>
-                        @if(auth()->user()->can('edit professionals') || auth()->user()->can('deactivate professionals') || auth()->user()->can('activate professionals'))
+                        @if(auth()->user()->can('view professionals') || auth()->user()->can('edit professionals') || auth()->user()->can('deactivate professionals') || auth()->user()->can('activate professionals'))
                             <td class="align-middle">
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
@@ -186,6 +186,14 @@
                                         Ações
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        @can('view professionals')
+                                            <li>
+                                                <a class="dropdown-item"
+                                                    href="{{ route('professionals.show', $professional->id) }}">
+                                                    <i class="bi bi-eye"></i> Visualizar
+                                                </a>
+                                            </li>
+                                        @endcan
                                         @can('edit professionals')
                                             <li>
                                                 <a class="dropdown-item"
@@ -259,7 +267,7 @@
                 </div>
             </div>
             <div class="align-self-end align-self-md-center">
-                {{ $professionals->links() }}
+                {{ $professionals->appends(request()->query())->links() }}
             </div>
         </div>
     @endif
@@ -268,14 +276,20 @@
         function changePagination(perPageValue) {
             var searchValue = document.getElementById('search') ? document.getElementById('search').value : '';
 
-            var url = '{{ route('professionals.index') }}' + '?per_page=' + perPageValue;
-            if (searchValue) url += '&search=' + encodeURIComponent(searchValue);
+            // Preserva todos os parâmetros atuais da URL
+            var urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('per_page', perPageValue);
+            urlParams.set('page', '1'); // Sempre vai para página 1 ao mudar per_page
+            
+            // Atualiza search se necessário
+            if (searchValue) {
+                urlParams.set('search', searchValue);
+            } else {
+                urlParams.delete('search');
+            }
 
-            var currentSortBy = '{{ $filters['sort_by'] ?? '' }}';
-            var currentSortDirection = '{{ $filters['sort_direction'] ?? '' }}';
-            if (currentSortBy) url += '&sort_by=' + encodeURIComponent(currentSortBy);
-            if (currentSortDirection) url += '&sort_direction=' + encodeURIComponent(currentSortDirection);
-
+            // Monta a URL final
+            var url = '{{ route('professionals.index') }}' + '?' + urlParams.toString();
             window.location.href = url;
         }
 

@@ -68,7 +68,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
         $user = Auth::user();
 
         if (!$user) {
-            return $this->model->newQuery()->paginate($perPage);
+            return $this->model->newQuery()->paginate($perPage)->withQueryString();
         }
 
         $query = $user->getAccessibleKidsQuery()->with(['responsible', 'professionals']);
@@ -114,7 +114,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
                 break;
         }
 
-        return $query->paginate($perPage)->appends($filters);
+        return $query->paginate($perPage)->withQueryString();
     }
 
     public function getKidsForProfessional(int $professionalId): Collection
