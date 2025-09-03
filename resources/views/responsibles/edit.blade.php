@@ -90,7 +90,7 @@
                                     <tr>
                                         <td>{{ $kid->id }}</td>
                                         <td>{{ $kid->name }}</td>
-                                        <td>{{ $kid->birth_date }}</td>
+                                        <td>{{ $kid->birth_date_formatted }}</td>
                                         <td>{{ $kid->created_at->format('d/m/Y H:i') }}</td>
                                     </tr>
                                 @endforeach

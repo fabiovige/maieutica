@@ -159,7 +159,7 @@ Crianças
             </td>
             <td class="align-middle">{{ $kid->name }}</td>
             <td class="align-middle">{{ $kid->responsible->name ?? 'N/D' }}</td>
-            <td class="align-middle">{{ $kid->birth_date ?? 'N/D' }}</td>
+            <td class="align-middle">{{ $kid->birth_date_formatted }}</td>
             <td class="align-middle">{{ $kid->age ?? 'N/D' }}</td>
             @if(auth()->user()->can('view kids') || auth()->user()->can('edit kids') || auth()->user()->can('remove kids') || auth()->user()->can('list checklists'))
                 <td class="align-middle">

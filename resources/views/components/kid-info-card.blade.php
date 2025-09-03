@@ -17,7 +17,7 @@
                 <p class="text-muted mb-2">
                     <i class="bi bi-calendar-event"></i>
                     @if (isset($kid->birth_date))
-                        {{ $kid->birth_date }}
+                        {{ $kid->birth_date_formatted }}
                     @endif
                     ({{ $kid->months }} meses)
                 </p>

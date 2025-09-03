@@ -73,8 +73,17 @@ class KidsController extends BaseController
         );
     }
 
-    public function show(Kid $kid): void
+    public function show(Kid $kid): View
     {
+        $this->authorize('view', $kid);
+
+        return $this->handleViewRequest(
+            fn() => ['kid' => $kid->load(['responsible', 'checklists', 'professionals.user', 'professionals.specialty'])],
+            'kids.show',
+            [],
+            'Erro ao visualizar criança',
+            'kids.index'
+        );
     }
 
     public function showPlane(Kid $kid, ?int $checklistId = null): View|RedirectResponse

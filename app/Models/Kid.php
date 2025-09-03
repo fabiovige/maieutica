@@ -105,10 +105,20 @@ class Kid extends BaseModel
                 return $years . 'a ' . $months . 'm';
             }
 
-            return $months . ' meses';
+            return $months . 'm';
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    public function getGenderFormattedAttribute()
+    {
+        return self::GENDERS[$this->gender] ?? $this->gender;
+    }
+
+    public function getBirthDateFormattedAttribute()
+    {
+        return $this->birth_date ? 'Dt.Nasc: ' . $this->birth_date : 'N/D';
     }
 
     public function getBirthDateAttribute($value)
