@@ -17,8 +17,8 @@
                 @csrf
                 @method('POST')
                 <div class="card">
-                    <div class="card-header">
-                        Cadastrar checklist
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-dark">Cadastrar checklist</h6>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
@@ -56,11 +56,11 @@
                         </div>
 
                     </div>
-                    <div class="card-footer d-flex justify-content-start gap-2">
-                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                    <div class="card-footer d-flex justify-content-between gap-2">
                         <a href="{{ route('checklists.index') }}" class="btn btn-secondary">
-                            <i class="bi bi-x-lg"></i> Cancelar
+                            <i class="bi bi-arrow-left"></i> Voltar
                         </a>
+                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
                     </div>
                 </div>
             </form>

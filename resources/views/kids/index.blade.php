@@ -22,7 +22,7 @@ Crianças
 
 <!-- Filtros de busca -->
 <div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center">
             <h6 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h6>
             @if($kids->total() > 0)

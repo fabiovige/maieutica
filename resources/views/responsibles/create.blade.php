@@ -61,7 +61,10 @@
 
                         </div>
                     </div>
-                    <div class="card-footer d-flex justify-content-end">
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{{ route('responsibles.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar
+                        </a>
                         <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                     </div>
                 </div>

@@ -22,7 +22,7 @@
 
 <!-- Filtros de busca -->
 <div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center">
             <h6 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h6>
             @if($users->total() > 0)
@@ -91,8 +91,8 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-2">
                         @if ($user->avatar && file_exists(public_path('images/avatars/' . $user->avatar)))
-                            <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ $user->name }}" 
-                                 class="rounded-circle me-3" width="50" height="50" 
+                            <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ $user->name }}"
+                                 class="rounded-circle me-3" width="50" height="50"
                                  style="object-fit: cover;">
                         @else
                             <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
@@ -102,14 +102,14 @@
                                 </span>
                             </div>
                         @endif
-                        
+
                         <div class="flex-grow-1">
                             <h6 class="mb-0">{{ $user->name }}</h6>
                             <small class="text-muted">ID: {{ $user->id }}</small>
                         </div>
-                        
+
                         <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
                                     data-bs-toggle="dropdown">
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>
@@ -126,7 +126,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" 
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                           class="d-inline" onsubmit="return confirm('Confirma exclusão?')">
                                         @csrf
                                         @method('DELETE')
@@ -138,7 +138,7 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     <p class="mb-1"><strong>Email:</strong> {{ $user->email }}</p>
                     <p class="mb-1">
                         <strong>Perfil:</strong>
@@ -212,8 +212,8 @@
                     <td class="text-center align-middle">
                         <div class="d-flex align-items-center justify-content-center">
                             @if ($user->avatar && file_exists(public_path('images/avatars/' . $user->avatar)))
-                                <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ $user->name }}" 
-                                     class="rounded-circle" width="40" height="40" 
+                                <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ $user->name }}"
+                                     class="rounded-circle" width="40" height="40"
                                      style="object-fit: cover;">
                             @else
                                 <div class="rounded-circle d-flex align-items-center justify-content-center"
@@ -272,7 +272,7 @@
                                     @endcan
                                     @can('delete users')
                                         <li>
-                                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" 
+                                            <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                                   onsubmit="return confirm('Tem certeza que deseja excluir este usuário?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -321,7 +321,7 @@ function changePagination(perPageValue) {
     var urlParams = new URLSearchParams(window.location.search);
     urlParams.set('per_page', perPageValue);
     urlParams.set('page', '1'); // Sempre vai para página 1 ao mudar per_page
-    
+
     // Atualiza search se necessário
     if (searchValue) {
         urlParams.set('search', searchValue);

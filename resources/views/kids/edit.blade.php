@@ -60,8 +60,8 @@
                 @method('PUT')
 
                 <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Informações Pessoais</h5>
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-dark">Informações Pessoais</h6>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -133,8 +133,8 @@
 
 
             <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Responsáveis e Profissionais</h5>
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">Responsáveis e Profissionais</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -206,11 +206,11 @@
 
 
                 <div class="card-footer bg-transparent mt-4">
-                    <div class="d-flex justify-content-start gap-2">
-                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                    <div class="d-flex justify-content-between gap-2">
                         <a href="{{ route('kids.index') }}" class="btn btn-secondary">
-                            <i class="bi bi-x-lg"></i> Cancelar
+                            <i class="bi bi-arrow-left"></i> Voltar
                         </a>
+                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
                     </div>
                 </div>
             </form>

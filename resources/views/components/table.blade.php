@@ -1,6 +1,6 @@
 <div class="card">
-    <div class="card-header">
-        {{ $title }}
+    <div class="card-header bg-light">
+        <h6 class="mb-0 text-dark">{{ $title }}</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive">

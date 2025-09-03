@@ -19,10 +19,10 @@
     <div class="row">
         <div class="col-md-8 mb-3">
             <div class="card">
-                <div class="card-header bg-primary">
-                    <h5 class="mb-0 text-dark">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">
                         <i class="bi bi-person"></i> Informações da Criança
-                    </h5>
+                    </h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -184,10 +184,10 @@
 
         <div class="col-md-4 mb-3">
             <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">
                         <i class="bi bi-card-checklist"></i> Checklists
-                    </h5>
+                    </h6>
                 </div>
                 <div class="card-body">
                     @if ($kid->checklists->count() > 0)

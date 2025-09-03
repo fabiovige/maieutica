@@ -17,8 +17,8 @@
             <input type="hidden" name="kidId" value="{{ request('kidId') }}" />
             @endif
             <div class="card">
-                <div class="card-header">
-                    <h3>Checklist Id: {{ $checklist->id }}</h3>
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">Checklist Id: {{ $checklist->id }}</h6>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
@@ -101,19 +101,19 @@
                         </select>
                     </div>
                 </div>
-                <div class="card-footer d-flex justify-content-start gap-2">
+                <div class="card-footer d-flex justify-content-between gap-2">
+                    <a
+                        href="{{ route('checklists.index', ['kidId' => $checklist->kid_id]) }}"
+                        class="btn btn-secondary"
+                    >
+                        <i class="bi bi-arrow-left"></i> Voltar
+                    </a>
                     <x-button
                         icon="check-lg"
                         name="Salvar"
                         type="submit"
                         class="success"
                     ></x-button>
-                    <a
-                        href="{{ route('checklists.index', ['kidId' => $checklist->kid_id]) }}"
-                        class="btn btn-secondary"
-                    >
-                        <i class="bi bi-x-lg"></i> Cancelar
-                    </a>
                 </div>
             </div>
         </form>

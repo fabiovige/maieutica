@@ -19,10 +19,10 @@
     <div class="row">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header bg-primary">
-                    <h5 class="mb-0 text-dark">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">
                         <i class="bi bi-person-circle"></i> Informações do Usuário
-                    </h5>
+                    </h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -144,10 +144,10 @@
 
         <div class="col-md-4">
             <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">
                         <i class="bi bi-shield-lock"></i> Permissões
-                    </h5>
+                    </h6>
                 </div>
                 <div class="card-body">
                     @if($user->getAllPermissions()->count() > 0)
@@ -180,10 +180,10 @@
 
             @if($user->hasRole(['professional']))
                 <div class="card mt-3">
-                    <div class="card-header bg-warning">
-                        <h5 class="mb-0 text-dark">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-dark">
                             <i class="bi bi-person-vcard"></i> Dados Profissionais
-                        </h5>
+                        </h6>
                     </div>
                     <div class="card-body">
                         @php

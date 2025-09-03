@@ -60,8 +60,8 @@
         <!-- Dados Pessoais -->
         <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Dados Pessoais</h5>
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">Dados Pessoais</h6>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('profile.update') }}" method="POST">
@@ -104,26 +104,27 @@
                                 :estado="old('estado', $user->state)"
                                 title="Endereço"
                             />
-
-                        <div class="d-flex justify-content-start gap-2">
-                            <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
-                            <a href="{{ route('home.index') }}" class="btn btn-secondary">
-                                <i class="bi bi-x-lg"></i> Cancelar
-                            </a>
-                        </div>
-                    </form>
                 </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between gap-2">
+                        <a href="{{ route('home.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar
+                        </a>
+                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                    </div>
+                </div>
+                    </form>
             </div>
         </div>
 
         <!-- Alteração de Senha -->
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Alterar Senha</h5>
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">Alterar Senha</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('profile.password') }}" method="POST">
+                    <form id="password-form" action="{{ route('profile.password') }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -147,13 +148,14 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-key"></i> Alterar Senha
-                            </button>
-                        </div>
                     </form>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" form="password-form" class="btn btn-primary">
+                            <i class="bi bi-key"></i> Alterar Senha
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

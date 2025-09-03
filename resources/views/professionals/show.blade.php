@@ -19,10 +19,10 @@
     <div class="row">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header bg-primary">
-                    <h5 class="mb-0 text-dark">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">
                         <i class="bi bi-person-vcard"></i> Informações do Profissional
-                    </h5>
+                    </h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -166,10 +166,10 @@
 
         <div class="col-md-4">
             <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">
                         <i class="bi bi-people"></i> Crianças Associadas
-                    </h5>
+                    </h6>
                 </div>
                 <div class="card-body">
                     @if($professional->kids->count() > 0)
@@ -206,10 +206,10 @@
 
             @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('superadmin'))
                 <div class="card mt-3">
-                    <div class="card-header bg-warning">
-                        <h5 class="mb-0 text-dark">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-dark">
                             <i class="bi bi-shield-lock"></i> Informações do Usuário
-                        </h5>
+                        </h6>
                     </div>
                     <div class="card-body">
                         @if($professional->user->first())

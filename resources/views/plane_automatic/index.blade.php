@@ -61,8 +61,8 @@ Plano Automático
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                Distribuição das Competências
+            <div class="card-header bg-light">
+                <h6 class="mb-0 text-dark">Distribuição das Competências</h6>
             </div>
             <div class="card-body">
 

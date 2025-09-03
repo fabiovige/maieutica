@@ -67,7 +67,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
                             <button type="button" class="btn btn-primary" id="confirmDateBtn">Criar Checklist</button>
                         </div>
                     </div>

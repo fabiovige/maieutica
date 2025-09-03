@@ -99,13 +99,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer d-flex justify-content-start gap-2">
+                    <div class="card-footer d-flex justify-content-between gap-2">
+                        <a href="{{ route('responsibles.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar
+                        </a>
                         @can('responsibles.update')
                         <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
                         @endcan
-                        <a href="{{ route('responsibles.index') }}" class="btn btn-secondary">
-                            <i class="bi bi-x-lg"></i> Cancelar
-                        </a>
                     </div>
                 </div>
             </form>
