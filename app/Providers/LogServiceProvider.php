@@ -46,7 +46,20 @@ class LogServiceProvider extends ServiceProvider
 
     private function fixLogPermissions(string $logPath): void
     {
+        // Corrigir logs do Laravel padrão
         $files = glob($logPath . '/laravel-*.log');
+        
+        // Incluir logs customizados do sistema centralizado
+        $customLogs = [
+            $logPath . '/application-*.log',
+            $logPath . '/security-*.log', 
+            $logPath . '/performance-*.log',
+            $logPath . '/errors-*.log'
+        ];
+        
+        foreach ($customLogs as $pattern) {
+            $files = array_merge($files, glob($pattern));
+        }
         
         foreach ($files as $file) {
             if (is_file($file)) {

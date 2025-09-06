@@ -20,11 +20,14 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
 
     public function paginateWithFilters(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $query = $this->model->with(['user', 'specialty', 'kids'])
+        $query = $this->model->with(['user' => function($query) {
+                $query->where('allow', true)->with('roles');
+            }, 'specialty'])
             ->whereHas('user', function ($q) {
-                $q->whereHas('roles', function ($q) {
-                    $q->where('name', 'professional');
-                });
+                $q->where('allow', true)
+                  ->whereHas('roles', function ($roleQuery) {
+                      $roleQuery->where('name', 'professional');
+                  });
             });
 
         if (!empty($filters['search'])) {
@@ -38,7 +41,9 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
 
     public function findBySpecialty(int $specialtyId): Collection
     {
-        return $this->model->where('specialty_id', $specialtyId)->get();
+        return $this->model->with(['user', 'specialty'])
+            ->where('specialty_id', $specialtyId)
+            ->get();
     }
 
     public function findByRegistrationNumber(string $registrationNumber): ?object
@@ -48,9 +53,10 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
 
     public function getActiveProfessionals(): Collection
     {
-        return $this->model->whereHas('user', function ($q) {
-            $q->where('allow', true);
-        })->get();
+        return $this->model->with(['user', 'specialty'])
+            ->whereHas('user', function ($q) {
+                $q->where('allow', true);
+            })->get();
     }
 
 

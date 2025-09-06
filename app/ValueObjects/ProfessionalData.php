@@ -29,7 +29,7 @@ class ProfessionalData
             specialtyId: (int) $data['specialty_id'],
             registrationNumber: $data['registration_number'],
             bio: $data['bio'] ?? null,
-            allow: $data['allow'] ?? true
+            allow: isset($data['allow']) ? filter_var($data['allow'], FILTER_VALIDATE_BOOLEAN) : true
         );
     }
 

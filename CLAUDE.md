@@ -15,15 +15,17 @@ Maiêutica is a web platform for psychological clinics specializing in cognitive
 
 ### Backend (Laravel 9)
 - **Models**: Core entities are `Kid`, `Checklist`, `Competence`, `Domain`, `Level`, `Professional`, `Responsible`, and `User`
-- **Business Logic**: Main workflows handled by dedicated Services (`ChecklistService`, `OverviewService`) and Controllers
+- **Business Logic**: Main workflows handled by dedicated Services (`ChecklistService`, `OverviewService`, `KidService`, `ProfessionalService`) and Controllers
 - **Authentication**: Multi-role system using Spatie Laravel Permission with custom policies
 - **Data Structure**: Checklists contain multiple competences grouped by domains and levels, creating assessment hierarchies
+- **Form Validation**: Dedicated Form Request classes for input validation (e.g., `KidRequest`, `ChecklistRequest`)
 
 ### Frontend (Vue 3 + Bootstrap 5)
 - **Components**: Reusable Vue components in `resources/js/components/` for charts, checklists, and UI elements
 - **Integration**: Vue components mounted within Blade templates, not SPA
-- **Charts**: Chart.js integration for assessment visualization and progress tracking
+- **Charts**: Chart.js integration via vue-chart-3 for assessment visualization and progress tracking
 - **Forms**: vee-validate for form validation, SweetAlert2 for user interactions
+- **UI Libraries**: Bootstrap 5, Bootstrap Icons, jQuery UI for datepicker, Select2 for advanced dropdowns
 
 ### Key Relationships
 - Kids belong to Responsibles and are associated with Professionals through many-to-many relationships
@@ -31,14 +33,9 @@ Maiêutica is a web platform for psychological clinics specializing in cognitive
 - Competences are organized by Domains and Levels for structured evaluation
 - Planes (assessment plans) link Competences for specific evaluation protocols
 
-## Docker Environment
+## Essential Commands
 
-### Services
-- **app**: PHP 8.1 FPM with Laravel application
-- **nginx**: Web server serving on port 3005 
-- **mysql**: MySQL 8.0 with persistent volume
-
-### Development Commands
+### Docker Development Commands
 ```bash
 # Start containers
 docker compose up -d
@@ -55,19 +52,46 @@ docker compose exec app npm run dev
 # Build assets for production
 docker compose exec app npm run production
 
-# Run migrations and seeders
+# Watch assets for changes
+docker compose exec app npm run watch
+
+# Run migrations and seeders (fresh database with test data)
 docker compose exec app php artisan migrate:fresh --seed
 
-# Clear application caches
-docker compose exec app php artisan config:clear
-docker compose exec app php artisan route:clear
-docker compose exec app php artisan view:clear
-
-# Generate application key
-docker compose exec app php artisan key:generate
+# Clear all caches
+docker compose exec app composer clear
 
 # Access logs via log-viewer
 # Navigate to http://localhost:3005/log-viewer
+```
+
+### Code Quality & Linting Commands
+```bash
+# PHP Code Style (using PHP CS Fixer)
+docker compose exec app composer cs-fixer-check     # Check for style issues with diff
+docker compose exec app composer cs-fixer-fix       # Auto-fix style issues
+docker compose exec app composer code-style         # Alias for cs-fixer-fix
+
+# JavaScript/Vue Linting
+docker compose exec app npm run lint                # Check for JS/Vue issues
+docker compose exec app npm run lint:fix            # Auto-fix JS/Vue issues
+
+# JavaScript/Vue Formatting (Prettier)
+docker compose exec app npm run format              # Format JS/Vue files
+docker compose exec app npm run format:check        # Check formatting without changes
+```
+
+### Testing Commands
+```bash
+# PHPUnit tests (if tests directory exists)
+docker compose exec app php artisan test
+docker compose exec app ./vendor/bin/phpunit
+
+# Run specific test file
+docker compose exec app ./vendor/bin/phpunit tests/Feature/ExampleTest.php
+
+# Run tests with coverage
+docker compose exec app ./vendor/bin/phpunit --coverage-html coverage
 ```
 
 ## Database Management
@@ -75,7 +99,7 @@ docker compose exec app php artisan key:generate
 ### Migrations
 - Database schema managed through Laravel migrations in `database/migrations/`
 - Use `php artisan migrate:fresh --seed` for clean database setup with test data
-- Critical tables: users, kids, checklists, competences, domains, levels, professionals
+- Critical tables: users, kids, checklists, competences, domains, levels, professionals, responsibles
 
 ### Seeders
 - `DatabaseSeeder` orchestrates all seeders with realistic test data
@@ -99,23 +123,25 @@ docker compose exec app php artisan key:generate
 - PDF generation for assessment reports using TCPDF
 - Interactive charts showing progress over time
 - Dashboard with overview statistics and recent activity
+- DataTables integration for advanced data tables with sorting/filtering
 
 ## Configuration Notes
 
-### Logging
-- Application uses daily log rotation (`config/logging.php` set to 'daily')
-- Log viewer accessible at `/log-viewer` (middleware: web + auth)
-- Custom database logger available for structured logging
+### Container Services
+- **App (Laravel)**: PHP 8.1 FPM running on internal network
+- **Nginx**: Web server on port 3005
+- **MySQL**: Database on port 3306 (database: `maieutica`, user: `maieutica`, password: `secret`)
+- **MailHog**: Email testing on port 8025 (Web UI) and 1025 (SMTP)
 
-### File Uploads
-- Kid photos stored in `public/images/kids/`
-- User avatars in `public/images/avatars/`
-- File validation through form requests
+### File Storage
+- Kid photos: `public/images/kids/`
+- User avatars: `public/images/avatars/`
+- Logs: Daily rotation in `storage/logs/`
 
-### Environment Variables
-- Database: `maieutica` database, user `maieutica`, password `secret`
-- Application key required for encryption and sessions
-- Log level configurable via `LOG_LEVEL` (default: debug)
+### Code Style Configuration
+- **PHP**: PSR-12 standard with custom rules in `.php-cs-fixer.php`
+- **JavaScript/Vue**: ESLint with Vue 3 rules in `.eslintrc.js`
+- **Formatting**: Prettier configuration in `.prettierrc.json`
 
 ## Production Considerations
 
@@ -163,6 +189,3 @@ docker compose exec app php artisan key:generate
 - Implement proper indexing for performance
 - Use soft deletes for recoverable records
 - Normalize schemas to avoid redundancy
-- to memorize
-- to memorize
-- to memorize

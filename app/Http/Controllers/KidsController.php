@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Contracts\KidRepositoryInterface;
+use App\Enums\LogCategory;
+use App\Enums\LogOperation;
 use App\Http\Requests\KidRequest;
 use App\Models\Checklist;
 use App\Models\Competence;
@@ -13,6 +15,7 @@ use App\Models\Kid;
 use App\Models\Plane;
 use App\Models\User;
 use App\Services\KidService;
+use App\Services\Log\LoggingService;
 use App\Services\OverviewService;
 use App\Util\MyPdf;
 use Exception;
@@ -21,7 +24,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class KidsController extends BaseController
@@ -29,7 +31,8 @@ class KidsController extends BaseController
     public function __construct(
         private readonly OverviewService $overviewService,
         private readonly KidService $kidService,
-        private readonly KidRepositoryInterface $kidRepository
+        private readonly KidRepositoryInterface $kidRepository,
+        private readonly LoggingService $loggingService
     ) {
     }
 
@@ -1219,8 +1222,19 @@ class KidsController extends BaseController
             $pageWidth = $pdf->getPageWidth();
             // Calcular a posição X para centralizar
             $x = round(($pageWidth - $photoWidth) / 2, 0);
+            
+            $this->loggingService->logUserOperation(
+                LogOperation::PDF_GENERATED,
+                'Adding kid photo to PDF report',
+                [
+                    'kid_id' => $kid->id,
+                    'photo_width' => $photoWidth,
+                    'calculated_x_position' => $x
+                ],
+                LogCategory::REPORT_GENERATION
+            );
+            
             // Adicionar a foto da criança
-            // dd($x);
             $pdf->Image($photoPath, 80, null, $photoWidth, $photoWidth, '', '', 'C', false, 72);
             // Adicionar espaço após a foto
             $pdf->Ln(60);

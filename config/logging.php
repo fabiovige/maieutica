@@ -68,8 +68,40 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['daily'],
+            'channels' => ['application', 'security', 'performance'],
             'ignore_exceptions' => false,
+        ],
+
+        'application' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/application.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => 60,
+            'permission' => 0664,
+        ],
+
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => 'warning',
+            'days' => 90,
+            'permission' => 0664,
+        ],
+
+        'performance' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/performance.log'),
+            'level' => 'info',
+            'days' => 30,
+            'permission' => 0664,
+        ],
+
+        'errors' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/errors.log'),
+            'level' => 'error',
+            'days' => 90,
+            'permission' => 0664,
         ],
 
         'single' => [

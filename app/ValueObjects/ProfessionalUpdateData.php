@@ -30,7 +30,7 @@ class ProfessionalUpdateData
             specialtyId: (int) $data['specialty_id'],
             registrationNumber: $data['registration_number'],
             bio: $data['bio'] ?? null,
-            allow: $data['allow'] ?? null,
+            allow: isset($data['allow']) ? filter_var($data['allow'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
             currentProfessionalId: $currentProfessionalId
         );
     }

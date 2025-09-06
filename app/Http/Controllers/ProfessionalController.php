@@ -17,6 +17,8 @@ class ProfessionalController extends BaseController
 
     public function index(Request $request)
     {
+        $this->authorize('viewAny', \App\Models\Professional::class);
+        
         return $this->handleIndexRequest(
             $request,
             fn($filters) => $this->professionalService->getPaginatedProfessionals($filters['per_page'], $filters),
@@ -26,8 +28,11 @@ class ProfessionalController extends BaseController
 
     public function show(int $id)
     {
+        $professional = $this->professionalService->findProfessionalById($id);
+        $this->authorize('view', $professional);
+        
         return $this->handleViewRequest(
-            fn() => ['professional' => $this->professionalService->findProfessionalById($id)],
+            fn() => ['professional' => $professional],
             'professionals.show',
             [],
             'Erro ao visualizar profissional',
@@ -37,9 +42,12 @@ class ProfessionalController extends BaseController
 
     public function edit(int $id)
     {
+        $professional = $this->professionalService->findProfessionalById($id);
+        $this->authorize('update', $professional);
+        
         return $this->handleViewRequest(
             fn() => [
-                'professional' => $this->professionalService->findProfessionalById($id),
+                'professional' => $professional,
                 'specialties' => $this->professionalService->getSpecialtiesForSelect()
             ],
             'professionals.edit',
@@ -51,6 +59,8 @@ class ProfessionalController extends BaseController
 
     public function create()
     {
+        $this->authorize('create', \App\Models\Professional::class);
+        
         return $this->handleCreateRequest(
             fn() => ['specialties' => $this->professionalService->getSpecialtiesForSelect()],
             'professionals.create',
@@ -62,6 +72,8 @@ class ProfessionalController extends BaseController
 
     public function store(ProfessionalRequest $request)
     {
+        $this->authorize('create', \App\Models\Professional::class);
+        
         return $this->handleStoreRequest(
             fn() => $this->professionalService->createProfessional($request->validated()),
             'Profissional criado com sucesso.',
@@ -70,28 +82,24 @@ class ProfessionalController extends BaseController
         );
     }
 
-    public function update(Request $request, int $id)
+    public function update(ProfessionalRequest $request, int $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
-            'specialty_id' => 'required|exists:specialties,id',
-            'registration_number' => 'required|string|max:255',
-            'bio' => 'nullable|string',
-            'allow' => 'boolean',
-        ]);
-
+        $professional = $this->professionalService->findProfessionalById($id);
+        $this->authorize('update', $professional);
+        
         return $this->handleUpdateRequest(
-            fn() => $this->professionalService->updateProfessional($id, $request->all()),
-            'Profissional atualizado com sucesso!',
-            'Erro ao atualizar profissional',
+            fn() => $this->professionalService->updateProfessional($id, $request->validated()),
+            'Profissional atualizado com sucesso.',
+            'Erro ao atualizar profissional.',
             'professionals.index'
         );
     }
 
     public function deactivate(int $id)
     {
+        $professional = $this->professionalService->findProfessionalById($id);
+        $this->authorize('update', $professional);
+        
         return $this->handleUpdateRequest(
             fn() => $this->professionalService->deactivateProfessional($id),
             'Profissional desativado com sucesso.',
@@ -102,6 +110,9 @@ class ProfessionalController extends BaseController
 
     public function activate(int $id)
     {
+        $professional = $this->professionalService->findProfessionalById($id);
+        $this->authorize('update', $professional);
+        
         return $this->handleUpdateRequest(
             fn() => $this->professionalService->activateProfessional($id),
             'Profissional ativado com sucesso.',

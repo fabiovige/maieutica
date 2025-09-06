@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\HasLogging;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class Kid extends BaseModel
 {
+    use HasLogging;
+    
     protected $fillable = [
         'name',
         'birth_date',

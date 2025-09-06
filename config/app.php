@@ -181,6 +181,7 @@ return [
         App\Providers\ComposerServiceProvider::class,
         App\Providers\RepositoryServiceProvider::class,
         App\Providers\LogServiceProvider::class,
+        App\Providers\LoggingServiceProvider::class,
         // Barryvdh\Debugbar\ServiceProvider::class,
         Arcanedev\LogViewer\LogViewerServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,

@@ -30,6 +30,11 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model->find($id);
     }
 
+    public function findWith(int $id, array $relations = []): ?Model
+    {
+        return $this->model->with($relations)->find($id);
+    }
+
     public function create(array $data): Model
     {
         return $this->model->create($data);

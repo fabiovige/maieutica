@@ -126,3 +126,49 @@ Route::get('/analysis/{kidId}/level/{levelId}/{firstChecklistId?}/{secondCheckli
 Route::get('/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
 // routes/web.php
 Route::post('/kids/{kidId}/overview/generate-pdf', [KidsController::class, 'generatePdf'])->name('kids.generatePdf');
+
+// Rota de teste para debug
+Route::post('/test-professional-update', function() {
+    try {
+        \Log::info('Teste iniciado');
+        
+        // Teste simples sem usar ProfessionalService
+        $professional = \App\Models\Professional::find(1);
+        if (!$professional) {
+            return response()->json(['error' => 'Professional not found'], 404);
+        }
+        
+        \Log::info('Professional encontrado: ' . $professional->id);
+        
+        $user = $professional->user->first();
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        
+        \Log::info('User encontrado: ' . $user->id);
+        
+        // Update simples
+        $user->update(['name' => 'Teste Update ' . now()->format('H:i:s')]);
+        $professional->update(['bio' => 'Bio atualizada em ' . now()->format('H:i:s')]);
+        
+        \Log::info('Update realizado com sucesso');
+        
+        return response()->json([
+            'success' => true,
+            'professional_id' => $professional->id,
+            'user_name' => $user->fresh()->name,
+            'bio' => $professional->fresh()->bio
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro no teste: ' . $e->getMessage());
+        \Log::error('File: ' . $e->getFile() . ':' . $e->getLine());
+        \Log::error('Trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
+    }
+})->middleware('auth');

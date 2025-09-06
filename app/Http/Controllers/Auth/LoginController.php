@@ -2,48 +2,30 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\LogCategory;
+use App\Enums\LogOperation;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Log\LoggingService;
 use Exception;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
     use AuthenticatesUsers;
 
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
     protected $redirectTo = '/home';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
+    public function __construct(
+        private readonly LoggingService $loggingService
+    ) {
         $this->middleware('guest')->except('logout');
-        $this->middleware('throttle:5,1')->only('login'); // 5 tentativas por minuto
+        $this->middleware('throttle:5,1')->only('login');
     }
 
     public function showLoginForm()
@@ -55,14 +37,32 @@ class LoginController extends Controller
     {
         if (!$user->allow) {
             Auth::logout();
+            
+            $this->loggingService->logSecurityEvent(
+                LogOperation::VALIDATION_FAILED,
+                'Login attempt blocked - account disabled',
+                [
+                    'user_id' => $user->id,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ],
+                LogCategory::SECURITY_EVENTS,
+                'warning'
+            );
 
             return back()->withErrors(['email' => 'Esta conta está desativada.']);
         }
 
-        Log::info('Usuário logado com sucesso', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-        ]);
+        $this->loggingService->logSecurityEvent(
+            LogOperation::LOGIN,
+            'User successfully authenticated',
+            [
+                'user_id' => $user->id,
+                'ip_address' => $request->ip(),
+                'remember_me' => $request->boolean('remember')
+            ],
+            LogCategory::SECURITY_EVENTS
+        );
 
         return redirect()->intended($this->redirectTo);
     }
@@ -76,15 +76,27 @@ class LoginController extends Controller
     {
         try {
             $googleUser = Socialite::driver('google')->user();
-
             $user = User::where('email', $googleUser->getEmail())->first();
 
             if (!$user) {
+                $this->loggingService->logSecurityEvent(
+                    LogOperation::VALIDATION_FAILED,
+                    'Google OAuth login failed - user not found',
+                    ['email' => $googleUser->getEmail()],
+                    LogCategory::SECURITY_EVENTS,
+                    'warning'
+                );
+                
                 return redirect()->route('login')
                     ->withErrors(['email' => 'Não foi encontrada uma conta com este e-mail.']);
             }
 
             if (!$user->allow) {
+                $this->loggingService->logSecurityEvent(
+                    LogOperation::VALIDATION_FAILED,
+                    'Google OAuth login blocked - account disabled',
+                    ['user_id' => $user->id]);
+                
                 return redirect()->route('login')
                     ->withErrors(['email' => 'Esta conta está desativada.']);
             }
@@ -97,14 +109,10 @@ class LoginController extends Controller
 
             Auth::login($user);
 
-            Log::info('Usuário logado com Google', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-            ]);
-
-            return redirect()->intended($this->redirectTo);
-        } catch (Exception $e) {
-            Log::error('Erro no login com Google: ' . $e->getMessage());
+            $this->loggingService->logSecurityEvent(
+                LogOperation::LOGIN,
+                'User successfully authenticated via Google OAuth',
+                ['user_id' => $user->id]);
 
             return redirect()->route('login')
                 ->withErrors(['email' => 'Erro ao realizar login com Google.']);
@@ -115,15 +123,21 @@ class LoginController extends Controller
     {
         $user = Auth::user();
 
-        Auth::logout();
+        if ($user) {
+            $this->loggingService->logSecurityEvent(
+                LogOperation::LOGOUT,
+                'User logged out successfully',
+                [
+                    'user_id' => $user->id,
+                    'ip_address' => $request->ip()
+                ],
+                LogCategory::SECURITY_EVENTS
+            );
+        }
 
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        Log::info('Usuário deslogado', [
-            'user_id' => $user->id ?? null,
-            'email' => $user->email ?? null,
-        ]);
 
         return redirect()->route('login');
     }
@@ -163,19 +177,35 @@ class LoginController extends Controller
      */
     protected function sendFailedLoginResponse(Request $request)
     {
-        // Incrementar contador de tentativas falhadas
         $key = 'login_attempts_' . $request->ip();
         $attempts = cache()->get($key, 0) + 1;
         cache()->put($key, $attempts, now()->addMinutes(config('auth.security.lockout_duration', 15)));
 
-        // Log de tentativa de login falhada
-        Log::warning('Tentativa de login falhada', [
-            'email' => $request->email,
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'attempts' => $attempts,
-            'timestamp' => now(),
-        ]);
+        $this->loggingService->logSecurityEvent(
+            LogOperation::VALIDATION_FAILED,
+            'Failed login attempt detected',
+            [
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'attempts' => $attempts,
+                'email_attempted' => $request->email
+            ],
+            LogCategory::SECURITY_EVENTS,
+            'warning'
+        );
+
+        if ($attempts >= 5) {
+            $this->loggingService->logSecurityEvent(
+                LogOperation::ACCESS_DENIED,
+                'Multiple failed login attempts - potential brute force attack',
+                [
+                    'ip_address' => $request->ip(),
+                    'total_attempts' => $attempts
+                ],
+                LogCategory::SECURITY_EVENTS,
+                'critical'
+            );
+        }
 
         throw ValidationException::withMessages([
             'email' => [trans('auth.failed')],
@@ -191,10 +221,8 @@ class LoginController extends Controller
     protected function sendLoginResponse(Request $request)
     {
         $request->session()->regenerate();
-
         $this->clearLoginAttempts($request);
-
-        // Limpar contador de tentativas falhadas após login bem-sucedido
+        
         $key = 'login_attempts_' . $request->ip();
         cache()->forget($key);
 
@@ -202,12 +230,13 @@ class LoginController extends Controller
             return $response;
         }
 
-        // Log para debug do remember me
         if ($request->boolean('remember')) {
-            Log::info('Login com "Lembrar-me" ativado', [
-                'user_id' => $this->guard()->user()->id,
-                'email' => $this->guard()->user()->email,
-            ]);
+            $this->loggingService->logUserOperation(
+                LogOperation::LOGIN,
+                'User login with remember me enabled',
+                ['user_id' => $this->guard()->user()->id],
+                LogCategory::USER_OPERATIONS
+            );
         }
 
         return redirect()->intended($this->redirectPath());

@@ -1,0 +1,4 @@
+1 - /init para gerar o CLAUDE.md
+2 - peça para o claude gerar o PRD do sistema com base no claude.md o arquivo prd.md
+3 - peça ao claude gerar um flowchart em mermaid do prd.md
+

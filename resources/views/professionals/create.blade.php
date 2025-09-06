@@ -112,16 +112,23 @@
                             </div>
 
                             <div class="col-12">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input @error('allow') is-invalid @enderror"
-                                        id="allow" name="allow" value="1" {{ old('allow') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="allow">
-                                        Ativo no sistema
-                                    </label>
-                                    @error('allow')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <label for="allow" class="form-label mb-0">Status do Profissional</label>
+                                        <div class="form-text">
+                                            <span id="statusText" class="fw-medium">
+                                                {{ old('allow') ? 'Ativo' : 'Inativo' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input @error('allow') is-invalid @enderror" 
+                                            id="allow" name="allow" value="1" role="switch" {{ old('allow') ? 'checked' : '' }}>
+                                    </div>
                                 </div>
+                                @error('allow')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -140,6 +147,32 @@
     </div>
 @endsection
 
+@push('styles')
+    <style>
+        .form-switch .form-check-input {
+            width: 3.5rem;
+            height: 1.75rem;
+            background-color: #6c757d;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .form-switch .form-check-input:checked {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        
+        .form-switch .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+            border-color: #198754;
+        }
+        
+        .form-switch .form-check-input:checked:focus {
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+    </style>
+@endpush
+
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
@@ -154,6 +187,27 @@
                 const description = descriptions[selectedId] || '';
                 $(this).siblings('.form-text').text(description);
             });
+
+            // Controlar mudança do switch de status
+            $('#allow').change(function() {
+                const isActive = $(this).is(':checked');
+                const statusText = $('#statusText');
+                
+                if (isActive) {
+                    statusText.text('Ativo').removeClass('text-muted').addClass('text-success');
+                } else {
+                    statusText.text('Inativo').removeClass('text-success').addClass('text-muted');
+                }
+            });
+
+            // Definir cor inicial do texto baseado no estado
+            const initialState = $('#allow').is(':checked');
+            const statusText = $('#statusText');
+            if (initialState) {
+                statusText.addClass('text-success');
+            } else {
+                statusText.addClass('text-muted');
+            }
         });
     </script>
 @endpush
