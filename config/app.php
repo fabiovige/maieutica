@@ -180,6 +180,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
         App\Providers\RepositoryServiceProvider::class,
+        App\Providers\LogServiceProvider::class,
         // Barryvdh\Debugbar\ServiceProvider::class,
         Arcanedev\LogViewer\LogViewerServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,

@@ -11,6 +11,9 @@
 |
 */
 
+// Configurar umask para logs com permissões corretas (664 para arquivos, 775 para diretórios)
+umask(0002);
+
 $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
