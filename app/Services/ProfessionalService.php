@@ -5,22 +5,29 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\ProfessionalRepositoryInterface;
+use App\Exceptions\Professional\ProfessionalNotFoundException;
+use App\Exceptions\Professional\UserAssociationNotFoundException;
+use App\Exceptions\Professional\ProfessionalCreationException;
 use App\Models\Professional;
 use App\Models\Specialty;
 use App\Models\User;
-use App\Notifications\WelcomeNotification;
+use App\ValueObjects\ProfessionalData;
+use App\ValueObjects\ProfessionalUpdateData;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Exception;
 
 class ProfessionalService
 {
     public function __construct(
-        private readonly ProfessionalRepositoryInterface $professionalRepository
+        private readonly ProfessionalRepositoryInterface $professionalRepository,
+        private readonly UserService $userService,
+        private readonly NotificationService $notificationService,
+        private readonly PasswordService $passwordService
     ) {
     }
 
@@ -36,7 +43,13 @@ class ProfessionalService
 
     public function findProfessionalById(int $id): ?Professional
     {
-        return $this->professionalRepository->find($id);
+        $professional = $this->professionalRepository->find($id);
+        
+        if ($professional) {
+            $professional->load('user', 'specialty');
+        }
+        
+        return $professional;
     }
 
     public function createProfessional(array $data): Professional
@@ -44,18 +57,36 @@ class ProfessionalService
         DB::beginTransaction();
 
         try {
-            $user = $this->createUserForProfessional($data);
-            $professional = $this->createProfessionalRecord($data);
-            $this->linkUserToProfessional($professional, $user);
-            $this->sendWelcomeNotification($user);
+            $professionalData = ProfessionalData::fromArray($data);
+            
+            $temporaryPassword = $this->passwordService->generateTemporaryPassword();
+            
+            $userData = array_merge(
+                $professionalData->toUserArray(),
+                [
+                    'password' => Hash::make($temporaryPassword),
+                    'created_by' => Auth::id(),
+                ]
+            );
+            
+            $user = User::create($userData);
+            $user->assignRole('professional');
+            
+            $professionalRecord = $this->createProfessionalRecord($professionalData);
+            
+            $this->linkUserToProfessional($professionalRecord, $user);
+            
+            $this->notificationService->sendWelcomeNotification($user, $temporaryPassword);
 
             DB::commit();
-            return $professional;
+            
+            $professionalRecord->load('user', 'specialty');
+            return $professionalRecord;
 
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Erro ao criar profissional: ' . $e->getMessage());
-            throw $e;
+            throw new ProfessionalCreationException($e->getMessage(), $e);
         }
     }
 
@@ -64,18 +95,16 @@ class ProfessionalService
         DB::beginTransaction();
 
         try {
-            $professional = $this->professionalRepository->find($id);
-            if (!$professional) {
-                throw new Exception('Profissional não encontrado');
-            }
-
+            $professional = $this->getProfessionalWithUser($id);
+            $professionalUpdateData = ProfessionalUpdateData::fromArray($data, $id);
+            
             $user = $professional->user->first();
             if (!$user) {
-                throw new Exception('Usuário não encontrado');
+                throw new UserAssociationNotFoundException($id);
             }
 
-            $this->updateUserData($user, $data);
-            $this->updateProfessionalData($professional, $data);
+            $this->updateUserData($user, $professionalUpdateData);
+            $this->updateProfessionalData($professional, $professionalUpdateData);
 
             DB::commit();
             return true;
@@ -117,62 +146,62 @@ class ProfessionalService
         return $this->professionalRepository->getActiveProfessionals();
     }
 
-    private function createUserForProfessional(array $data): User
+    private function getProfessionalWithUser(int $id): Professional
     {
-        $password = Str::random(10);
+        $professional = $this->professionalRepository->find($id);
         
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
-            'password' => bcrypt($password),
-            'allow' => $data['allow'] ?? true,
-            'created_by' => Auth::id(),
-        ]);
+        if (!$professional) {
+            throw new ProfessionalNotFoundException($id);
+        }
+        
+        $professional->load('user', 'specialty');
+        return $professional;
     }
 
-    private function createProfessionalRecord(array $data): Professional
+    private function createProfessionalRecord(ProfessionalData $data): Professional
     {
-        return $this->professionalRepository->create([
-            'specialty_id' => $data['specialty_id'],
-            'registration_number' => $data['registration_number'],
-            'bio' => $data['bio'] ?? null,
-            'created_by' => Auth::id(),
-        ]);
+        $professionalArray = array_merge(
+            $data->toProfessionalArray(),
+            ['created_by' => Auth::id()]
+        );
+        
+        return $this->professionalRepository->create($professionalArray);
     }
 
     private function linkUserToProfessional(Professional $professional, User $user): void
     {
-        $user->assignRole('professional');
         $this->professionalRepository->attachUser($professional->id, $user->id);
     }
 
-    private function sendWelcomeNotification(User $user): void
+    private function getProfessionalRoleId(): int
     {
-        $password = Str::random(10);
-        $user->update(['password' => bcrypt($password)]);
-        $user->notify(new WelcomeNotification($user, $password));
+        $role = \Spatie\Permission\Models\Role::where('name', 'professional')->first();
+        
+        if (!$role) {
+            throw new Exception('Role professional não encontrada');
+        }
+        
+        return $role->id;
     }
 
-    private function updateUserData(User $user, array $data): void
+    private function updateUserData(User $user, ProfessionalUpdateData $data): void
     {
-        $user->update([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
-            'allow' => $data['allow'] ?? $user->allow,
-            'updated_by' => Auth::id(),
-        ]);
+        $userData = array_merge(
+            $data->toUserArray(),
+            ['updated_by' => Auth::id()]
+        );
+        
+        $user->update($userData);
     }
 
-    private function updateProfessionalData(Professional $professional, array $data): void
+    private function updateProfessionalData(Professional $professional, ProfessionalUpdateData $data): void
     {
-        $professional->update([
-            'specialty_id' => $data['specialty_id'],
-            'registration_number' => $data['registration_number'],
-            'bio' => $data['bio'] ?? $professional->bio,
-            'updated_by' => Auth::id(),
-        ]);
+        $professionalArray = array_merge(
+            $data->toProfessionalArray(),
+            ['updated_by' => Auth::id()]
+        );
+        
+        $professional->update($professionalArray);
     }
 
     private function changeUserStatus(int $professionalId, bool $status): bool
@@ -180,14 +209,11 @@ class ProfessionalService
         DB::beginTransaction();
 
         try {
-            $professional = $this->professionalRepository->find($professionalId);
-            if (!$professional) {
-                throw new Exception('Profissional não encontrado');
-            }
-
+            $professional = $this->getProfessionalWithUser($professionalId);
+            
             $user = $professional->user->first();
             if (!$user) {
-                throw new Exception('Usuário não encontrado');
+                throw new UserAssociationNotFoundException($professionalId);
             }
 
             $user->update([

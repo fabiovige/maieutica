@@ -12,11 +12,9 @@ class ProfessionalUserCreationStrategy implements UserCreationStrategyInterface
 {
     public function createUser(User $user, array $data): void
     {
-        Professional::create([
-            'specialty_id' => $data['specialty_id'] ?? 1,
-            'registration_number' => $data['registration_number'] ?? 'Pendente',
-            'created_by' => Auth::id(),
-        ])->user()->attach($user->id);
+        // NÃO CRIAR PROFESSIONAL AQUI - apenas criar usuário
+        // O Professional será criado pelo ProfessionalService
+        // Esta strategy é apenas para vincular usuários existentes
     }
 
     public function updateUser(User $user, array $data): void
