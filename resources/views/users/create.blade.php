@@ -72,19 +72,29 @@
                             </div>
 
 
-                            <x-address-form 
-                                :cep="old('cep')"
-                                :logradouro="old('logradouro')"
-                                :numero="old('numero')"
-                                :complemento="old('complemento')"
-                                :bairro="old('bairro')"
-                                :cidade="old('cidade')"
-                                :estado="old('estado')"
-                                title="Endereço"
-                                :required="false"
-                            />
                         </div>
 
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-geo-alt"></i> Endereço
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <x-address-form 
+                            :cep="old('cep')"
+                            :logradouro="old('logradouro')"
+                            :numero="old('numero')"
+                            :complemento="old('complemento')"
+                            :bairro="old('bairro')"
+                            :cidade="old('cidade')"
+                            :estado="old('estado')"
+                            title=""
+                            :required="false"
+                        />
                     </div>
                 </div>
 

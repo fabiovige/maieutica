@@ -72,19 +72,29 @@
                                 @enderror
                             </div>
 
-                            <x-address-form 
-                                :cep="old('cep', $user->postal_code)"
-                                :logradouro="old('logradouro', $user->street)"
-                                :numero="old('numero', $user->number)"
-                                :complemento="old('complemento', $user->complement)"
-                                :bairro="old('bairro', $user->neighborhood)"
-                                :cidade="old('cidade', $user->city)"
-                                :estado="old('estado', $user->state)"
-                                title="Endereço"
-                                :required="false"
-                            />
                         </div>
 
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-geo-alt"></i> Endereço
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <x-address-form 
+                            :cep="old('cep', $user->postal_code)"
+                            :logradouro="old('logradouro', $user->street)"
+                            :numero="old('numero', $user->number)"
+                            :complemento="old('complemento', $user->complement)"
+                            :bairro="old('bairro', $user->neighborhood)"
+                            :cidade="old('cidade', $user->city)"
+                            :estado="old('estado', $user->state)"
+                            title=""
+                            :required="false"
+                        />
                     </div>
                 </div>
 
