@@ -90,4 +90,15 @@ class UserPolicy
         // Implementar se necessário
         return $user->can('force delete users');
     }
+
+    /**
+     * Determina se o usuário pode exportar dados de um usuário específico (PDF).
+     */
+    public function export(User $user, User $model): bool
+    {
+        return $user->can('view users') && (
+            $user->hasRole('admin') || 
+            $user->hasRole('superadmin')
+        );
+    }
 }

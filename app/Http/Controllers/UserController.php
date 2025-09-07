@@ -5,16 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
-use App\Models\Role;
 use App\Models\User;
 use App\Services\UserService;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role as SpatieRole;
 
 class UserController extends BaseController
 {
@@ -41,7 +36,7 @@ class UserController extends BaseController
         return $this->handleViewRequest(
             fn() => [
                 'user' => $user,
-                'roles' => SpatieRole::where('name', '!=', 'superadmin')->get()
+                'roles' => $this->userService->getAvailableRoles()
             ],
             'users.edit',
             [],
@@ -54,21 +49,16 @@ class UserController extends BaseController
     {
         $this->authorize('view', $user);
 
-        try {
-            $roles = Role::all();
-
-            $message = label_case('Show User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
-            return view('users.show', compact('user', 'roles'));
-        } catch (Exception $e) {
-            flash(self::MSG_NOT_FOUND)->warning();
-
-            $message = label_case('Show User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return redirect()->back();
-        }
+        return $this->handleViewRequest(
+            fn() => [
+                'user' => $user,
+                'roles' => $this->userService->getAvailableRoles()
+            ],
+            'users.show',
+            [],
+            'Erro ao carregar dados do usuário',
+            'users.index'
+        );
     }
 
     public function create(): View|RedirectResponse
@@ -77,10 +67,10 @@ class UserController extends BaseController
 
         return $this->handleCreateRequest(
             fn() => [
-                'roles' => SpatieRole::where('name', '!=', 'superadmin')->get()
+                'roles' => $this->userService->getAvailableRoles()
             ],
             'users.create',
-            'Create User',
+            [],
             'Erro ao carregar dados de criação de usuário',
             'users.index'
         );
@@ -116,30 +106,35 @@ class UserController extends BaseController
     {
         $this->authorize('delete', $user);
 
-        return $this->handleDestroyRequest(
-            fn() => $this->userService->deleteUser($user),
-            self::MSG_DELETE_SUCCESS,
-            'users.index',
-            'Destroy User'
-        );
+        try {
+            $this->userService->deleteUser($user);
+            flash(self::MSG_DELETE_SUCCESS)->success();
+            return redirect()->route('users.index');
+        } catch (\Exception $e) {
+            $context = array_merge($this->getCurrentUserContext(), [
+                'target_user' => $this->userService->sanitizeUserDataForLog($user),
+                'error' => $e->getMessage()
+            ]);
+            \Illuminate\Support\Facades\Log::error('Destroy User', $context);
+            flash('Erro ao excluir usuário')->error();
+            return redirect()->back();
+        }
     }
 
     public function pdf(User $user)
     {
+        $this->authorize('export', $user);
+        
         try {
-            $pdf = PDF::loadView('users.show', compact('user'));
-
-            $message = label_case('PDF Users ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
-            return $pdf->download("user-{$user->id}.pdf");
-        } catch (Exception $e) {
-            flash(self::MSG_NOT_FOUND)->warning();
-
-            $message = label_case('PDF User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return redirect()->back();
+            return $this->userService->generateUserPdf($user);
+        } catch (\Exception $e) {
+            $context = array_merge($this->getCurrentUserContext(), [
+                'target_user' => $this->userService->sanitizeUserDataForLog($user),
+                'error' => $e->getMessage()
+            ]);
+            \Illuminate\Support\Facades\Log::error('PDF Generation Error', $context);
+            flash('Erro ao gerar PDF do usuário')->error();
+            return redirect()->route('users.show', $user);
         }
     }
 }

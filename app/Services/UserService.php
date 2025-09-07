@@ -173,4 +173,54 @@ class UserService
         Session::flash('user_email', $user->email);
     }
 
+    public function getAvailableRoles(): Collection
+    {
+        return SpatieRole::where('name', '!=', 'superadmin')
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function generateUserPdf(User $user): string
+    {
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('users.show', [
+            'user' => $user,
+            'roles' => $this->getAvailableRoles()
+        ]);
+
+        return $pdf->download("user-{$user->id}.pdf");
+    }
+
+    public function sanitizeUserDataForLog(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => \Illuminate\Support\Str::mask($user->email, '*', 3),
+            'roles' => $user->roles->pluck('name')->toArray(),
+            'allow' => $user->allow,
+            'created_at' => $user->created_at?->format('Y-m-d H:i:s'),
+        ];
+    }
+
+    public function sanitizeRequestDataForLog(array $data): array
+    {
+        $sanitized = $data;
+        
+        // Remove senhas e dados sensíveis dos logs
+        unset($sanitized['password']);
+        unset($sanitized['password_confirmation']);
+        
+        // Mascarar email se presente
+        if (isset($sanitized['email'])) {
+            $sanitized['email'] = \Illuminate\Support\Str::mask($sanitized['email'], '*', 3);
+        }
+        
+        // Mascarar telefone se presente
+        if (isset($sanitized['phone']) && $sanitized['phone']) {
+            $sanitized['phone'] = \Illuminate\Support\Str::mask($sanitized['phone'], '*', -4, 4);
+        }
+        
+        return $sanitized;
+    }
+
 }

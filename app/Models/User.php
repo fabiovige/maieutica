@@ -165,7 +165,7 @@ class User extends Authenticatable
             'neighborhood' => isset($data['bairro']) ? strip_tags($data['bairro']) : null,
             'city' => isset($data['cidade']) ? strip_tags($data['cidade']) : null,
             'state' => isset($data['estado']) ? strtoupper(strip_tags($data['estado'])) : null,
-            'allow' => (bool) ($data['allow'] ?? true), // PADRÃO: usuário ativo
+            'allow' => isset($data['allow']) ? (bool) $data['allow'] : false,
             'type' => $data['type'] ?? self::TYPE_I,
         ];
     }

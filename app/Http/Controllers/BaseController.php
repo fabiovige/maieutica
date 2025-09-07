@@ -52,8 +52,11 @@ abstract class BaseController extends Controller
                 'defaultPerPage' => self::DEFAULT_PER_PAGE,
             ], $additionalData));
         } catch (Exception $e) {
-            $message = 'Erro ao carregar lista: ' . $e->getMessage() . ' | User:' . Auth::user()->name . '(ID:' . Auth::user()->id . ')';
-            Log::error($message);
+            $context = array_merge($this->getCurrentUserContext(), [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            Log::error('Erro ao carregar lista', $context);
 
             \flash('Erro ao carregar a lista. Tente novamente.')->error();
 
@@ -95,8 +98,11 @@ abstract class BaseController extends Controller
 
             return \response()->json($responseData);
         } catch (Exception $e) {
-            $message = 'Erro ao carregar dados AJAX: ' . $e->getMessage() . ' | User:' . Auth::user()->name . '(ID:' . Auth::user()->id . ')';
-            Log::error($message);
+            $context = array_merge($this->getCurrentUserContext(), [
+                'error' => $e->getMessage(),
+                'ajax_request' => true
+            ]);
+            Log::error('Erro ao carregar dados AJAX', $context);
 
             return \response()->json([
                 'error' => 'Erro ao carregar dados. Tente novamente.',
@@ -120,7 +126,12 @@ abstract class BaseController extends Controller
 
             return \view($viewName, \array_merge(['data' => $data], $additionalData));
         } catch (Exception $e) {
-            Log::error($errorMessage . ': ' . $e->getMessage());
+            $context = array_merge($this->getCurrentUserContext(), [
+                'error' => $e->getMessage(),
+                'error_message' => $errorMessage,
+                'view_name' => $viewName ?? null
+            ]);
+            Log::error($errorMessage, $context);
             \flash($errorMessage)->error();
             return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
         }
@@ -132,7 +143,12 @@ abstract class BaseController extends Controller
             $data = $dataCallback();
             return \view($viewName, \array_merge($data, $additionalData));
         } catch (Exception $e) {
-            Log::error($errorMessage . ': ' . $e->getMessage());
+            $context = array_merge($this->getCurrentUserContext(), [
+                'error' => $e->getMessage(),
+                'error_message' => $errorMessage,
+                'view_name' => $viewName ?? null
+            ]);
+            Log::error($errorMessage, $context);
             \flash($errorMessage)->error();
             return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
         }
@@ -145,7 +161,11 @@ abstract class BaseController extends Controller
             \flash($successMessage)->success();
             return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
         } catch (Exception $e) {
-            Log::error($errorMessage . ': ' . $e->getMessage());
+            $context = array_merge($this->getCurrentUserContext(), [
+                'error' => $e->getMessage(),
+                'error_message' => $errorMessage
+            ]);
+            Log::error($errorMessage, $context);
             \flash($errorMessage)->error();
             return \redirect()->back()->withInput();
         }
@@ -165,7 +185,11 @@ abstract class BaseController extends Controller
             // Se há apenas a rota, usar rota padrão
             return \redirect()->route($redirectRoute ?: $this->getDefaultIndexRoute());
         } catch (Exception $e) {
-            Log::error($errorMessage . ': ' . $e->getMessage());
+            $context = array_merge($this->getCurrentUserContext(), [
+                'error' => $e->getMessage(),
+                'error_message' => $errorMessage
+            ]);
+            Log::error($errorMessage, $context);
             \flash($errorMessage)->error();
             return \redirect()->back()->withInput();
         }
@@ -176,5 +200,57 @@ abstract class BaseController extends Controller
         $className = class_basename($this);
         $routeName = strtolower(str_replace('Controller', '', $className));
         return $routeName . '.index';
+    }
+
+    protected function sanitizeForLog(array $data): array
+    {
+        $sanitized = $data;
+        
+        // Lista de campos sensíveis que devem ser removidos ou mascarados
+        $sensitiveFields = [
+            'password',
+            'password_confirmation', 
+            'current_password',
+            'new_password',
+            'temporary_password'
+        ];
+        
+        // Remover campos sensíveis
+        foreach ($sensitiveFields as $field) {
+            unset($sanitized[$field]);
+        }
+        
+        // Mascarar email se presente
+        if (isset($sanitized['email']) && $sanitized['email']) {
+            $sanitized['email'] = \Illuminate\Support\Str::mask($sanitized['email'], '*', 3);
+        }
+        
+        // Mascarar telefone se presente  
+        if (isset($sanitized['phone']) && $sanitized['phone']) {
+            $sanitized['phone'] = \Illuminate\Support\Str::mask($sanitized['phone'], '*', -4, 4);
+        }
+        
+        // Mascarar CPF se presente
+        if (isset($sanitized['cpf']) && $sanitized['cpf']) {
+            $sanitized['cpf'] = \Illuminate\Support\Str::mask($sanitized['cpf'], '*', 3, 3);
+        }
+        
+        return $sanitized;
+    }
+
+    protected function getCurrentUserContext(): array
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return ['user' => 'guest'];
+        }
+        
+        return [
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_email' => \Illuminate\Support\Str::mask($user->email, '*', 3),
+            'user_roles' => $user->roles ? $user->roles->pluck('name')->toArray() : [],
+        ];
     }
 }
