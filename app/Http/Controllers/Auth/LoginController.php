@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\LogCategory;
 use App\Enums\LogOperation;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -46,7 +45,6 @@ class LoginController extends Controller
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent()
                 ],
-                LogCategory::SECURITY_EVENTS,
                 'warning'
             );
 
@@ -60,8 +58,7 @@ class LoginController extends Controller
                 'user_id' => $user->id,
                 'ip_address' => $request->ip(),
                 'remember_me' => $request->boolean('remember')
-            ],
-            LogCategory::SECURITY_EVENTS
+            ]
         );
 
         return redirect()->intended($this->redirectTo);
@@ -83,7 +80,6 @@ class LoginController extends Controller
                     LogOperation::VALIDATION_FAILED,
                     'Google OAuth login failed - user not found',
                     ['email' => $googleUser->getEmail()],
-                    LogCategory::SECURITY_EVENTS,
                     'warning'
                 );
                 
@@ -95,7 +91,9 @@ class LoginController extends Controller
                 $this->loggingService->logSecurityEvent(
                     LogOperation::VALIDATION_FAILED,
                     'Google OAuth login blocked - account disabled',
-                    ['user_id' => $user->id]);
+                    ['user_id' => $user->id],
+                    'warning'
+                );
                 
                 return redirect()->route('login')
                     ->withErrors(['email' => 'Esta conta está desativada.']);
@@ -112,8 +110,21 @@ class LoginController extends Controller
             $this->loggingService->logSecurityEvent(
                 LogOperation::LOGIN,
                 'User successfully authenticated via Google OAuth',
-                ['user_id' => $user->id]);
+                ['user_id' => $user->id]
+            );
 
+            return redirect()->intended($this->redirectTo);
+        } catch (Exception $e) {
+            $this->loggingService->logSecurityEvent(
+                LogOperation::VALIDATION_FAILED,
+                'Google OAuth authentication error',
+                [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ],
+                'error'
+            );
+            
             return redirect()->route('login')
                 ->withErrors(['email' => 'Erro ao realizar login com Google.']);
         }
@@ -130,8 +141,7 @@ class LoginController extends Controller
                 [
                     'user_id' => $user->id,
                     'ip_address' => $request->ip()
-                ],
-                LogCategory::SECURITY_EVENTS
+                ]
             );
         }
 
@@ -190,7 +200,6 @@ class LoginController extends Controller
                 'attempts' => $attempts,
                 'email_attempted' => $request->email
             ],
-            LogCategory::SECURITY_EVENTS,
             'warning'
         );
 
@@ -202,7 +211,6 @@ class LoginController extends Controller
                     'ip_address' => $request->ip(),
                     'total_attempts' => $attempts
                 ],
-                LogCategory::SECURITY_EVENTS,
                 'critical'
             );
         }
@@ -234,11 +242,10 @@ class LoginController extends Controller
             $this->loggingService->logUserOperation(
                 LogOperation::LOGIN,
                 'User login with remember me enabled',
-                ['user_id' => $this->guard()->user()->id],
-                LogCategory::USER_OPERATIONS
+                ['user_id' => $this->guard()->user()->id]
             );
         }
 
-        return redirect()->intended($this->redirectPath());
+        return redirect()->intended($this->redirectTo);
     }
 }

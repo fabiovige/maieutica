@@ -15,7 +15,7 @@ class ProfessionalUpdateData
         public readonly int $specialtyId,
         public readonly string $registrationNumber,
         public readonly ?string $bio = null,
-        public readonly ?bool $allow = null,
+        public readonly bool $allow = false,
         public readonly ?int $currentProfessionalId = null
     ) {
         $this->validate();
@@ -30,24 +30,19 @@ class ProfessionalUpdateData
             specialtyId: (int) $data['specialty_id'],
             registrationNumber: $data['registration_number'],
             bio: $data['bio'] ?? null,
-            allow: isset($data['allow']) ? filter_var($data['allow'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
+            allow: isset($data['allow']) ? (bool) $data['allow'] : false,
             currentProfessionalId: $currentProfessionalId
         );
     }
 
     public function toUserArray(): array
     {
-        $userData = [
+        return [
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
+            'allow' => $this->allow,
         ];
-
-        if ($this->allow !== null) {
-            $userData['allow'] = $this->allow;
-        }
-
-        return $userData;
     }
 
     public function toProfessionalArray(): array

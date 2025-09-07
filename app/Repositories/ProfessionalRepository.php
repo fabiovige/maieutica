@@ -21,11 +21,10 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
     public function paginateWithFilters(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
         $query = $this->model->with(['user' => function($query) {
-                $query->where('allow', true)->with('roles');
+                $query->with('roles');
             }, 'specialty'])
             ->whereHas('user', function ($q) {
-                $q->where('allow', true)
-                  ->whereHas('roles', function ($roleQuery) {
+                $q->whereHas('roles', function ($roleQuery) {
                       $roleQuery->where('name', 'professional');
                   });
             });

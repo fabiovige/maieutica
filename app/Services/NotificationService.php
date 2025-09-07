@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Enums\LogCategory;
 use App\Enums\LogOperation;
 use App\Models\User;
 use App\Notifications\WelcomeNotification;
@@ -80,8 +79,7 @@ class NotificationService
                 'notification_class' => $notificationClass,
                 'user_count' => count($users),
                 'user_ids' => $userIds
-            ],
-            LogCategory::EMAIL_OPERATIONS
+            ]
         );
         
         $successCount = 0;
@@ -116,7 +114,6 @@ class NotificationService
                 'success_count' => $successCount,
                 'error_count' => $errorCount
             ],
-            LogCategory::EMAIL_OPERATIONS,
             $errorCount > 0 ? 'warning' : 'info'
         );
     }

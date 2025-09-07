@@ -1230,8 +1230,7 @@ class KidsController extends BaseController
                     'kid_id' => $kid->id,
                     'photo_width' => $photoWidth,
                     'calculated_x_position' => $x
-                ],
-                LogCategory::REPORT_GENERATION
+                ]
             );
             
             // Adicionar a foto da criança
