@@ -1,305 +1,161 @@
-<!-- Seção de Endereço -->
-<div class="col-12">
-    <h5 class="mb-3">
-        <i class="bi bi-geo-alt"></i>
-        {{ $title }}
-        @if(!$required)
-            <small class="text-muted">(opcional)</small>
-        @endif
-    </h5>
+@if ($shouldRenderTitle())
+    <!-- Seção de Endereço -->
+    <div class="col-12">
+        <h5 class="mb-3">
+            <i class="bi bi-geo-alt"></i>
+            {{ $title }}
+            @if (!$required)
+                <small class="text-muted">(opcional)</small>
+            @endif
+        </h5>
+    </div>
+@endif
+
+<!-- Linha 1: CEP -->
+<div class="row">
+    <div class="col-12 col-md-2">
+        <label for="cep" class="form-label">
+            <i class="bi bi-search"></i>
+            CEP
+            {!! $getRequiredIndicator() !!}
+        </label>
+        <input type="text" class="form-control @error('cep') is-invalid @enderror" id="cep" name="cep"
+            value="{{ old('cep', $getCepFormatted()) }}" placeholder="00000-000" maxlength="9"
+            autocomplete="postal-code" aria-describedby="cep-help" {{ $getRequiredAttribute() }}>
+        @error('cep')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+
+    <!-- Linha 2: Logradouro, Número, Complemento -->
+    <div class="col-12 col-md-4">
+        <label for="logradouro" class="form-label">
+            Logradouro
+            {!! $getRequiredIndicator() !!}
+        </label>
+        <input type="text" class="form-control address-field @error('logradouro') is-invalid @enderror"
+            id="logradouro" name="logradouro" value="{{ old('logradouro', $logradouro) }}" autocomplete="address-line1"
+            readonly {{ $getRequiredAttribute() }}>
+        @error('logradouro')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+
+    <div class="col-6 col-md-2">
+        <label for="numero" class="form-label">
+            Número
+            {!! $getRequiredIndicator() !!}
+        </label>
+        <input type="text" class="form-control @error('numero') is-invalid @enderror" id="numero" name="numero"
+            value="{{ old('numero', $numero) }}" placeholder="123" autocomplete="address-line2"
+            {{ $getRequiredAttribute() }}>
+        @error('numero')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+
+    <div class="col-6 col-md-4">
+        <label for="complemento" class="form-label">Complemento</label>
+        <input type="text" class="form-control @error('complemento') is-invalid @enderror" id="complemento"
+            name="complemento" value="{{ old('complemento', $complemento) }}" placeholder="Apto 101">
+        @error('complemento')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
 </div>
 
-<div class="col-md-4">
-    <label for="cep" class="form-label">
-        <i class="bi bi-search"></i>
-        CEP
-        @if($required)
-            <span class="text-danger">*</span>
-        @endif
-    </label>
-    <input type="text" 
-           class="form-control @error('cep') is-invalid @enderror" 
-           id="cep"
-           name="cep" 
-           value="{{ old('cep', $cep) }}" 
-           placeholder="00000-000" 
-           maxlength="9"
-           {{ $required ? 'required' : '' }}>
-    <small class="form-text text-muted">Digite o CEP para preenchimento automático</small>
-    @error('cep')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
+<div class="row">
+    <!-- Linha 3: Bairro, Cidade, Estado -->
+    <div class="col-12 col-md-4">
+        <label for="bairro" class="form-label">
+            Bairro
+            {!! $getRequiredIndicator() !!}
+        </label>
+        <input type="text" class="form-control address-field @error('bairro') is-invalid @enderror" id="bairro"
+            name="bairro" value="{{ old('bairro', $bairro) }}" autocomplete="address-level2" readonly
+            {{ $getRequiredAttribute() }}>
+        @error('bairro')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="col-8 col-md-6">
+        <label for="cidade" class="form-label">
+            Cidade
+            {!! $getRequiredIndicator() !!}
+        </label>
+        <input type="text" class="form-control address-field @error('cidade') is-invalid @enderror" id="cidade"
+            name="cidade" value="{{ old('cidade', $cidade) }}" autocomplete="address-level2" readonly
+            {{ $getRequiredAttribute() }}>
+        @error('cidade')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+
+    <div class="col-4 col-md-2">
+        <label for="estado" class="form-label">
+            UF
+            {!! $getRequiredIndicator() !!}
+        </label>
+        <input type="text" class="form-control address-field @error('estado') is-invalid @enderror" id="estado"
+            name="estado" value="{{ old('estado', $estado) }}" autocomplete="address-level1" readonly
+            {{ $getRequiredAttribute() }}>
+        @error('estado')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
 </div>
 
-<div class="col-md-6">
-    <label for="logradouro" class="form-label">
-        Logradouro
-        @if($required)
-            <span class="text-danger">*</span>
-        @endif
-    </label>
-    <input type="text" 
-           class="form-control @error('logradouro') is-invalid @enderror"
-           id="logradouro" 
-           name="logradouro" 
-           value="{{ old('logradouro', $logradouro) }}" 
-           readonly
-           {{ $required ? 'required' : '' }}>
-    @error('logradouro')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
-
-<div class="col-md-2">
-    <label for="numero" class="form-label">
-        Número
-        @if($required)
-            <span class="text-danger">*</span>
-        @endif
-    </label>
-    <input type="text" 
-           class="form-control @error('numero') is-invalid @enderror"
-           id="numero" 
-           name="numero" 
-           value="{{ old('numero', $numero) }}" 
-           placeholder="123"
-           {{ $required ? 'required' : '' }}>
-    @error('numero')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
-
-<div class="col-md-4">
-    <label for="complemento" class="form-label">Complemento</label>
-    <input type="text" 
-           class="form-control @error('complemento') is-invalid @enderror"
-           id="complemento" 
-           name="complemento" 
-           value="{{ old('complemento', $complemento) }}"
-           placeholder="Apto 101">
-    @error('complemento')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
-
-<div class="col-md-4">
-    <label for="bairro" class="form-label">
-        Bairro
-        @if($required)
-            <span class="text-danger">*</span>
-        @endif
-    </label>
-    <input type="text" 
-           class="form-control @error('bairro') is-invalid @enderror"
-           id="bairro" 
-           name="bairro" 
-           value="{{ old('bairro', $bairro) }}" 
-           readonly
-           {{ $required ? 'required' : '' }}>
-    @error('bairro')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
-
-<div class="col-md-3">
-    <label for="cidade" class="form-label">
-        Cidade
-        @if($required)
-            <span class="text-danger">*</span>
-        @endif
-    </label>
-    <input type="text" 
-           class="form-control @error('cidade') is-invalid @enderror"
-           id="cidade" 
-           name="cidade" 
-           value="{{ old('cidade', $cidade) }}" 
-           readonly
-           {{ $required ? 'required' : '' }}>
-    @error('cidade')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
-
-<div class="col-md-1">
-    <label for="estado" class="form-label">
-        UF
-        @if($required)
-            <span class="text-danger">*</span>
-        @endif
-    </label>
-    <input type="text" 
-           class="form-control @error('estado') is-invalid @enderror"
-           id="estado" 
-           name="estado" 
-           value="{{ old('estado', $estado) }}" 
-           readonly
-           {{ $required ? 'required' : '' }}>
-    @error('estado')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
-
-<script>
-// Inicializa o CEP autocomplete para este componente
-document.addEventListener('DOMContentLoaded', function() {
-    const cepInput = document.getElementById('cep');
-    const logradouroInput = document.getElementById('logradouro');
-    const bairroInput = document.getElementById('bairro');
-    const cidadeInput = document.getElementById('cidade');
-    const estadoInput = document.getElementById('estado');
-    const numeroInput = document.getElementById('numero');
-    const complementoInput = document.getElementById('complemento');
-
-    if (!cepInput) return;
-
-    function clearAddressFields() {
-        if (logradouroInput) logradouroInput.value = '';
-        if (bairroInput) bairroInput.value = '';
-        if (cidadeInput) cidadeInput.value = '';
-        if (estadoInput) estadoInput.value = '';
-        if (numeroInput) numeroInput.value = '';
-        if (complementoInput) complementoInput.value = '';
-    }
-
-    function disableAddressFields() {
-        if (logradouroInput) {
-            logradouroInput.removeAttribute('readonly');
-            logradouroInput.setAttribute('readonly', 'readonly');
-            logradouroInput.classList.add('auto-filled');
-        }
-        if (bairroInput) {
-            bairroInput.removeAttribute('readonly');
-            bairroInput.setAttribute('readonly', 'readonly');
-            bairroInput.classList.add('auto-filled');
-        }
-        if (cidadeInput) {
-            cidadeInput.removeAttribute('readonly');
-            cidadeInput.setAttribute('readonly', 'readonly');
-            cidadeInput.classList.add('auto-filled');
-        }
-        if (estadoInput) {
-            estadoInput.removeAttribute('readonly');
-            estadoInput.setAttribute('readonly', 'readonly');
-            estadoInput.classList.add('auto-filled');
-        }
-    }
-
-    function enableAddressFields() {
-        if (logradouroInput) {
-            logradouroInput.removeAttribute('readonly');
-            logradouroInput.classList.remove('auto-filled');
-        }
-        if (bairroInput) {
-            bairroInput.removeAttribute('readonly');
-            bairroInput.classList.remove('auto-filled');
-        }
-        if (cidadeInput) {
-            cidadeInput.removeAttribute('readonly');
-            cidadeInput.classList.remove('auto-filled');
-        }
-        if (estadoInput) {
-            estadoInput.removeAttribute('readonly');
-            estadoInput.classList.remove('auto-filled');
-        }
-    }
-
-    async function searchAddressByCep(cep) {
-        try {
-            cep = cep.replace(/\D/g, '');
-
-            if (cep.length !== 8) {
-                clearAddressFields();
-                enableAddressFields();
-                return;
+@once
+    @push('styles')
+        <style>
+            .auto-filled {
+                background-color: #f8f9fa !important;
+                border-color: #dee2e6;
             }
 
-            disableAddressFields();
-
-            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-
-            if (!response.ok) {
-                throw new Error('Erro na requisição');
+            input[data-loading="true"] {
+                background-image: url("data:image/svg+xml,%3csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='%236c757d' fill-rule='nonzero'%3e%3cpath d='M10 3C6.13401 3 3 6.13401 3 10s3.13401 7 7 7 7-3.13401 7-7-3.13401-7-7-7zM10 15c-2.76142 0-5-2.23858-5-5s2.23858-5 5-5 5 2.23858 5 5-2.23858 5-5 5z'/%3e%3cpath d='M10 1C8.68678 1 7.60322 2.08356 7.60322 3.39678s1.08356 2.39678 2.39678 2.39678 2.39678-1.08356 2.39678-2.39678S11.31322 1 10 1z'%3e%3canimateTransform attributeName='transform' type='rotate' values='0 10 10;360 10 10' dur='1s' repeatCount='indefinite'/%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 20px;
             }
 
-            const data = await response.json();
-
-            if (data.erro === "true" || data.erro === true) {
-                clearAddressFields();
-                enableAddressFields();
-                showToast('CEP não encontrado. Por favor, verifique o CEP informado.', 'error');
-                return;
+            .address-field.loading {
+                background: linear-gradient(90deg, #f8f9fa 25%, #ffffff 50%, #f8f9fa 75%) !important;
+                background-size: 200% 100% !important;
+                animation: subtle-loading 1.5s ease-in-out infinite !important;
+                border-color: #198754 !important;
+                color: #6c757d !important;
             }
 
-            if (logradouroInput) logradouroInput.value = data.logradouro || '';
-            if (bairroInput) bairroInput.value = data.bairro || '';
-            if (cidadeInput) cidadeInput.value = data.localidade || '';
-            if (estadoInput) estadoInput.value = data.uf || '';
-
-            if (numeroInput) numeroInput.value = '';
-            if (complementoInput) complementoInput.value = '';
-
-            disableAddressFields();
-
-            if (numeroInput) {
-                setTimeout(() => {
-                    numeroInput.focus();
-                }, 100);
+            .address-field.loading::placeholder {
+                color: #6c757d !important;
+                font-style: italic !important;
             }
 
-        } catch (error) {
-            clearAddressFields();
-            enableAddressFields();
-            showToast('Erro ao buscar CEP. Tente novamente.', 'error');
-        }
-    }
-
-    // Event listeners
-    cepInput.addEventListener('blur', function() {
-        const cep = this.value;
-        if (cep.length >= 8) {
-            searchAddressByCep(cep);
-        }
-    });
-
-    cepInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const cep = this.value;
-            if (cep.length >= 8) {
-                searchAddressByCep(cep);
-            }
-        }
-    });
-
-    cepInput.addEventListener('input', function() {
-        const cep = this.value.replace(/\D/g, '');
-        if (cep.length === 8) {
-            setTimeout(() => {
-                if (this.value.replace(/\D/g, '').length === 8) {
-                    searchAddressByCep(this.value);
+            @keyframes subtle-loading {
+                0% {
+                    background-position: -200% 0;
                 }
-            }, 500);
-        }
-    });
 
-    // Máscara de CEP
-    cepInput.addEventListener('input', function() {
-        let cep = this.value.replace(/\D/g, '');
-        if (cep.length <= 8) {
-            if (cep.length > 5) {
-                this.value = cep.substring(0, 5) + '-' + cep.substring(5);
-            } else {
-                this.value = cep;
+                100% {
+                    background-position: 200% 0;
+                }
             }
-        }
-    });
 
-    // Inicializa campos como readonly se já há CEP preenchido
-    if (cepInput.value && cepInput.value.replace(/\D/g, '').length >= 8) {
-        disableAddressFields();
-    } else {
-        // Garante que campos de endereço comecem readonly
-        disableAddressFields();
-    }
-});
-</script>
+            .address-field-disabled {
+                background-color: #f8f9fa;
+                cursor: not-allowed;
+            }
+        </style>
+    @endpush
+
+    @push('scripts')
+        <script src="{{ asset('js/address-cep.js') }}?v={{ time() }}"></script>
+    @endpush
+@endonce
