@@ -71,18 +71,6 @@
                                 @enderror
                             </div>
 
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input @error('allow') is-invalid @enderror"
-                                        id="allow" name="allow" value="1" {{ old('allow', true) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="allow">
-                                        Liberado para acessar o sistema
-                                    </label>
-                                    @error('allow')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
 
                             <x-address-form 
                                 :cep="old('cep')"
@@ -98,45 +86,126 @@
                         </div>
 
                     </div>
-                    <div class="card-footer bg-transparent mt-4">
-                        <div class="d-flex justify-content-between gap-2">
-                            <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Voltar
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-toggle-on"></i> Status de Acesso
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <label for="allow" class="form-label mb-0">Ativação do Usuário</label>
+                                <div class="form-text">
+                                    <span id="statusText" class="fw-medium">
+                                        {{ old('allow', true) ? 'Ativo' : 'Inativo' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input @error('allow') is-invalid @enderror" 
+                                    id="allow" name="allow" value="1" role="switch"
+                                    {{ old('allow', true) ? 'checked' : '' }}>
+                            </div>
+                        </div>
+                        @error('allow')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="card mt-4">
+                    <div class="card-body py-4">
+                        <div class="d-flex justify-content-between gap-3">
+                            <a href="{{ route('users.index') }}" class="btn btn-secondary btn-lg px-4">
+                                <i class="bi bi-arrow-left me-2"></i> Voltar
                             </a>
-                            <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="bi bi-check-lg me-2"></i> Criar Usuário
+                            </button>
                         </div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
 
-        @push('scripts')
-        <script>
-            // Máscara de telefone
-            document.addEventListener('DOMContentLoaded', function() {
-                const phoneInput = document.getElementById('phone');
-                if (phoneInput) {
-                    phoneInput.addEventListener('input', function() {
-                        let phone = this.value.replace(/\D/g, '');
-                        
-                        if (phone.length <= 11) {
-                            if (phone.length <= 2) {
-                                this.value = phone;
-                            } else if (phone.length <= 7) {
-                                this.value = `(${phone.substring(0, 2)}) ${phone.substring(2)}`;
-                            } else {
-                                this.value = `(${phone.substring(0, 2)}) ${phone.substring(2, 7)}-${phone.substring(7, 11)}`;
-                            }
-                        }
-                    });
+@push('styles')
+    <style>
+        .form-switch .form-check-input {
+            width: 3.5rem;
+            height: 1.75rem;
+            background-color: #6c757d;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .form-switch .form-check-input:checked {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        
+        .form-switch .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+            border-color: #198754;
+        }
+        
+        .form-switch .form-check-input:checked:focus {
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+    </style>
+@endpush
 
-                    phoneInput.addEventListener('keypress', function(e) {
-                        if (!/\d/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
-                            e.preventDefault();
-                        }
-                    });
+@push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Máscara de telefone
+            $('#phone').on('input', function() {
+                let phone = this.value.replace(/\D/g, '');
+                
+                if (phone.length <= 11) {
+                    if (phone.length <= 2) {
+                        this.value = phone;
+                    } else if (phone.length <= 7) {
+                        this.value = `(${phone.substring(0, 2)}) ${phone.substring(2)}`;
+                    } else {
+                        this.value = `(${phone.substring(0, 2)}) ${phone.substring(2, 7)}-${phone.substring(7, 11)}`;
+                    }
                 }
             });
-        </script>
-        @endpush
+
+            $('#phone').on('keypress', function(e) {
+                if (!/\d/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                    e.preventDefault();
+                }
+            });
+
+            // Controlar mudança do switch de status
+            $('#allow').change(function() {
+                const isActive = $(this).is(':checked');
+                const statusText = $('#statusText');
+                
+                if (isActive) {
+                    statusText.text('Ativo').removeClass('text-muted').addClass('text-success');
+                } else {
+                    statusText.text('Inativo').removeClass('text-success').addClass('text-muted');
+                }
+            });
+
+            // Definir cor inicial do texto baseado no estado real do backend
+            const initialState = $('#allow').is(':checked');
+            const statusText = $('#statusText');
+            
+            // Garantir que o texto reflita o estado correto
+            if (initialState) {
+                statusText.text('Ativo').removeClass('text-muted').addClass('text-success');
+            } else {
+                statusText.text('Inativo').removeClass('text-success').addClass('text-muted');
+            }
+        });
+    </script>
+@endpush
     @endsection

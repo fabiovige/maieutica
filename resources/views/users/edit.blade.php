@@ -86,14 +86,6 @@
                         </div>
 
                     </div>
-                    <div class="card-footer bg-transparent mt-4">
-                        <div class="d-flex justify-content-between gap-2">
-                            <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Voltar
-                            </a>
-                            <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="card mt-3">
@@ -121,6 +113,20 @@
                         @error('allow')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="card mt-4">
+                    <div class="card-body py-4">
+                        <div class="d-flex justify-content-between gap-3">
+                            <a href="{{ route('users.index') }}" class="btn btn-secondary btn-lg px-4">
+                                <i class="bi bi-arrow-left me-2"></i> Voltar
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="bi bi-check-lg me-2"></i> Salvar Alterações
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>

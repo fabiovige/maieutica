@@ -111,37 +111,53 @@
                                 @enderror
                             </div>
 
-                            <div class="col-12">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <label for="allow" class="form-label mb-0">Status do Profissional</label>
-                                        <div class="form-text">
-                                            <span id="statusText" class="fw-medium">
-                                                {{ old('allow') ? 'Ativo' : 'Inativo' }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input type="checkbox" class="form-check-input @error('allow') is-invalid @enderror" 
-                                            id="allow" name="allow" value="1" role="switch" {{ old('allow') ? 'checked' : '' }}>
-                                    </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-toggle-on"></i> Status de Acesso
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <label for="allow" class="form-label mb-0">Ativação do Profissional</label>
+                                <div class="form-text">
+                                    <span id="statusText" class="fw-medium">
+                                        {{ old('allow', true) ? 'Ativo' : 'Inativo' }}
+                                    </span>
                                 </div>
-                                @error('allow')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            </div>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input @error('allow') is-invalid @enderror" 
+                                    id="allow" name="allow" value="1" role="switch"
+                                    {{ old('allow', true) ? 'checked' : '' }}>
                             </div>
                         </div>
-
-
+                        @error('allow')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                    <div class="card-footer bg-transparent mt-4">
-                        <div class="d-flex justify-content-between gap-2">
-                            <a href="{{ route('professionals.index') }}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Voltar
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="card mt-4">
+                    <div class="card-body py-4">
+                        <div class="d-flex justify-content-between gap-3">
+                            <a href="{{ route('professionals.index') }}" class="btn btn-secondary btn-lg px-4">
+                                <i class="bi bi-arrow-left me-2"></i> Voltar
                             </a>
-                            <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="bi bi-check-lg me-2"></i> Criar Profissional
+                            </button>
                         </div>
                     </div>
+                </div>
             </form>
         </div>
     </div>
@@ -200,13 +216,15 @@
                 }
             });
 
-            // Definir cor inicial do texto baseado no estado
+            // Definir cor inicial do texto baseado no estado real do backend
             const initialState = $('#allow').is(':checked');
             const statusText = $('#statusText');
+            
+            // Garantir que o texto reflita o estado correto
             if (initialState) {
-                statusText.addClass('text-success');
+                statusText.text('Ativo').removeClass('text-muted').addClass('text-success');
             } else {
-                statusText.addClass('text-muted');
+                statusText.text('Inativo').removeClass('text-success').addClass('text-muted');
             }
         });
     </script>
