@@ -37,6 +37,26 @@ class KidService
         return $this->kidRepository->find($id);
     }
 
+    public function getAllKids(): Collection
+    {
+        return $this->getAllKidsForUser();
+    }
+
+    public function getKidById(int $id): ?Kid
+    {
+        return $this->findKidById($id);
+    }
+
+    public function getKidsByResponsible(int $responsibleId): Collection
+    {
+        return $this->kidRepository->findByResponsible($responsibleId);
+    }
+
+    public function getKidsByProfessional(int $professionalId): Collection
+    {
+        return $this->kidRepository->findByProfessional($professionalId);
+    }
+
     public function createKid(array $data): Kid
     {
         DB::beginTransaction();
@@ -45,35 +65,59 @@ class KidService
             $kidData = KidData::fromArray($data);
             $kidArray = array_merge(
                 $kidData->toCreateArray(),
-                ['created_by' => Auth::id()]
+                ['created_by' => Auth::id() ?? 1]
             );
+
+            if (isset($data['primary_professional'])) {
+                $kidArray['primary_professional'] = $data['primary_professional'];
+            }
 
             $kid = $this->kidRepository->create($kidArray);
 
-            if (Auth::user()->can('attach-to-kids-as-professional')) {
+            if (Auth::user()?->can('attach-to-kids-as-professional')) {
                 $this->attachCurrentProfessionalToKid($kid->id);
+            }
+
+            if (isset($data['professionals'])) {
+                $this->syncProfessionalsForKid($kid->id, $data['professionals'], $data['primary_professional'] ?? null);
             }
 
             Log::info('Kid created successfully', [
                 'kid_id' => $kid->id,
-                'created_by' => Auth::id(),
+                'created_by' => Auth::id() ?? 1,
             ]);
 
             DB::commit();
 
             return $kid;
+        } catch (\App\Exceptions\ValueObjects\ValidationException $e) {
+            DB::rollBack();
+            Log::error('Error creating kid', [
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id() ?? 1,
+            ]);
+
+            throw new \App\Exceptions\Kid\KidCreationFailedException('Erro na validação dos dados: ' . $e->getMessage(), (int)$e->getCode(), $e);
+        } catch (\Carbon\Exceptions\InvalidFormatException $e) {
+            DB::rollBack();
+            Log::error('Error creating kid', [
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id() ?? 1,
+            ]);
+
+            throw new \App\Exceptions\Kid\KidCreationFailedException('Formato de data inválido: ' . $e->getMessage(), (int)$e->getCode(), $e);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error creating kid', [
                 'error' => $e->getMessage(),
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id() ?? 1,
             ]);
 
-            throw $e;
+            throw new \App\Exceptions\Kid\KidCreationFailedException('Erro inesperado ao criar criança: ' . $e->getMessage(), (int)$e->getCode(), $e);
         }
     }
 
-    public function updateKid(int $kidId, array $data): bool
+    public function updateKid(int $kidId, array $data): Kid
     {
         DB::beginTransaction();
 
@@ -82,10 +126,14 @@ class KidService
             $updateArray = array_merge(
                 $kidData->toArray(),
                 [
-                    'updated_by' => Auth::id(),
+                    'updated_by' => Auth::id() ?? 1,
                     'months' => $kidData->calculateAgeInMonths(),
                 ]
             );
+            
+            if (isset($data['primary_professional'])) {
+                $updateArray['primary_professional'] = $data['primary_professional'];
+            }
 
             $result = $this->kidRepository->update($kidId, $updateArray);
 
@@ -95,43 +143,61 @@ class KidService
 
             Log::info('Kid updated successfully', [
                 'kid_id' => $kidId,
-                'updated_by' => Auth::id(),
+                'updated_by' => Auth::id() ?? 1,
             ]);
 
             DB::commit();
 
-            return $result;
+            return Kid::find($kidId);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error updating kid', [
                 'kid_id' => $kidId,
                 'error' => $e->getMessage(),
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id() ?? 1,
             ]);
 
-            throw $e;
+            throw new \App\Exceptions\Kid\KidUpdateFailedException('Erro ao atualizar criança: ' . $e->getMessage(), (int)$e->getCode(), $e);
         }
     }
 
     public function deleteKid(int $kidId): bool
     {
         try {
+            $kid = $this->findKidById($kidId);
+            
+            if (!$kid) {
+                throw new \App\Exceptions\Kid\KidDeletionFailedException('Criança não encontrada para exclusão');
+            }
+
             $result = $this->kidRepository->delete($kidId);
+
+            if (!$result) {
+                throw new \App\Exceptions\Kid\KidDeletionFailedException('Falha ao excluir criança');
+            }
 
             Log::info('Kid deleted successfully', [
                 'kid_id' => $kidId,
-                'deleted_by' => Auth::id(),
+                'deleted_by' => Auth::id() ?? 1,
             ]);
 
             return $result;
+        } catch (\App\Exceptions\Kid\KidDeletionFailedException $e) {
+            Log::error('Error deleting kid', [
+                'kid_id' => $kidId,
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id() ?? 1,
+            ]);
+
+            throw $e;
         } catch (Exception $e) {
             Log::error('Error deleting kid', [
                 'kid_id' => $kidId,
                 'error' => $e->getMessage(),
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id() ?? 1,
             ]);
 
-            throw $e;
+            throw new \App\Exceptions\Kid\KidDeletionFailedException('Erro inesperado ao excluir criança: ' . $e->getMessage(), (int)$e->getCode(), $e);
         }
     }
 
@@ -206,7 +272,7 @@ class KidService
         }
     }
 
-    private function syncProfessionalsForKid(int $kidId, array $professionals, ?string $primaryProfessional = null): void
+    private function syncProfessionalsForKid(int $kidId, array $professionals, ?int $primaryProfessional = null): void
     {
         $syncData = [];
 

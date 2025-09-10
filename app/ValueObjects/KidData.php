@@ -15,7 +15,7 @@ class KidData extends AbstractValueObject
         public readonly DateTime $birthDate,
         public readonly string $gender,
         public readonly ?string $ethnicity,
-        public readonly int $responsibleId,
+        public readonly ?int $responsibleId,
         public readonly ?string $photo = null
     ) {
         $this->validate();
@@ -30,7 +30,7 @@ class KidData extends AbstractValueObject
                 : $data['birth_date'],
             gender: $data['gender'],
             ethnicity: $data['ethnicity'] ?? null,
-            responsibleId: (int) $data['responsible_id'],
+            responsibleId: !empty($data['responsible_id']) ? (int) $data['responsible_id'] : null,
             photo: $data['photo'] ?? null
         );
     }
@@ -85,7 +85,9 @@ class KidData extends AbstractValueObject
         $this->validateGender();
         $this->validateEthnicity();
         $this->validateBirthDate();
-        $this->validateResponsibleId();
+        if ($this->responsibleId !== null) {
+            $this->validateResponsibleId();
+        }
 
         $this->throwIfHasErrors();
     }
@@ -128,7 +130,7 @@ class KidData extends AbstractValueObject
     {
         $this->validatePositiveInteger($this->responsibleId, 'ID do responsável');
 
-        if (!\App\Models\User::where('id', $this->responsibleId)->exists()) {
+        if (!\App\Models\Responsible::where('id', $this->responsibleId)->exists()) {
             $this->addValidationError('Responsável não encontrado');
         }
     }

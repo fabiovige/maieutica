@@ -13,7 +13,7 @@ class UserData
     public function __construct(
         public string $name,
         public string $email,
-        public string $phone,
+        public ?string $phone = null,
         public bool $allow = true,
         public ?AddressData $address = null,
         private readonly ?int $currentUserId = null
@@ -28,8 +28,8 @@ class UserData
         return new self(
             name: trim($data['name']),
             email: trim(strtolower($data['email'])),
-            phone: trim($data['phone']),
-            allow: $data['allow'] ?? true,
+            phone: isset($data['phone']) ? trim($data['phone']) : null,
+            allow: filter_var($data['allow'] ?? true, FILTER_VALIDATE_BOOLEAN),
             address: !empty($data['address']) ? AddressData::fromArray($data['address']) : null,
             currentUserId: $currentUserId
         );
@@ -76,8 +76,8 @@ class UserData
 
     private function validatePhone(): void
     {
-        if (empty(trim($this->phone))) {
-            throw new InvalidArgumentException('Telefone é obrigatório');
+        if ($this->phone !== null && empty(trim($this->phone))) {
+            throw new InvalidArgumentException('Telefone não pode ser vazio quando fornecido');
         }
     }
 }

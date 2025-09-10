@@ -15,9 +15,10 @@ class ResponsibleFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            'email' => $this->faker->email,
+            'email' => $this->faker->unique()->safeEmail,
+            'cpf' => $this->faker->unique()->numerify('###.###.###-##'),
             'cell' => '11963270717',
-            'created_by' => 2,
+            'created_by' => 1,
         ];
     }
 }

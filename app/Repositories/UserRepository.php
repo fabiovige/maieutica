@@ -94,6 +94,11 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         );
     }
 
+    public function findByIdWithTrashed(int $id): ?User
+    {
+        return $this->model->withTrashed()->find($id);
+    }
+
     public function existsById(int $id): bool
     {
         return Cache::remember(

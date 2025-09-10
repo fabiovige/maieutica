@@ -28,67 +28,99 @@ class UserService
     public function createUser(array $data): User
     {
         return DB::transaction(function () use ($data) {
-            $userData = UserData::fromArray($data);
-            $passwordData = PasswordData::generate();
+            try {
+                $userData = UserData::fromArray($data);
+                $passwordData = PasswordData::generate();
 
-            // Armazenar senha temporária para o Observer acessar
-            Session::put('user_creation_temp_password', $passwordData->plainPassword);
+                // Armazenar senha temporária para o Observer acessar
+                Session::put('user_creation_temp_password', $passwordData->plainPassword);
 
-            $userArray = array_merge(
-                $userData->toArray(),
-                [
-                    'password' => $passwordData->hashedPassword,
-                    'created_by' => Auth::id(),
-                ]
-            );
+                $userArray = array_merge(
+                    $userData->toArray(),
+                    [
+                        'password' => $passwordData->hashedPassword,
+                        'created_by' => Auth::id(),
+                    ]
+                );
 
-            $user = $this->userRepository->create($userArray);
+                $user = $this->userRepository->create($userArray);
 
-            $role = $this->assignRoleToUser($user, $data['role_id']);
-            $this->handleRoleSpecificCreation($user, $role->name, $data);
+                $role = $this->assignRoleToUser($user, $data['role_id']);
+                $this->handleRoleSpecificCreation($user, $role->name, $data);
 
-            $this->notifyUserCreated($user, $passwordData->plainPassword);
+                $this->notifyUserCreated($user, $passwordData->plainPassword);
 
-            // Limpar senha da sessão
-            Session::forget('user_creation_temp_password');
+                // Limpar senha da sessão
+                Session::forget('user_creation_temp_password');
 
-            return $user;
+                return $user;
+            } catch (\InvalidArgumentException $e) {
+                throw new \App\Exceptions\User\UserCreationFailedException($e->getMessage(), $e->getCode(), $e);
+            } catch (\Exception $e) {
+                throw new \App\Exceptions\User\UserCreationFailedException('Erro inesperado ao criar usuário: ' . $e->getMessage(), $e->getCode(), $e);
+            }
         });
     }
 
     public function updateUser(int $userId, array $data): User
     {
         return DB::transaction(function () use ($userId, $data) {
-            $userData = UserData::fromArray($data, $userId);
-            $userArray = array_merge(
-                $userData->toArray(),
-                ['updated_by' => Auth::id()]
-            );
+            try {
+                $userData = UserData::fromArray($data, $userId);
+                $userArray = array_merge(
+                    $userData->toArray(),
+                    ['updated_by' => Auth::id()]
+                );
 
-            $user = $this->userRepository->updateUser($userId, $userArray);
+                $user = $this->userRepository->updateUser($userId, $userArray);
 
-            if (isset($data['role_id'])) {
-                $role = $this->assignRoleToUser($user, $data['role_id']);
-                $this->handleRoleSpecificUpdate($user, $role->name, $data);
+                if (isset($data['role_id'])) {
+                    $role = $this->assignRoleToUser($user, $data['role_id']);
+                    $this->handleRoleSpecificUpdate($user, $role->name, $data);
+                }
+
+                return $user;
+            } catch (\InvalidArgumentException $e) {
+                throw new \App\Exceptions\User\UserUpdateFailedException($e->getMessage(), $e->getCode(), $e);
+            } catch (\Exception $e) {
+                throw new \App\Exceptions\User\UserUpdateFailedException('Erro inesperado ao atualizar usuário: ' . $e->getMessage(), $e->getCode(), $e);
             }
-
-            return $user;
         });
     }
 
-    public function deleteUser(User $user): bool
+    public function deleteUser($userId): bool
     {
-        return DB::transaction(function () use ($user) {
-            $errors = $user->isDeletionAllowed();
+        return DB::transaction(function () use ($userId) {
+            try {
+                $user = is_int($userId) ? $this->getUserById($userId) : $userId;
+                
+                if (!$user) {
+                    throw new \App\Exceptions\User\UserDeletionFailedException('Usuário não encontrado');
+                }
 
-            if (!empty($errors)) {
-                throw new \Exception(implode(', ', $errors));
+                $errors = $user->isDeletionAllowed();
+
+                if (!empty($errors)) {
+                    throw new \App\Exceptions\User\UserDeletionFailedException(implode(', ', $errors));
+                }
+
+                $this->userRepository->markAsDeleted($user, Auth::id() ?? 1);
+
+                return $this->userRepository->deleteUser($user);
+            } catch (\InvalidArgumentException $e) {
+                throw new \App\Exceptions\User\UserDeletionFailedException($e->getMessage(), (int) $e->getCode(), $e);
+            } catch (\Exception $e) {
+                if ($e instanceof \App\Exceptions\User\UserDeletionFailedException) {
+                    throw $e;
+                }
+                throw new \App\Exceptions\User\UserDeletionFailedException('Erro inesperado ao excluir usuário: ' . $e->getMessage(), (int) $e->getCode(), $e);
             }
-
-            $this->userRepository->markAsDeleted($user, Auth::id());
-
-            return $this->userRepository->deleteUser($user);
         });
+    }
+
+    public function getUserById(int $id): ?User
+    {
+        return $this->userRepository->findById($id);
     }
 
     public function findUserById(int $id): ?User
@@ -99,6 +131,59 @@ class UserService
     public function findUserByEmail(string $email): ?User
     {
         return $this->userRepository->findByEmail($email);
+    }
+
+    public function getAllUsers()
+    {
+        return $this->userRepository->all();
+    }
+
+    public function activateUser(int $userId): User
+    {
+        return DB::transaction(function () use ($userId) {
+            try {
+                $user = $this->userRepository->findByIdWithTrashed($userId);
+                
+                if (!$user) {
+                    throw new \App\Exceptions\User\UserUpdateFailedException('Usuário não encontrado');
+                }
+
+                $user->restore();
+                $user->allow = true;
+                $user->save();
+
+                return $user;
+            } catch (\Exception $e) {
+                if ($e instanceof \App\Exceptions\User\UserUpdateFailedException) {
+                    throw $e;
+                }
+                throw new \App\Exceptions\User\UserUpdateFailedException('Erro ao ativar usuário: ' . $e->getMessage(), $e->getCode(), $e);
+            }
+        });
+    }
+
+    public function deactivateUser(int $userId): User
+    {
+        return DB::transaction(function () use ($userId) {
+            try {
+                $user = $this->getUserById($userId);
+                
+                if (!$user) {
+                    throw new \App\Exceptions\User\UserUpdateFailedException('Usuário não encontrado');
+                }
+
+                $user->allow = false;
+                $user->deleted_at = now();
+                $user->save();
+
+                return $user;
+            } catch (\Exception $e) {
+                if ($e instanceof \App\Exceptions\User\UserUpdateFailedException) {
+                    throw $e;
+                }
+                throw new \App\Exceptions\User\UserUpdateFailedException('Erro ao desativar usuário: ' . $e->getMessage(), $e->getCode(), $e);
+            }
+        });
     }
 
     public function getUsersForSelect(): array

@@ -12,16 +12,12 @@ class KidSeeder extends Seeder
 {
     public function run()
     {
-        // Buscar responsáveis disponíveis
-        $responsible1 = User::where('email', 'responsible1@example.com')->first();
-        $responsible2 = User::where('email', 'responsible2@example.com')->first();
+        // Buscar responsáveis disponíveis (usar modelo Responsible ao invés de User)
+        $responsibles = \App\Models\Responsible::limit(5)->get();
         
         // Buscar profissionais disponíveis
         $professional1 = Professional::where('registration_number', 'CRM12345')->first();
         $professional2 = Professional::where('registration_number', 'CRM67890')->first();
-        
-        // Lista de responsáveis para distribuir
-        $responsibles = collect([$responsible1, $responsible2])->filter();
         
         // Lista de profissionais para distribuir
         $professionals = collect([$professional1, $professional2])->filter();
@@ -50,6 +46,9 @@ class KidSeeder extends Seeder
             ['name' => 'Teodoro Moreira', 'age' => 6, 'gender' => 'M', 'ethnicity' => 'branco'],
         ];
 
+        $firstUser = User::first();
+        $createdBy = $firstUser ? $firstUser->id : 1;
+
         // Criar as crianças
         foreach ($kidsData as $index => $kidData) {
             // Calcular data de nascimento baseada na idade
@@ -58,7 +57,7 @@ class KidSeeder extends Seeder
                 ->subDays(rand(0, 28));
 
             // Selecionar responsável de forma cíclica
-            $responsible = $responsibles->get($index % $responsibles->count());
+            $responsible = $responsibles->isNotEmpty() ? $responsibles->get($index % $responsibles->count()) : null;
             
             // Criar a criança
             $kid = Kid::create([
@@ -66,8 +65,8 @@ class KidSeeder extends Seeder
                 'birth_date' => $birthDate->format('d/m/Y'),
                 'gender' => $kidData['gender'],
                 'ethnicity' => $kidData['ethnicity'],
-                'responsible_id' => $responsible ? $responsible->id : 1,
-                'created_by' => 1,
+                'responsible_id' => $responsible ? $responsible->id : null,
+                'created_by' => $createdBy,
                 'created_at' => now()->subDays(rand(1, 90)), // Datas de criação variadas
                 'updated_at' => now()->subDays(rand(0, 30)),
             ]);

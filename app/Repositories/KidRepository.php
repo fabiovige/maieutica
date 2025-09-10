@@ -51,8 +51,11 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
 
     public function findByProfessional(int $professionalId): Collection
     {
-        return $this->model->whereHas('professionals', function ($query) use ($professionalId) {
-            $query->where('professional_id', $professionalId);
+        return $this->model->where(function ($query) use ($professionalId) {
+            $query->where('primary_professional', $professionalId)
+                  ->orWhereHas('professionals', function ($q) use ($professionalId) {
+                      $q->where('professional_id', $professionalId);
+                  });
         })
         ->with(['professionals', 'responsible', 'checklists'])
         ->get();

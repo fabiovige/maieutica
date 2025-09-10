@@ -16,6 +16,7 @@ class Responsible extends Model
         'user_id',
         'name',
         'email',
+        'cpf',
         'cell',
         'created_by',
         'updated_by',

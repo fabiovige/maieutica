@@ -97,7 +97,7 @@ class UserObserver
     {
         // dd('deleted');
         if ($user->trashed()) {
-            $admin = User::where('role_id', 1)->first(); // Ajuste a query conforme a role de admin
+            $admin = User::query()->role('Admin')->first(); // Busca pelo role do Spatie
             if ($admin) {
                 // Criar a instância do Mailable e depois chamar onQueue()
                 $email = (new UserDeletedMail($user))->onQueue('emails');
@@ -121,7 +121,7 @@ class UserObserver
                 'neighborhood' => $user->neighborhood,
                 'postal_code' => $user->postal_code,
                 'deleted_at' => $user->deleted_at,
-                'deleted_by' => auth()->user()->id,
+                'deleted_by' => auth()->user()?->id ?? 1,
             ]);
         }
     }

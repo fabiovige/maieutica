@@ -6,6 +6,9 @@ namespace App\Services;
 
 use App\Models\Responsible;
 use App\ValueObjects\ResponsibleData;
+use App\Exceptions\Responsible\ResponsibleCreationFailedException;
+use App\Exceptions\Responsible\ResponsibleUpdateFailedException;
+use App\Exceptions\Responsible\ResponsibleDeletionFailedException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -49,27 +52,35 @@ class ResponsibleService
             $responsibleData = ResponsibleData::fromArray($data);
             $responsibleArray = array_merge(
                 $responsibleData->toCreateArray(),
-                ['created_by' => Auth::id()]
+                ['created_by' => Auth::id() ?? 1]
             );
 
             $responsible = Responsible::create($responsibleArray);
 
             Log::info('Responsible created successfully', [
                 'responsible_id' => $responsible->id,
-                'created_by' => Auth::id(),
+                'created_by' => Auth::id() ?? 1,
             ]);
 
             DB::commit();
 
             return $responsible;
+        } catch (\App\Exceptions\ValueObjects\ValidationException $e) {
+            DB::rollBack();
+            Log::error('Validation error creating responsible', [
+                'errors' => $e->getErrors(),
+                'user_id' => Auth::id() ?? 1,
+            ]);
+
+            throw new ResponsibleCreationFailedException($e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error creating responsible', [
                 'error' => $e->getMessage(),
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id() ?? 1,
             ]);
 
-            throw $e;
+            throw new ResponsibleCreationFailedException('Erro ao criar responsável: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -81,28 +92,37 @@ class ResponsibleService
             $responsibleData = ResponsibleData::fromArray($data, $responsibleId);
             $updateArray = array_merge(
                 $responsibleData->toUpdateArray(),
-                ['updated_by' => Auth::id()]
+                ['updated_by' => Auth::id() ?? 1]
             );
 
             $result = Responsible::where('id', $responsibleId)->update($updateArray);
 
             Log::info('Responsible updated successfully', [
                 'responsible_id' => $responsibleId,
-                'updated_by' => Auth::id(),
+                'updated_by' => Auth::id() ?? 1,
             ]);
 
             DB::commit();
 
             return $result > 0;
+        } catch (\App\Exceptions\ValueObjects\ValidationException $e) {
+            DB::rollBack();
+            Log::error('Validation error updating responsible', [
+                'responsible_id' => $responsibleId,
+                'errors' => $e->getErrors(),
+                'user_id' => Auth::id() ?? 1,
+            ]);
+
+            throw new ResponsibleUpdateFailedException($e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error updating responsible', [
                 'responsible_id' => $responsibleId,
                 'error' => $e->getMessage(),
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id() ?? 1,
             ]);
 
-            throw $e;
+            throw new ResponsibleUpdateFailedException('Erro ao atualizar responsável: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -124,7 +144,7 @@ class ResponsibleService
 
             Log::info('Responsible deleted successfully', [
                 'responsible_id' => $responsibleId,
-                'deleted_by' => Auth::id(),
+                'deleted_by' => Auth::id() ?? 1,
             ]);
 
             return $result;
@@ -132,7 +152,7 @@ class ResponsibleService
             Log::error('Error deleting responsible', [
                 'responsible_id' => $responsibleId,
                 'error' => $e->getMessage(),
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id() ?? 1,
             ]);
 
             throw $e;

@@ -18,10 +18,11 @@ class Kid extends BaseModel
         'gender',
         'ethnicity',
         'responsible_id',
+        'primary_professional',
+        'months',
         'created_by',
         'updated_by',
         'deleted_by',
-        'months',
     ];
 
     protected $dates = [
@@ -66,7 +67,7 @@ class Kid extends BaseModel
     // Relacionamento com o responsável (ROLE_PAIS)
     public function responsible()
     {
-        return $this->belongsTo(User::class, 'responsible_id')->withDefault();
+        return $this->belongsTo(Responsible::class, 'responsible_id')->withDefault();
     }
 
     // Novo relacionamento many-to-many com professionals

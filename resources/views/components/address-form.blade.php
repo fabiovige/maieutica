@@ -1,3 +1,16 @@
+{{-- DEBUG: Verificar dados recebidos pelo componente --}}
+@if(config('app.debug'))
+    <div class="col-12">
+        <div class="alert alert-warning small mb-3">
+            <strong>COMPONENT DEBUG:</strong>
+            CEP: "{{ $cep }}" |
+            Logradouro: "{{ $logradouro }}" |
+            Numero: "{{ $numero }}" |
+            Cidade: "{{ $cidade }}"
+        </div>
+    </div>
+@endif
+
 @if ($shouldRenderTitle())
     <!-- Seção de Endereço -->
     <div class="col-12">

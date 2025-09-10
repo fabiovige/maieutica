@@ -84,6 +84,17 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        {{-- DEBUG: Verificar dados do usuário --}}
+                        @if(config('app.debug'))
+                            <div class="alert alert-info small mb-3">
+                                <strong>DEBUG:</strong>
+                                CEP: {{ $user->postal_code ?? 'NULL' }} |
+                                Street: {{ $user->street ?? 'NULL' }} |
+                                Number: {{ $user->number ?? 'NULL' }} |
+                                City: {{ $user->city ?? 'NULL' }}
+                            </div>
+                        @endif
+                        
                         <x-address-form 
                             :cep="old('cep', $user->postal_code)"
                             :logradouro="old('logradouro', $user->street)"

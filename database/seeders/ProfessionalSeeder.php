@@ -30,6 +30,9 @@ class ProfessionalSeeder extends Seeder
             ]
         ];
 
+        $firstUser = User::first();
+        $createdBy = $firstUser ? $firstUser->id : 1;
+
         foreach ($users as $userData) {
             // 1. Criar usuário
             $user = User::firstOrCreate(
@@ -37,12 +40,14 @@ class ProfessionalSeeder extends Seeder
                 [
                     'name' => $userData['name'],
                     'password' => bcrypt('password'),
-                    'created_by' => 1,
+                    'created_by' => $createdBy,
                 ]
             );
 
             // 2. Atribuir papel de professional
-            $user->assignRole('professional');
+            if (!$user->hasRole('professional')) {
+                $user->assignRole('professional');
+            }
 
             // 3. Criar registro professional
             $professional = Professional::firstOrCreate(
@@ -50,12 +55,14 @@ class ProfessionalSeeder extends Seeder
                 [
                     'specialty_id' => $specialty->id,
                     'bio' => $userData['bio'],
-                    'created_by' => 1,
+                    'created_by' => $createdBy,
                 ]
             );
 
-            // 4. Criar relacionamento na tabela pivot
-            $user->professional()->sync([$professional->id]);
+            // 4. Criar relacionamento na tabela pivot se não existir
+            if (!$user->professional->contains($professional->id)) {
+                $user->professional()->attach($professional->id);
+            }
         }
     }
 }

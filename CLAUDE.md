@@ -189,3 +189,4 @@ docker compose exec app ./vendor/bin/phpunit --coverage-html coverage
 - Implement proper indexing for performance
 - Use soft deletes for recoverable records
 - Normalize schemas to avoid redundancy
+- pare de ficar limpando o banco de dados
