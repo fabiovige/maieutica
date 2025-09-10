@@ -22,9 +22,9 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     {
         /** @var User $user */
         $user = parent::create($data);
-        
+
         $this->clearCache();
-        
+
         return $user->fresh();
     }
 
@@ -41,26 +41,26 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function update(int $id, array $data): bool
     {
         $result = parent::update($id, $data);
-        
+
         if ($result) {
             $this->clearCache();
         }
-        
+
         return $result;
     }
 
     public function updateUser(int $id, array $data): User
     {
         $user = $this->findById($id);
-        
+
         if (!$user) {
             throw new ModelNotFoundException("User with ID {$id} not found");
         }
 
         $user->update($data);
-        
+
         $this->clearCache();
-        
+
         return $user->fresh();
     }
 
@@ -68,20 +68,20 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function delete(int $id): bool
     {
         $result = parent::delete($id);
-        
+
         if ($result) {
             $this->clearCache();
         }
-        
+
         return $result;
     }
 
     public function deleteUser(User $user): bool
     {
         $result = $user->delete();
-        
+
         $this->clearCache();
-        
+
         return $result;
     }
 
@@ -119,7 +119,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
         // Filtro para não mostrar Super Admin para usuários sem permissão total
         if (!auth()->user()?->can('bypass-all-checks')) {
-            $query->whereDoesntHave('roles', function($q) {
+            $query->whereDoesntHave('roles', function ($q) {
                 $q->where('name', 'superadmin');
             });
         }
@@ -200,7 +200,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             function () {
                 return $this->model->query()
                     ->when(!auth()->user()?->can('bypass-all-checks'), function ($query) {
-                        $query->whereDoesntHave('roles', function($q) {
+                        $query->whereDoesntHave('roles', function ($q) {
                             $q->where('name', 'superadmin');
                         });
                     })
@@ -234,9 +234,9 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     {
         $user->deleted_by = $deletedBy;
         $result = $user->save();
-        
+
         $this->clearCache();
-        
+
         return $result;
     }
 
@@ -273,7 +273,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     private function clearCache(): void
     {
         Cache::forget('users.select');
-        
+
         // Limpar cache por roles comuns
         $commonRoles = ['professional', 'pais', 'admin'];
         foreach ($commonRoles as $role) {

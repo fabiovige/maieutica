@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Contracts\KidRepositoryInterface;
-use App\Enums\LogCategory;
 use App\Enums\LogOperation;
 use App\Http\Requests\KidRequest;
 use App\Models\Checklist;
@@ -13,7 +12,6 @@ use App\Models\Competence;
 use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
-use App\Models\User;
 use App\Services\KidService;
 use App\Services\Log\LoggingService;
 use App\Services\OverviewService;
@@ -24,7 +22,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role as SpatieRole;
 
 class KidsController extends BaseController
 {
@@ -53,9 +50,9 @@ class KidsController extends BaseController
         $this->authorize('create', Kid::class);
 
         return $this->handleCreateRequest(
-            fn() => [
+            fn () => [
                 'professions' => $this->kidService->getProfessionalsForSelect(),
-                'responsibles' => $this->kidService->getParentsForSelect()
+                'responsibles' => $this->kidService->getParentsForSelect(),
             ],
             'kids.create',
             [],
@@ -69,7 +66,7 @@ class KidsController extends BaseController
         $this->authorize('create', Kid::class);
 
         return $this->handleStoreRequest(
-            fn() => $this->kidService->createKid($request->validated()),
+            fn () => $this->kidService->createKid($request->validated()),
             self::MSG_CREATE_SUCCESS,
             self::MSG_CREATE_ERROR,
             'kids.index'
@@ -81,7 +78,7 @@ class KidsController extends BaseController
         $this->authorize('view', $kid);
 
         return $this->handleViewRequest(
-            fn() => ['kid' => $kid->load(['responsible', 'checklists', 'professionals.user', 'professionals.specialty'])],
+            fn () => ['kid' => $kid->load(['responsible', 'checklists', 'professionals.user', 'professionals.specialty'])],
             'kids.show',
             [],
             'Erro ao visualizar criança',
@@ -145,10 +142,10 @@ class KidsController extends BaseController
         $this->authorize('update', $kid);
 
         return $this->handleViewRequest(
-            fn() => [
+            fn () => [
                 'kid' => $kid,
                 'responsibles' => $this->kidService->getParentsForSelect(),
-                'professions' => $this->kidService->getProfessionalsForSelect()
+                'professions' => $this->kidService->getProfessionalsForSelect(),
             ],
             'kids.edit',
             [],
@@ -163,10 +160,10 @@ class KidsController extends BaseController
         $this->authorize('view', $kid);
 
         return $this->handleViewRequest(
-            fn() => [
+            fn () => [
                 'kid' => $kid,
                 'responsibles' => $this->kidService->getParentsForSelect(),
-                'professions' => $this->kidService->getProfessionalsForSelect()
+                'professions' => $this->kidService->getProfessionalsForSelect(),
             ],
             'kids.eye',
             [],
@@ -181,7 +178,7 @@ class KidsController extends BaseController
         $this->authorize('update', $kid);
 
         return $this->handleUpdateRequest(
-            fn() => $this->kidService->updateKid($kid->id, $request->validated()),
+            fn () => $this->kidService->updateKid($kid->id, $request->validated()),
             self::MSG_UPDATE_SUCCESS,
             self::MSG_UPDATE_ERROR,
             'kids.index'
@@ -193,7 +190,7 @@ class KidsController extends BaseController
         $this->authorize('delete', $kid);
 
         return $this->handleUpdateRequest(
-            fn() => $this->kidService->deleteKid($kid->id),
+            fn () => $this->kidService->deleteKid($kid->id),
             self::MSG_DELETE_SUCCESS,
             self::MSG_DELETE_ERROR,
             'kids.index'
@@ -1222,17 +1219,17 @@ class KidsController extends BaseController
             $pageWidth = $pdf->getPageWidth();
             // Calcular a posição X para centralizar
             $x = round(($pageWidth - $photoWidth) / 2, 0);
-            
+
             $this->loggingService->logUserOperation(
                 LogOperation::PDF_GENERATED,
                 'Adding kid photo to PDF report',
                 [
                     'kid_id' => $kid->id,
                     'photo_width' => $photoWidth,
-                    'calculated_x_position' => $x
+                    'calculated_x_position' => $x,
                 ]
             );
-            
+
             // Adicionar a foto da criança
             $pdf->Image($photoPath, 80, null, $photoWidth, $photoWidth, '', '', 'C', false, 72);
             // Adicionar espaço após a foto

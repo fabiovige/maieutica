@@ -30,7 +30,7 @@ class PasswordService
         $password .= $special[random_int(0, strlen($special) - 1)];
 
         $allChars = $uppercase . $lowercase . $numbers . $special;
-        
+
         for ($i = 4; $i < $length; $i++) {
             $password .= $allChars[random_int(0, strlen($allChars) - 1)];
         }
@@ -48,8 +48,9 @@ class PasswordService
         if (!$user->password_changed_at) {
             return true;
         }
-        
+
         $daysSinceChange = Carbon::now()->diffInDays($user->password_changed_at);
+
         return $daysSinceChange > 90;
     }
 

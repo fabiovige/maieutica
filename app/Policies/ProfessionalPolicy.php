@@ -20,7 +20,7 @@ class ProfessionalPolicy
         if ($user->can('view professionals') || $user->hasRole(['admin', 'superadmin'])) {
             return true;
         }
-        
+
         return $user->id === $professional->user->first()?->id;
     }
 
@@ -34,7 +34,7 @@ class ProfessionalPolicy
         if ($user->can('edit professionals') || $user->hasRole(['admin', 'superadmin'])) {
             return true;
         }
-        
+
         return $user->id === $professional->user->first()?->id;
     }
 

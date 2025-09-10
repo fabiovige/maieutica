@@ -6,7 +6,8 @@ namespace App\Services;
 
 use App\Contracts\UserRepositoryInterface;
 use App\Models\User;
-use App\Services\UserCreationStrategyFactory;
+use App\ValueObjects\UserData;
+use App\ValueObjects\PasswordData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -27,18 +28,27 @@ class UserService
     public function createUser(array $data): User
     {
         return DB::transaction(function () use ($data) {
-            $userData = $this->prepareUserData($data);
-            
+            $userData = UserData::fromArray($data);
+            $passwordData = PasswordData::generate();
+
             // Armazenar senha temporária para o Observer acessar
-            Session::put('user_creation_temp_password', $userData['temporary_password']);
-            
-            $user = $this->userRepository->create($userData);
+            Session::put('user_creation_temp_password', $passwordData->plainPassword);
+
+            $userArray = array_merge(
+                $userData->toArray(),
+                [
+                    'password' => $passwordData->hashedPassword,
+                    'created_by' => Auth::id(),
+                ]
+            );
+
+            $user = $this->userRepository->create($userArray);
 
             $role = $this->assignRoleToUser($user, $data['role_id']);
             $this->handleRoleSpecificCreation($user, $role->name, $data);
 
-            $this->notifyUserCreated($user, $userData['temporary_password']);
-            
+            $this->notifyUserCreated($user, $passwordData->plainPassword);
+
             // Limpar senha da sessão
             Session::forget('user_creation_temp_password');
 
@@ -49,8 +59,13 @@ class UserService
     public function updateUser(int $userId, array $data): User
     {
         return DB::transaction(function () use ($userId, $data) {
-            $userData = $this->prepareUserDataForUpdate($data);
-            $user = $this->userRepository->updateUser($userId, $userData);
+            $userData = UserData::fromArray($data, $userId);
+            $userArray = array_merge(
+                $userData->toArray(),
+                ['updated_by' => Auth::id()]
+            );
+
+            $user = $this->userRepository->updateUser($userId, $userArray);
 
             if (isset($data['role_id'])) {
                 $role = $this->assignRoleToUser($user, $data['role_id']);
@@ -65,13 +80,13 @@ class UserService
     {
         return DB::transaction(function () use ($user) {
             $errors = $user->isDeletionAllowed();
-            
+
             if (!empty($errors)) {
                 throw new \Exception(implode(', ', $errors));
             }
-            
+
             $this->userRepository->markAsDeleted($user, Auth::id());
-            
+
             return $this->userRepository->deleteUser($user);
         });
     }
@@ -126,7 +141,7 @@ class UserService
         $temporaryPassword = $this->passwordService->generateTemporaryPassword();
         $userModel = new User();
         $sanitizedData = $userModel->sanitizeData($data);
-        
+
         return array_merge($sanitizedData, [
             'password' => Hash::make($temporaryPassword),
             'created_by' => Auth::id(),
@@ -138,7 +153,7 @@ class UserService
     {
         $userModel = new User();
         $sanitizedData = $userModel->sanitizeData($data);
-        
+
         return array_merge($sanitizedData, [
             'updated_by' => Auth::id(),
         ]);
@@ -149,7 +164,7 @@ class UserService
         $role = SpatieRole::findOrFail($roleId);
         $user->syncRoles([]);
         $user->assignRole($role->name);
-        
+
         return $role;
     }
 
@@ -184,7 +199,7 @@ class UserService
     {
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('users.show', [
             'user' => $user,
-            'roles' => $this->getAvailableRoles()
+            'roles' => $this->getAvailableRoles(),
         ]);
 
         return $pdf->download("user-{$user->id}.pdf");
@@ -205,22 +220,21 @@ class UserService
     public function sanitizeRequestDataForLog(array $data): array
     {
         $sanitized = $data;
-        
+
         // Remove senhas e dados sensíveis dos logs
-        unset($sanitized['password']);
-        unset($sanitized['password_confirmation']);
-        
+        unset($sanitized['password'], $sanitized['password_confirmation']);
+
+
         // Mascarar email se presente
         if (isset($sanitized['email'])) {
             $sanitized['email'] = \Illuminate\Support\Str::mask($sanitized['email'], '*', 3);
         }
-        
+
         // Mascarar telefone se presente
         if (isset($sanitized['phone']) && $sanitized['phone']) {
             $sanitized['phone'] = \Illuminate\Support\Str::mask($sanitized['phone'], '*', -4, 4);
         }
-        
+
         return $sanitized;
     }
-
 }

@@ -97,7 +97,7 @@ class UserPolicy
     public function export(User $user, User $model): bool
     {
         return $user->can('view users') && (
-            $user->hasRole('admin') || 
+            $user->hasRole('admin') ||
             $user->hasRole('superadmin')
         );
     }

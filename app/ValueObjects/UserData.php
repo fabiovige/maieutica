@@ -4,45 +4,62 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
+use App\Specifications\UniqueEmailSpecification;
+use App\ValueObjects\Address\AddressData;
 use InvalidArgumentException;
 
-readonly class UserData
+class UserData
 {
     public function __construct(
         public string $name,
         public string $email,
         public string $phone,
-        public bool $allow = true
+        public bool $allow = true,
+        public ?AddressData $address = null,
+        private readonly ?int $currentUserId = null
     ) {
         $this->validateEmail();
         $this->validateName();
         $this->validatePhone();
     }
 
-    public static function fromArray(array $data): self
+    public static function fromArray(array $data, ?int $currentUserId = null): self
     {
         return new self(
             name: trim($data['name']),
             email: trim(strtolower($data['email'])),
             phone: trim($data['phone']),
-            allow: $data['allow'] ?? true
+            allow: $data['allow'] ?? true,
+            address: !empty($data['address']) ? AddressData::fromArray($data['address']) : null,
+            currentUserId: $currentUserId
         );
     }
 
     public function toArray(): array
     {
-        return [
+        $data = [
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
             'allow' => $this->allow,
         ];
+
+        if ($this->address && !$this->address->isEmpty()) {
+            $data = array_merge($data, $this->address->toUserArray());
+        }
+
+        return $data;
     }
 
     private function validateEmail(): void
     {
         if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidArgumentException('Email inválido');
+        }
+
+        $emailSpec = new UniqueEmailSpecification();
+        if (!$emailSpec->isSatisfiedBy($this->email, $this->currentUserId)) {
+            throw new InvalidArgumentException($emailSpec->getErrorMessage());
         }
     }
 

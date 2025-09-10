@@ -154,7 +154,7 @@ class LoggingService
         ?float $executionTime = null
     ): void {
         $performanceContext = $context;
-        
+
         if ($executionTime !== null) {
             $performanceContext['execution_time'] = $executionTime;
             $performanceContext['performance_category'] = self::categorizePerformance($executionTime);
@@ -240,7 +240,7 @@ class LoggingService
     public static function startTrace(string $operation = null): string
     {
         self::$traceId = Str::uuid()->toString();
-        
+
         if ($operation) {
             self::pushContext(['operation' => $operation]);
         }
@@ -277,7 +277,7 @@ class LoggingService
         ?string $level = null
     ): void {
         $logLevel = $level ?? $operation->getLogLevel();
-        
+
         // Usar apenas o canal 'daily' que já funciona com permissões corretas
         $channel = 'daily';
 
@@ -354,7 +354,7 @@ class LoggingService
             $executionTime = $endTime - $startTime;
 
             self::logPerformance(
-                "Operação executada: " . ($operationName ?? 'operação anônima'),
+                'Operação executada: ' . ($operationName ?? 'operação anônima'),
                 ['operation_name' => $operationName],
                 $executionTime
             );
@@ -365,7 +365,7 @@ class LoggingService
             $executionTime = $endTime - $startTime;
 
             self::logPerformance(
-                "Operação falhou: " . ($operationName ?? 'operação anônima'),
+                'Operação falhou: ' . ($operationName ?? 'operação anônima'),
                 [
                     'operation_name' => $operationName,
                     'error' => $e->getMessage(),
@@ -373,8 +373,8 @@ class LoggingService
                 $executionTime
             );
 
-            self::logException($e, "Erro durante execução da operação: " . $operationName);
-            
+            self::logException($e, 'Erro durante execução da operação: ' . $operationName);
+
             throw $e;
         } finally {
             self::endTrace();
@@ -385,7 +385,7 @@ class LoggingService
     {
         $modelClass = get_class($model);
         $modelName = class_basename($modelClass);
-        
+
         $category = self::getCategoryForModel($modelName);
         $message = self::getMessageForModelOperation($modelName, $operation, $model);
 
@@ -414,7 +414,7 @@ class LoggingService
     private static function getMessageForModelOperation(string $modelName, LogOperation $operation, $model): string
     {
         $operationName = $operation->getDisplayName();
-        $identifier = method_exists($model, 'getLogIdentifier') 
+        $identifier = method_exists($model, 'getLogIdentifier')
             ? $model->getLogIdentifier()
             : ($model->name ?? $model->getKey());
 

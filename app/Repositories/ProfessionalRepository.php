@@ -20,13 +20,13 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
 
     public function paginateWithFilters(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $query = $this->model->with(['user' => function($query) {
-                $query->with('roles');
-            }, 'specialty'])
+        $query = $this->model->with(['user' => function ($query) {
+            $query->with('roles');
+        }, 'specialty'])
             ->whereHas('user', function ($q) {
                 $q->whereHas('roles', function ($roleQuery) {
-                      $roleQuery->where('name', 'professional');
-                  });
+                    $roleQuery->where('name', 'professional');
+                });
             });
 
         if (!empty($filters['search'])) {
@@ -67,6 +67,7 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
         }
 
         $professional->user()->attach($userId);
+
         return true;
     }
 
@@ -78,6 +79,7 @@ class ProfessionalRepository extends BaseRepository implements ProfessionalRepos
         }
 
         $professional->user()->detach($userId);
+
         return true;
     }
 

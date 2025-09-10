@@ -6,7 +6,6 @@ namespace App\Services\UserCreationStrategies;
 
 use App\Models\Professional;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class ProfessionalUserCreationStrategy implements UserCreationStrategyInterface
 {
@@ -21,7 +20,7 @@ class ProfessionalUserCreationStrategy implements UserCreationStrategyInterface
     {
         // Para update, apenas sincronizar se não existe Professional associado
         $existingProfessional = $user->professionals()->first();
-        
+
         if (!$existingProfessional) {
             // Se não existe, criar como no create
             $this->createUser($user, $data);

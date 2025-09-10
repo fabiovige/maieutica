@@ -11,7 +11,7 @@ trait HasPagination
 {
     /**
      * Aplica paginação padronizada com preservação de query string
-     * 
+     *
      * @param Builder $query
      * @param int $perPage
      * @return LengthAwarePaginator
@@ -23,7 +23,7 @@ trait HasPagination
 
     /**
      * Aplica filtro de busca genérico
-     * 
+     *
      * @param Builder $query
      * @param string $search
      * @param array $searchFields
@@ -47,7 +47,7 @@ trait HasPagination
 
     /**
      * Aplica ordenação padronizada
-     * 
+     *
      * @param Builder $query
      * @param array $filters
      * @param array $sortableFields
@@ -56,10 +56,10 @@ trait HasPagination
      * @return Builder
      */
     protected function applySortFilter(
-        Builder $query, 
-        array $filters, 
-        array $sortableFields = [], 
-        string $defaultField = 'id', 
+        Builder $query,
+        array $filters,
+        array $sortableFields = [],
+        string $defaultField = 'id',
         string $defaultDirection = 'desc'
     ): Builder {
         $sortBy = $filters['sort_by'] ?? $defaultField;
@@ -78,7 +78,7 @@ trait HasPagination
 
     /**
      * Extrai filtros padronizados da request
-     * 
+     *
      * @param array $requestData
      * @param int $defaultPerPage
      * @return array

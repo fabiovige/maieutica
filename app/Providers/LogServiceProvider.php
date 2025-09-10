@@ -32,11 +32,11 @@ class LogServiceProvider extends ServiceProvider
     {
         // Garantir que novos arquivos de log sejam criados com permissões corretas
         $logPath = storage_path('logs');
-        
+
         if (is_dir($logPath)) {
             // Garantir permissões do diretório
             chmod($logPath, 0775);
-            
+
             // Hook para corrigir permissões de novos arquivos
             register_shutdown_function(function () use ($logPath) {
                 $this->fixLogPermissions($logPath);
@@ -48,28 +48,28 @@ class LogServiceProvider extends ServiceProvider
     {
         // Corrigir logs do Laravel padrão
         $files = glob($logPath . '/laravel-*.log');
-        
+
         // Incluir logs customizados do sistema centralizado
         $customLogs = [
             $logPath . '/application-*.log',
-            $logPath . '/security-*.log', 
+            $logPath . '/security-*.log',
             $logPath . '/performance-*.log',
-            $logPath . '/errors-*.log'
+            $logPath . '/errors-*.log',
         ];
-        
+
         foreach ($customLogs as $pattern) {
             $files = array_merge($files, glob($pattern));
         }
-        
+
         foreach ($files as $file) {
             if (is_file($file)) {
                 $currentPerms = fileperms($file) & 0777;
-                
+
                 // Se não tem as permissões corretas, corrigir
                 if ($currentPerms !== 0664) {
                     chmod($file, 0664);
                 }
-                
+
                 // Tentar corrigir owner se possível
                 $stat = stat($file);
                 if ($stat && function_exists('posix_getpwuid')) {

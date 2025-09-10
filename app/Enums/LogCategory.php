@@ -21,7 +21,7 @@ enum LogCategory: string
 
     public function getDisplayName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::USER_OPERATIONS => 'Operações de Usuário',
             self::PROFESSIONAL_OPERATIONS => 'Operações de Profissional',
             self::KID_OPERATIONS => 'Operações de Criança',
@@ -41,7 +41,7 @@ enum LogCategory: string
 
     public function getChannel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::SECURITY_EVENTS, self::AUTHENTICATION, self::AUTHORIZATION => 'security',
             self::PERFORMANCE_MONITORING => 'performance',
             self::ERROR_HANDLING => 'errors',

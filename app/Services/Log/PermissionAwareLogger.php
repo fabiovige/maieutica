@@ -38,7 +38,7 @@ class PermissionAwareLogger
         if (file_exists($logPath)) {
             // Se o arquivo já existe, corrigir suas permissões
             chmod($logPath, 0664);
-            
+
             // Tentar corrigir o owner se possível (pode falhar se não for root)
             try {
                 $webUser = 'www-data';

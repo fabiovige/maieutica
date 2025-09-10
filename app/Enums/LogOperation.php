@@ -33,7 +33,7 @@ enum LogOperation: string
 
     public function getDisplayName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::CREATE => 'Criar',
             self::READ => 'Visualizar',
             self::UPDATE => 'Atualizar',
@@ -65,7 +65,7 @@ enum LogOperation: string
 
     public function getLogLevel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::LOGIN, self::LOGOUT, self::CREATE, self::UPDATE, self::READ => 'info',
             self::DELETE, self::RESET_PASSWORD, self::CHANGE_PASSWORD => 'warning',
             self::ACCESS_DENIED, self::VALIDATION_FAILED => 'error',

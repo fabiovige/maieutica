@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Checklist;
-use App\Models\Kid;
 use App\Models\Professional;
 use App\Services\ChecklistService;
 use Carbon\Carbon;
@@ -24,9 +23,9 @@ class HomeController extends Controller
 
         // Usar o sistema RBAC agnóstico para obter apenas dados acessíveis
         $accessibleKidsQuery = $user->getAccessibleKidsQuery();
-        
+
         $totalKids = $accessibleKidsQuery->count();
-        
+
         // Para checklists, usar apenas os das crianças acessíveis
         $accessibleKidIds = $accessibleKidsQuery->pluck('id');
         $totalChecklists = Checklist::whereIn('kid_id', $accessibleKidIds)->count();
@@ -38,7 +37,7 @@ class HomeController extends Controller
             $totalProfessionals = Professional::count();
         } else {
             // Para profissionais não-admin, mostra apenas profissionais relacionados às suas crianças
-            $totalProfessionals = Professional::whereHas('kids', function($query) use ($accessibleKidIds) {
+            $totalProfessionals = Professional::whereHas('kids', function ($query) use ($accessibleKidIds) {
                 $query->whereIn('kids.id', $accessibleKidIds);
             })->distinct()->count();
         }
@@ -56,7 +55,7 @@ class HomeController extends Controller
         // Dados adicionais para clínica médica
         $checklistsConcluidos = Checklist::whereIn('kid_id', $accessibleKidIds)
             ->where('situation', 'c')->count();
-        
+
         $avaliacoesEstesMes = Checklist::whereIn('kid_id', $accessibleKidIds)
             ->whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
@@ -64,7 +63,7 @@ class HomeController extends Controller
 
         return view('home', compact(
             'totalKids',
-            'totalChecklists', 
+            'totalChecklists',
             'checklistsEmAndamento',
             'checklistsConcluidos',
             'avaliacoesEstesMes',

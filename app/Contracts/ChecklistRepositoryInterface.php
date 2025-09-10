@@ -10,10 +10,10 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 interface ChecklistRepositoryInterface
 {
     public function getPaginated(int $perPage = 15, array $filters = []): LengthAwarePaginator;
-    
+
     public function getChecklistsForUser(int $userId, array $filters = []): LengthAwarePaginator;
-    
+
     public function getChecklistsByKid(int $kidId, array $filters = []): LengthAwarePaginator;
-    
+
     public function markAsDeleted(Checklist $checklist, int $deletedBy): bool;
 }

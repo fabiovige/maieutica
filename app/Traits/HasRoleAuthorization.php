@@ -12,6 +12,7 @@ trait HasRoleAuthorization
     public function getUserRole(): ?UserRole
     {
         $roleName = $this->roles->first()?->name;
+
         return $roleName ? UserRole::getByName($roleName) : null;
     }
 
@@ -49,7 +50,7 @@ trait HasRoleAuthorization
     public function canViewKid(Kid $kid): bool
     {
         $role = $this->getUserRole();
-        
+
         if (!$role) {
             return false;
         }
@@ -75,7 +76,7 @@ trait HasRoleAuthorization
     public function canEditKid(Kid $kid): bool
     {
         $role = $this->getUserRole();
-        
+
         if (!$role) {
             return false;
         }
@@ -105,7 +106,7 @@ trait HasRoleAuthorization
         }
 
         $professional = $this->professional->first();
-        
+
         if (!$professional) {
             return false;
         }
@@ -134,7 +135,7 @@ trait HasRoleAuthorization
         // Profissionais veem apenas crianças associadas a eles
         if ($role === UserRole::PROFESSIONAL) {
             $professional = $this->professional->first();
-            
+
             if (!$professional) {
                 return Kid::whereRaw('1 = 0');
             }

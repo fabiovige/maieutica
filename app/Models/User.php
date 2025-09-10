@@ -98,7 +98,7 @@ class User extends Authenticatable
     }
 
     // === REGRAS DE NEGÓCIO ===
-    
+
     public function isActive(): bool
     {
         return (bool) $this->allow;
@@ -112,7 +112,7 @@ class User extends Authenticatable
     public function isDeletionAllowed(): array
     {
         $errors = [];
-        
+
         if (auth()->id() === $this->id) {
             $errors[] = 'Não é possível excluir seu próprio usuário';
         }
@@ -126,14 +126,14 @@ class User extends Authenticatable
 
     public function hasTemporaryPassword(): bool
     {
-        return !$this->password_changed_at || 
+        return !$this->password_changed_at ||
                now()->diffInDays($this->password_changed_at) > 90;
     }
 
     public function isValidUser(): bool
     {
-        return $this->isActive() && 
-               $this->email_verified_at !== null && 
+        return $this->isActive() &&
+               $this->email_verified_at !== null &&
                !$this->deleted_at;
     }
 
@@ -192,8 +192,8 @@ class User extends Authenticatable
 
     public function hasCompleteProfile(): bool
     {
-        return !empty($this->name) && 
-               !empty($this->email) && 
+        return !empty($this->name) &&
+               !empty($this->email) &&
                $this->email_verified_at !== null;
     }
 

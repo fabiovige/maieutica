@@ -34,9 +34,9 @@ class UserController extends BaseController
         $this->authorize('update', $user);
 
         return $this->handleViewRequest(
-            fn() => [
+            fn () => [
                 'user' => $user,
-                'roles' => $this->userService->getAvailableRoles()
+                'roles' => $this->userService->getAvailableRoles(),
             ],
             'users.edit',
             [],
@@ -50,9 +50,9 @@ class UserController extends BaseController
         $this->authorize('view', $user);
 
         return $this->handleViewRequest(
-            fn() => [
+            fn () => [
                 'user' => $user,
-                'roles' => $this->userService->getAvailableRoles()
+                'roles' => $this->userService->getAvailableRoles(),
             ],
             'users.show',
             [],
@@ -66,8 +66,8 @@ class UserController extends BaseController
         $this->authorize('create', User::class);
 
         return $this->handleCreateRequest(
-            fn() => [
-                'roles' => $this->userService->getAvailableRoles()
+            fn () => [
+                'roles' => $this->userService->getAvailableRoles(),
             ],
             'users.create',
             [],
@@ -81,7 +81,7 @@ class UserController extends BaseController
         $this->authorize('create', User::class);
 
         return $this->handleStoreRequest(
-            fn() => $this->userService->createUser($request->validated()),
+            fn () => $this->userService->createUser($request->validated()),
             self::MSG_CREATE_SUCCESS,
             self::MSG_CREATE_ERROR,
             'users.index',
@@ -94,10 +94,10 @@ class UserController extends BaseController
         $this->authorize('update', $user);
 
         return $this->handleUpdateRequest(
-            fn() => $this->userService->updateUser($user->id, $request->validated()),
+            fn () => $this->userService->updateUser($user->id, $request->validated()),
             self::MSG_UPDATE_SUCCESS,
             self::MSG_UPDATE_ERROR,
-            "users.edit",
+            'users.edit',
             $user->id
         );
     }
@@ -109,14 +109,16 @@ class UserController extends BaseController
         try {
             $this->userService->deleteUser($user);
             flash(self::MSG_DELETE_SUCCESS)->success();
+
             return redirect()->route('users.index');
         } catch (\Exception $e) {
             $context = array_merge($this->getCurrentUserContext(), [
                 'target_user' => $this->userService->sanitizeUserDataForLog($user),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             \Illuminate\Support\Facades\Log::error('Destroy User', $context);
             flash('Erro ao excluir usuário')->error();
+
             return redirect()->back();
         }
     }
@@ -124,16 +126,17 @@ class UserController extends BaseController
     public function pdf(User $user)
     {
         $this->authorize('export', $user);
-        
+
         try {
             return $this->userService->generateUserPdf($user);
         } catch (\Exception $e) {
             $context = array_merge($this->getCurrentUserContext(), [
                 'target_user' => $this->userService->sanitizeUserDataForLog($user),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             \Illuminate\Support\Facades\Log::error('PDF Generation Error', $context);
             flash('Erro ao gerar PDF do usuário')->error();
+
             return redirect()->route('users.show', $user);
         }
     }

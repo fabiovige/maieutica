@@ -91,7 +91,7 @@ class ResourceContextService
     private function isUserAssociatedWithKid(User $user, Kid $kid): bool
     {
         $professional = $user->professional->first();
-        
+
         if (!$professional) {
             return false;
         }

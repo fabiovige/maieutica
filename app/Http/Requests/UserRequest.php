@@ -52,7 +52,7 @@ class UserRequest extends FormRequest
                         'string',
                         'email',
                         'max:150',
-                        Rule::unique('users')->ignore($this->route('user'))
+                        Rule::unique('users')->ignore($this->route('user')),
                     ],
                     'phone' => [
                         'nullable',

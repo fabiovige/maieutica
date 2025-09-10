@@ -74,7 +74,7 @@ class KidRepository extends BaseRepository implements KidRepositoryInterface
         $query = $user->getAccessibleKidsQuery()->with([
             'responsible:id,name,email',
             'professionals:id,registration_number',
-            'professionals.specialty:id,name'
+            'professionals.specialty:id,name',
         ])->withCount('checklists');
 
         // Aplicar filtro de busca

@@ -1,6 +1,6 @@
 {
-    "/js/app.js": "/js/app.js?id=687fae8d77ee71a7e813831939b4241a",
-    "/css/app.css": "/css/app.css?id=b18004428263bfbcd1008185a6f3f3b3",
+    "/js/app.js": "/js/app.js?id=151b3e80bb51f3072385d3c2d126988c",
+    "/css/app.css": "/css/app.css?id=e8b715c2c74ff26bfaba0970ebc1e9e8",
     "/images/avatars/1738842248_67a4a088a8815.jpg": "/images/avatars/1738842248_67a4a088a8815.jpg?id=5f65280e2eb7826d0958bd2e6ef7a407",
     "/images/avatars/1738843004_67a4a37c7f6d0.jpeg": "/images/avatars/1738843004_67a4a37c7f6d0.jpeg?id=0f664840c2995c1e5fc44ba8637f0bf8",
     "/images/avatars/1739199049_67aa124905183.png": "/images/avatars/1739199049_67aa124905183.png?id=911ae86d4ad11988363bbb9f7091e04e",
@@ -82,5 +82,9 @@
     "/vendor/datatable/pt-BR.json": "/vendor/datatable/pt-BR.json?id=2d47fb1cac09d3781ac264e8c41d191d",
     "/vendor/datatable/responsive.bootstrap5.js": "/vendor/datatable/responsive.bootstrap5.js?id=b04e3be0152f94d3fa718b74841c05b6",
     "/vendor/datatable/responsive.bootstrap5.min.css": "/vendor/datatable/responsive.bootstrap5.min.css?id=60dbb52dad369906c124d23f8e0df241",
-    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=8fb8fee4fcc3cc86ff6c724154c49c42"
+    "/vendor/jquery/jquery.min.js": "/vendor/jquery/jquery.min.js?id=8fb8fee4fcc3cc86ff6c724154c49c42",
+    "/js/pages/checklists-index.js": "/js/pages/checklists-index.js?id=50ed4d37b069ab41af0f6f23c86db0f2",
+    "/js/pages/kids-index.js": "/js/pages/kids-index.js?id=47883f2aa24cc38ceb99f868dd389a5f",
+    "/js/pages/professionals-index.js": "/js/pages/professionals-index.js?id=1b2b85b7da2cc8a8b0e4210d22948935",
+    "/js/pages/users-index.js": "/js/pages/users-index.js?id=c1aba16e0474cb59c0780fc979644444"
 }

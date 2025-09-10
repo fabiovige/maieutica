@@ -30,22 +30,6 @@
         @endif
     </div>
 
-    @push('scripts')
-    <script>
-    function changePagination(perPageValue) {
-        // Preserva todos os parâmetros atuais da URL
-        var urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('per_page', perPageValue);
-        urlParams.set('page', '1'); // Sempre vai para página 1 ao mudar per_page
-        
-        // Monta a URL final
-        var newUrl = window.location.pathname + '?' + urlParams.toString();
-        
-        // Redireciona para a nova URL
-        window.location.href = newUrl;
-    }
-    </script>
-    @endpush
 @else
     <div class="alert alert-info text-center mt-4">
         <i class="bi bi-info-circle"></i> {{ $getResultsText() }}

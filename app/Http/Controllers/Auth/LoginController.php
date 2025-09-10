@@ -36,14 +36,14 @@ class LoginController extends Controller
     {
         if (!$user->allow) {
             Auth::logout();
-            
+
             $this->loggingService->logSecurityEvent(
                 LogOperation::VALIDATION_FAILED,
                 'Login attempt blocked - account disabled',
                 [
                     'user_id' => $user->id,
                     'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
+                    'user_agent' => $request->userAgent(),
                 ],
                 'warning'
             );
@@ -57,7 +57,7 @@ class LoginController extends Controller
             [
                 'user_id' => $user->id,
                 'ip_address' => $request->ip(),
-                'remember_me' => $request->boolean('remember')
+                'remember_me' => $request->boolean('remember'),
             ]
         );
 
@@ -82,7 +82,7 @@ class LoginController extends Controller
                     ['email' => $googleUser->getEmail()],
                     'warning'
                 );
-                
+
                 return redirect()->route('login')
                     ->withErrors(['email' => 'Não foi encontrada uma conta com este e-mail.']);
             }
@@ -94,7 +94,7 @@ class LoginController extends Controller
                     ['user_id' => $user->id],
                     'warning'
                 );
-                
+
                 return redirect()->route('login')
                     ->withErrors(['email' => 'Esta conta está desativada.']);
             }
@@ -120,11 +120,11 @@ class LoginController extends Controller
                 'Google OAuth authentication error',
                 [
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ],
                 'error'
             );
-            
+
             return redirect()->route('login')
                 ->withErrors(['email' => 'Erro ao realizar login com Google.']);
         }
@@ -140,7 +140,7 @@ class LoginController extends Controller
                 'User logged out successfully',
                 [
                     'user_id' => $user->id,
-                    'ip_address' => $request->ip()
+                    'ip_address' => $request->ip(),
                 ]
             );
         }
@@ -198,7 +198,7 @@ class LoginController extends Controller
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'attempts' => $attempts,
-                'email_attempted' => $request->email
+                'email_attempted' => $request->email,
             ],
             'warning'
         );
@@ -209,7 +209,7 @@ class LoginController extends Controller
                 'Multiple failed login attempts - potential brute force attack',
                 [
                     'ip_address' => $request->ip(),
-                    'total_attempts' => $attempts
+                    'total_attempts' => $attempts,
                 ],
                 'critical'
             );
@@ -230,7 +230,7 @@ class LoginController extends Controller
     {
         $request->session()->regenerate();
         $this->clearLoginAttempts($request);
-        
+
         $key = 'login_attempts_' . $request->ip();
         cache()->forget($key);
 

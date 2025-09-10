@@ -36,7 +36,7 @@ trait HasLogging
     public function logCustomOperation(LogOperation $operation, string $message = null, array $context = []): void
     {
         $customMessage = $message ?? $this->getDefaultLogMessage($operation);
-        
+
         LoggingService::createLogEntryForModel($this, $operation, array_merge($context, [
             'custom_operation' => true,
             'custom_message' => $customMessage,

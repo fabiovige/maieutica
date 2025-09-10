@@ -15,7 +15,7 @@ enum FilterType: string
 
     public function getInputClass(): string
     {
-        return match($this) {
+        return match ($this) {
             self::TEXT, self::DATE, self::NUMBER => 'form-control',
             self::SELECT => 'form-select',
             self::CHECKBOX, self::RADIO => 'form-check-input',
@@ -24,7 +24,7 @@ enum FilterType: string
 
     public function getWrapperClass(): string
     {
-        return match($this) {
+        return match ($this) {
             self::CHECKBOX, self::RADIO => 'form-check',
             default => '',
         };

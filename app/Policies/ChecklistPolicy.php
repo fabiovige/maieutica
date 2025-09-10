@@ -36,17 +36,17 @@ class ChecklistPolicy
             if ($user->can('view-all-kids')) {
                 return true;
             }
-            
+
             // Professional só pode ver checklists que criou ou de crianças associadas
             if ($user->can('attach-to-kids-as-professional')) {
-                return $checklist->created_by === $user->id || 
+                return $checklist->created_by === $user->id ||
                        $checklist->kid->professionals->contains($user->id);
             }
-            
+
             // Responsável só pode ver checklists de suas crianças
             return $checklist->kid->responsible_id === $user->id;
         }
-        
+
         return false;
     }
 
@@ -68,18 +68,18 @@ class ChecklistPolicy
             if ($user->can('manage-system')) {
                 return true;
             }
-            
+
             // Verifica se o checklist está fechado e se tem permissão para override
             if ($checklist->situation !== 'a' && !$user->can('override-checklist-status')) {
                 return false;
             }
-            
+
             // Professional só pode editar checklists que criou
             if ($user->can('attach-to-kids-as-professional')) {
                 return $checklist->created_by === $user->id;
             }
         }
-        
+
         return false;
     }
 
@@ -93,13 +93,13 @@ class ChecklistPolicy
             if ($user->can('manage-system')) {
                 return true;
             }
-            
+
             // Professional só pode deletar checklists que criou
             if ($user->can('attach-to-kids-as-professional')) {
                 return $checklist->created_by === $user->id;
             }
         }
-        
+
         return false;
     }
 

@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Services\Log\LoggingService;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Log\Events\MessageLogged;
 
 class LoggingServiceProvider extends ServiceProvider
@@ -12,7 +11,7 @@ class LoggingServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(LoggingService::class);
-        
+
         $this->app->alias(LoggingService::class, 'logging-service');
     }
 
@@ -26,7 +25,7 @@ class LoggingServiceProvider extends ServiceProvider
     private function configureLogChannels(): void
     {
         $channels = config('logging.channels');
-        
+
         foreach (['application', 'security', 'performance', 'errors'] as $channel) {
             if (!isset($channels[$channel])) {
                 config(["logging.channels.{$channel}" => [
@@ -60,7 +59,7 @@ class LoggingServiceProvider extends ServiceProvider
 
     private function getChannelLevel(string $channel): string
     {
-        return match($channel) {
+        return match ($channel) {
             'security' => 'warning',
             'errors' => 'error',
             'performance', 'application' => 'info',
@@ -70,7 +69,7 @@ class LoggingServiceProvider extends ServiceProvider
 
     private function getChannelRetentionDays(string $channel): int
     {
-        return match($channel) {
+        return match ($channel) {
             'security', 'errors' => 90,
             'application' => 60,
             'performance' => 30,
@@ -91,7 +90,7 @@ class LoggingServiceProvider extends ServiceProvider
             $event->context['environment'] = $this->app->environment();
             $event->context['application'] = config('app.name');
             $event->context['version'] = config('app.version', '1.0.0');
-            
+
             if ($event->level === 'error' && isset($event->context['exception'])) {
                 $event->context['error_hash'] = md5($event->message . ($event->context['exception']->getFile() ?? ''));
             }

@@ -38,7 +38,7 @@ trait HasControllerLogging
         $resourceName = $resource ? class_basename($resource) : 'resource';
         $resourceId = $resource?->getKey();
 
-        $message = match($action) {
+        $message = match ($action) {
             'index' => "Listagem de {$resourceName} acessada",
             'show' => "Visualização de {$resourceName} #{$resourceId}",
             'create' => "Formulário de criação de {$resourceName} acessado",
@@ -56,7 +56,7 @@ trait HasControllerLogging
             'resource_id' => $resourceId,
         ]);
 
-        $operation = match($action) {
+        $operation = match ($action) {
             'index', 'show' => LogOperation::READ,
             'store' => LogOperation::CREATE,
             'update' => LogOperation::UPDATE,
@@ -70,7 +70,7 @@ trait HasControllerLogging
     protected function logFormValidation(Request $request, array $rules, bool $passed = true): void
     {
         $controllerName = class_basename(static::class);
-        
+
         if ($passed) {
             LoggingService::logDataValidation(
                 LogOperation::READ,
@@ -100,7 +100,7 @@ trait HasControllerLogging
     {
         $controllerName = class_basename(static::class);
         $resourceName = $resource ? class_basename($resource) : 'resource';
-        
+
         LoggingService::logSecurityEvent(
             LogOperation::ACCESS_DENIED,
             "Acesso negado: {$controllerName}@{$action}",
@@ -118,7 +118,7 @@ trait HasControllerLogging
     protected function logBulkOperation(string $operation, array $ids, string $resourceType): void
     {
         $controllerName = class_basename(static::class);
-        
+
         LoggingService::logSystemOperation(
             LogOperation::UPDATE,
             "Operação em lote executada: {$operation} em {$resourceType}",
@@ -135,7 +135,7 @@ trait HasControllerLogging
     protected function logFileUpload(string $fileName, string $filePath, int $fileSize): void
     {
         $controllerName = class_basename(static::class);
-        
+
         LoggingService::logFileOperation(
             LogOperation::UPLOAD,
             "Arquivo enviado: {$fileName}",
@@ -152,7 +152,7 @@ trait HasControllerLogging
     protected function logSearch(Request $request, int $resultsCount): void
     {
         $controllerName = class_basename(static::class);
-        
+
         LoggingService::logSystemOperation(
             LogOperation::READ,
             "Busca realizada: {$controllerName}",

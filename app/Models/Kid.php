@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class Kid extends BaseModel
 {
     use HasLogging;
-    
+
     protected $fillable = [
         'name',
         'birth_date',

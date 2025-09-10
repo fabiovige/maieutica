@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
+use App\Specifications\UniqueEmailSpecification;
+use App\Specifications\UniqueRegistrationNumberSpecification;
+use App\Specifications\SpecialtyExistsSpecification;
 use InvalidArgumentException;
 
 class ProfessionalData
@@ -92,22 +95,19 @@ class ProfessionalData
 
     private function validateUniqueFields(): void
     {
-        // Verificar se email já existe
-        $existingUserEmail = \App\Models\User::where('email', $this->email)->first();
-        if ($existingUserEmail) {
-            throw new InvalidArgumentException('Email já está sendo usado por outro usuário');
+        $emailSpec = new UniqueEmailSpecification();
+        if (!$emailSpec->isSatisfiedBy($this->email)) {
+            throw new InvalidArgumentException($emailSpec->getErrorMessage());
         }
 
-        // Verificar se registration_number já existe
-        $existingProfessional = \App\Models\Professional::where('registration_number', $this->registrationNumber)->first();
-        if ($existingProfessional) {
-            throw new InvalidArgumentException('Número de registro já está sendo usado por outro profissional');
+        $registrationSpec = new UniqueRegistrationNumberSpecification();
+        if (!$registrationSpec->isSatisfiedBy($this->registrationNumber)) {
+            throw new InvalidArgumentException($registrationSpec->getErrorMessage());
         }
 
-        // Verificar se specialty_id existe
-        $specialtyExists = \App\Models\Specialty::find($this->specialtyId);
-        if (!$specialtyExists) {
-            throw new InvalidArgumentException('Especialidade não encontrada');
+        $specialtySpec = new SpecialtyExistsSpecification();
+        if (!$specialtySpec->isSatisfiedBy($this->specialtyId)) {
+            throw new InvalidArgumentException($specialtySpec->getErrorMessage());
         }
     }
 }

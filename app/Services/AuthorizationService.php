@@ -39,6 +39,7 @@ class AuthorizationService
     public function canPerformAction(string $action, string $resource, ?Model $instance = null): bool
     {
         $permission = "{$action} {$resource}";
+
         return $this->canAccessResource($permission, $instance);
     }
 

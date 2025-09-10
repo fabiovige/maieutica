@@ -89,6 +89,15 @@ $('.cell').mask('(99) 99999-9999')
 $('.cpf').mask('999.999.999-02')
 $('.cnpj').mask('99.999.999/9999-99')
 
+window.changePagination = function(perPageValue) {
+  const urlParams = new URLSearchParams(window.location.search)
+  urlParams.set('per_page', perPageValue)
+  urlParams.set('page', '1')
+  
+  const newUrl = window.location.pathname + '?' + urlParams.toString()
+  window.location.href = newUrl
+}
+
 import { createApp, onMounted } from 'vue'
 import Competences from './components/Competences'
 import Checklists from './components/Checklists'
@@ -107,7 +116,6 @@ const app = createApp({
   },
 })
 app.use(VueSweetalert2)
-app.use(bootstrap)
 app.component('Competences', Competences)
 app.component('Checklists', Checklists)
 app.component('Charts', Charts)

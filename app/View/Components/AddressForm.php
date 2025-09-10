@@ -57,6 +57,7 @@ class AddressForm extends Component
         if (strlen($cleanCep) === 8) {
             return substr($cleanCep, 0, 5) . '-' . substr($cleanCep, 5);
         }
+
         return $this->cep ?? '';
     }
 

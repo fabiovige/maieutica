@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
+use App\Specifications\UniqueEmailSpecification;
+use App\Specifications\UniqueRegistrationNumberSpecification;
+use App\Specifications\SpecialtyExistsSpecification;
 use InvalidArgumentException;
 
 class ProfessionalUpdateData
@@ -86,35 +89,27 @@ class ProfessionalUpdateData
 
     private function validateUniqueFields(): void
     {
-        // Verificar se email já existe (excluindo o profissional atual)
-        $userQuery = \App\Models\User::where('email', $this->email);
-        
+        $currentUserId = null;
         if ($this->currentProfessionalId) {
             $currentProfessional = \App\Models\Professional::find($this->currentProfessionalId);
             if ($currentProfessional && $currentProfessional->user->first()) {
-                $userQuery->where('id', '!=', $currentProfessional->user->first()->id);
+                $currentUserId = $currentProfessional->user->first()->id;
             }
         }
-        
-        if ($userQuery->exists()) {
-            throw new InvalidArgumentException('Email já está sendo usado por outro usuário');
+
+        $emailSpec = new UniqueEmailSpecification();
+        if (!$emailSpec->isSatisfiedBy($this->email, $currentUserId)) {
+            throw new InvalidArgumentException($emailSpec->getErrorMessage());
         }
 
-        // Verificar se registration_number já existe (excluindo o profissional atual)
-        $professionalQuery = \App\Models\Professional::where('registration_number', $this->registrationNumber);
-        
-        if ($this->currentProfessionalId) {
-            $professionalQuery->where('id', '!=', $this->currentProfessionalId);
-        }
-        
-        if ($professionalQuery->exists()) {
-            throw new InvalidArgumentException('Número de registro já está sendo usado por outro profissional');
+        $registrationSpec = new UniqueRegistrationNumberSpecification();
+        if (!$registrationSpec->isSatisfiedBy($this->registrationNumber, $this->currentProfessionalId)) {
+            throw new InvalidArgumentException($registrationSpec->getErrorMessage());
         }
 
-        // Verificar se specialty_id existe
-        $specialtyExists = \App\Models\Specialty::find($this->specialtyId);
-        if (!$specialtyExists) {
-            throw new InvalidArgumentException('Especialidade não encontrada');
+        $specialtySpec = new SpecialtyExistsSpecification();
+        if (!$specialtySpec->isSatisfiedBy($this->specialtyId)) {
+            throw new InvalidArgumentException($specialtySpec->getErrorMessage());
         }
     }
 }

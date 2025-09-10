@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\ProfessionalRepositoryInterface;
-use App\Enums\LogCategory;
 use App\Enums\LogOperation;
 use App\Exceptions\Professional\ProfessionalNotFoundException;
 use App\Exceptions\Professional\UserAssociationNotFoundException;
@@ -52,7 +51,7 @@ class ProfessionalService
     public function createProfessional(array $data): Professional
     {
         $traceId = $this->loggingService->startTrace();
-        
+
         $this->loggingService->logProfessionalOperation(
             LogOperation::CREATE,
             'Starting professional creation process',
@@ -64,7 +63,7 @@ class ProfessionalService
         try {
             $professionalData = ProfessionalData::fromArray($data);
             $temporaryPassword = $this->passwordService->generateTemporaryPassword();
-            
+
             $userData = array_merge(
                 $professionalData->toUserArray(),
                 [
@@ -72,46 +71,46 @@ class ProfessionalService
                     'created_by' => Auth::id(),
                 ]
             );
-            
+
             $user = User::create($userData);
             $user->assignRole('professional');
-            
+
             $this->loggingService->logUserOperation(
                 LogOperation::CREATE,
                 'User account created for professional',
                 ['user_id' => $user->id],
                 'info'
             );
-            
+
             $professionalRecord = $this->createProfessionalRecord($professionalData);
             $this->linkUserToProfessional($professionalRecord, $user);
-            
+
             $this->notificationService->sendWelcomeNotification($user, $temporaryPassword);
 
             DB::commit();
-            
+
             $this->loggingService->logProfessionalOperation(
                 LogOperation::CREATE,
                 'Professional creation completed successfully',
                 [
                     'professional_id' => $professionalRecord->id,
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
                 ],
                 'info'
             );
-            
-            $professionalRecord->load('user', 'specialty');
-            return $professionalRecord;
 
+            $professionalRecord->load('user', 'specialty');
+
+            return $professionalRecord;
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             $this->loggingService->logException(
                 $e,
                 'Failed to create professional',
                 ['trace_id' => $traceId]
             );
-            
+
             throw new ProfessionalCreationException($e->getMessage(), $e);
         }
     }
@@ -119,7 +118,7 @@ class ProfessionalService
     public function updateProfessional(int $id, array $data): bool
     {
         $traceId = $this->loggingService->startTrace();
-        
+
         $this->loggingService->logProfessionalOperation(
             LogOperation::UPDATE,
             'Starting professional update process',
@@ -131,7 +130,7 @@ class ProfessionalService
         try {
             $professional = $this->getProfessionalWithUser($id);
             $professionalUpdateData = ProfessionalUpdateData::fromArray($data, $id);
-            
+
             $user = $professional->user->first();
             if (!$user) {
                 throw new UserAssociationNotFoundException($id);
@@ -141,31 +140,30 @@ class ProfessionalService
             $this->updateProfessionalData($professional, $professionalUpdateData);
 
             DB::commit();
-            
+
             $this->loggingService->logProfessionalOperation(
                 LogOperation::UPDATE,
                 'Professional update completed successfully',
                 [
                     'professional_id' => $id,
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
                 ],
                 'info'
             );
-            
-            return true;
 
+            return true;
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             $this->loggingService->logException(
                 $e,
                 'Failed to update professional',
                 [
                     'professional_id' => $id,
-                    'trace_id' => $traceId
+                    'trace_id' => $traceId,
                 ]
             );
-            
+
             throw $e;
         }
     }
@@ -203,12 +201,13 @@ class ProfessionalService
     private function getProfessionalWithUser(int $id): Professional
     {
         $professional = $this->professionalRepository->find($id);
-        
+
         if (!$professional) {
             throw new ProfessionalNotFoundException($id);
         }
-        
+
         $professional->load('user', 'specialty');
+
         return $professional;
     }
 
@@ -218,7 +217,7 @@ class ProfessionalService
             $data->toProfessionalArray(),
             ['created_by' => Auth::id()]
         );
-        
+
         return $this->professionalRepository->create($professionalArray);
     }
 
@@ -230,11 +229,11 @@ class ProfessionalService
     private function getProfessionalRoleId(): int
     {
         $role = \Spatie\Permission\Models\Role::where('name', 'professional')->first();
-        
+
         if (!$role) {
             throw new Exception('Role professional não encontrada');
         }
-        
+
         return $role->id;
     }
 
@@ -244,7 +243,7 @@ class ProfessionalService
             $data->toUserArray(),
             ['updated_by' => Auth::id()]
         );
-        
+
         $user->update($userData);
     }
 
@@ -254,7 +253,7 @@ class ProfessionalService
             $data->toProfessionalArray(),
             ['updated_by' => Auth::id()]
         );
-        
+
         $professional->update($professionalArray);
     }
 
@@ -262,7 +261,7 @@ class ProfessionalService
     {
         $traceId = $this->loggingService->startTrace();
         $operation = $status ? 'activate' : 'deactivate';
-        
+
         $this->loggingService->logProfessionalOperation(
             LogOperation::UPDATE,
             "Starting professional {$operation} process",
@@ -274,7 +273,7 @@ class ProfessionalService
 
         try {
             $professional = $this->getProfessionalWithUser($professionalId);
-            
+
             $user = $professional->user->first();
             if (!$user) {
                 throw new UserAssociationNotFoundException($professionalId);
@@ -286,32 +285,31 @@ class ProfessionalService
             ]);
 
             DB::commit();
-            
+
             $this->loggingService->logSecurityEvent(
                 LogOperation::UPDATE,
                 "Professional account {$operation}d successfully",
                 [
                     'professional_id' => $professionalId,
                     'user_id' => $user->id,
-                    'changed_by' => Auth::id()
+                    'changed_by' => Auth::id(),
                 ],
                 'warning'
             );
-            
-            return true;
 
+            return true;
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             $this->loggingService->logException(
                 $e,
                 "Failed to {$operation} professional",
                 [
                     'professional_id' => $professionalId,
-                    'trace_id' => $traceId
+                    'trace_id' => $traceId,
                 ]
             );
-            
+
             throw $e;
         }
     }

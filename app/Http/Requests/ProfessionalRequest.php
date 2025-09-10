@@ -16,14 +16,14 @@ class ProfessionalRequest extends FormRequest
     {
         $professionalId = $this->route('professional');
         $isUpdating = $this->isMethod('patch') || $this->isMethod('put');
-        
+
         return [
             'name' => 'required|string|max:255',
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($isUpdating ? $this->getUserIdForProfessional($professionalId) : null)
+                Rule::unique('users', 'email')->ignore($isUpdating ? $this->getUserIdForProfessional($professionalId) : null),
             ],
             'phone' => 'required|string|max:20',
             'specialty_id' => 'required|exists:specialties,id',
@@ -31,7 +31,7 @@ class ProfessionalRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('professionals', 'registration_number')->ignore($isUpdating ? $professionalId : null)
+                Rule::unique('professionals', 'registration_number')->ignore($isUpdating ? $professionalId : null),
             ],
             'bio' => 'nullable|string',
             'allow' => 'boolean',
@@ -45,6 +45,7 @@ class ProfessionalRequest extends FormRequest
         }
 
         $professional = \App\Models\Professional::find($professionalId);
+
         return $professional?->user->first()?->id;
     }
 

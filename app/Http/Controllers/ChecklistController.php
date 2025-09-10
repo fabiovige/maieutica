@@ -42,8 +42,8 @@ class ChecklistController extends BaseController
                 // Adicionar filtros específicos de checklist
                 $filters['situation'] = $request->get('situation');
                 $filters['level'] = $request->get('level');
-                
-                
+
+
                 if ($kid) {
                     $checklists = $this->checklistRepository->getChecklistsByKid($kid->id, $filters);
                 } else {
@@ -57,20 +57,20 @@ class ChecklistController extends BaseController
                 foreach ($checklists as $checklist) {
                     $percentage = $percentages[$checklist->id] ?? 0;
                     $checklist->developmentPercentage = $percentage;
-                    
+
                     // Formatar dados para exibição
-                    $checklist->status_badge = '<span class="badge bg-' . 
-                        ($checklist->situation == 'a' ? 'success' : 'secondary') . '">' . 
+                    $checklist->status_badge = '<span class="badge bg-' .
+                        ($checklist->situation == 'a' ? 'success' : 'secondary') . '">' .
                         ($checklist->situation == 'a' ? 'Aberto' : 'Fechado') . '</span>';
-                    
+
                     $checklist->formatted_date = $checklist->created_at->format('d/m/Y');
-                    
+
                     $color = $percentage < 30 ? 'danger' : ($percentage < 70 ? 'warning' : 'success');
                     $checklist->progress_bar = '<div class="progress" style="height: 20px;">
                         <div class="progress-bar bg-' . $color . '" role="progressbar" 
                              style="width: ' . $percentage . '%;" 
                              aria-valuenow="' . $percentage . '" 
-                             aria-valuemin="0" aria-valuemax="100">' . 
+                             aria-valuemin="0" aria-valuemax="100">' .
                              number_format($percentage, 1) . '%
                         </div>
                     </div>';
@@ -89,8 +89,8 @@ class ChecklistController extends BaseController
         $this->authorize('create', Checklist::class);
 
         return $this->handleCreateRequest(
-            fn() => [
-                'kids' => Kid::getKids()
+            fn () => [
+                'kids' => Kid::getKids(),
             ],
             'checklists.create',
             [],
@@ -220,8 +220,8 @@ class ChecklistController extends BaseController
         $this->authorize('view', $checklist);
 
         return $this->handleViewRequest(
-            fn() => [
-                'checklist' => $checklist
+            fn () => [
+                'checklist' => $checklist,
             ],
             'checklists.show',
             [],
@@ -236,8 +236,8 @@ class ChecklistController extends BaseController
         $this->authorize('update', $checklist);
 
         return $this->handleViewRequest(
-            fn() => [
-                'checklist' => $checklist
+            fn () => [
+                'checklist' => $checklist,
             ],
             'checklists.edit',
             [],
@@ -254,25 +254,27 @@ class ChecklistController extends BaseController
         try {
             $data = $request->all();
             $data['updated_by'] = Auth::id();
-            
+
             if (isset($data['situation'])) {
                 $checklist->situation = $data['situation'];
             }
-            
+
             $checklist->update($data);
-            
+
             flash(self::MSG_UPDATE_SUCCESS)->success();
-            
+
             // Redirecionamento condicional
             if ($request->has('kidId') || $request->query('kidId')) {
                 $kidId = $request->input('kidId', $request->query('kidId', $checklist->kid_id));
+
                 return redirect()->to('checklists?kidId=' . $kidId);
             }
-            
+
             return redirect()->route('checklists.index');
         } catch (\Exception $e) {
             Log::error(self::MSG_UPDATE_ERROR . ': ' . $e->getMessage());
             flash(self::MSG_UPDATE_ERROR)->error();
+
             return redirect()->back();
         }
     }
@@ -283,7 +285,7 @@ class ChecklistController extends BaseController
         $this->authorize('delete', $checklist);
 
         return $this->handleUpdateRequest(
-            function() use ($checklist) {
+            function () use ($checklist) {
                 if ($checklist->planes()->exists()) {
                     foreach ($checklist->planes as $plane) {
                         $plane->deleted_by = Auth::id();
@@ -291,7 +293,7 @@ class ChecklistController extends BaseController
                         $plane->delete();
                     }
                 }
-                
+
                 $this->checklistRepository->markAsDeleted($checklist, Auth::id());
             },
             self::MSG_DELETE_SUCCESS,
@@ -454,19 +456,19 @@ class ChecklistController extends BaseController
             }
 
             DB::commit();
-            
+
             flash(self::MSG_CLONE_SUCCESS)->success();
-            
+
             // Se há kidId na request, mantém na URL de retorno
             if ($request->has('kidId')) {
                 return redirect()->route('checklists.index', ['kidId' => $request->get('kidId')]);
             }
-            
-            return redirect()->route('checklists.index');
 
+            return redirect()->route('checklists.index');
         } catch (Exception $e) {
             Log::error(self::MSG_CLONE_ERROR . ': ' . $e->getMessage());
             flash(self::MSG_CLONE_ERROR)->error();
+
             return redirect()->back()->withInput();
         }
     }

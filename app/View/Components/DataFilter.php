@@ -64,6 +64,7 @@ class DataFilter extends Component
                 return true;
             }
         }
+
         return false;
     }
 
@@ -73,7 +74,7 @@ class DataFilter extends Component
         foreach ($this->hiddenFields as $key => $value) {
             $queryParams[$key] = $value;
         }
-        
+
         return route($this->actionRoute, $queryParams);
     }
 }

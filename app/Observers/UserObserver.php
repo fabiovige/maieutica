@@ -26,13 +26,13 @@ class UserObserver
 
             // O Observer é responsável por enviar o email de boas-vindas
             $temporaryPassword = session('user_creation_temp_password');
-            
+
             \Log::info('UserObserver: Senha temporária', [
                 'user_id' => $user->id,
                 'temporary_password' => $temporaryPassword,
                 'session_password' => session('user_creation_temp_password', 'SESSION_NULL'),
             ]);
-            
+
             if ($temporaryPassword) {
                 $notification = new WelcomeNotification($user, $temporaryPassword);
                 $user->notify($notification);

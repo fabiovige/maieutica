@@ -74,14 +74,13 @@
                 </div>
             </div>
 
-            <script>
-                function openDateModal() {
-                    var dateModal = new bootstrap.Modal(document.getElementById('dateModal'));
-                    document.getElementById('retroactiveDate').value = '';
-                    document.getElementById('checklistTypeAtual').checked = true;
-                    document.getElementById('retroactiveDateGroup').style.display = 'none';
-                    dateModal.show();
-                }
+            @push('scripts')
+                <script>
+                    window.kidId = "{{ $kid->id }}";
+                    window.checklistStoreRoute = "{{ route('checklists.store', ['kidId' => $kid->id]) }}";
+                </script>
+                <script src="{{ asset('js/pages/checklists-index.js') }}"></script>
+            @endpush
 
                 document.addEventListener('DOMContentLoaded', function() {
                     window.kidId = "{{ $kid->id }}";

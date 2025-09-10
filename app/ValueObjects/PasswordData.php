@@ -6,7 +6,7 @@ namespace App\ValueObjects;
 
 use Illuminate\Support\Str;
 
-readonly class PasswordData
+class PasswordData
 {
     private function __construct(
         public string $plainPassword,

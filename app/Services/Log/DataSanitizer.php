@@ -78,6 +78,7 @@ class DataSanitizer
         }
 
         $array = json_decode(json_encode($object), true);
+
         return self::sanitize($array, $anonymizePersonalData);
     }
 
@@ -161,14 +162,14 @@ class DataSanitizer
         $domain = $parts[1];
 
         $maskedUsername = substr($username, 0, 2) . str_repeat('*', max(0, strlen($username) - 2));
-        
+
         return $maskedUsername . '@' . $domain;
     }
 
     private static function maskPhone(string $phone): string
     {
         $cleaned = preg_replace('/\D/', '', $phone);
-        
+
         if (strlen($cleaned) < 10) {
             return '[MASKED_PHONE]';
         }
@@ -179,7 +180,7 @@ class DataSanitizer
     private static function maskCpf(string $cpf): string
     {
         $cleaned = preg_replace('/\D/', '', $cpf);
-        
+
         if (strlen($cleaned) !== 11) {
             return '[MASKED_CPF]';
         }
@@ -190,7 +191,7 @@ class DataSanitizer
     private static function maskRg(string $rg): string
     {
         $cleaned = preg_replace('/\D/', '', $rg);
-        
+
         if (strlen($cleaned) < 7) {
             return '[MASKED_RG]';
         }
@@ -201,7 +202,7 @@ class DataSanitizer
     private static function maskAddress(string $address): string
     {
         $words = explode(' ', $address);
-        
+
         if (count($words) <= 2) {
             return '[MASKED_ADDRESS]';
         }
@@ -212,7 +213,7 @@ class DataSanitizer
     private static function maskZipCode(string $zipCode): string
     {
         $cleaned = preg_replace('/\D/', '', $zipCode);
-        
+
         if (strlen($cleaned) !== 8) {
             return '[MASKED_ZIP]';
         }
@@ -227,7 +228,7 @@ class DataSanitizer
         }
 
         $words = explode(' ', $value);
-        
+
         if (count($words) === 1) {
             return substr($value, 0, 1) . str_repeat('*', max(0, strlen($value) - 1));
         }
@@ -235,8 +236,8 @@ class DataSanitizer
         $firstName = $words[0];
         $lastName = end($words);
 
-        return substr($firstName, 0, 1) . '***' . 
-               (count($words) > 2 ? ' *** ' : ' ') . 
+        return substr($firstName, 0, 1) . '***' .
+               (count($words) > 2 ? ' *** ' : ' ') .
                substr($lastName, 0, 1) . str_repeat('*', max(0, strlen($lastName) - 1));
     }
 
@@ -252,7 +253,7 @@ class DataSanitizer
                 'ip_address' => request()?->ip(),
                 'user_agent' => request()?->userAgent(),
                 'request_id' => request()?->header('X-Request-ID'),
-            ], $metadata)
+            ], $metadata),
         ];
     }
 

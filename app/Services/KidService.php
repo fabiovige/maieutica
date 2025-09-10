@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Contracts\KidRepositoryInterface;
 use App\Models\Kid;
 use App\Models\User;
+use App\ValueObjects\KidData;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -41,16 +42,13 @@ class KidService
         DB::beginTransaction();
 
         try {
-            $kidData = [
-                'name' => $data['name'],
-                'birth_date' => $data['birth_date'],
-                'gender' => $data['gender'],
-                'ethnicity' => $data['ethnicity'],
-                'responsible_id' => $data['responsible_id'],
-                'created_by' => Auth::id(),
-            ];
+            $kidData = KidData::fromArray($data);
+            $kidArray = array_merge(
+                $kidData->toCreateArray(),
+                ['created_by' => Auth::id()]
+            );
 
-            $kid = $this->kidRepository->create($kidData);
+            $kid = $this->kidRepository->create($kidArray);
 
             if (Auth::user()->can('attach-to-kids-as-professional')) {
                 $this->attachCurrentProfessionalToKid($kid->id);
@@ -80,15 +78,16 @@ class KidService
         DB::beginTransaction();
 
         try {
-            $updateData = [
-                'name' => $data['name'],
-                'birth_date' => $data['birth_date'],
-                'gender' => $data['gender'],
-                'ethnicity' => $data['ethnicity'],
-                'responsible_id' => $data['responsible_id'] ?? null,
-            ];
+            $kidData = KidData::fromArray($data);
+            $updateArray = array_merge(
+                $kidData->toArray(),
+                [
+                    'updated_by' => Auth::id(),
+                    'months' => $kidData->calculateAgeInMonths(),
+                ]
+            );
 
-            $result = $this->kidRepository->update($kidId, $updateData);
+            $result = $this->kidRepository->update($kidId, $updateArray);
 
             if ($result && isset($data['professionals'])) {
                 $this->syncProfessionalsForKid($kidId, $data['professionals'], $data['primary_professional'] ?? null);

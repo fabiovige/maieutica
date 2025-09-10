@@ -21,20 +21,20 @@ class NotificationService
     {
         try {
             $user->notify(new WelcomeNotification($user, $password));
-            
+
             $this->loggingService->logUserOperation(
                 LogOperation::EMAIL_SEND,
                 'Welcome notification sent successfully to new user',
-                ['user_id' => $user->id]);
-            
+                ['user_id' => $user->id]
+            );
         } catch (Exception $e) {
             $this->loggingService->logException(
                 $e,
                 'Failed to send welcome notification',
                 ['user_id' => $user->id]
             );
-            
-            throw new Exception("Falha ao enviar notificação de boas-vindas", 0, $e);
+
+            throw new Exception('Falha ao enviar notificação de boas-vindas', 0, $e);
         }
     }
 
@@ -48,43 +48,43 @@ class NotificationService
                 $user->notify(new WelcomeNotification($user, $newPassword));
                 $notificationType = 'welcome_fallback';
             }
-            
+
             $this->loggingService->logSecurityEvent(
                 LogOperation::PASSWORD_RESET,
                 'Password reset notification sent successfully',
                 [
                     'user_id' => $user->id,
-                    'notification_type' => $notificationType
-                ]);
-            
+                    'notification_type' => $notificationType,
+                ]
+            );
         } catch (Exception $e) {
             $this->loggingService->logException(
                 $e,
                 'Failed to send password reset notification',
                 ['user_id' => $user->id]
             );
-            
-            throw new Exception("Falha ao enviar notificação de reset de senha", 0, $e);
+
+            throw new Exception('Falha ao enviar notificação de reset de senha', 0, $e);
         }
     }
 
     public function sendBulkNotification(array $users, string $notificationClass, array $data = []): void
     {
-        $userIds = array_map(fn($user) => $user->id, $users);
-        
+        $userIds = array_map(fn ($user) => $user->id, $users);
+
         $this->loggingService->logUserOperation(
             LogOperation::EMAIL_SEND,
             'Starting bulk notification process',
             [
                 'notification_class' => $notificationClass,
                 'user_count' => count($users),
-                'user_ids' => $userIds
+                'user_ids' => $userIds,
             ]
         );
-        
+
         $successCount = 0;
         $errorCount = 0;
-        
+
         foreach ($users as $user) {
             try {
                 if (class_exists($notificationClass)) {
@@ -93,18 +93,18 @@ class NotificationService
                 }
             } catch (Exception $e) {
                 $errorCount++;
-                
+
                 $this->loggingService->logException(
                     $e,
                     'Failed to send bulk notification to individual user',
                     [
                         'user_id' => $user->id,
-                        'notification_class' => $notificationClass
+                        'notification_class' => $notificationClass,
                     ]
                 );
             }
         }
-        
+
         $this->loggingService->logUserOperation(
             LogOperation::EMAIL_SEND,
             'Bulk notification process completed',
@@ -112,7 +112,7 @@ class NotificationService
                 'notification_class' => $notificationClass,
                 'total_users' => count($users),
                 'success_count' => $successCount,
-                'error_count' => $errorCount
+                'error_count' => $errorCount,
             ],
             $errorCount > 0 ? 'warning' : 'info'
         );

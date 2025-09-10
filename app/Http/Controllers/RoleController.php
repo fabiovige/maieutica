@@ -43,7 +43,7 @@ class RoleController extends BaseController
             $request,
             function ($filters) {
                 $query = SpatieRole::query()->with('permissions');
-                
+
                 // Filtrar roles (não mostrar superadmin para não superadmins)
                 if (!auth()->user()->can('bypass-all-checks')) {
                     $query->where('name', '!=', 'superadmin');

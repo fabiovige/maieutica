@@ -60,6 +60,7 @@ class ChecklistRepository extends BaseRepository implements ChecklistRepositoryI
     public function getChecklistsForUser(int $userId, array $filters = []): LengthAwarePaginator
     {
         $cacheKey = "checklists.user.{$userId}." . md5(serialize($filters));
+
         return Cache::remember($cacheKey, 300, function () use ($filters) {
             return $this->getPaginated($filters['per_page'] ?? 15, $filters);
         });
@@ -68,6 +69,7 @@ class ChecklistRepository extends BaseRepository implements ChecklistRepositoryI
     public function getChecklistsByKid(int $kidId, array $filters = []): LengthAwarePaginator
     {
         $filters['kid_id'] = $kidId;
+
         return $this->getPaginated($filters['per_page'] ?? 15, $filters);
     }
 
@@ -75,20 +77,20 @@ class ChecklistRepository extends BaseRepository implements ChecklistRepositoryI
     {
         $checklist->deleted_by = $deletedBy;
         $checklist->save();
-        
+
         $this->clearCache();
-        
+
         return $checklist->delete();
     }
 
     private function buildBaseQuery(): Builder
     {
         $user = Auth::user();
-        
+
         $query = $this->model->newQuery()
             ->with([
                 'kid:id,name,responsible_id',
-                'kid.responsible:id,name'
+                'kid.responsible:id,name',
             ])
             ->select(['id', 'kid_id', 'level', 'situation', 'created_at', 'description']);
 

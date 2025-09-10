@@ -2,18 +2,31 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Resources\ChecklistResource;
 use App\Models\Checklist;
 use App\Models\Competence;
 use App\Models\Level;
+use App\DTOs\Responses\ChecklistResponseDto;
+use App\DTOs\Responses\CollectionResponseDto;
+use App\Services\ChecklistService;
+use Illuminate\Http\JsonResponse;
 
 class ChecklistController
 {
-    public function index()
+    public function __construct(
+        private readonly ChecklistService $checklistService
+    ) {
+    }
+
+    public function index(): JsonResponse
     {
         $checklists = Checklist::all();
 
-        return ChecklistResource::collection($checklists);
+        $response = CollectionResponseDto::fromCollection(
+            $checklists,
+            fn ($checklist) => ChecklistResponseDto::fromModel($checklist)->toMinimalArray()
+        );
+
+        return response()->json($response);
     }
 
     public function show($id)
@@ -37,10 +50,15 @@ class ChecklistController
         return $arrCompetences;
     }
 
-    public function getCompetencesByNote($checklistId, $note)
+    public function getCompetencesByNote($checklistId, $note): JsonResponse
     {
         $competences = Checklist::getCompetencesByNote($checklistId, $note);
 
-        return response()->json($competences);
+        return response()->json([
+            'checklist_id' => $checklistId,
+            'note' => $note,
+            'competences' => $competences,
+            'total' => count($competences),
+        ]);
     }
 }
