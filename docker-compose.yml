@@ -34,9 +34,9 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: maieutica
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
       MYSQL_USER: maieutica
+      MYSQL_PASSWORD: secret
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
