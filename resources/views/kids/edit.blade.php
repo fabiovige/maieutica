@@ -156,29 +156,12 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="primary_professional" class="form-label">Profissional Principal <span class="text-muted">(opcional)</span></label>
-                                <select class="form-select @error('primary_professional') is-invalid @enderror"
-                                        id="primary_professional" name="primary_professional">
-                                    <option value="">Selecione um profissional...</option>
-                                    @foreach($professions as $professional)
-                                        <option value="{{ $professional->id }}" {{ old('primary_professional', $kid->primary_professional) == $professional->id ? 'selected' : '' }}>
-                                            {{ $professional->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('primary_professional')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-3">
-                                <label class="form-label">Profissionais Adicionais <span class="text-muted">(opcional)</span></label>
+                                <label class="form-label">Profissionais <span class="text-muted">(opcional)</span></label>
                                 <div class="row">
                                     @foreach($professions as $professional)
                                         <div class="col-md-4">

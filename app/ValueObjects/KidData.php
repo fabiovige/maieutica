@@ -26,7 +26,7 @@ class KidData extends AbstractValueObject
         return new self(
             name: trim($data['name']),
             birthDate: is_string($data['birth_date'])
-                ? Carbon::createFromFormat('Y-m-d', $data['birth_date'])->toDateTime()
+                ? self::parseBirthDate($data['birth_date'])
                 : $data['birth_date'],
             gender: $data['gender'],
             ethnicity: $data['ethnicity'] ?? null,
@@ -133,5 +133,28 @@ class KidData extends AbstractValueObject
         if (!\App\Models\Responsible::where('id', $this->responsibleId)->exists()) {
             $this->addValidationError('Responsável não encontrado');
         }
+    }
+
+    private static function parseBirthDate(string $dateString): DateTime
+    {
+        $dateString = trim($dateString);
+
+        // Tenta formato brasileiro dd/mm/yyyy
+        if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $dateString)) {
+            return Carbon::createFromFormat('d/m/Y', $dateString)->toDateTime();
+        }
+
+        // Tenta formato ISO yyyy-mm-dd
+        if (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $dateString)) {
+            return Carbon::createFromFormat('Y-m-d', $dateString)->toDateTime();
+        }
+
+        // Tenta formato americano mm/dd/yyyy
+        if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $dateString)) {
+            return Carbon::createFromFormat('m/d/Y', $dateString)->toDateTime();
+        }
+
+        // Fallback: tenta parser automático do Carbon
+        return Carbon::parse($dateString)->toDateTime();
     }
 }

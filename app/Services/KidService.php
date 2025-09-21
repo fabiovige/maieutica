@@ -245,19 +245,18 @@ class KidService
 
     public function getParentsForSelect(): Collection
     {
-        return User::whereHas('roles', function ($query) {
-            $query->where('name', 'pais');
-        })->get();
+        return \App\Models\Responsible::all();
     }
 
     public function getProfessionalsForSelect(): Collection
     {
-        return User::whereHas('roles', function ($query) {
-            $query->where('name', 'professional');
-        })->with(['professional.specialty'])
-        ->whereHas('professional', function ($query) {
-            $query->whereNotNull('specialty_id');
-        })->get();
+        return \App\Models\Professional::with(['user', 'specialty'])
+            ->whereNotNull('specialty_id')
+            ->get()
+            ->map(function ($professional) {
+                $professional->name = $professional->user->first()?->name ?? 'Nome não encontrado';
+                return $professional;
+            });
     }
 
     private function attachCurrentProfessionalToKid(int $kidId): void
