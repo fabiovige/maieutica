@@ -163,15 +163,33 @@ Maiêutica é uma plataforma web especializada para clínicas psicológicas, foc
 - Comparação entre competências
 - Análise de tendências
 
+#### RF014 - Acompanhamento de Evolução
+- **Radar Charts Comparativos** (`/analysis/{kidId}/level/{levelId}`): Análise visual do desempenho da criança através de gráficos radar, permitindo comparação entre diferentes períodos de avaliação e níveis de desenvolvimento
+- **Seleção de Períodos**: Comparação entre diferentes checklists aplicados para visualizar evolução temporal
+- **Análise por Níveis**: Segmentação das avaliações por níveis de desenvolvimento para análises mais precisas
+
+#### RF015 - Desenvolvimento da Criança (Overview)
+- **Dashboard Completo** (`/kids/{kidId}/overview`): Visão consolidada do desenvolvimento da criança com cálculos de idade de desenvolvimento, atrasos e progressos
+- **Cálculo de Idade Desenvolvimental**: Automatização do cálculo da idade de desenvolvimento baseada nas competências dominadas
+- **Análise por Domínios**: Breakdown detalhado do desempenho por áreas cognitivas específicas
+- **Gráficos Interativos**: Visualizações dinâmicas com barras e radar charts para diferentes aspectos do desenvolvimento
+- **Exportação PDF**: Geração de relatórios completos com todos os gráficos e análises para compartilhamento com responsáveis
+
+#### RF016 - Centralização de Checklists
+- **Visão Unificada** (`/checklists?kidId={kidId}`): Interface centralizada para gerenciar todos os checklists de uma criança específica
+- **Filtros Avançados**: Busca e filtros por status, data, profissional responsável
+- **Histórico Completo**: Acesso cronológico a todas as avaliações realizadas
+- **Ações em Massa**: Operações em lote para múltiplos checklists
+
 ### 3.5 Gestão de Profissionais
 
-#### RF014 - Cadastro de Profissionais
+#### RF017 - Cadastro de Profissionais
 - Informações profissionais completas
 - Especialidades e credenciais
 - Agenda e disponibilidade
 - Foto e documentos
 
-#### RF015 - Atribuição de Pacientes
+#### RF018 - Atribuição de Pacientes
 - Associação profissional-criança
 - Transferência de casos
 - Colaboração em equipe
@@ -179,13 +197,13 @@ Maiêutica é uma plataforma web especializada para clínicas psicológicas, foc
 
 ### 3.6 Gestão de Responsáveis
 
-#### RF016 - Cadastro de Responsáveis
+#### RF019 - Cadastro de Responsáveis
 - Dados pessoais e contato
 - Grau de parentesco
 - Múltiplos responsáveis por criança
 - Permissões de acesso
 
-#### RF017 - Portal do Responsável
+#### RF020 - Portal do Responsável
 - Acesso a relatórios
 - Visualização de progresso
 - Agendamentos

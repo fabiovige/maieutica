@@ -110,7 +110,7 @@ docker compose exec app ./vendor/bin/phpunit --coverage-html coverage
 
 ### Assessment System
 - Checklists group multiple competences for structured evaluation
-- Competences belong to domains (cognitive areas) and levels (difficulty/age appropriateness) 
+- Competences belong to domains (cognitive areas) and levels (difficulty/age appropriateness)
 - Progress tracking through percentage completion and percentile rankings
 - Automatic plane generation based on assessment results
 
@@ -120,10 +120,16 @@ docker compose exec app ./vendor/bin/phpunit --coverage-html coverage
 - Observer pattern for user lifecycle events (creation, updates, deletions)
 
 ### Reporting & Analytics
-- PDF generation for assessment reports using TCPDF
-- Interactive charts showing progress over time
-- Dashboard with overview statistics and recent activity
-- DataTables integration for advanced data tables with sorting/filtering
+- **PDF generation** for assessment reports using TCPDF
+- **Interactive charts** showing progress over time
+- **Dashboard** with overview statistics and recent activity
+- **DataTables integration** for advanced data tables with sorting/filtering
+
+### Assessment Tracking & Development Reports
+- **Acompanhamento de Evolução** (`/analysis/{kidId}/level/{levelId}`): Radar charts comparing child's performance across different assessment periods and levels
+- **Desenvolvimento da Criança** (`/kids/{kidId}/overview`): Comprehensive development overview with developmental age calculations, domain-specific progress, and visual charts
+- **Centralização de Checklists** (`/checklists?kidId={kidId}`): Centralized view of all checklists for a specific child with filtering and management capabilities
+- **PDF Report Generation**: Export detailed assessment reports with charts and developmental analysis
 
 ## Configuration Notes
 

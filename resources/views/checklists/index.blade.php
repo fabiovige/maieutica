@@ -78,80 +78,78 @@
                 <script>
                     window.kidId = "{{ $kid->id }}";
                     window.checklistStoreRoute = "{{ route('checklists.store', ['kidId' => $kid->id]) }}";
+
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Alternar exibição do campo de data
+                        document.getElementById('checklistTypeAtual').addEventListener('change', function() {
+                            document.getElementById('retroactiveDateGroup').style.display = 'none';
+                        });
+                        document.getElementById('checklistTypeRetro').addEventListener('change', function() {
+                            document.getElementById('retroactiveDateGroup').style.display = 'block';
+                        });
+
+                        document.getElementById('confirmDateBtn').addEventListener('click', function() {
+                            var type = document.querySelector('input[name="checklistType"]:checked').value;
+                            if (type === 'retro') {
+                                var date = document.getElementById('retroactiveDate').value;
+                                if (!date) {
+                                    alert('Por favor, selecione uma data.');
+                                    return;
+                                }
+                                createChecklistWithDate(date, this);
+                            } else {
+                                // Cria checklist com data de hoje
+                                createChecklistWithDate(null, this);
+                            }
+                        });
+                    });
+
+                    function createChecklistWithDate(date, button) {
+                        button.disabled = true;
+                        const buttonContent = button.innerHTML;
+                        button.innerHTML = `
+                            <span class="d-flex align-items-center">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Criando...
+                            </span>
+                        `;
+
+                        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        let bodyData = {
+                            kid_id: window.kidId,
+                            level: 4
+                        };
+                        if (date) {
+                            bodyData.created_at = date;
+                        }
+                        fetch("{{ route('checklists.store', ['kidId' => $kid->id]) }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': token,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify(bodyData)
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    window.location.reload();
+                                } else {
+                                    button.disabled = false;
+                                    button.innerHTML = buttonContent;
+                                    alert('Erro ao criar checklist: ' + (data.error || 'Erro desconhecido'));
+                                }
+                            })
+                            .catch(error => {
+                                button.disabled = false;
+                                button.innerHTML = buttonContent;
+                                alert('Erro ao criar checklist: ' + error.message);
+                            });
+                    }
                 </script>
                 <script src="{{ asset('js/pages/checklists-index.js') }}"></script>
             @endpush
-
-                document.addEventListener('DOMContentLoaded', function() {
-                    window.kidId = "{{ $kid->id }}";
-                    // Alternar exibição do campo de data
-                    document.getElementById('checklistTypeAtual').addEventListener('change', function() {
-                        document.getElementById('retroactiveDateGroup').style.display = 'none';
-                    });
-                    document.getElementById('checklistTypeRetro').addEventListener('change', function() {
-                        document.getElementById('retroactiveDateGroup').style.display = 'block';
-                    });
-
-                    document.getElementById('confirmDateBtn').addEventListener('click', function() {
-                        var type = document.querySelector('input[name="checklistType"]:checked').value;
-                        if (type === 'retro') {
-                            var date = document.getElementById('retroactiveDate').value;
-                            if (!date) {
-                                alert('Por favor, selecione uma data.');
-                                return;
-                            }
-                            createChecklistWithDate(date, this);
-                        } else {
-                            // Cria checklist com data de hoje
-                            createChecklistWithDate(null, this);
-                        }
-                    });
-                });
-
-                function createChecklistWithDate(date, button) {
-                    button.disabled = true;
-                    const buttonContent = button.innerHTML;
-                    button.innerHTML = `
-                        <span class=\"d-flex align-items-center\">
-                            <span class=\"spinner-border spinner-border-sm me-2\" role=\"status\" aria-hidden=\"true\"></span>
-                            Criando...
-                        </span>
-                    `;
-
-                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    let bodyData = {
-                        kid_id: window.kidId,
-                        level: 4
-                    };
-                    if (date) {
-                        bodyData.created_at = date;
-                    }
-                    fetch("{{ route('checklists.store', ['kidId' => $kid->id]) }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': token,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(bodyData)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                window.location.reload();
-                            } else {
-                                button.disabled = false;
-                                button.innerHTML = buttonContent;
-                                alert('Erro ao criar checklist: ' + (data.error || 'Erro desconhecido'));
-                            }
-                        })
-                        .catch(error => {
-                            button.disabled = false;
-                            button.innerHTML = buttonContent;
-                            alert('Erro ao criar checklist: ' + error.message);
-                        });
-                }
-            </script>
         @endif
     @endcan
 @endsection
