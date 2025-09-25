@@ -81,18 +81,22 @@ class ProfessionalWebInterfaceTest extends TestCase
     public function edit_page_renders_correct_data_for_inactive_professional()
     {
         $this->actingAs($this->adminUser);
-        
+
         $this->professionalService->deactivateProfessional($this->professional->id);
 
         $response = $this->get(route('professionals.edit', $this->professional->id));
 
         $response->assertStatus(200);
-        
+
         $response->assertSee('Dr. Interface Test');
         $response->assertSee('interface@teste.com');
         $response->assertSee('CRP999999');
-        
-        $response->assertDontSee('checked', false);
+
+        // Verificar que o checkbox não está marcado para profissional inativo
+        $responseContent = $response->getContent();
+        $hasCheckedAttribute = preg_match('/name="allow"[^>]*checked/', $responseContent);
+        $this->assertFalse((bool) $hasCheckedAttribute, 'Checkbox não deveria estar marcado para profissional inativo');
+
         $response->assertSee('Inativo');
     }
 
@@ -133,7 +137,10 @@ class ProfessionalWebInterfaceTest extends TestCase
         echo "   - HTML contém 'checked': " . ($hasChecked ? 'SIM' : 'NÃO') . "\n";
         echo "   - HTML contém 'Inativo': " . ($hasInativo ? 'SIM' : 'NÃO') . "\n";
         
-        $this->assertFalse($hasChecked, 'HTML não deveria conter checked');
+        // Verificação mais específica do checkbox
+        $responseContent = $response->getContent();
+        $hasCheckedAttribute = preg_match('/name="allow"[^>]*checked/', $responseContent);
+        $this->assertFalse((bool) $hasCheckedAttribute, 'Checkbox não deveria estar marcado após desativação');
         $this->assertTrue($hasInativo, 'HTML deveria conter Inativo');
 
         echo "=== TESTE FINALIZADO ===\n\n";

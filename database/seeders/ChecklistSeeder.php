@@ -16,36 +16,44 @@ class ChecklistSeeder extends Seeder
      */
     public function run()
     {
-        $kid = Kid::pluck('id');
+        $kids = Kid::limit(5)->pluck('id'); // Limitar a 5 crianças para seeds mais rápidos
 
-        // checklists
-        foreach ($kid as $kidId) {
-            // Criar 5 checklists para cada criança
-            foreach ([1, 2, 3] as $c => $v) {
-                // levels
-                $indice = 4;
-                $arrLevel = [];
-                for ($i = 1; $i <= $indice; $i++) {
-                    $arrLevel[] = $i;
+        // Cache das competências por nível para evitar queries repetidas
+        $competencesByLevel = [];
+        for ($i = 1; $i <= 4; $i++) {
+            $competencesByLevel[$i] = Competence::where('level_id', $i)->pluck('id')->toArray();
+        }
+
+        $checklistCompetenceData = [];
+
+        foreach ($kids as $kidId) {
+            // Criar apenas 1 checklist por criança para reduzir volume
+            $checklistId = Checklist::insertGetId([
+                'kid_id' => $kidId,
+                'level' => 4,
+                'created_by' => 1,
+                'created_at' => \Carbon\Carbon::now(),
+                'updated_at' => \Carbon\Carbon::now(),
+            ]);
+
+            // Preparar relações checklist-competence para inserção em lote
+            for ($level = 1; $level <= 4; $level++) {
+                foreach ($competencesByLevel[$level] as $competenceId) {
+                    $checklistCompetenceData[] = [
+                        'checklist_id' => $checklistId,
+                        'competence_id' => $competenceId,
+                        'note' => rand(1, 3),
+                    ];
                 }
+            }
+        }
 
-                $checklist = Checklist::create([
-                    'kid_id' => $kidId,
-                    'level' => $indice,
-                    'created_by' => 1,
-                ]);
-
-                foreach ($arrLevel as $c => $level) {
-                    $components = Competence::where('level_id', '=', $level)->pluck('id')->toArray();
-
-                    $notes = [];
-                    // competences
-                    foreach ($components as $c => $v) {
-                        $notes[$v] = ['note' => rand(1, 3)];
-                    }
-
-                    $checklist->competences()->syncWithoutDetaching($notes);
-                }
+        // Inserção em lote das relações
+        if (!empty($checklistCompetenceData)) {
+            // Dividir em chunks para evitar problemas de memória
+            $chunks = array_chunk($checklistCompetenceData, 1000);
+            foreach ($chunks as $chunk) {
+                \DB::table('checklist_competence')->insert($chunk);
             }
         }
     }

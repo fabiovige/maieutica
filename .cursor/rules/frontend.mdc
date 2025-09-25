@@ -1,10 +1,13 @@
 ---
 description: Minhas regras para desenolvimento
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
 # Content
 
+- Sempre respeite a estrutura atual do projeto
+- Sempre analise de onde parou para dar continuidade
+- Olhe sempre para os arquios o package.json e o composer.json
 - Follow SOLID principles;
 - Keep code DRY (Don't Repeat Yourself);
 - Write clean and readable code;

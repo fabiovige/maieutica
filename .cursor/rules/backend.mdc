@@ -1,8 +1,11 @@
 ---
 description: Minhas regras debacken
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
+- Sempre respeite a estrutura atual do projeto
+- Sempre analise de onde parou para dar continuidade
+- Olhe sempre para os arquios o package.json e o composer.json
 - Use Eloquent ORM efficiently, avoiding N+1 queries with eager loading;
 - Validate all user inputs using Laravel Form Requests or Validator;
 - Follow the MVC pattern to separate concerns;

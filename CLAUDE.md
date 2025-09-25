@@ -196,3 +196,7 @@ docker compose exec app ./vendor/bin/phpunit --coverage-html coverage
 - Use soft deletes for recoverable records
 - Normalize schemas to avoid redundancy
 - pare de ficar limpando o banco de dados
+
+## Task Master AI Instructions
+**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
+@./.taskmaster/CLAUDE.md
