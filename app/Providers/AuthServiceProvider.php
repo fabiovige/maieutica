@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\AuditLog;
 use App\Models\Checklist;
 use App\Models\Competence;
 use App\Models\Kid;
 use App\Models\Professional;
 use App\Models\User;
+use App\Policies\AuditLogPolicy;
 use App\Policies\ChecklistPolicy;
 use App\Policies\CompetencePolicy;
 use App\Policies\KidPolicy;
@@ -17,6 +19,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
+        AuditLog::class => AuditLogPolicy::class,
         Kid::class => KidPolicy::class,
         User::class => UserPolicy::class,
         Checklist::class => ChecklistPolicy::class,

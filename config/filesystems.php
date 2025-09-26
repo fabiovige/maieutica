@@ -33,6 +33,7 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
+            'visibility' => 'private',
         ],
 
         'public' => [
@@ -40,6 +41,22 @@ return [
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
+        ],
+
+        'kids_photos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/kids'),
+            'visibility' => 'private',
+            'permissions' => [
+                'file' => [
+                    'public' => 0640,
+                    'private' => 0600,
+                ],
+                'dir' => [
+                    'public' => 0755,
+                    'private' => 0700,
+                ],
+            ],
         ],
 
         's3' => [

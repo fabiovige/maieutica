@@ -29,8 +29,8 @@
                         <div class="col-md-2">
                             @if ($professional->user->first() && $professional->user->first()->avatar)
                                 <img src="{{ asset('storage/' . $professional->user->first()->avatar) }}"
-                                    class="img-fluid rounded-circle" 
-                                    alt="{{ $professional->user->first()->name }}">
+                                    class="img-fluid rounded-circle"
+                                    alt="{{ safe_attribute($professional->user->first()->name) }}">
                             @else
                                 <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
                                     style="width: 100px; height: 100px">

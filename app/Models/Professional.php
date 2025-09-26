@@ -2,18 +2,31 @@
 
 namespace App\Models;
 
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Professional extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasAuditLog;
 
     protected $fillable = [
         'registration_number',
         'bio',
         'specialty_id',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+    ];
+
+    protected $auditableFields = [
+        'registration_number',
+        'bio',
+        'specialty_id',
+    ];
+
+    protected $nonAuditableFields = [
         'created_by',
         'updated_by',
         'deleted_by',

@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\CompetencesController;
+use App\Http\Controllers\KidPhotoController;
 use App\Http\Controllers\KidsController;
 use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\ProfileController;
@@ -65,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('kids/{kid}/show-plane{checklistId?}', [KidsController::class, 'showPlane'])->name('kids.showPlane');
     Route::get('kids/{kid}/eye', [KidsController::class, 'eyeKid'])->name('kids.eye');
     Route::post('kids/{kid}/upload-photo', [KidsController::class, 'uploadPhoto'])->name('kids.upload.photo');
+    Route::get('kids/{kid}/photo/{filename}', [KidPhotoController::class, 'show'])->name('kids.photo.show');
     Route::resource('kids', KidsController::class);
 
     // roles
@@ -100,6 +103,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tutorial',  [TutorialController::class, 'index'])->name('tutorial.index');
     Route::get('/tutorial/users',  [TutorialController::class, 'users'])->name('tutorial.users');
     Route::get('/tutorial/checklists',  [TutorialController::class, 'checklists'])->name('tutorial.checklists');
+
+    // AUDIT LOGS
+    Route::prefix('audit')->name('audit.')->group(function () {
+        Route::get('/', [AuditLogController::class, 'index'])->name('index');
+        Route::get('/stats', [AuditLogController::class, 'stats'])->name('stats');
+        Route::get('/export', [AuditLogController::class, 'export'])->name('export');
+        Route::get('/{auditLog}', [AuditLogController::class, 'show'])->name('show');
+    });
 });
 
 // Data Table Ajax
@@ -172,3 +183,36 @@ Route::post('/test-professional-update', function() {
         ], 500);
     }
 })->middleware('auth');
+
+// Rotas LGPD
+Route::middleware('auth')->group(function () {
+    Route::prefix('lgpd')->name('lgpd.')->group(function () {
+        // Rotas para usuários comuns
+        Route::get('consent', [App\Http\Controllers\LgpdController::class, 'consentForm'])
+            ->name('consent-form');
+
+        Route::post('consent/grant', [App\Http\Controllers\LgpdController::class, 'grantConsent'])
+            ->name('grant-consent');
+
+        Route::post('consent/revoke', [App\Http\Controllers\LgpdController::class, 'revokeConsent'])
+            ->name('revoke-consent');
+
+        Route::get('data-request', [App\Http\Controllers\LgpdController::class, 'dataRequestForm'])
+            ->name('data-request-form');
+
+        Route::post('data-request', [App\Http\Controllers\LgpdController::class, 'submitDataRequest'])
+            ->name('submit-data-request');
+
+        Route::get('export-data', [App\Http\Controllers\LgpdController::class, 'exportData'])
+            ->name('export-data');
+    });
+
+    // Rotas administrativas LGPD
+    Route::prefix('admin/lgpd')->name('admin.lgpd.')->group(function () {
+        Route::get('dashboard', [App\Http\Controllers\LgpdController::class, 'adminDashboard'])
+            ->name('dashboard');
+
+        Route::post('data-requests/{dataRequest}/process', [App\Http\Controllers\LgpdController::class, 'processDataRequest'])
+            ->name('process-data-request');
+    });
+});

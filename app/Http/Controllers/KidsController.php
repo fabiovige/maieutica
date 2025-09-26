@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class KidsController extends BaseController
 {
@@ -77,6 +78,8 @@ class KidsController extends BaseController
     public function show(Kid $kid): View
     {
         $this->authorize('view', $kid);
+
+        $kid->logReadAccess('Visualização de perfil da criança');
 
         return $this->handleViewRequest(
             fn () => ['kid' => $kid->load(['responsible', 'checklists', 'professionals.user', 'professionals.specialty'])],
@@ -1137,6 +1140,11 @@ class KidsController extends BaseController
 
     public function overview(Request $request, int $kidId, ?int $levelId = null): View
     {
+        $kid = Kid::findOrFail($kidId);
+        $this->authorize('view', $kid);
+
+        $kid->logReadAccess('Acesso ao relatório de desenvolvimento da criança');
+
         // Capturar checklistId da query string
         $checklistId = $request->query('checklist_id');
 
@@ -1209,11 +1217,18 @@ class KidsController extends BaseController
         $pdf->Cell(0, 10, 'Prontuário de desenvolvimento', 0, 1, 'C');
         $pdf->Ln(10);
 
-        // Obter o caminho da foto da criança
-        $photoPath = storage_path('app/public/' . $kid->photo);
+        // Obter o caminho da foto da criança no storage privado
+        $photoPath = null;
+
+        if ($kid->photo) {
+            $privatePath = Storage::disk('kids_photos')->path("{$kid->id}/{$kid->photo}");
+            if (Storage::disk('kids_photos')->exists("{$kid->id}/{$kid->photo}")) {
+                $photoPath = $privatePath;
+            }
+        }
 
         // Verificar se o arquivo existe
-        if (file_exists($photoPath)) {
+        if ($photoPath && file_exists($photoPath)) {
             // Definir a largura da foto
             $photoWidth = 50; // Ajuste conforme necessário
             // Obter a largura da página

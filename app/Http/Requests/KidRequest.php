@@ -32,6 +32,7 @@ class KidRequest extends FormRequest
             'primary_professional' => 'nullable|exists:professionals,id',
             'professionals' => 'nullable|array',
             'professionals.*' => 'exists:professionals,id',
+            'photo' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:2048|dimensions:min_width=100,min_height=100,max_width=2048,max_height=2048',
         ];
     }
 
@@ -45,6 +46,7 @@ class KidRequest extends FormRequest
             'responsible_id' => 'Responsável',
             'primary_professional' => 'Profissional Principal',
             'professionals' => 'Profissionais',
+            'photo' => 'Foto',
         ];
     }
 
@@ -59,6 +61,10 @@ class KidRequest extends FormRequest
             'responsible_id.exists' => 'Responsável inválido',
             'primary_professional.exists' => 'Profissional principal inválido',
             'professionals.*.exists' => 'Profissional inválido',
+            'photo.image' => 'O arquivo deve ser uma imagem válida',
+            'photo.mimes' => 'A foto deve ser um arquivo do tipo: jpeg, jpg, png, gif ou webp',
+            'photo.max' => 'A foto não pode ser maior que 2MB',
+            'photo.dimensions' => 'A foto deve ter pelo menos 100x100 pixels e no máximo 2048x2048 pixels',
         ];
     }
 }

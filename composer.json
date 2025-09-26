@@ -13,6 +13,7 @@
         "datatables.net/datatables.net": "dev-master",
         "datatables.net/datatables.net-dt": "dev-master",
         "elibyy/tcpdf-laravel": "^9.1",
+        "ezyang/htmlpurifier": "^4.18",
         "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
         "laracasts/flash": "^3.2.1",

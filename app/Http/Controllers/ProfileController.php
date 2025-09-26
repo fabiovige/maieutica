@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\ProfileUpdateRequest;
 use Exception;
 use Illuminate\Http\Request;
@@ -107,17 +108,14 @@ class ProfileController extends Controller
         }
     }
 
-    public function updatePassword(Request $request)
+    public function updatePassword(ChangePasswordRequest $request)
     {
-        $request->validate([
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ], [
-            'password.required' => 'A nova senha é obrigatória',
-            'password.min' => 'A nova senha deve ter pelo menos 8 caracteres',
-            'password.confirmed' => 'A confirmação da nova senha não confere',
-        ]);
-
         $user = auth()->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            flash('A senha atual está incorreta.')->error();
+            return redirect()->back()->withInput();
+        }
 
         try {
             $user->password = Hash::make($request->password);

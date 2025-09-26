@@ -18,7 +18,11 @@ class AuthorizationService
     {
         $user = Auth::user();
 
-        if (!$user || !$user->can($permission)) {
+        if (!$user) {
+            return false;
+        }
+
+        if (!$user->can($permission)) {
             return false;
         }
 

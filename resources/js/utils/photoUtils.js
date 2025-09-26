@@ -1,6 +1,6 @@
-export function getKidPhotoUrl(photo) {
-  if (photo) {
-    return `/images/kids/${photo}`
+export function getKidPhotoUrl(kidId, photoFilename) {
+  if (photoFilename && kidId) {
+    return `/kids/${kidId}/photo/${photoFilename}`
   }
 
   return `/images/kids/default.png`

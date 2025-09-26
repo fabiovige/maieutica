@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Traits\HasResourceAuthorization;
 use App\Traits\HasRoleAuthorization;
 use App\Traits\HasLogging;
+use App\Traits\EncryptedAttributes;
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -17,6 +19,8 @@ class User extends Authenticatable
     use HasApiTokens;
     use HasFactory;
     use HasLogging;
+    use EncryptedAttributes;
+    use HasAuditLog;
     use HasResourceAuthorization, HasRoleAuthorization {
         HasRoleAuthorization::canViewKid insteadof HasResourceAuthorization;
         HasRoleAuthorization::canEditKid insteadof HasResourceAuthorization;
@@ -80,6 +84,47 @@ class User extends Authenticatable
     public const TYPE = [
         'i' => 'Interno',
         'e' => 'Externo',
+    ];
+
+    protected function getEncryptedFields(): array
+    {
+        return [
+            'name',
+            'phone',
+            'postal_code',
+            'street',
+            'number',
+            'complement',
+            'neighborhood',
+            'city',
+        ];
+    }
+
+    protected $auditableFields = [
+        'name',
+        'email',
+        'avatar',
+        'allow',
+        'phone',
+        'postal_code',
+        'street',
+        'number',
+        'complement',
+        'neighborhood',
+        'city',
+        'state',
+    ];
+
+    protected $nonAuditableFields = [
+        'password',
+        'remember_token',
+        'email_verified_at',
+        'provider_id',
+        'provider_email',
+        'provider_avatar',
+        'created_by',
+        'updated_by',
+        'deleted_by',
     ];
 
     public function kids()
@@ -234,6 +279,21 @@ class User extends Authenticatable
     public function professional()
     {
         return $this->belongsToMany(Professional::class, 'user_professional');
+    }
+
+    public function responsible()
+    {
+        return $this->hasOne(Responsible::class);
+    }
+
+    public function lgpdConsents()
+    {
+        return $this->hasMany(LgpdConsent::class);
+    }
+
+    public function lgpdDataRequests()
+    {
+        return $this->hasMany(LgpdDataRequest::class);
     }
 
     public function getSpecialtyAttribute()

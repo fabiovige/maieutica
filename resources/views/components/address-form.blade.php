@@ -30,7 +30,7 @@
         <label for="cep" class="form-label">
             <i class="bi bi-search"></i>
             CEP
-            {!! $getRequiredIndicator() !!}
+            @if($required)<span class="text-danger">*</span>@endif
         </label>
         <input type="text" class="form-control @error('cep') is-invalid @enderror" id="cep" name="cep"
             value="{{ old('cep', $getCepFormatted()) }}" placeholder="00000-000" maxlength="9"
@@ -45,7 +45,7 @@
     <div class="col-12 col-md-4">
         <label for="logradouro" class="form-label">
             Logradouro
-            {!! $getRequiredIndicator() !!}
+            @if($required)<span class="text-danger">*</span>@endif
         </label>
         <input type="text" class="form-control address-field @error('logradouro') is-invalid @enderror"
             id="logradouro" name="logradouro" value="{{ old('logradouro', $logradouro) }}" autocomplete="address-line1"
@@ -59,7 +59,7 @@
     <div class="col-6 col-md-2">
         <label for="numero" class="form-label">
             Número
-            {!! $getRequiredIndicator() !!}
+            @if($required)<span class="text-danger">*</span>@endif
         </label>
         <input type="text" class="form-control @error('numero') is-invalid @enderror" id="numero" name="numero"
             value="{{ old('numero', $numero) }}" placeholder="123" autocomplete="address-line2"
@@ -85,7 +85,7 @@
     <div class="col-12 col-md-4">
         <label for="bairro" class="form-label">
             Bairro
-            {!! $getRequiredIndicator() !!}
+            @if($required)<span class="text-danger">*</span>@endif
         </label>
         <input type="text" class="form-control address-field @error('bairro') is-invalid @enderror" id="bairro"
             name="bairro" value="{{ old('bairro', $bairro) }}" autocomplete="address-level2" readonly
@@ -98,7 +98,7 @@
     <div class="col-8 col-md-6">
         <label for="cidade" class="form-label">
             Cidade
-            {!! $getRequiredIndicator() !!}
+            @if($required)<span class="text-danger">*</span>@endif
         </label>
         <input type="text" class="form-control address-field @error('cidade') is-invalid @enderror" id="cidade"
             name="cidade" value="{{ old('cidade', $cidade) }}" autocomplete="address-level2" readonly
@@ -112,7 +112,7 @@
     <div class="col-4 col-md-2">
         <label for="estado" class="form-label">
             UF
-            {!! $getRequiredIndicator() !!}
+            @if($required)<span class="text-danger">*</span>@endif
         </label>
         <input type="text" class="form-control address-field @error('estado') is-invalid @enderror" id="estado"
             name="estado" value="{{ old('estado', $estado) }}" autocomplete="address-level1" readonly

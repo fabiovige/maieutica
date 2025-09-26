@@ -168,6 +168,45 @@
             padding-left: 20px;
         }
 
+        .alert-warning {
+            border: 1px solid #ffeaa7;
+            background-color: #fff9e6;
+            color: #b7791f;
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+        }
+
+        .rate-limit-info {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+
+        .rate-limit-info .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .rate-limit-info .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .countdown-timer {
+            font-weight: bold;
+            color: var(--color-primary-darker);
+        }
+
+        .btn-login:disabled {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            cursor: not-allowed;
+        }
+
         .recaptcha-container {
             margin: 1.5rem 0;
         }
@@ -226,6 +265,32 @@
                     </div>
                 @endif
 
+                @if (session('rate_limit_info'))
+                    @php
+                        $rateLimitInfo = session('rate_limit_info');
+                        $remainingTime = $rateLimitInfo['remaining_time'] ?? 0;
+                    @endphp
+
+                    @if ($remainingTime > 0)
+                        <div class="alert-warning">
+                            <i class="bi bi-shield-exclamation me-2"></i>
+                            <strong>Muitas tentativas de login</strong><br>
+                            Aguarde <span class="countdown-timer" id="countdown">{{ ceil($remainingTime / 60) }}</span> minuto(s) antes de tentar novamente.
+                        </div>
+
+                        <div class="rate-limit-info">
+                            <div class="info-row">
+                                <span>Tentativas por IP:</span>
+                                <span>{{ $rateLimitInfo['ip_attempts'] ?? 0 }}/5</span>
+                            </div>
+                            <div class="info-row">
+                                <span>Tentativas por e-mail:</span>
+                                <span>{{ $rateLimitInfo['email_attempts'] ?? 0 }}/3</span>
+                            </div>
+                        </div>
+                    @endif
+                @endif
+
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 
@@ -263,7 +328,7 @@
                         {!! htmlFormSnippet() !!}
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-login">
+                    <button type="submit" class="btn btn-primary btn-login" id="loginButton">
                         Entrar
                     </button>
                 </form>
@@ -278,7 +343,7 @@
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('toggleIcon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 toggleIcon.className = 'bi bi-eye-slash';
@@ -287,6 +352,47 @@
                 toggleIcon.className = 'bi bi-eye';
             }
         }
+
+        // Rate limiting countdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const countdownElement = document.getElementById('countdown');
+            const loginButton = document.getElementById('loginButton');
+
+            if (countdownElement) {
+                let remainingSeconds = {{ session('rate_limit_info.remaining_time', 0) }};
+
+                if (remainingSeconds > 0) {
+                    // Disable form initially
+                    loginButton.disabled = true;
+
+                    const timer = setInterval(function() {
+                        remainingSeconds--;
+
+                        if (remainingSeconds <= 0) {
+                            clearInterval(timer);
+                            // Re-enable form and refresh page
+                            location.reload();
+                        } else {
+                            const minutes = Math.ceil(remainingSeconds / 60);
+                            countdownElement.textContent = minutes;
+                        }
+                    }, 1000);
+                }
+            }
+
+            // Disable form submission if rate limited
+            const rateLimitInfo = {!! safe_js(session('rate_limit_info')) !!};
+            if (rateLimitInfo && rateLimitInfo.remaining_time > 0) {
+                const form = document.querySelector('form');
+                const inputs = form.querySelectorAll('input, button');
+
+                inputs.forEach(input => {
+                    if (input.type !== 'hidden') {
+                        input.disabled = true;
+                    }
+                });
+            }
+        });
     </script>
 </body>
 

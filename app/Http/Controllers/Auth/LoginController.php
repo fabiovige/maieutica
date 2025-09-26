@@ -6,6 +6,7 @@ use App\Enums\LogOperation;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Log\LoggingService;
+use App\Services\Security\LoginRateLimiterService;
 use Exception;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -21,10 +22,11 @@ class LoginController extends Controller
     protected $redirectTo = '/home';
 
     public function __construct(
-        private readonly LoggingService $loggingService
+        private readonly LoggingService $loggingService,
+        // private readonly LoginRateLimiterService $rateLimiterService
     ) {
         $this->middleware('guest')->except('logout');
-        $this->middleware('throttle:5,1')->only('login');
+        $this->middleware('throttle:5,1')->only('login'); // 5 tentativas por minuto - versão simples
     }
 
     public function showLoginForm()
@@ -154,7 +156,16 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request)
     {
-        // Validação já foi feita pelo LoginRequest
+        // Verificar rate limiting
+        if (!$this->rateLimiterService->canAttemptLogin($request)) {
+            $summary = $this->rateLimiterService->getLoginAttemptsSummary($request);
+
+            return back()->withInput($request->only('email', 'remember'))
+                ->withErrors([
+                    'email' => $summary['throttle_message']
+                ])
+                ->with('rate_limit_info', $summary);
+        }
 
         // Tentativa de login
         if ($this->attemptLogin($request)) {
@@ -187,36 +198,23 @@ class LoginController extends Controller
      */
     protected function sendFailedLoginResponse(Request $request)
     {
-        $key = 'login_attempts_' . $request->ip();
-        $attempts = cache()->get($key, 0) + 1;
-        cache()->put($key, $attempts, now()->addMinutes(config('auth.security.lockout_duration', 15)));
+        // Registrar tentativa falhada no rate limiter
+        $this->rateLimiterService->recordFailedAttempt($request);
 
-        $this->loggingService->logSecurityEvent(
-            LogOperation::VALIDATION_FAILED,
-            'Failed login attempt detected',
-            [
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'attempts' => $attempts,
-                'email_attempted' => $request->email,
-            ],
-            'warning'
-        );
+        // Verificar se existe o usuário (proteção contra enumeração)
+        $userExists = User::where('email', $request->input('email'))->exists();
 
-        if ($attempts >= 5) {
-            $this->loggingService->logSecurityEvent(
-                LogOperation::ACCESS_DENIED,
-                'Multiple failed login attempts - potential brute force attack',
-                [
-                    'ip_address' => $request->ip(),
-                    'total_attempts' => $attempts,
-                ],
-                'critical'
-            );
+        // Mesmo erro genérico independente da existência do usuário
+        $errorMessage = 'Credenciais inválidas. Verifique seu e-mail e senha.';
+
+        // Se múltiplas tentativas, sugerir recuperação de senha
+        $summary = $this->rateLimiterService->getLoginAttemptsSummary($request);
+        if ($summary['email_attempts'] >= 2) {
+            $errorMessage .= ' Esqueceu sua senha? Clique em "Esqueci minha senha".';
         }
 
         throw ValidationException::withMessages([
-            'email' => [trans('auth.failed')],
+            'email' => [$errorMessage],
         ]);
     }
 
@@ -231,8 +229,8 @@ class LoginController extends Controller
         $request->session()->regenerate();
         $this->clearLoginAttempts($request);
 
-        $key = 'login_attempts_' . $request->ip();
-        cache()->forget($key);
+        // Limpar tentativas do rate limiter
+        $this->rateLimiterService->clearAttempts($request);
 
         if ($response = $this->authenticated($request, $this->guard()->user())) {
             return $response;

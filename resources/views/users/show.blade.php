@@ -28,7 +28,7 @@
                     <div class="row mb-3">
                         <div class="col-md-2">
                             @if ($user->avatar && file_exists(public_path('images/avatars/' . $user->avatar)))
-                                <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ $user->name }}" 
+                                <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ safe_attribute($user->name) }}" 
                                      class="img-fluid rounded-circle" 
                                      style="object-fit: cover;">
                             @else

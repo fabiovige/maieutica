@@ -13,6 +13,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class KidService
@@ -210,26 +211,21 @@ class KidService
                 return false;
             }
 
+            $this->validatePhotoFile($photoFile);
+
             if ($kid->photo) {
-                $oldPhotoPath = public_path('images/kids/' . $kid->photo);
-                if (file_exists($oldPhotoPath)) {
-                    unlink($oldPhotoPath);
-                }
+                $this->deleteOldPhoto($kid->photo);
             }
 
-            $path = public_path('images/kids');
-            if (!file_exists($path)) {
-                mkdir($path, 0777, true);
-            }
+            $fileName = $this->generateSecureFileName($kid->id, $photoFile->getClientOriginalExtension());
+            $filePath = $this->storePhotoSecurely($kidId, $photoFile, $fileName);
 
-            $fileName = time() . '_' . $kid->id . '.' . $photoFile->getClientOriginalExtension();
-            $photoFile->move($path, $fileName);
-
-            $result = $this->kidRepository->update($kidId, ['photo' => 'images/kids/' . $fileName]);
+            $result = $this->kidRepository->update($kidId, ['photo' => $fileName]);
 
             Log::info('Kid photo uploaded successfully', [
                 'kid_id' => $kidId,
-                'photo_path' => 'images/kids/' . $fileName,
+                'photo_filename' => $fileName,
+                'user_id' => Auth::id(),
             ]);
 
             return $result;
@@ -237,9 +233,79 @@ class KidService
             Log::error('Error uploading kid photo', [
                 'kid_id' => $kidId,
                 'error' => $e->getMessage(),
+                'user_id' => Auth::id(),
             ]);
 
             throw $e;
+        }
+    }
+
+    private function validatePhotoFile($photoFile): void
+    {
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $extension = strtolower($photoFile->getClientOriginalExtension());
+
+        if (!in_array($extension, $allowedExtensions, true)) {
+            throw new Exception('Tipo de arquivo não permitido. Use apenas: ' . implode(', ', $allowedExtensions));
+        }
+
+        if ($photoFile->getSize() > 2 * 1024 * 1024) {
+            throw new Exception('Arquivo muito grande. Tamanho máximo: 2MB');
+        }
+    }
+
+    private function generateSecureFileName(int $kidId, string $extension): string
+    {
+        $timestamp = time();
+        $randomString = bin2hex(random_bytes(8));
+
+        return "{$timestamp}_{$kidId}_{$randomString}.{$extension}";
+    }
+
+    private function storePhotoSecurely(int $kidId, $photoFile, string $fileName): string
+    {
+        $kidDirectory = (string) $kidId;
+
+        if (!Storage::disk('kids_photos')->exists($kidDirectory)) {
+            Storage::disk('kids_photos')->makeDirectory($kidDirectory);
+        }
+
+        $filePath = "{$kidDirectory}/{$fileName}";
+
+        Storage::disk('kids_photos')->putFileAs(
+            $kidDirectory,
+            $photoFile,
+            $fileName
+        );
+
+        return $filePath;
+    }
+
+    private function deleteOldPhoto(string $oldFileName): void
+    {
+        try {
+            $oldPublicPath = public_path("images/kids/{$oldFileName}");
+            if (file_exists($oldPublicPath)) {
+                unlink($oldPublicPath);
+                Log::info('Old public photo deleted', ['filename' => $oldFileName]);
+            }
+
+            $parts = explode('/', $oldFileName);
+            if (count($parts) === 2) {
+                $kidDirectory = $parts[0];
+                $filename = $parts[1];
+                $privatePath = "{$kidDirectory}/{$filename}";
+
+                if (Storage::disk('kids_photos')->exists($privatePath)) {
+                    Storage::disk('kids_photos')->delete($privatePath);
+                    Log::info('Old private photo deleted', ['path' => $privatePath]);
+                }
+            }
+        } catch (Exception $e) {
+            Log::warning('Failed to delete old photo', [
+                'filename' => $oldFileName,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 

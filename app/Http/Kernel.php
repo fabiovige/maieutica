@@ -4,9 +4,12 @@ namespace App\Http;
 
 use App\Http\Middleware\AclMiddleware;
 use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\AuditLogger;
 use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\LoginRateLimitMiddleware;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\SanitizeInput;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\VerifyCsrfToken;
@@ -62,7 +65,9 @@ class Kernel extends HttpKernel
             \Illuminate\Session\Middleware\AuthenticateSession::class,
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
+            SanitizeInput::class,
             SubstituteBindings::class,
+            AuditLogger::class,
 
             \RenatoMarinho\LaravelPageSpeed\Middleware\InlineCss::class,
             \RenatoMarinho\LaravelPageSpeed\Middleware\ElideAttributes::class,
@@ -93,6 +98,7 @@ class Kernel extends HttpKernel
         'cache.headers' => SetCacheHeaders::class,
         'can' => Authorize::class,
         'guest' => RedirectIfAuthenticated::class,
+        'login.rate.limit' => LoginRateLimitMiddleware::class,
         'password.confirm' => RequirePassword::class,
         'signed' => ValidateSignature::class,
         'throttle' => ThrottleRequests::class,

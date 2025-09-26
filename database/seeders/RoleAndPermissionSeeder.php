@@ -86,6 +86,10 @@ class RoleAndPermissionSeeder extends Seeder
             'attach-to-kids-as-professional', // Permite se auto-adicionar como profissional
             'view-all-kids',      // Ver todas as crianças sem restrição
             'view-all-users',     // Ver todos os usuários sem restrição
+
+            // Permissões LGPD
+            'view-lgpd-dashboard',    // Ver dashboard de conformidade LGPD
+            'process-lgpd-requests',  // Processar solicitações de dados
         ];
 
         foreach ($permissions as $permission) {

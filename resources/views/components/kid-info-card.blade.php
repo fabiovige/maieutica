@@ -4,7 +4,7 @@
             <div class="col-md-2 text-center">
                 @if ($kid->photo)
                     <img src="{{ asset($kid->photo) }}" class="rounded-circle img-fluid"
-                        style="width: 120px; height: 120px; object-fit: cover;" alt="{{ $kid->name }}">
+                        style="width: 120px; height: 120px; object-fit: cover;" alt="{{ safe_attribute($kid->name) }}">
                 @else
                     <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto text-white"
                         style="width: 120px; height: 120px; font-size: 2.5em;">
@@ -62,7 +62,7 @@
                                         <img src="{{ asset('images/users/' . $professional->user->first()->photo) }}"
                                             class="rounded-circle me-2"
                                             style="width: 30px; height: 30px; object-fit: cover;"
-                                            alt="{{ $professional->user->first()->name }}">
+                                            alt="{{ safe_attribute($professional->user->first()->name) }}">
                                     @else
                                         <div class="rounded-circle me-2 d-flex align-items-center justify-content-center bg-secondary text-white"
                                             style="width: 30px; height: 30px; font-size: 12px;">

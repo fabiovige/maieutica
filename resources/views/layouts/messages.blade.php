@@ -69,8 +69,8 @@
 @endif
 
 @foreach(session('flash_notification', collect())->toArray() as $message)
-    <div class="alert alert-{{ $message['level'] }} alert-dismissible fade show" role="alert">
-        {!! $message['message'] !!}
+    <div class="alert alert-{{ safe_attribute($message['level']) }} alert-dismissible fade show" role="alert">
+        {{ $message['message'] }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 @endforeach

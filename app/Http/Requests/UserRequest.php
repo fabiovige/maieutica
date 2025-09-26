@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\StrongPassword;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,6 +26,12 @@ class UserRequest extends FormRequest
                 return [
                     'name' => 'required|string|max:150',
                     'email' => 'required|string|email|max:150|unique:users,email',
+                    'password' => [
+                        'required',
+                        'string',
+                        'confirmed',
+                        new StrongPassword($this->input('name', '')),
+                    ],
                     'phone' => [
                         'nullable',
                         'string',
@@ -45,7 +52,7 @@ class UserRequest extends FormRequest
                 ];
 
             case 'PUT':
-                return [
+                $rules = [
                     'name' => 'required|string|max:150',
                     'email' => [
                         'required',
@@ -72,6 +79,17 @@ class UserRequest extends FormRequest
                     'cidade' => 'nullable|string|max:255',
                     'estado' => 'nullable|string|max:2',
                 ];
+
+                // Apenas valida senha se for fornecida na atualização
+                if ($this->filled('password')) {
+                    $rules['password'] = [
+                        'string',
+                        'confirmed',
+                        new StrongPassword($this->input('name', '')),
+                    ];
+                }
+
+                return $rules;
 
             default:
                 break;

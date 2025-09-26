@@ -31,7 +31,7 @@
                         <div class="me-3">
                             @if ($kid->photo)
                                 <img src="{{ asset($kid->photo) }}" class="rounded-circle" width="100" height="100"
-                                    alt="{{ $kid->name }}">
+                                    alt="{{ safe_attribute($kid->name) }}">
                             @else
                                 <div class="avatar-circle" style="width: 100px; height: 100px; font-size: 2em;">
                                     {{ substr($kid->name, 0, 2) }}

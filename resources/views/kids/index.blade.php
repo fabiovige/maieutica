@@ -145,7 +145,7 @@ Crianças
                         class="rounded-circle me-2"
                         width="40"
                         height="40"
-                        alt="{{ $kid->name }}"
+                        alt="{{ safe_attribute($kid->name) }}"
                     />
                     @else
                     <div

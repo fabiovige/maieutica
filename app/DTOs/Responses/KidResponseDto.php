@@ -70,7 +70,7 @@ class KidResponseDto extends AbstractResponseDto
             'ethnicity' => $this->ethnicity,
             'ethnicity_label' => $this->ethnicity ? (Kid::ETHNICITIES[$this->ethnicity] ?? $this->ethnicity) : null,
             'photo' => $this->photo,
-            'photo_url' => $this->photo ? asset("images/kids/{$this->photo}") : null,
+            'photo_url' => $this->photo ? route('kids.photo.show', ['kid' => $this->id, 'filename' => $this->photo]) : null,
             'months' => $this->months,
             'age' => $this->age,
             'initials' => $this->initials,
@@ -91,7 +91,7 @@ class KidResponseDto extends AbstractResponseDto
             'name' => $this->name,
             'age' => $this->age,
             'initials' => $this->initials,
-            'photo_url' => $this->photo ? asset("images/kids/{$this->photo}") : null,
+            'photo_url' => $this->photo ? route('kids.photo.show', ['kid' => $this->id, 'filename' => $this->photo]) : null,
             'responsible_name' => $this->responsibleName,
         ];
     }
@@ -106,7 +106,7 @@ class KidResponseDto extends AbstractResponseDto
             'gender_label' => Kid::GENDERS[$this->gender] ?? $this->gender,
             'ethnicity_label' => $this->ethnicity ? (Kid::ETHNICITIES[$this->ethnicity] ?? $this->ethnicity) : null,
             'initials' => $this->initials,
-            'photo_url' => $this->photo ? asset("images/kids/{$this->photo}") : null,
+            'photo_url' => $this->photo ? route('kids.photo.show', ['kid' => $this->id, 'filename' => $this->photo]) : null,
             'responsible' => [
                 'name' => $this->responsibleName,
                 'email' => $this->responsibleEmail,

@@ -91,7 +91,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-2">
                         @if ($user->avatar && file_exists(public_path('images/avatars/' . $user->avatar)))
-                            <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ $user->name }}"
+                            <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ safe_attribute($user->name) }}"
                                  class="rounded-circle me-3" width="50" height="50"
                                  style="object-fit: cover;">
                         @else
@@ -212,7 +212,7 @@
                     <td class="text-center align-middle">
                         <div class="d-flex align-items-center justify-content-center">
                             @if ($user->avatar && file_exists(public_path('images/avatars/' . $user->avatar)))
-                                <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ $user->name }}"
+                                <img src="{{ asset('images/avatars/' . $user->avatar) }}" alt="{{ safe_attribute($user->name) }}"
                                      class="rounded-circle" width="40" height="40"
                                      style="object-fit: cover;">
                             @else

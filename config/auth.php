@@ -130,4 +130,23 @@ return [
         'prevent_concurrent_logins' => false,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limiting Settings
+    |--------------------------------------------------------------------------
+    |
+    | Configure advanced rate limiting for login attempts to protect against
+    | brute force attacks.
+    |
+    */
+
+    'rate_limiting' => [
+        'ip_limit_per_minute' => env('LOGIN_RATE_LIMIT_IP_PER_MINUTE', 5),
+        'email_limit_per_5_minutes' => env('LOGIN_RATE_LIMIT_EMAIL_PER_5MIN', 3),
+        'escalation_levels' => [1, 5, 15, 60], // minutes for escalated lockouts
+        'brute_force_threshold' => env('LOGIN_BRUTE_FORCE_THRESHOLD', 10),
+        'enable_user_enumeration_protection' => env('LOGIN_PREVENT_USER_ENUMERATION', true),
+        'suggest_password_reset_after_attempts' => env('LOGIN_SUGGEST_PASSWORD_RESET_AFTER', 2),
+    ],
+
 ];

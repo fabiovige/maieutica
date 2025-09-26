@@ -13,7 +13,12 @@ namespace PHPSTORM_META {
     */
     override(new \Illuminate\Contracts\Container\Container, map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -229,7 +234,12 @@ namespace PHPSTORM_META {
         ]));
     override(\Illuminate\Container\Container::makeWith(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -445,7 +455,12 @@ namespace PHPSTORM_META {
         ]));
     override(\Illuminate\Contracts\Container\Container::get(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -661,7 +676,12 @@ namespace PHPSTORM_META {
         ]));
     override(\Illuminate\Contracts\Container\Container::make(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -877,7 +897,12 @@ namespace PHPSTORM_META {
         ]));
     override(\Illuminate\Contracts\Container\Container::makeWith(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -1093,7 +1118,12 @@ namespace PHPSTORM_META {
         ]));
     override(\App::get(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -1309,7 +1339,12 @@ namespace PHPSTORM_META {
         ]));
     override(\App::make(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -1525,7 +1560,12 @@ namespace PHPSTORM_META {
         ]));
     override(\App::makeWith(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -1741,7 +1781,12 @@ namespace PHPSTORM_META {
         ]));
     override(\app(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -1957,7 +2002,12 @@ namespace PHPSTORM_META {
         ]));
     override(\resolve(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,
@@ -2173,7 +2223,12 @@ namespace PHPSTORM_META {
         ]));
     override(\Psr\Container\ContainerInterface::get(0), map([
         '' => '@',
+            'App\Contracts\ChecklistRepositoryInterface' => \App\Repositories\ChecklistRepository::class,
             'App\Contracts\KidRepositoryInterface' => \App\Repositories\KidRepository::class,
+            'App\Contracts\ProfessionalRepositoryInterface' => \App\Repositories\ProfessionalRepository::class,
+            'App\Contracts\UserRepositoryInterface' => \App\Repositories\UserRepository::class,
+            'App\Services\Log\LoggingService' => \App\Services\Log\LoggingService::class,
+            'App\Services\Security\LoginRateLimiterService' => \App\Services\Security\LoginRateLimiterService::class,
             'Arcanedev\LogViewer\Contracts\LogViewer' => \Arcanedev\LogViewer\LogViewer::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Factory' => \Arcanedev\LogViewer\Utilities\Factory::class,
             'Arcanedev\LogViewer\Contracts\Utilities\Filesystem' => \Arcanedev\LogViewer\Utilities\Filesystem::class,

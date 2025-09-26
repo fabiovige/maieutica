@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\EncryptedAttributes;
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Responsible extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory, SoftDeletes, EncryptedAttributes, HasAuditLog;
 
     protected $fillable = [
         'id',
@@ -22,6 +23,43 @@ class Responsible extends Model
         'updated_by',
         'deleted_by',
         'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'estado',
+    ];
+
+    protected function getEncryptedFields(): array
+    {
+        return [
+            'name',
+            'email',
+            'cpf',
+            'cell',
+            'cep',
+            'logradouro',
+            'numero',
+            'complemento',
+            'bairro',
+            'cidade',
+        ];
+    }
+
+    protected $auditableFields = [
+        'user_id',
+        'name',
+        'email',
+        'cpf',
+        'cell',
+        'cep',
+        'logradouro',
+        'numero',
+        'complemento',
+        'bairro',
+        'cidade',
+        'estado',
+    ];
+
+    protected $nonAuditableFields = [
+        'created_by',
+        'updated_by',
+        'deleted_by',
     ];
 
     public function kids()

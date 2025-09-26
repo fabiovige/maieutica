@@ -45,18 +45,6 @@ class LoginRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            // Verificar se o IP não está bloqueado por muitas tentativas
-            $key = 'login_attempts_' . request()->ip();
-            $attempts = cache()->get($key, 0);
-
-            if ($attempts >= config('auth.security.max_login_attempts', 5)) {
-                $validator->errors()->add('email', 'Muitas tentativas de login. Tente novamente em alguns minutos.');
-            }
-        });
-    }
 
     public function messages()
     {

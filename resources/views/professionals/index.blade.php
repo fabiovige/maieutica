@@ -143,7 +143,7 @@
                                 @if ($professional->user->first() && $professional->user->first()->avatar)
                                     <img src="{{ asset('storage/' . $professional->user->first()->avatar) }}"
                                         class="rounded-circle me-2" width="40" height="40"
-                                        alt="{{ $professional->user->first()->name }}">
+                                        alt="{{ safe_attribute($professional->user->first()->name) }}">
                                 @else
                                     <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
                                         style="width: 40px; height: 40px">

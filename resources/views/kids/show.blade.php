@@ -29,7 +29,7 @@
                         <div class="col-md-2">
                             @if ($kid->photo)
                                 <img src="{{ asset($kid->photo) }}" class="img-fluid rounded-circle" width="100"
-                                    height="100" alt="{{ $kid->name }}" style="object-fit: cover;">
+                                    height="100" alt="{{ safe_attribute($kid->name) }}" style="object-fit: cover;">
                             @else
                                 <div class="rounded-circle bg-info d-flex align-items-center justify-content-center mx-auto"
                                     style="width: 100px; height: 100px">

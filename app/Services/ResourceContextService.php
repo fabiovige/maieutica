@@ -37,6 +37,11 @@ class ResourceContextService
      */
     private function hasKidContext(User $user, Kid $kid): bool
     {
+        // 0. Usuário tem permissão de bypass (superadmin)
+        if ($user->can('bypass-all-checks')) {
+            return true;
+        }
+
         // 1. Usuário é o responsável pela criança
         if ($kid->responsible_id === $user->id) {
             return true;
@@ -66,6 +71,11 @@ class ResourceContextService
     private function getAccessibleKidsQuery(User $user)
     {
         $query = Kid::query();
+
+        // Se tem permissão de bypass, retorna tudo
+        if ($user->can('bypass-all-checks')) {
+            return $query;
+        }
 
         // Se tem permissão para gerenciar todos os recursos, retorna tudo
         if ($user->can('manage all resources')) {

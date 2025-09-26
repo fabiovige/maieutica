@@ -219,6 +219,9 @@ class ChecklistController extends BaseController
         $checklist = Checklist::findOrFail($id);
         $this->authorize('view', $checklist);
 
+        $checklist->logReadAccess('Visualização de checklist');
+        $checklist->kid->logReadAccess('Acesso aos dados da criança via checklist');
+
         return $this->handleViewRequest(
             fn () => [
                 'checklist' => $checklist,
@@ -306,6 +309,9 @@ class ChecklistController extends BaseController
     {
         $checklist = Checklist::findOrFail($id);
         $this->authorize('view', $checklist);
+
+        $checklist->logReadAccess('Preenchimento de checklist - acesso ao formulário');
+        $checklist->kid->logReadAccess('Acesso aos dados da criança para preenchimento de checklist');
 
         try {
             $message = label_case('Fill Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';

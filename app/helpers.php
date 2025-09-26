@@ -36,3 +36,40 @@ if (!function_exists('get_chart_gradient')) {
         return ProgressColors::getGradientForChart($percentage);
     }
 }
+
+if (!function_exists('safe_html')) {
+    function safe_html(?string $string): string
+    {
+        if (empty($string)) {
+            return '';
+        }
+        return htmlspecialchars($string, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+    }
+}
+
+if (!function_exists('safe_attribute')) {
+    function safe_attribute(?string $string): string
+    {
+        if (empty($string)) {
+            return '';
+        }
+        return htmlspecialchars($string, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+    }
+}
+
+if (!function_exists('safe_js')) {
+    function safe_js($value): string
+    {
+        return json_encode($value, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+    }
+}
+
+if (!function_exists('strip_all_tags')) {
+    function strip_all_tags(?string $string): string
+    {
+        if (empty($string)) {
+            return '';
+        }
+        return strip_tags($string);
+    }
+}

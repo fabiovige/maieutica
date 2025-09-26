@@ -14,14 +14,20 @@ return new class extends Migration
             $table->foreignId('specialty_id')->constrained()->onDelete('restrict');
             $table->string('registration_number')->nullable();
             $table->text('bio')->nullable();
-            $table->foreignId('created_by')->nullable()->constrained('users');
-            $table->foreignId('updated_by')->nullable()->constrained('users');
-            $table->foreignId('deleted_by')->nullable()->constrained('users');
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             // Garantir que um usuário só tenha um perfil profissional
             $table->unique('user_id');
+        });
+
+        Schema::table('professional_profiles', function (Blueprint $table) {
+            $table->foreign('created_by')->references('id')->on('users');
+            $table->foreign('updated_by')->references('id')->on('users');
+            $table->foreign('deleted_by')->references('id')->on('users');
         });
     }
 
