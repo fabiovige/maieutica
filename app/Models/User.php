@@ -89,7 +89,6 @@ class User extends Authenticatable
     protected function getEncryptedFields(): array
     {
         return [
-            'name',
             'phone',
             'postal_code',
             'street',

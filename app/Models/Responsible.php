@@ -28,7 +28,6 @@ class Responsible extends Model
     protected function getEncryptedFields(): array
     {
         return [
-            'name',
             'email',
             'cpf',
             'cell',
