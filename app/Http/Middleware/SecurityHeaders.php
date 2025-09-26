@@ -38,11 +38,12 @@ class SecurityHeaders
     {
         $directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net cdnjs.cloudflare.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net cdnjs.cloudflare.com www.google.com www.gstatic.com www.recaptcha.net",
             "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net cdnjs.cloudflare.com",
             "font-src 'self' fonts.gstatic.com",
-            "img-src 'self' data: blob:",
-            "connect-src 'self'",
+            "img-src 'self' data: blob: www.google.com www.gstatic.com www.recaptcha.net",
+            "connect-src 'self' www.google.com www.gstatic.com www.recaptcha.net",
+            "frame-src 'self' www.google.com www.recaptcha.net",
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'"
