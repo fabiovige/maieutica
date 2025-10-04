@@ -82,6 +82,10 @@ class AuditLog extends Model
 
     public static function logAction(string $action, string $resource, $resourceId = null, array $dataBefore = null, array $dataAfter = null, string $context = null): void
     {
+        if (!auth()->check()) {
+            return;
+        }
+
         $request = request();
 
         self::create([

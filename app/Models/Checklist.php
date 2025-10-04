@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\HasLogging;
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,6 +18,7 @@ class Checklist extends Model
 {
     use HasFactory;
     use HasLogging;
+    use HasAuditLog;
     use SoftDeletes;
 
     public const LEVEL = [

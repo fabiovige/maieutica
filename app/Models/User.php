@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Traits\HasResourceAuthorization;
 use App\Traits\HasRoleAuthorization;
 use App\Traits\HasLogging;
-use App\Traits\EncryptedAttributes;
 use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,7 +18,6 @@ class User extends Authenticatable
     use HasApiTokens;
     use HasFactory;
     use HasLogging;
-    use EncryptedAttributes;
     use HasAuditLog;
     use HasResourceAuthorization, HasRoleAuthorization {
         HasRoleAuthorization::canViewKid insteadof HasResourceAuthorization;
@@ -85,19 +83,6 @@ class User extends Authenticatable
         'i' => 'Interno',
         'e' => 'Externo',
     ];
-
-    protected function getEncryptedFields(): array
-    {
-        return [
-            'phone',
-            'postal_code',
-            'street',
-            'number',
-            'complement',
-            'neighborhood',
-            'city',
-        ];
-    }
 
     protected $auditableFields = [
         'name',

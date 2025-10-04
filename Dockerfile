@@ -22,7 +22,7 @@ WORKDIR /var/www
 
 # Copy and install dependencies
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN composer install --optimize-autoloader --no-scripts
 
 # Copy application code
 COPY . .

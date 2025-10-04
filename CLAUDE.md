@@ -2,201 +2,235 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Communication Language
-**ALWAYS COMMUNICATE IN BRAZILIAN PORTUGUESE** - All interactions with the user must be in Portuguese from Brazil.
-
 ## Project Overview
 
-Maiêutica is a web platform for psychological clinics specializing in cognitive assessment of children. It's a Laravel 9 application with Vue 3 frontend, running in Docker containers for development and production.
+Maiêutica is a Laravel 9 + Vue 3 application for psychological clinic and associated therapies management. The system is in production at maieuticavaliacom.br.
 
-**Core Domain**: Child psychological evaluation, progress tracking, professional management, and detailed reporting.
+## Development Commands
+
+### Docker Environment
+
+Start development environment:
+```bash
+docker-compose up -d
+```
+
+Build and rebuild containers:
+```bash
+docker compose build
+docker compose exec app composer install
+docker compose exec app php artisan migrate
+```
+
+Access application: http://localhost:3005
+
+### PHP/Laravel Commands
+
+Run migrations:
+```bash
+php artisan migrate
+php artisan migrate:fresh --seed
+```
+
+Clear all caches:
+```bash
+composer clear
+```
+
+Generate IDE helpers:
+```bash
+php artisan ide-helper:generate
+php artisan ide-helper:meta
+php artisan ide-helper:models
+```
+
+### Testing
+
+Run all tests:
+```bash
+vendor/bin/phpunit
+```
+
+Run specific test suite:
+```bash
+vendor/bin/phpunit --testsuite=Unit
+vendor/bin/phpunit --testsuite=Feature
+```
+
+Run single test file:
+```bash
+vendor/bin/phpunit tests/Unit/Rules/StrongPasswordTest.php
+```
+
+### Code Quality
+
+Check code style:
+```bash
+composer cs-fixer-check
+composer cs-fixer-dry-run
+```
+
+Fix code style:
+```bash
+composer cs-fixer-fix
+vendor/bin/pint
+```
+
+### Frontend Commands
+
+Build assets for development:
+```bash
+npm run dev
+```
+
+Watch for changes:
+```bash
+npm run watch
+```
+
+Build for production:
+```bash
+npm run prod
+```
+
+Lint JavaScript/Vue:
+```bash
+npm run lint
+npm run lint:fix
+```
+
+Format code:
+```bash
+npm run format
+npm run format:check
+```
 
 ## Architecture
 
-### Backend (Laravel 9)
-- **Models**: Core entities are `Kid`, `Checklist`, `Competence`, `Domain`, `Level`, `Professional`, `Responsible`, and `User`
-- **Business Logic**: Main workflows handled by dedicated Services (`ChecklistService`, `OverviewService`, `KidService`, `ProfessionalService`) and Controllers
-- **Authentication**: Multi-role system using Spatie Laravel Permission with custom policies
-- **Data Structure**: Checklists contain multiple competences grouped by domains and levels, creating assessment hierarchies
-- **Form Validation**: Dedicated Form Request classes for input validation (e.g., `KidRequest`, `ChecklistRequest`)
+### Backend Structure
 
-### Frontend (Vue 3 + Bootstrap 5)
-- **Components**: Reusable Vue components in `resources/js/components/` for charts, checklists, and UI elements
-- **Integration**: Vue components mounted within Blade templates, not SPA
-- **Charts**: Chart.js integration via vue-chart-3 for assessment visualization and progress tracking
-- **Forms**: vee-validate for form validation, SweetAlert2 for user interactions
-- **UI Libraries**: Bootstrap 5, Bootstrap Icons, jQuery UI for datepicker, Select2 for advanced dropdowns
+The application follows Clean Architecture principles with a service-oriented approach:
 
-### Key Relationships
-- Kids belong to Responsibles and are associated with Professionals through many-to-many relationships
-- Checklists track Kid assessments across multiple Competences
-- Competences are organized by Domains and Levels for structured evaluation
-- Planes (assessment plans) link Competences for specific evaluation protocols
+- **Controllers** (`app/Http/Controllers`): Thin controllers that delegate to services
+- **Services** (`app/Services`): Business logic layer
+  - `AuthorizationService`: Permission and authorization logic
+  - `KidService`, `ProfessionalService`, `ResponsibleService`, `UserService`: Entity-specific services
+  - `Security/`: Security-related services (encryption, validation)
+  - `Lgpd/`: LGPD compliance services
+  - `Backup/`: Backup functionality
+  - `Log/`: Logging services
+- **Repositories** (`app/Repositories`): Data access layer
+- **DTOs** (`app/DTOs`): Data transfer objects for type-safe data passing
+- **Value Objects** (`app/ValueObjects`): Immutable domain objects
+- **Specifications** (`app/Specifications`): Business rule specifications
+- **Policies** (`app/Policies`): Laravel authorization policies
+- **Observers** (`app/Observers`): Model event observers
+- **Traits** (`app/Traits`): Reusable functionality (e.g., EncryptedAttributes)
+- **Helpers** (`app/helpers.php`): Global helper functions (safe_html, safe_js, safe_attribute, etc.)
 
-## Essential Commands
+### Frontend Structure
 
-### Docker Development Commands
-```bash
-# Start containers
-docker compose up -d
+Vue 3 application with composition API:
 
-# Install PHP dependencies
-docker compose exec app composer install
+- **Components** (`resources/js/components`): Reusable Vue components
+- **Pages** (`resources/js/pages`): Page-level components
+- **Composables** (`resources/js/composables`): Vue composition functions
+- **Utils** (`resources/js/utils`): JavaScript utilities
 
-# Install Node dependencies  
-docker compose exec app npm ci
+### Security & LGPD
 
-# Build assets for development
-docker compose exec app npm run dev
+The system implements security and LGPD (Brazilian Data Protection Law) compliance:
 
-# Build assets for production
-docker compose exec app npm run production
+- Encrypted attributes for sensitive data (EncryptedAttributes trait)
+- RBAC using Spatie Laravel Permission package
+- Security middleware and headers
+- Data sanitization helpers (safe_html, safe_js, safe_attribute)
+- Audit logging (AuditLogController)
 
-# Watch assets for changes
-docker compose exec app npm run watch
+### Key Domain Models
 
-# Run migrations and seeders (fresh database with test data)
-docker compose exec app php artisan migrate:fresh --seed
+- **User**: System users with role-based permissions
+- **Professional**: Psychologists and therapists
+- **Responsible**: Legal guardians
+- **Kid**: Children/patients
+- **Checklist**: Assessment checklists
+- **Competence**: Professional competencies
 
-# Clear all caches
-docker compose exec app composer clear
+## Coding Standards
 
-# Access logs via log-viewer
-# Navigate to http://localhost:3005/log-viewer
-```
+### PHP
 
-### Code Quality & Linting Commands
-```bash
-# PHP Code Style (using PHP CS Fixer)
-docker compose exec app composer cs-fixer-check     # Check for style issues with diff
-docker compose exec app composer cs-fixer-fix       # Auto-fix style issues
-docker compose exec app composer code-style         # Alias for cs-fixer-fix
+- Follow PSR-12 coding standard (enforced by PHP-CS-Fixer)
+- Apply SOLID principles
+- Avoid else statements (use early returns, guard clauses, polymorphism)
+- Use type hints and return types
+- Never add code comments (code should be self-documenting)
+- Use design patterns from https://refactoring.guru/pt-br/design-patterns/php when appropriate
 
-# JavaScript/Vue Linting
-docker compose exec app npm run lint                # Check for JS/Vue issues
-docker compose exec app npm run lint:fix            # Auto-fix JS/Vue issues
+### Vue/JavaScript
 
-# JavaScript/Vue Formatting (Prettier)
-docker compose exec app npm run format              # Format JS/Vue files
-docker compose exec app npm run format:check        # Check formatting without changes
-```
-
-### Testing Commands
-```bash
-# PHPUnit tests (if tests directory exists)
-docker compose exec app php artisan test
-docker compose exec app ./vendor/bin/phpunit
-
-# Run specific test file
-docker compose exec app ./vendor/bin/phpunit tests/Feature/ExampleTest.php
-
-# Run tests with coverage
-docker compose exec app ./vendor/bin/phpunit --coverage-html coverage
-```
-
-## Database Management
-
-### Migrations
-- Database schema managed through Laravel migrations in `database/migrations/`
-- Use `php artisan migrate:fresh --seed` for clean database setup with test data
-- Critical tables: users, kids, checklists, competences, domains, levels, professionals, responsibles
-
-### Seeders
-- `DatabaseSeeder` orchestrates all seeders with realistic test data
-- Includes roles/permissions, users, kids, assessment data, and professional profiles
-- Run seeders after any major schema changes
-
-## Key Features
-
-### Assessment System
-- Checklists group multiple competences for structured evaluation
-- Competences belong to domains (cognitive areas) and levels (difficulty/age appropriateness)
-- Progress tracking through percentage completion and percentile rankings
-- Automatic plane generation based on assessment results
-
-### User Management
-- Role-based access: Admin, Professional, Responsible
-- Multi-tenancy through user associations with kids and checklists
-- Observer pattern for user lifecycle events (creation, updates, deletions)
-
-### Reporting & Analytics
-- **PDF generation** for assessment reports using TCPDF
-- **Interactive charts** showing progress over time
-- **Dashboard** with overview statistics and recent activity
-- **DataTables integration** for advanced data tables with sorting/filtering
-
-### Assessment Tracking & Development Reports
-- **Acompanhamento de Evolução** (`/analysis/{kidId}/level/{levelId}`): Radar charts comparing child's performance across different assessment periods and levels
-- **Desenvolvimento da Criança** (`/kids/{kidId}/overview`): Comprehensive development overview with developmental age calculations, domain-specific progress, and visual charts
-- **Centralização de Checklists** (`/checklists?kidId={kidId}`): Centralized view of all checklists for a specific child with filtering and management capabilities
-- **PDF Report Generation**: Export detailed assessment reports with charts and developmental analysis
-
-## Configuration Notes
-
-### Container Services
-- **App (Laravel)**: PHP 8.1 FPM running on internal network
-- **Nginx**: Web server on port 3005
-- **MySQL**: Database on port 3306 (database: `maieutica`, user: `maieutica`, password: `secret`)
-- **MailHog**: Email testing on port 8025 (Web UI) and 1025 (SMTP)
-
-### File Storage
-- Kid photos: `public/images/kids/`
-- User avatars: `public/images/avatars/`
-- Logs: Daily rotation in `storage/logs/`
-
-### Code Style Configuration
-- **PHP**: PSR-12 standard with custom rules in `.php-cs-fixer.php`
-- **JavaScript/Vue**: ESLint with Vue 3 rules in `.eslintrc.js`
-- **Formatting**: Prettier configuration in `.prettierrc.json`
-
-## Production Considerations
-
-**CRITICAL**: This system is live in production at maieuticavaliacom.br
-- Always prioritize stability over new features
-- Test changes thoroughly before deployment
-- Use incremental refactoring approach
-- Never break existing functionality without validation
-- Document significant changes
-
-## Code Quality Guidelines
-
-### Core Development Principles
-- **NEVER ADD COMMENTS**: Code should be self-explanatory through clear naming and structure
-- **UX/UI FIRST**: Always prioritize user experience - intuitive interfaces, responsive design, and smooth interactions
-- **LEAN CODING**: Avoid unnecessary code - write only what's needed, refactor when appropriate, keep it simple
-- **FOCUS ON SOLUTION**: Do exactly what is asked, nothing more, nothing less
-- **NO UNNECESSARY FEATURES**: Never add visual feedback, tooltips, or interface changes unless explicitly requested
-- **MINIMAL APPROACH**: Implement only the specific functionality requested without additional "improvements"
-
-### CRITICAL DEVELOPMENT CONSTRAINTS
-- **NEVER MODIFY LAYOUT STRUCTURE**: The current breadcrumb system in `layouts/app.blade.php` works perfectly and must NOT be changed
-- **PRESERVE EXISTING PATTERNS**: Follow existing patterns for breadcrumbs using `@section('breadcrumb-items')` and `@section('actions')`
-- **TEST SMALL CHANGES**: When making UI improvements, test incrementally and never break existing functionality
-- **ROLLBACK ON FAILURE**: If a change breaks anything, immediately acknowledge failure and revert changes
-- **STABILITY OVER INNOVATION**: This is production code - stability is more important than creating new components
-
-### Backend (Laravel)
-- Use Eloquent efficiently with eager loading to prevent N+1 queries
-- Implement business logic in Service classes, keep Controllers thin
-- Use Form Requests for input validation
-- Follow repository pattern for complex queries
-- Implement proper authorization through Policies
-
-### Frontend (Vue/JavaScript)
-- Break UI into reusable Vue components
-- Use computed properties and watchers efficiently
-- Validate forms using vee-validate
-- Optimize for performance and accessibility
-- Maintain consistent styling with Bootstrap 5
-- Focus on smooth animations and responsive interactions
+- Use Vue 3 Composition API
+- Follow ESLint configuration (.eslintrc.js)
+- Use Prettier for code formatting
+- Avoid reactivity overuse (watch/computed)
+- Break UI into reusable components
 
 ### Database
-- Use migrations for all schema changes
-- Implement proper indexing for performance
-- Use soft deletes for recoverable records
-- Normalize schemas to avoid redundancy
-- pare de ficar limpando o banco de dados
 
-## Task Master AI Instructions
-**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
-@./.taskmaster/CLAUDE.md
+- Use migrations for all schema changes
+- Use Eloquent ORM with eager loading to avoid N+1 queries
+- Normalize schemas appropriately
+- Use indexes for performance
+- Implement soft deletes where records may need recovery
+- Use transactions for operations that must succeed or fail together
+
+## Important Guidelines
+
+### Production System
+
+This is a production system at maieuticavaliacom.br:
+
+- Never make breaking changes without tests and validation
+- Prioritize stability and compatibility
+- Refactor incrementally and validate in staging first
+- Test all optimizations in real scenarios
+- Always run tests after changes
+
+### Code Changes
+
+- Always analyze the flow, business rules, and product context before changes
+- Think holistically, not in isolation
+- Look for patterns and opportunities to eliminate code repetition
+- ALWAYS prefer editing existing files to creating new ones
+- NEVER proactively create documentation files unless explicitly requested
+- Execute all tests after changes or new features
+- Always understand package.json and composer.json before making changes
+
+### Testing Strategy
+
+Always execute tests when making changes. Tests are located in:
+- Unit tests: `tests/Unit/`
+- Feature tests: `tests/Feature/`
+
+Test coverage includes ValueObjects, Rules, Specifications, Traits, and business logic.
+
+## Environment Variables
+
+Key configuration in .env:
+- `APP_NAME`, `APP_DESCRIPTION`, `APP_VERSION`
+- Database: `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`
+- Mail configuration
+- Session and cache drivers
+- Queue connection
+
+## Database
+
+MySQL 8.0 via Docker (port 3306)
+- Database: maieutica
+- Seeders available in `database/seeders/`
+
+## Additional Services
+
+MailHog for email testing:
+- SMTP: localhost:1025
+- Web UI: http://localhost:8025

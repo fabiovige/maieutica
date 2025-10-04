@@ -10,50 +10,65 @@ class ResponsibleSeeder extends Seeder
 {
     public function run()
     {
-        // Criar primeiro usuário responsável
-        $responsibleUser1 = User::firstOrCreate(
-            ['email' => 'responsible1@example.com'],
+        $adminUser = User::where('email', 'fabiovige@gmail.com')->first();
+        if (!$adminUser) {
+            $this->command->error('User admin não encontrado. Execute UserSeeder primeiro.');
+            return;
+        }
+
+        $responsibles = [
             [
                 'name' => 'Maria da Silva',
-                'password' => bcrypt('password'),
-                'created_by' => 1,
-            ]
-        );
-        $responsibleUser1->assignRole('pais');
-
-        // Criar registro na tabela responsibles
-        Responsible::firstOrCreate(
-            ['user_id' => $responsibleUser1->id],
-            [
-                'name' => $responsibleUser1->name,
-                'email' => $responsibleUser1->email,
-                'cpf' => '12345678901',
-                'cell' => '11999999001',
-                'created_by' => 1,
-            ]
-        );
-
-        // Criar segundo usuário responsável
-        $responsibleUser2 = User::firstOrCreate(
-            ['email' => 'responsible2@example.com'],
+                'email' => 'maria.silva@example.com',
+                'cpf' => '123.456.789-01',
+                'cell' => '(11) 98765-4321',
+            ],
             [
                 'name' => 'João Santos',
-                'password' => bcrypt('password'),
-                'created_by' => 1,
-            ]
-        );
-        $responsibleUser2->assignRole('pais');
-
-        // Criar registro na tabela responsibles
-        Responsible::firstOrCreate(
-            ['user_id' => $responsibleUser2->id],
+                'email' => 'joao.santos@example.com',
+                'cpf' => '234.567.890-12',
+                'cell' => '(11) 99876-5432',
+            ],
             [
-                'name' => $responsibleUser2->name,
-                'email' => $responsibleUser2->email,
-                'cpf' => '12345678902',
-                'cell' => '11999999002',
-                'created_by' => 1,
-            ]
-        );
+                'name' => 'Ana Paula Costa',
+                'email' => 'ana.costa@example.com',
+                'cpf' => '345.678.901-23',
+                'cell' => '(21) 98888-7777',
+            ],
+            [
+                'name' => 'Carlos Ferreira',
+                'email' => 'carlos.ferreira@example.com',
+                'cpf' => '456.789.012-34',
+                'cell' => '(31) 97777-6666',
+            ],
+            [
+                'name' => 'Beatriz Lima',
+                'email' => 'beatriz.lima@example.com',
+                'cpf' => '567.890.123-45',
+                'cell' => '(41) 96666-5555',
+            ],
+        ];
+
+        foreach ($responsibles as $index => $responsibleData) {
+            $user = User::create([
+                'name' => $responsibleData['name'],
+                'email' => $responsibleData['email'],
+                'password' => bcrypt('password123'),
+                'created_by' => $adminUser->id,
+            ]);
+
+            $user->assignRole('pais');
+
+            Responsible::create([
+                'user_id' => $user->id,
+                'name' => $responsibleData['name'],
+                'email' => $responsibleData['email'],
+                'cpf' => $responsibleData['cpf'],
+                'cell' => $responsibleData['cell'],
+                'created_by' => $adminUser->id,
+            ]);
+        }
+
+        $this->command->info('✅ 5 responsáveis criados com sucesso');
     }
 }

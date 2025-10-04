@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Traits\HasLogging;
-use App\Traits\EncryptedAttributes;
 use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -11,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class Kid extends BaseModel
 {
-    use HasLogging, EncryptedAttributes, HasAuditLog;
+    use HasLogging, HasAuditLog;
 
     protected $fillable = [
         'name',
@@ -37,13 +36,6 @@ class Kid extends BaseModel
     protected $casts = [
         'birth_date' => 'date',
     ];
-
-    protected function getEncryptedFields(): array
-    {
-        return [
-            'name',
-        ];
-    }
 
     protected $auditableFields = [
         'name',

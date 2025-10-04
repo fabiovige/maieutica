@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Traits\EncryptedAttributes;
 use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Responsible extends Model
 {
-    use HasFactory, SoftDeletes, EncryptedAttributes, HasAuditLog;
+    use HasFactory, SoftDeletes, HasAuditLog;
 
     protected $fillable = [
         'id',
@@ -24,21 +23,6 @@ class Responsible extends Model
         'deleted_by',
         'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'estado',
     ];
-
-    protected function getEncryptedFields(): array
-    {
-        return [
-            'email',
-            'cpf',
-            'cell',
-            'cep',
-            'logradouro',
-            'numero',
-            'complemento',
-            'bairro',
-            'cidade',
-        ];
-    }
 
     protected $auditableFields = [
         'user_id',
