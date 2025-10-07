@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos de Desenvolvimento - Documentação Maiêutica</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="doc-header"><h1><i class="bi bi-book"></i> Maiêutica</h1><span class="subtitle">Documentação do Sistema para Clínicas</span></header>
+    <aside class="doc-sidebar">
+        <div class="sidebar-search"><input type="text" id="searchInput" placeholder="🔍 Buscar na documentação..."></div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../index.html"><span class="icon"><i class="bi bi-house-door-fill"></i></span>Início</a></li>
+                <li><a href="01-introducao.html"><span class="icon"><i class="bi bi-info-circle-fill"></i></span>Introdução<span class="badge">Básico</span></a></li>
+                <li><a href="02-primeiros-passos.html"><span class="icon"><i class="bi bi-play-circle-fill"></i></span>Primeiros Passos<span class="badge">Básico</span></a></li>
+                <li><a href="03-gestao-criancas.html"><span class="icon"><i class="bi bi-people-fill"></i></span>Gestão de Crianças</a></li>
+                <li><a href="04-criar-avaliacao.html"><span class="icon"><i class="bi bi-clipboard-plus"></i></span>Criar Avaliação</a></li>
+                <li><a href="05-preencher-avaliacao.html"><span class="icon"><i class="bi bi-pencil-square"></i></span>Preencher Avaliação</a></li>
+                <li><a href="06-visualizar-resultados.html"><span class="icon"><i class="bi bi-graph-up"></i></span>Visualizar Resultados</a></li>
+                <li><a href="07-reavaliacao.html"><span class="icon"><i class="bi bi-arrow-repeat"></i></span>Reavaliação</a></li>
+                <li><a href="08-planos-desenvolvimento.html"><span class="icon"><i class="bi bi-journal-medical"></i></span>Planos de Desenvolvimento</a></li>
+                <li><a href="09-gestao-profissionais.html"><span class="icon"><i class="bi bi-person-badge"></i></span>Gestão de Profissionais<span class="badge badge-warning">Admin</span></a></li>
+                <li><a href="10-relatorios-pdf.html"><span class="icon"><i class="bi bi-file-earmark-pdf"></i></span>Relatórios PDF</a></li>
+                <li><a href="11-biblioteca-competencias.html"><span class="icon"><i class="bi bi-archive"></i></span>Biblioteca de Competências</a></li>
+                <li><a href="12-dicas-boas-praticas.html"><span class="icon"><i class="bi bi-lightbulb-fill"></i></span>Dicas e Boas Práticas<span class="badge badge-success">Recomendado</span></a></li>
+                <li><a href="13-faq.html"><span class="icon"><i class="bi bi-question-circle-fill"></i></span>Perguntas Frequentes</a></li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="doc-content">
+        <div class="breadcrumb-doc"><a href="../index.html">Início</a><span>/</span><span>Planos de Desenvolvimento</span></div>
+
+        <h1>📝 Planos de Desenvolvimento</h1>
+        <p>Crie planos de intervenção personalizados com competências-alvo e estratégias terapêuticas.</p>
+
+        <h2>1. Criando um Novo Plano</h2>
+        <div class="steps">
+            <div class="step"><h4>Acesse a ficha do paciente</h4><p>Clique na aba "Planos"</p></div>
+            <div class="step"><h4>Clique em "+ Novo Plano"</h4><p>Formulário de criação será exibido</p></div>
+            <div class="step"><h4>Defina título e descrição</h4><p>Ex: "Plano de Intervenção - Linguagem Expressiva"</p></div>
+            <div class="step"><h4>Selecione competências-alvo</h4><p>Sistema sugere automaticamente competências com nota ≤ 1</p></div>
+            <div class="step"><h4>Escreva estratégias de intervenção</h4><p>Descreva atividades e técnicas que serão utilizadas</p></div>
+            <div class="step"><h4>Defina prazo (data início e fim)</h4><p>Recomendado: 6 meses</p></div>
+            <div class="step"><h4>Salve o plano</h4><p>Status inicial: "Ativo"</p></div>
+        </div>
+
+        <h2>2. Sugestão Automática de Competências</h2>
+        <p>O sistema analisa a última avaliação e sugere competências com baixo desempenho (nota 0 ou 1) como competências-alvo prioritárias.</p>
+
+        <div class="alert alert-success">
+            <div class="icon">💡</div>
+            <div><strong>Dica:</strong> Selecione 3-5 competências por plano. Evite planos muito extensos!</div>
+        </div>
+
+        <h2>3. Acompanhando o Progresso</h2>
+        <p>Em reavaliações futuras, o sistema compara automaticamente se as competências do plano melhoraram. Um indicador visual mostra o progresso de cada competência-alvo.</p>
+
+        <h2>4. Status de Planos</h2>
+        <ul>
+            <li><strong>Ativo:</strong> Plano em vigor, sendo trabalhado</li>
+            <li><strong>Concluído:</strong> Prazo finalizado, competências atingidas</li>
+            <li><strong>Arquivado:</strong> Plano descontinuado</li>
+        </ul>
+
+        <h2>5. Próximos Passos</h2>
+        <div class="alert alert-info">
+            <div class="icon">➡️</div>
+            <div><strong>Próxima etapa:</strong> Acesse <a href="09-gestao-profissionais.html">Gestão de Profissionais</a> (seção para administradores).</div>
+        </div>
+
+        <div class="page-navigation">
+            <a href="07-reavaliacao.html" class="nav-btn prev"><span class="icon">←</span>Página anterior</a>
+            <a href="09-gestao-profissionais.html" class="nav-btn next">Próxima página<span class="icon">→</span></a>
+        </div>
+    </main>
+    <div class="back-to-top"><i class="bi bi-arrow-up"></i></div>
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>

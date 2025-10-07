@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios PDF - Documentação Maiêutica</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="doc-header"><h1><i class="bi bi-book"></i> Maiêutica</h1><span class="subtitle">Documentação do Sistema para Clínicas</span></header>
+    <aside class="doc-sidebar">
+        <div class="sidebar-search"><input type="text" id="searchInput" placeholder="🔍 Buscar na documentação..."></div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../index.html"><span class="icon"><i class="bi bi-house-door-fill"></i></span>Início</a></li>
+                <li><a href="01-introducao.html"><span class="icon"><i class="bi bi-info-circle-fill"></i></span>Introdução<span class="badge">Básico</span></a></li>
+                <li><a href="02-primeiros-passos.html"><span class="icon"><i class="bi bi-play-circle-fill"></i></span>Primeiros Passos<span class="badge">Básico</span></a></li>
+                <li><a href="03-gestao-criancas.html"><span class="icon"><i class="bi bi-people-fill"></i></span>Gestão de Crianças</a></li>
+                <li><a href="04-criar-avaliacao.html"><span class="icon"><i class="bi bi-clipboard-plus"></i></span>Criar Avaliação</a></li>
+                <li><a href="05-preencher-avaliacao.html"><span class="icon"><i class="bi bi-pencil-square"></i></span>Preencher Avaliação</a></li>
+                <li><a href="06-visualizar-resultados.html"><span class="icon"><i class="bi bi-graph-up"></i></span>Visualizar Resultados</a></li>
+                <li><a href="07-reavaliacao.html"><span class="icon"><i class="bi bi-arrow-repeat"></i></span>Reavaliação</a></li>
+                <li><a href="08-planos-desenvolvimento.html"><span class="icon"><i class="bi bi-journal-medical"></i></span>Planos de Desenvolvimento</a></li>
+                <li><a href="09-gestao-profissionais.html"><span class="icon"><i class="bi bi-person-badge"></i></span>Gestão de Profissionais<span class="badge badge-warning">Admin</span></a></li>
+                <li><a href="10-relatorios-pdf.html"><span class="icon"><i class="bi bi-file-earmark-pdf"></i></span>Relatórios PDF</a></li>
+                <li><a href="11-biblioteca-competencias.html"><span class="icon"><i class="bi bi-archive"></i></span>Biblioteca de Competências</a></li>
+                <li><a href="12-dicas-boas-praticas.html"><span class="icon"><i class="bi bi-lightbulb-fill"></i></span>Dicas e Boas Práticas<span class="badge badge-success">Recomendado</span></a></li>
+                <li><a href="13-faq.html"><span class="icon"><i class="bi bi-question-circle-fill"></i></span>Perguntas Frequentes</a></li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="doc-content">
+        <div class="breadcrumb-doc"><a href="../index.html">Início</a><span>/</span><span>Relatórios PDF</span></div>
+
+        <h1>📄 Relatórios PDF Profissionais</h1>
+        <p>Gere relatórios prontos para compartilhar com equipes, escolas e familiares.</p>
+
+        <h2>1. Tipos de Relatórios</h2>
+        <div class="card-grid">
+            <div class="doc-card">
+                <div class="card-icon">📋</div>
+                <h3>Checklist Individual</h3>
+                <p>Relatório completo de uma avaliação específica com gráficos e tabelas.</p>
+            </div>
+            <div class="doc-card">
+                <div class="card-icon">📊</div>
+                <h3>Overview do Paciente</h3>
+                <p>Histórico completo com evolução entre primeira e última avaliação.</p>
+            </div>
+            <div class="doc-card">
+                <div class="card-icon">📝</div>
+                <h3>Plano de Desenvolvimento</h3>
+                <p>Documento do plano com competências-alvo e estratégias.</p>
+            </div>
+        </div>
+
+        <h2>2. Gerando PDF de Checklist</h2>
+        <div class="steps">
+            <div class="step"><h4>Acesse a avaliação</h4><p>Clique em "Visualizar" na lista de checklists</p></div>
+            <div class="step"><h4>Clique em "Exportar PDF"</h4><p>Botão no canto superior direito</p></div>
+            <div class="step"><h4>Aguarde a geração</h4><p>Processo leva 2-5 segundos</p></div>
+            <div class="step"><h4>PDF será baixado automaticamente</h4><p>Abra para visualizar ou imprimir</p></div>
+        </div>
+
+        <h2>3. Conteúdo do PDF de Checklist</h2>
+        <ul>
+            <li>Cabeçalho com logo e dados da clínica</li>
+            <li>Dados do paciente (nome, idade, data da avaliação)</li>
+            <li>Gráfico radar com perfil cognitivo</li>
+            <li>Tabela com percentuais por domínio (com código de cores)</li>
+            <li>Lista detalhada de todas as competências avaliadas e suas notas</li>
+            <li>Observações clínicas do profissional</li>
+            <li>Rodapé com data de geração e assinatura do profissional</li>
+        </ul>
+
+        <h2>4. Gerando PDF de Overview</h2>
+        <p>Na ficha do paciente, clique em "Ver Overview" e depois "Exportar PDF". O relatório incluirá:</p>
+        <ul>
+            <li>Gráfico comparativo (primeira vs. última avaliação)</li>
+            <li>Taxa de progresso por domínio</li>
+            <li>Análise de competências com maior/menor evolução</li>
+            <li>Timeline de todas as avaliações realizadas</li>
+        </ul>
+
+        <h2>5. Compartilhando Relatórios</h2>
+        <p>Os PDFs gerados podem ser:</p>
+        <ul>
+            <li>Enviados por email ao responsável</li>
+            <li>Impressos para entrega presencial</li>
+            <li>Compartilhados com escola/equipe multidisciplinar</li>
+            <li>Arquivados no prontuário físico</li>
+        </ul>
+
+        <div class="alert alert-warning">
+            <div class="icon">🔒</div>
+            <div><strong>LGPD:</strong> Remova identificações pessoais se for compartilhar em contextos acadêmicos ou de pesquisa!</div>
+        </div>
+
+        <h2>6. Próximos Passos</h2>
+        <div class="alert alert-info">
+            <div class="icon">➡️</div>
+            <div><strong>Próxima etapa:</strong> Acesse <a href="11-biblioteca-competencias.html">Biblioteca de Competências</a>.</div>
+        </div>
+
+        <div class="page-navigation">
+            <a href="09-gestao-profissionais.html" class="nav-btn prev"><span class="icon">←</span>Página anterior</a>
+            <a href="11-biblioteca-competencias.html" class="nav-btn next">Próxima página<span class="icon">→</span></a>
+        </div>
+    </main>
+    <div class="back-to-top"><i class="bi bi-arrow-up"></i></div>
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>

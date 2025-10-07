@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Avaliação - Documentação Maiêutica</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="doc-header">
+        <h1><i class="bi bi-book"></i> Maiêutica</h1>
+        <span class="subtitle">Documentação do Sistema para Clínicas</span>
+    </header>
+    <aside class="doc-sidebar">
+        <div class="sidebar-search"><input type="text" id="searchInput" placeholder="🔍 Buscar na documentação..."></div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../index.html"><span class="icon"><i class="bi bi-house-door-fill"></i></span>Início</a></li>
+                <li><a href="01-introducao.html"><span class="icon"><i class="bi bi-info-circle-fill"></i></span>Introdução<span class="badge">Básico</span></a></li>
+                <li><a href="02-primeiros-passos.html"><span class="icon"><i class="bi bi-play-circle-fill"></i></span>Primeiros Passos<span class="badge">Básico</span></a></li>
+                <li><a href="03-gestao-criancas.html"><span class="icon"><i class="bi bi-people-fill"></i></span>Gestão de Crianças</a></li>
+                <li><a href="04-criar-avaliacao.html"><span class="icon"><i class="bi bi-clipboard-plus"></i></span>Criar Avaliação</a></li>
+                <li><a href="05-preencher-avaliacao.html"><span class="icon"><i class="bi bi-pencil-square"></i></span>Preencher Avaliação</a></li>
+                <li><a href="06-visualizar-resultados.html"><span class="icon"><i class="bi bi-graph-up"></i></span>Visualizar Resultados</a></li>
+                <li><a href="07-reavaliacao.html"><span class="icon"><i class="bi bi-arrow-repeat"></i></span>Reavaliação</a></li>
+                <li><a href="08-planos-desenvolvimento.html"><span class="icon"><i class="bi bi-journal-medical"></i></span>Planos de Desenvolvimento</a></li>
+                <li><a href="09-gestao-profissionais.html"><span class="icon"><i class="bi bi-person-badge"></i></span>Gestão de Profissionais<span class="badge badge-warning">Admin</span></a></li>
+                <li><a href="10-relatorios-pdf.html"><span class="icon"><i class="bi bi-file-earmark-pdf"></i></span>Relatórios PDF</a></li>
+                <li><a href="11-biblioteca-competencias.html"><span class="icon"><i class="bi bi-archive"></i></span>Biblioteca de Competências</a></li>
+                <li><a href="12-dicas-boas-praticas.html"><span class="icon"><i class="bi bi-lightbulb-fill"></i></span>Dicas e Boas Práticas<span class="badge badge-success">Recomendado</span></a></li>
+                <li><a href="13-faq.html"><span class="icon"><i class="bi bi-question-circle-fill"></i></span>Perguntas Frequentes</a></li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="doc-content">
+        <div class="breadcrumb-doc"><a href="../index.html">Início</a><span>/</span><span>Criar Avaliação</span></div>
+        <h1>📋 Criar Nova Avaliação (Checklist)</h1>
+        <p>Aprenda o passo a passo para iniciar uma nova avaliação cognitiva de um paciente.</p>
+
+        <h2>1. Iniciando um Novo Checklist</h2>
+        <div class="steps">
+            <div class="step">
+                <h4>Acesse "Avaliações" no menu principal</h4>
+                <p>Ou clique em "Nova Avaliação" na ficha do paciente.</p>
+            </div>
+            <div class="step">
+                <h4>Clique no botão "+ Nova Avaliação"</h4>
+                <p>Você será redirecionado para o formulário de criação.</p>
+            </div>
+            <div class="step">
+                <h4>Selecione o paciente</h4>
+                <p>Utilize o campo de busca para encontrar o paciente. Digite o nome e selecione da lista.</p>
+            </div>
+            <div class="step">
+                <h4>Defina a data da avaliação</h4>
+                <p>Por padrão, a data atual é preenchida. Você pode alterar se necessário.</p>
+            </div>
+            <div class="step">
+                <h4>Clique em "Iniciar Avaliação"</h4>
+                <p>O checklist será criado e você será redirecionado para a tela de preenchimento.</p>
+            </div>
+        </div>
+
+        <div class="screenshot">
+            <div class="screenshot-placeholder">
+                📝 FORMULÁRIO DE NOVA AVALIAÇÃO<br>
+                [Captura de tela: seleção de paciente e data]
+            </div>
+            <div class="screenshot-caption">Formulário para iniciar novo checklist</div>
+        </div>
+
+        <h2>2. Entendendo a Interface de Avaliação</h2>
+        <p>A tela de preenchimento é dividida em seções:</p>
+
+        <div class="card-grid">
+            <div class="doc-card">
+                <div class="card-icon">👤</div>
+                <h3>Cabeçalho do Paciente</h3>
+                <p>Mostra nome, foto, idade e resumo rápido do paciente.</p>
+            </div>
+            <div class="doc-card">
+                <div class="card-icon">🔍</div>
+                <h3>Filtros de Domínio</h3>
+                <p>Filtre competências por domínio cognitivo ou nível de dificuldade.</p>
+            </div>
+            <div class="doc-card">
+                <div class="card-icon">📋</div>
+                <h3>Lista de Competências</h3>
+                <p>Todas as competências disponíveis organizadas por domínio.</p>
+            </div>
+            <div class="doc-card">
+                <div class="card-icon">⭐</div>
+                <h3>Sistema de Notas</h3>
+                <p>Botões 0-3 para atribuir nota a cada competência testada.</p>
+            </div>
+            <div class="doc-card">
+                <div class="card-icon">📊</div>
+                <h3>Percentual em Tempo Real</h3>
+                <p>Cálculo automático dos percentuais conforme você preenche.</p>
+            </div>
+            <div class="doc-card">
+                <div class="card-icon">💾</div>
+                <h3>Botões de Ação</h3>
+                <p>Salvar rascunho, finalizar avaliação ou cancelar.</p>
+            </div>
+        </div>
+
+        <h2>3. Selecionando Competências para Avaliar</h2>
+        <p>Você <strong>não precisa avaliar todas as competências</strong> em uma única sessão. Selecione apenas aquelas que serão testadas:</p>
+
+        <div class="alert alert-info">
+            <div class="icon">💡</div>
+            <div>
+                <strong>Dica:</strong> Use os filtros por domínio para focar em áreas específicas. Por exemplo, selecione "Linguagem Receptiva" para visualizar apenas competências deste domínio.
+            </div>
+        </div>
+
+        <h3>Filtros Disponíveis:</h3>
+        <ul>
+            <li><strong>Todos os domínios:</strong> Mostra todas as competências</li>
+            <li><strong>Linguagem Receptiva:</strong> Compreensão de linguagem</li>
+            <li><strong>Linguagem Expressiva:</strong> Produção de linguagem</li>
+            <li><strong>Memória de Trabalho:</strong> Retenção temporária</li>
+            <li><strong>Atenção Seletiva:</strong> Foco em estímulos</li>
+            <li><strong>Raciocínio Lógico:</strong> Resolução de problemas</li>
+            <li><strong>Funções Executivas:</strong> Planejamento e controle</li>
+            <li><strong>Habilidades Sociais:</strong> Interação social</li>
+        </ul>
+
+        <h2>4. Clonando Checklist Anterior (Opcional)</h2>
+        <p>Se este paciente já possui avaliações anteriores, você pode <strong>clonar</strong> o checklist anterior:</p>
+
+        <div class="steps">
+            <div class="step">
+                <h4>Ao criar nova avaliação, clique em "Clonar avaliação anterior"</h4>
+                <p>Botão aparece automaticamente se houver checklists prévios.</p>
+            </div>
+            <div class="step">
+                <h4>Selecione qual avaliação deseja clonar</h4>
+                <p>Escolha da lista de avaliações anteriores deste paciente.</p>
+            </div>
+            <div class="step">
+                <h4>Confirme a clonagem</h4>
+                <p>As mesmas competências serão pré-selecionadas, mas as notas virão zeradas.</p>
+            </div>
+        </div>
+
+        <div class="alert alert-success">
+            <div class="icon">✅</div>
+            <div>
+                <strong>Vantagem de clonar:</strong> Mantém consistência entre avaliações e facilita a comparação de evolução!
+            </div>
+        </div>
+
+        <h2>5. Salvando como Rascunho</h2>
+        <p>Se não conseguir finalizar a avaliação em uma única sessão, salve como rascunho:</p>
+
+        <ul>
+            <li>Clique no botão <strong>"Salvar Rascunho"</strong></li>
+            <li>O checklist será salvo com status "Em andamento"</li>
+            <li>Você pode retornar e continuar preenchendo depois</li>
+            <li>Os dados já preenchidos ficam salvos</li>
+        </ul>
+
+        <div class="alert alert-warning">
+            <div class="icon">⚠️</div>
+            <div>
+                <strong>Atenção:</strong> Checklists salvos como rascunho não aparecem nos relatórios e gráficos até serem finalizados.
+            </div>
+        </div>
+
+        <h2>6. Boas Práticas ao Criar Avaliações</h2>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Prática</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Crie no mesmo dia</strong></td>
+                    <td>Registre a avaliação logo após a sessão para não esquecer detalhes</td>
+                </tr>
+                <tr>
+                    <td><strong>Use filtros de domínio</strong></td>
+                    <td>Organize a avaliação por área cognitiva para maior clareza</td>
+                </tr>
+                <tr>
+                    <td><strong>Clone quando possível</strong></td>
+                    <td>Mantenha consistência clonando avaliações anteriores</td>
+                </tr>
+                <tr>
+                    <td><strong>Avalie 10-15 competências</strong></td>
+                    <td>Quantidade ideal para uma sessão de 1 hora</td>
+                </tr>
+                <tr>
+                    <td><strong>Priorize áreas críticas</strong></td>
+                    <td>Foque em domínios com baixo desempenho ou relevantes ao caso</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>7. Próximos Passos</h2>
+        <p>Agora que você criou a avaliação, vamos aprender a preenchê-la!</p>
+
+        <div class="alert alert-info">
+            <div class="icon">➡️</div>
+            <div>
+                <strong>Próxima etapa:</strong> Acesse <a href="05-preencher-avaliacao.html">Preencher Avaliação</a> para aprender a atribuir notas e adicionar observações.
+            </div>
+        </div>
+
+        <div class="page-navigation">
+            <a href="03-gestao-criancas.html" class="nav-btn prev"><span class="icon">←</span>Página anterior</a>
+            <a href="05-preencher-avaliacao.html" class="nav-btn next">Próxima página<span class="icon">→</span></a>
+        </div>
+    </main>
+    <div class="back-to-top"><i class="bi bi-arrow-up"></i></div>
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>
