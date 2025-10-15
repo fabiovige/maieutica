@@ -229,7 +229,7 @@
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <div style="display: flex; justify-content: center;">
-                                {!! htmlFormSnippet() !!}
+                                
                             </div>
                         </div>
                     </div>

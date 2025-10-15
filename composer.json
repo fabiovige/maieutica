@@ -15,6 +15,7 @@
         "elibyy/tcpdf-laravel": "^9.1",
         "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
+        "josiasmontag/laravel-recaptchav3": "^1.0",
         "laracasts/flash": "^3.2.1",
         "laravel/framework": "^9.0",
         "laravel/sanctum": "^2.14",
