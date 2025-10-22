@@ -7269,6 +7269,15 @@ namespace Illuminate\Support\Facades {
                         /** @var \Illuminate\Http\Client\Factory $instance */
                         return $instance->macroCall($method, $parameters);
         }
+                    /**
+         * 
+         *
+         * @see \App\Providers\AppServiceProvider::boot()
+         * @static 
+         */        public static function noSslVerification()
+        {
+                        return \Illuminate\Http\Client\Factory::noSslVerification();
+        }
             }
             /**
      * 
@@ -16134,6 +16143,219 @@ namespace Elibyy\TCPDF\Facades {
             }
     }
 
+namespace Biscolab\ReCaptcha\Facades {
+            /**
+     * Class ReCaptcha
+     *
+     * @package Biscolab\ReCaptcha\Facades
+     * @method static string htmlFormButton(?string $button_label = '', ?array $properties = [])
+     * @method static string getFormId()
+     */        class ReCaptcha {
+                    /**
+         * Write ReCAPTCHA HTML tag in your FORM
+         * Insert before </form> tag
+         *
+         * @param null|array $attributes
+         * @return string 
+         * @static 
+         */        public static function htmlFormSnippet($attributes = [])
+        {
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->htmlFormSnippet($attributes);
+        }
+                    /**
+         * 
+         *
+         * @return array 
+         * @throws InvalidConfigurationException
+         * @static 
+         */        public static function getTagAttributes()
+        {
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->getTagAttributes();
+        }
+                    /**
+         * 
+         *
+         * @return string 
+         * @static 
+         */        public static function getOnLoadCallback()
+        {
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->getOnLoadCallback();
+        }
+                    /**
+         * Compare given attributes with allowed attributes
+         *
+         * @param array|null $attributes
+         * @return array 
+         * @static 
+         */        public static function cleanAttributes($attributes = [])
+        {
+                        return \Biscolab\ReCaptcha\ReCaptchaBuilderV2::cleanAttributes($attributes);
+        }
+                    /**
+         * 
+         *
+         * @param string $api_site_key
+         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
+         * @static 
+         */        public static function setApiSiteKey($api_site_key)
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->setApiSiteKey($api_site_key);
+        }
+                    /**
+         * 
+         *
+         * @param string $api_secret_key
+         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
+         * @static 
+         */        public static function setApiSecretKey($api_secret_key)
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->setApiSecretKey($api_secret_key);
+        }
+                    /**
+         * 
+         *
+         * @return int 
+         * @static 
+         */        public static function getCurlTimeout()
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->getCurlTimeout();
+        }
+                    /**
+         * 
+         *
+         * @param string $version
+         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
+         * @static 
+         */        public static function setVersion($version)
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->setVersion($version);
+        }
+                    /**
+         * 
+         *
+         * @return string 
+         * @static 
+         */        public static function getVersion()
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->getVersion();
+        }
+                    /**
+         * 
+         *
+         * @param bool $skip_by_ip
+         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
+         * @static 
+         */        public static function setSkipByIp($skip_by_ip)
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->setSkipByIp($skip_by_ip);
+        }
+                    /**
+         * 
+         *
+         * @param null|string $api_domain
+         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
+         * @static 
+         */        public static function setApiDomain($api_domain = null)
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->setApiDomain($api_domain);
+        }
+                    /**
+         * 
+         *
+         * @return string 
+         * @static 
+         */        public static function getApiDomain()
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->getApiDomain();
+        }
+                    /**
+         * 
+         *
+         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
+         * @static 
+         */        public static function setApiUrls()
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->setApiUrls();
+        }
+                    /**
+         * 
+         *
+         * @return array|mixed 
+         * @static 
+         */        public static function getIpWhitelist()
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->getIpWhitelist();
+        }
+                    /**
+         * Checks whether the user IP address is among IPs "to be skipped"
+         *
+         * @return boolean 
+         * @static 
+         */        public static function skipByIp()
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->skipByIp();
+        }
+                    /**
+         * Write script HTML tag in you HTML code
+         * Insert before </head> tag
+         *
+         * @param array|null $configuration
+         * @return string 
+         * @throws \Exception
+         * @static 
+         */        public static function htmlScriptTagJsApi($configuration = [])
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->htmlScriptTagJsApi($configuration);
+        }
+                    /**
+         * Call out to reCAPTCHA and process the response
+         *
+         * @param string $response
+         * @return boolean|array 
+         * @static 
+         */        public static function validate($response)
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->validate($response);
+        }
+                    /**
+         * 
+         *
+         * @return string 
+         * @static 
+         */        public static function getApiSiteKey()
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->getApiSiteKey();
+        }
+                    /**
+         * 
+         *
+         * @return string 
+         * @static 
+         */        public static function getApiSecretKey()
+        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
+                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
+                        return $instance->getApiSecretKey();
+        }
+            }
+    }
+
 namespace Barryvdh\Debugbar\Facades {
             /**
      * 
@@ -16778,215 +17000,49 @@ namespace Barryvdh\DomPDF\Facade {
             }
     }
 
-namespace Biscolab\ReCaptcha\Facades {
+namespace Lunaweb\RecaptchaV3\Facades {
             /**
-     * Class ReCaptcha
+     * 
      *
-     * @package Biscolab\ReCaptcha\Facades
-     * @method static string htmlFormButton(?string $button_label = '', ?array $properties = [])
-     * @method static string getFormId()
-     */        class ReCaptcha {
+     */        class RecaptchaV3 {
                     /**
-         * Write ReCAPTCHA HTML tag in your FORM
-         * Insert before </form> tag
+         * 
          *
-         * @param null|array $attributes
-         * @return string 
          * @static 
-         */        public static function htmlFormSnippet($attributes = [])
+         */        public static function verify($token, $action = null)
         {
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->htmlFormSnippet($attributes);
+                        /** @var \Lunaweb\RecaptchaV3\RecaptchaV3 $instance */
+                        return $instance->verify($token, $action);
         }
                     /**
          * 
          *
-         * @return array 
-         * @throws InvalidConfigurationException
+         * @return string 
          * @static 
-         */        public static function getTagAttributes()
+         */        public static function sitekey()
         {
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->getTagAttributes();
+                        /** @var \Lunaweb\RecaptchaV3\RecaptchaV3 $instance */
+                        return $instance->sitekey();
         }
                     /**
          * 
          *
          * @return string 
          * @static 
-         */        public static function getOnLoadCallback()
+         */        public static function initJs()
         {
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->getOnLoadCallback();
+                        /** @var \Lunaweb\RecaptchaV3\RecaptchaV3 $instance */
+                        return $instance->initJs();
         }
                     /**
-         * Compare given attributes with allowed attributes
+         * 
          *
-         * @param array|null $attributes
-         * @return array 
+         * @param $action
          * @static 
-         */        public static function cleanAttributes($attributes = [])
+         */        public static function field($action, $name = 'g-recaptcha-response')
         {
-                        return \Biscolab\ReCaptcha\ReCaptchaBuilderV2::cleanAttributes($attributes);
-        }
-                    /**
-         * 
-         *
-         * @param string $api_site_key
-         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
-         * @static 
-         */        public static function setApiSiteKey($api_site_key)
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->setApiSiteKey($api_site_key);
-        }
-                    /**
-         * 
-         *
-         * @param string $api_secret_key
-         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
-         * @static 
-         */        public static function setApiSecretKey($api_secret_key)
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->setApiSecretKey($api_secret_key);
-        }
-                    /**
-         * 
-         *
-         * @return int 
-         * @static 
-         */        public static function getCurlTimeout()
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->getCurlTimeout();
-        }
-                    /**
-         * 
-         *
-         * @param string $version
-         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
-         * @static 
-         */        public static function setVersion($version)
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->setVersion($version);
-        }
-                    /**
-         * 
-         *
-         * @return string 
-         * @static 
-         */        public static function getVersion()
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->getVersion();
-        }
-                    /**
-         * 
-         *
-         * @param bool $skip_by_ip
-         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
-         * @static 
-         */        public static function setSkipByIp($skip_by_ip)
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->setSkipByIp($skip_by_ip);
-        }
-                    /**
-         * 
-         *
-         * @param null|string $api_domain
-         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
-         * @static 
-         */        public static function setApiDomain($api_domain = null)
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->setApiDomain($api_domain);
-        }
-                    /**
-         * 
-         *
-         * @return string 
-         * @static 
-         */        public static function getApiDomain()
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->getApiDomain();
-        }
-                    /**
-         * 
-         *
-         * @return \Biscolab\ReCaptcha\ReCaptchaBuilder 
-         * @static 
-         */        public static function setApiUrls()
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->setApiUrls();
-        }
-                    /**
-         * 
-         *
-         * @return array|mixed 
-         * @static 
-         */        public static function getIpWhitelist()
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->getIpWhitelist();
-        }
-                    /**
-         * Checks whether the user IP address is among IPs "to be skipped"
-         *
-         * @return boolean 
-         * @static 
-         */        public static function skipByIp()
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->skipByIp();
-        }
-                    /**
-         * Write script HTML tag in you HTML code
-         * Insert before </head> tag
-         *
-         * @param array|null $configuration
-         * @return string 
-         * @throws \Exception
-         * @static 
-         */        public static function htmlScriptTagJsApi($configuration = [])
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->htmlScriptTagJsApi($configuration);
-        }
-                    /**
-         * Call out to reCAPTCHA and process the response
-         *
-         * @param string $response
-         * @return boolean|array 
-         * @static 
-         */        public static function validate($response)
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->validate($response);
-        }
-                    /**
-         * 
-         *
-         * @return string 
-         * @static 
-         */        public static function getApiSiteKey()
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->getApiSiteKey();
-        }
-                    /**
-         * 
-         *
-         * @return string 
-         * @static 
-         */        public static function getApiSecretKey()
-        {            //Method inherited from \Biscolab\ReCaptcha\ReCaptchaBuilder         
-                        /** @var \Biscolab\ReCaptcha\ReCaptchaBuilderV2 $instance */
-                        return $instance->getApiSecretKey();
+                        /** @var \Lunaweb\RecaptchaV3\RecaptchaV3 $instance */
+                        return $instance->field($action, $name);
         }
             }
     }
@@ -17955,6 +18011,24 @@ namespace Illuminate\Routing {
          */        public static function permission($permissions = [])
         {
                         return \Illuminate\Routing\Route::permission($permissions);
+        }
+            }
+    }
+
+namespace Illuminate\Http\Client {
+            /**
+     * 
+     *
+     * @mixin \Illuminate\Http\Client\PendingRequest
+     */        class Factory {
+                    /**
+         * 
+         *
+         * @see \App\Providers\AppServiceProvider::boot()
+         * @static 
+         */        public static function noSslVerification()
+        {
+                        return \Illuminate\Http\Client\Factory::noSslVerification();
         }
             }
     }
@@ -21258,9 +21332,10 @@ namespace  {
             class Validator extends \Illuminate\Support\Facades\Validator {}
             class View extends \Illuminate\Support\Facades\View {}
             class PDF extends \Elibyy\TCPDF\Facades\TCPDF {}
+            class ReCaptcha extends \Biscolab\ReCaptcha\Facades\ReCaptcha {}
             class Debugbar extends \Barryvdh\Debugbar\Facades\Debugbar {}
             class Pdf extends \Barryvdh\DomPDF\Facade\Pdf {}
-            class ReCaptcha extends \Biscolab\ReCaptcha\Facades\ReCaptcha {}
+            class RecaptchaV3 extends \Lunaweb\RecaptchaV3\Facades\RecaptchaV3 {}
             class Flash extends \Laracasts\Flash\Flash {}
             class Socialite extends \Laravel\Socialite\Facades\Socialite {}
             class Flare extends \Spatie\LaravelIgnition\Facades\Flare {}

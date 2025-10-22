@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar Resultados - Documentação Maiêutica</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="doc-header"><h1><i class="bi bi-book"></i> Maiêutica</h1><span class="subtitle">Documentação do Sistema para Clínicas</span></header>
+    <aside class="doc-sidebar">
+        <div class="sidebar-search"><input type="text" id="searchInput" placeholder="🔍 Buscar na documentação..."></div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../index.html"><span class="icon"><i class="bi bi-house-door-fill"></i></span>Início</a></li>
+                <li><a href="01-introducao.html"><span class="icon"><i class="bi bi-info-circle-fill"></i></span>Introdução<span class="badge">Básico</span></a></li>
+                <li><a href="02-primeiros-passos.html"><span class="icon"><i class="bi bi-play-circle-fill"></i></span>Primeiros Passos<span class="badge">Básico</span></a></li>
+                <li><a href="03-gestao-criancas.html"><span class="icon"><i class="bi bi-people-fill"></i></span>Gestão de Crianças</a></li>
+                <li><a href="04-criar-avaliacao.html"><span class="icon"><i class="bi bi-clipboard-plus"></i></span>Criar Avaliação</a></li>
+                <li><a href="05-preencher-avaliacao.html"><span class="icon"><i class="bi bi-pencil-square"></i></span>Preencher Avaliação</a></li>
+                <li><a href="06-visualizar-resultados.html"><span class="icon"><i class="bi bi-graph-up"></i></span>Visualizar Resultados</a></li>
+                <li><a href="07-reavaliacao.html"><span class="icon"><i class="bi bi-arrow-repeat"></i></span>Reavaliação</a></li>
+                <li><a href="08-planos-desenvolvimento.html"><span class="icon"><i class="bi bi-journal-medical"></i></span>Planos de Desenvolvimento</a></li>
+                <li><a href="09-gestao-profissionais.html"><span class="icon"><i class="bi bi-person-badge"></i></span>Gestão de Profissionais<span class="badge badge-warning">Admin</span></a></li>
+                <li><a href="10-relatorios-pdf.html"><span class="icon"><i class="bi bi-file-earmark-pdf"></i></span>Relatórios PDF</a></li>
+                <li><a href="11-biblioteca-competencias.html"><span class="icon"><i class="bi bi-archive"></i></span>Biblioteca de Competências</a></li>
+                <li><a href="12-dicas-boas-praticas.html"><span class="icon"><i class="bi bi-lightbulb-fill"></i></span>Dicas e Boas Práticas<span class="badge badge-success">Recomendado</span></a></li>
+                <li><a href="13-faq.html"><span class="icon"><i class="bi bi-question-circle-fill"></i></span>Perguntas Frequentes</a></li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="doc-content">
+        <div class="breadcrumb-doc"><a href="../index.html">Início</a><span>/</span><span>Visualizar Resultados</span></div>
+
+        <h1>📊 Visualizar Resultados da Avaliação</h1>
+        <p>Aprenda a interpretar gráficos radar, percentuais por domínio e análises de competências.</p>
+
+        <h2>1. Acessando Resultados de uma Avaliação</h2>
+        <p>Após finalizar o checklist, clique em "Visualizar Resultados" ou acesse pela lista de avaliações do paciente.</p>
+
+        <h2>2. Interpretando o Gráfico Radar</h2>
+        <div class="screenshot">
+            <div class="screenshot-placeholder">
+                📈 GRÁFICO RADAR<br>
+                [Captura de tela: gráfico radar com 7 domínios, percentuais de 0-100%]
+            </div>
+            <div class="screenshot-caption">Gráfico radar mostrando perfil cognitivo do paciente</div>
+        </div>
+
+        <p><strong>O que o gráfico mostra:</strong></p>
+        <ul>
+            <li>Cada eixo representa um <strong>domínio cognitivo</strong></li>
+            <li>A distância do centro indica o <strong>percentual de desenvolvimento</strong> (0-100%)</li>
+            <li>Áreas próximas do centro = domínios com baixo desempenho</li>
+            <li>Áreas próximas da borda = domínios consolidados</li>
+        </ul>
+
+        <h3>Código de Cores:</h3>
+        <table class="doc-table">
+            <thead><tr><th>Cor</th><th>Faixa</th><th>Interpretação</th></tr></thead>
+            <tbody>
+                <tr><td style="color: #e74c3c;">🔴 Vermelho</td><td>0-40%</td><td>Desenvolvimento inicial – Requer intervenção prioritária</td></tr>
+                <tr><td style="color: #f39c12;">🟡 Amarelo</td><td>41-70%</td><td>Desenvolvimento em progresso – Continuar estimulando</td></tr>
+                <tr><td style="color: #50c878;">🟢 Verde</td><td>71-100%</td><td>Desenvolvimento consolidado – Manter e avançar</td></tr>
+            </tbody>
+        </table>
+
+        <h2>3. Tabela de Percentuais por Domínio</h2>
+        <p>Abaixo do gráfico, você encontra uma tabela detalhada:</p>
+
+        <div class="screenshot">
+            <div class="screenshot-placeholder">
+                📋 TABELA DE PERCENTUAIS<br>
+                [Exemplo: Linguagem Receptiva 73% | Memória 45% | Atenção 82%]
+            </div>
+            <div class="screenshot-caption">Percentuais calculados automaticamente por domínio</div>
+        </div>
+
+        <h2>4. Detalhamento de Competências</h2>
+        <p>Clique em um domínio para ver todas as competências avaliadas e suas notas individuais.</p>
+
+        <h2>5. Próximos Passos</h2>
+        <div class="alert alert-info">
+            <div class="icon">➡️</div>
+            <div><strong>Próxima etapa:</strong> Acesse <a href="07-reavaliacao.html">Reavaliação</a> para aprender a comparar evolução entre avaliações.</div>
+        </div>
+
+        <div class="page-navigation">
+            <a href="05-preencher-avaliacao.html" class="nav-btn prev"><span class="icon">←</span>Página anterior</a>
+            <a href="07-reavaliacao.html" class="nav-btn next">Próxima página<span class="icon">→</span></a>
+        </div>
+    </main>
+    <div class="back-to-top"><i class="bi bi-arrow-up"></i></div>
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>

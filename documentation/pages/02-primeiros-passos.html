@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primeiros Passos - Documentação Maiêutica</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <header class="doc-header">
+        <h1><i class="bi bi-book"></i> Maiêutica</h1>
+        <span class="subtitle">Documentação do Sistema para Clínicas</span>
+    </header>
+
+    <aside class="doc-sidebar">
+        <div class="sidebar-search">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar na documentação...">
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../index.html"><span class="icon"><i class="bi bi-house-door-fill"></i></span>Início</a></li>
+                <li><a href="01-introducao.html"><span class="icon"><i class="bi bi-info-circle-fill"></i></span>Introdução<span class="badge">Básico</span></a></li>
+                <li><a href="02-primeiros-passos.html"><span class="icon"><i class="bi bi-play-circle-fill"></i></span>Primeiros Passos<span class="badge">Básico</span></a></li>
+                <li><a href="03-gestao-criancas.html"><span class="icon"><i class="bi bi-people-fill"></i></span>Gestão de Crianças</a></li>
+                <li><a href="04-criar-avaliacao.html"><span class="icon"><i class="bi bi-clipboard-plus"></i></span>Criar Avaliação</a></li>
+                <li><a href="05-preencher-avaliacao.html"><span class="icon"><i class="bi bi-pencil-square"></i></span>Preencher Avaliação</a></li>
+                <li><a href="06-visualizar-resultados.html"><span class="icon"><i class="bi bi-graph-up"></i></span>Visualizar Resultados</a></li>
+                <li><a href="07-reavaliacao.html"><span class="icon"><i class="bi bi-arrow-repeat"></i></span>Reavaliação</a></li>
+                <li><a href="08-planos-desenvolvimento.html"><span class="icon"><i class="bi bi-journal-medical"></i></span>Planos de Desenvolvimento</a></li>
+                <li><a href="09-gestao-profissionais.html"><span class="icon"><i class="bi bi-person-badge"></i></span>Gestão de Profissionais<span class="badge badge-warning">Admin</span></a></li>
+                <li><a href="10-relatorios-pdf.html"><span class="icon"><i class="bi bi-file-earmark-pdf"></i></span>Relatórios PDF</a></li>
+                <li><a href="11-biblioteca-competencias.html"><span class="icon"><i class="bi bi-archive"></i></span>Biblioteca de Competências</a></li>
+                <li><a href="12-dicas-boas-praticas.html"><span class="icon"><i class="bi bi-lightbulb-fill"></i></span>Dicas e Boas Práticas<span class="badge badge-success">Recomendado</span></a></li>
+                <li><a href="13-faq.html"><span class="icon"><i class="bi bi-question-circle-fill"></i></span>Perguntas Frequentes</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="doc-content">
+        <div class="breadcrumb-doc">
+            <a href="../index.html">Início</a>
+            <span>/</span>
+            <span>Primeiros Passos</span>
+        </div>
+
+        <h1>🚀 Primeiros Passos no Maiêutica</h1>
+        <p>Aprenda a acessar o sistema, navegar pelo dashboard e explorar as principais funcionalidades.</p>
+
+        <h2>1. Fazendo Login no Sistema</h2>
+
+        <div class="steps">
+            <div class="step">
+                <h4>Acesse a URL do sistema</h4>
+                <p>Abra seu navegador (Chrome, Firefox, Safari ou Edge) e acesse: <code>maieuticavaliacom.br</code></p>
+            </div>
+
+            <div class="step">
+                <h4>Preencha suas credenciais</h4>
+                <p>Digite seu <strong>email</strong> e <strong>senha</strong> fornecidos pelo administrador do sistema.</p>
+            </div>
+
+            <div class="step">
+                <h4>Marque "Lembrar-me" (opcional)</h4>
+                <p>Se estiver em um computador pessoal e seguro, marque a opção "Lembrar-me" para permanecer logado por 30 dias.</p>
+            </div>
+
+            <div class="step">
+                <h4>Clique em "Entrar"</h4>
+                <p>Aguarde o redirecionamento para o dashboard principal.</p>
+            </div>
+        </div>
+
+        <div class="screenshot">
+            <div class="screenshot-placeholder">
+                🔒 TELA DE LOGIN<br>
+                [Captura de tela: formulário de login com campos email, senha e botão "Lembrar-me"]
+            </div>
+            <div class="screenshot-caption">Tela de login do sistema Maiêutica</div>
+        </div>
+
+        <div class="alert alert-warning">
+            <div class="icon">⚠️</div>
+            <div>
+                <strong>Esqueceu sua senha?</strong> Clique em "Esqueci minha senha" na tela de login. Você receberá um email com instruções para redefinir sua senha.
+            </div>
+        </div>
+
+        <h2>2. Conhecendo o Dashboard</h2>
+        <p>Após fazer login, você será direcionado para o <strong>Dashboard</strong>, que é a página inicial do sistema.</p>
+
+        <h3>Widgets do Dashboard</h3>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Widget</th>
+                    <th>Descrição</th>
+                    <th>O que mostra</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Total de Pacientes</strong></td>
+                    <td>Número de crianças cadastradas</td>
+                    <td>Pacientes ativos que você tem permissão para visualizar</td>
+                </tr>
+                <tr>
+                    <td><strong>Avaliações do Mês</strong></td>
+                    <td>Checklists realizados no mês atual</td>
+                    <td>Quantidade de avaliações feitas por você nos últimos 30 dias</td>
+                </tr>
+                <tr>
+                    <td><strong>Planos Ativos</strong></td>
+                    <td>Planos de desenvolvimento em andamento</td>
+                    <td>Número de planos criados e que ainda não foram concluídos</td>
+                </tr>
+                <tr>
+                    <td><strong>Últimas Avaliações</strong></td>
+                    <td>Timeline das avaliações recentes</td>
+                    <td>Lista cronológica dos últimos checklists realizados</td>
+                </tr>
+                <tr>
+                    <td><strong>Alertas</strong></td>
+                    <td>Notificações importantes</td>
+                    <td>Pacientes sem reavaliação há mais de 6 meses</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="screenshot">
+            <div class="screenshot-placeholder">
+                📊 DASHBOARD PRINCIPAL<br>
+                [Captura de tela: widgets com métricas, gráficos e últimas avaliações]
+            </div>
+            <div class="screenshot-caption">Dashboard com visão geral das atividades</div>
+        </div>
+
+        <h2>3. Navegando pelo Menu Principal</h2>
+        <p>O menu de navegação está localizado no topo da página. Conheça as principais seções:</p>
+
+        <div class="card-grid">
+            <div class="doc-card">
+                <div class="card-icon">👶</div>
+                <h3>Pacientes</h3>
+                <p>Cadastro e gerenciamento de crianças/pacientes do sistema.</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">📋</div>
+                <h3>Avaliações</h3>
+                <p>Criação, edição e visualização de checklists de avaliação cognitiva.</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">📚</div>
+                <h3>Competências</h3>
+                <p>Biblioteca de habilidades cognitivas disponíveis para avaliação.</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">📝</div>
+                <h3>Planos</h3>
+                <p>Criação e acompanhamento de planos de desenvolvimento individualizados.</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">👥</div>
+                <h3>Profissionais</h3>
+                <p>Gestão de usuários e equipe (disponível apenas para administradores).</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">⚙️</div>
+                <h3>Configurações</h3>
+                <p>Ajustes de perfil, senha e preferências do sistema.</p>
+            </div>
+        </div>
+
+        <h2>4. Entendendo o Breadcrumb</h2>
+        <p>O <strong>breadcrumb</strong> (caminho de navegação) aparece abaixo do menu principal e mostra onde você está no sistema:</p>
+
+        <div class="alert alert-info">
+            <div class="icon">📍</div>
+            <div>
+                <strong>Exemplo de breadcrumb:</strong><br>
+                <code>Home > Pacientes > João Silva > Avaliações</code><br><br>
+                Você pode clicar em qualquer parte do breadcrumb para voltar rapidamente para aquela seção.
+            </div>
+        </div>
+
+        <h2>5. Barra de Busca Rápida</h2>
+        <p>No canto superior direito há uma <strong>barra de busca</strong> que permite encontrar rapidamente:</p>
+
+        <ul>
+            <li>Pacientes (por nome ou CPF)</li>
+            <li>Avaliações (por data ou paciente)</li>
+            <li>Competências (por descrição ou domínio)</li>
+        </ul>
+
+        <div class="screenshot">
+            <div class="screenshot-placeholder">
+                🔍 BARRA DE BUSCA<br>
+                [Captura de tela: campo de busca com resultados filtrados em tempo real]
+            </div>
+            <div class="screenshot-caption">Busca rápida por pacientes, avaliações e competências</div>
+        </div>
+
+        <h2>6. Menu de Perfil do Usuário</h2>
+        <p>No canto superior direito, ao lado da busca, você encontra seu <strong>avatar/nome</strong>. Clicando nele, você acessa:</p>
+
+        <ul>
+            <li><strong>Meu Perfil:</strong> Editar nome, email, telefone</li>
+            <li><strong>Alterar Senha:</strong> Mudar sua senha de acesso</li>
+            <li><strong>Sair:</strong> Fazer logout do sistema</li>
+        </ul>
+
+        <h2>7. Atalhos de Teclado Úteis</h2>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Atalho</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>Ctrl + K</code> (ou <code>Cmd + K</code> no Mac)</td>
+                    <td>Ativar busca rápida</td>
+                </tr>
+                <tr>
+                    <td><code>Alt + P</code></td>
+                    <td>Ir para Pacientes</td>
+                </tr>
+                <tr>
+                    <td><code>Alt + A</code></td>
+                    <td>Ir para Avaliações</td>
+                </tr>
+                <tr>
+                    <td><code>Alt + N</code></td>
+                    <td>Nova avaliação</td>
+                </tr>
+                <tr>
+                    <td><code>Esc</code></td>
+                    <td>Fechar modais/diálogos</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>8. Configurações Iniciais Recomendadas</h2>
+
+        <div class="steps">
+            <div class="step">
+                <h4>Complete seu perfil</h4>
+                <p>Acesse <strong>Meu Perfil</strong> e preencha suas informações (CRP, telefone, especialização).</p>
+            </div>
+
+            <div class="step">
+                <h4>Altere sua senha inicial</h4>
+                <p>Se estiver usando uma senha temporária fornecida pelo admin, troque por uma senha segura e pessoal.</p>
+            </div>
+
+            <div class="step">
+                <h4>Explore a biblioteca de competências</h4>
+                <p>Familiarize-se com as competências disponíveis antes de realizar sua primeira avaliação.</p>
+            </div>
+
+            <div class="step">
+                <h4>Cadastre seu primeiro paciente</h4>
+                <p>Pratique cadastrando um paciente fictício para testar o sistema (você pode deletá-lo depois).</p>
+            </div>
+        </div>
+
+        <h2>9. Dicas de Navegação</h2>
+
+        <div class="alert alert-success">
+            <div class="icon">💡</div>
+            <div>
+                <strong>Dicas rápidas:</strong>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Use o <strong>breadcrumb</strong> para voltar rapidamente entre páginas</li>
+                    <li>Mantenha várias abas abertas para comparar avaliações</li>
+                    <li>Use a <strong>busca rápida</strong> (Ctrl+K) para economizar tempo</li>
+                    <li>Favoritar pacientes frequentes facilita o acesso</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>10. Próximos Passos</h2>
+        <p>Agora que você já sabe navegar pelo sistema, é hora de começar a trabalhar com pacientes!</p>
+
+        <div class="alert alert-info">
+            <div class="icon">➡️</div>
+            <div>
+                <strong>Próxima etapa:</strong> Acesse <a href="03-gestao-criancas.html">Gestão de Crianças</a> para aprender a cadastrar e gerenciar pacientes.
+            </div>
+        </div>
+
+        <div class="page-navigation">
+            <a href="01-introducao.html" class="nav-btn prev">
+                <span class="icon">←</span>
+                Página anterior
+            </a>
+            <a href="03-gestao-criancas.html" class="nav-btn next">
+                Próxima página
+                <span class="icon">→</span>
+            </a>
+        </div>
+
+    </main>
+
+    <div class="back-to-top">
+        <i class="bi bi-arrow-up"></i>
+    </div>
+
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>
