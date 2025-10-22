@@ -45,98 +45,73 @@
             <span>Gestão de Crianças</span>
         </div>
 
-        <h1>👶 Gestão de Crianças (Pacientes)</h1>
-        <p>Aprenda a cadastrar, editar, visualizar e gerenciar os pacientes do sistema.</p>
+        <h1>👶 Gestão de Crianças</h1>
+        <p>Aprenda a cadastrar, editar, visualizar e gerenciar as crianças do sistema.</p>
 
-        <h2>1. Acessando a Lista de Pacientes</h2>
+        <h2>1. Acessando a Lista de Crianças</h2>
 
         <div class="steps">
             <div class="step">
-                <h4>Clique em "Pacientes" no menu principal</h4>
-                <p>Você será redirecionado para a lista com todos os pacientes que tem permissão para visualizar.</p>
+                <h4>Clique em "Crianças" no menu principal</h4>
+                <p>Você será redirecionado para a lista com todas as crianças que tem permissão para visualizar.</p>
             </div>
 
             <div class="step">
-                <h4>Explore a tabela de pacientes</h4>
+                <h4>Explore a tabela de crianças</h4>
                 <p>A tabela mostra: Nome, Data de Nascimento, Responsável, Profissional responsável e Ações disponíveis.</p>
-            </div>
-
-            <div class="step">
-                <h4>Use os filtros e busca</h4>
-                <p>Utilize a barra de busca para encontrar pacientes por nome ou CPF. Filtre por profissional ou status.</p>
             </div>
         </div>
 
         <div class="screenshot">
-            <div class="screenshot-placeholder">
-                📋 LISTA DE PACIENTES<br>
-                [Captura de tela: tabela com lista de pacientes, botões de ação e filtros]
-            </div>
-            <div class="screenshot-caption">Listagem de todos os pacientes cadastrados</div>
+            <img src="../assets/images/lista-kids.png" alt="Lista de crianças cadastradas">
+            <div class="screenshot-caption">Listagem de todas as crianças cadastradas</div>
         </div>
 
-        <h2>2. Cadastrando um Novo Paciente</h2>
+        <h2>2. Cadastrando uma Nova Criança</h2>
 
         <div class="steps">
             <div class="step">
-                <h4>Clique no botão "+ Novo Paciente"</h4>
+                <h4>Clique no botão "+ Nova Criança"</h4>
                 <p>Localizado no canto superior direito da tela de listagem.</p>
+
+                <div class="screenshot">
+                    <img src="../assets/images/botao-nova-crianca.png" alt="Botão Nova Criança">
+                    <div class="screenshot-caption">Botão "+ Nova Criança" no canto superior direito</div>
+                </div>
             </div>
 
             <div class="step">
                 <h4>Preencha os dados da criança</h4>
                 <p><strong>Campos obrigatórios:</strong></p>
                 <ul>
-                    <li><strong>Nome completo:</strong> Nome da criança</li>
-                    <li><strong>Data de nascimento:</strong> No formato DD/MM/AAAA</li>
-                    <li><strong>CPF:</strong> Validação automática do CPF brasileiro</li>
+                    <li><strong>Nome Completo:</strong> Nome completo da criança</li>
+                    <li><strong>Sexo:</strong> Masculino ou Feminino</li>
+                    <li><strong>Etnia:</strong> Etnia da criança</li>
+                    <li><strong>Data de Nascimento:</strong> No formato DD/MM/AAAA</li>
                 </ul>
-                <p><strong>Campos opcionais:</strong></p>
-                <ul>
-                    <li><strong>Foto:</strong> Upload de foto do paciente (máximo 2MB)</li>
-                    <li><strong>Observações clínicas:</strong> Notas iniciais sobre o paciente</li>
-                </ul>
-            </div>
 
-            <div class="step">
-                <h4>Preencha os dados do responsável</h4>
-                <p><strong>Campos obrigatórios:</strong></p>
-                <ul>
-                    <li><strong>Nome do responsável:</strong> Pai, mãe ou guardião legal</li>
-                    <li><strong>Telefone:</strong> Com DDD (ex: (11) 98765-4321)</li>
-                    <li><strong>Email:</strong> Para envio de relatórios</li>
-                </ul>
-            </div>
-
-            <div class="step">
-                <h4>Selecione o profissional responsável</h4>
-                <p>Escolha o psicólogo que será o responsável principal pelo acompanhamento deste paciente.</p>
+                <div class="screenshot">
+                    <img src="../assets/images/form-create.png" alt="Formulário de cadastro de criança">
+                    <div class="screenshot-caption">Formulário com campos: Nome Completo, Sexo, Etnia e Data de Nascimento</div>
+                </div>
             </div>
 
             <div class="step">
                 <h4>Clique em "Salvar"</h4>
-                <p>O paciente será cadastrado e você será redirecionado para a ficha completa dele.</p>
+                <p>A criança será cadastrada e você será redirecionado para a ficha completa dela.</p>
             </div>
-        </div>
-
-        <div class="screenshot">
-            <div class="screenshot-placeholder">
-                ✏️ FORMULÁRIO DE CADASTRO<br>
-                [Captura de tela: formulário com campos de cadastro de paciente e responsável]
-            </div>
-            <div class="screenshot-caption">Formulário de cadastro de novo paciente</div>
         </div>
 
         <div class="alert alert-warning">
             <div class="icon">⚠️</div>
             <div>
-                <strong>Atenção:</strong> Certifique-se de que o CPF está correto. O sistema valida automaticamente e não permite CPFs inválidos ou duplicados.
+                <strong>Atenção:</strong> Certifique-se de que os dados estão corretos antes de salvar.
             </div>
         </div>
 
-        <h2>3. Visualizando a Ficha do Paciente</h2>
+        <h2>3. Visualizando a Ficha da Criança</h2>
 
-        <p>Ao clicar no nome de um paciente na lista, você acessa a <strong>ficha completa</strong> com todas as informações e histórico.</p>
+        <p>Ao clicar no nome de uma criança na lista, você acessa a <strong>ficha completa</strong> com todas as informações e histórico.</p>
 
         <h3>Seções da Ficha:</h3>
 
@@ -144,7 +119,7 @@
             <div class="doc-card">
                 <div class="card-icon">📄</div>
                 <h3>Dados Pessoais</h3>
-                <p>Nome, CPF, data de nascimento, foto, responsável e observações clínicas.</p>
+                <p>Nome, data de nascimento, foto, responsável e observações clínicas.</p>
             </div>
 
             <div class="doc-card">
@@ -168,7 +143,7 @@
             <div class="doc-card">
                 <div class="card-icon">📝</div>
                 <h3>Planos Ativos</h3>
-                <p>Planos de desenvolvimento em andamento para este paciente.</p>
+                <p>Planos de desenvolvimento em andamento para esta criança.</p>
             </div>
 
             <div class="doc-card">
@@ -178,20 +153,12 @@
             </div>
         </div>
 
-        <div class="screenshot">
-            <div class="screenshot-placeholder">
-                👁️ FICHA DO PACIENTE<br>
-                [Captura de tela: ficha completa com dados, gráficos e timeline de avaliações]
-            </div>
-            <div class="screenshot-caption">Ficha completa do paciente com histórico e resumo</div>
-        </div>
-
-        <h2>4. Editando Dados de um Paciente</h2>
+        <h2>4. Editando Dados de uma Criança</h2>
 
         <div class="steps">
             <div class="step">
-                <h4>Acesse a ficha do paciente</h4>
-                <p>Clique no nome dele na lista de pacientes.</p>
+                <h4>Acesse a ficha da criança</h4>
+                <p>Clique no nome dela na lista de crianças.</p>
             </div>
 
             <div class="step">
@@ -201,7 +168,27 @@
 
             <div class="step">
                 <h4>Modifique os campos desejados</h4>
-                <p>Você pode alterar qualquer informação exceto o CPF (por segurança).</p>
+                <p>Na edição, você pode alterar os seguintes campos:</p>
+                <p><strong>Dados da criança:</strong></p>
+                <ul>
+                    <li><strong>Nome Completo:</strong> Nome completo da criança</li>
+                    <li><strong>Sexo:</strong> Masculino ou Feminino</li>
+                    <li><strong>Etnia:</strong> Etnia da criança</li>
+                    <li><strong>Data de Nascimento:</strong> No formato DD/MM/AAAA</li>
+                </ul>
+                <p><strong>Responsável:</strong></p>
+                <ul>
+                    <li><strong>Selecione o responsável:</strong> Escolha o responsável cadastrado através da lista suspensa (select)</li>
+                </ul>
+                <p><strong>Profissionais:</strong></p>
+                <ul>
+                    <li><strong>Selecione os profissionais:</strong> Marque um ou mais profissionais responsáveis pelo acompanhamento (permite múltipla seleção)</li>
+                </ul>
+
+                <div class="screenshot">
+                    <img src="../assets/images/form-edit.png" alt="Formulário de edição de criança">
+                    <div class="screenshot-caption">Formulário de edição com todos os campos disponíveis</div>
+                </div>
             </div>
 
             <div class="step">
@@ -210,23 +197,43 @@
             </div>
         </div>
 
-        <div class="alert alert-info">
-            <div class="icon">ℹ️</div>
-            <div>
-                <strong>Dica:</strong> Se precisar alterar o CPF de um paciente (por erro de digitação), entre em contato com o administrador do sistema.
-            </div>
-        </div>
 
-        <h2>5. Acessando Overview de Evolução</h2>
+        <h2>5. Menu de Ações da Criança</h2>
 
-        <p>O <strong>Overview</strong> é uma página especial que mostra a evolução detalhada do paciente ao longo do tempo.</p>
+        <p>Na lista de crianças, cada linha possui um <strong>menu de ações</strong> que permite acessar diferentes funcionalidades:</p>
+
+        <h3>5.1. Editar</h3>
+        <p>Abre o formulário de edição dos dados da criança (conforme documentado no item 4).</p>
+
+        <h3>5.2. Checklists</h3>
+        <p>Acessa a lista completa de todas as avaliações (checklists) realizadas para esta criança.</p>
 
         <div class="steps">
             <div class="step">
-                <h4>Na ficha do paciente, clique em "Ver Overview"</h4>
-                <p>Botão localizado ao lado do nome do paciente.</p>
+                <h4>Visualize o histórico completo</h4>
+                <p>Veja todas as avaliações realizadas ao longo do tempo.</p>
             </div>
 
+            <div class="step">
+                <h4>Acesse os detalhes de cada checklist</h4>
+                <p>Clique em uma avaliação para ver os resultados completos.</p>
+            </div>
+
+            <div class="step">
+                <h4>Crie nova avaliação</h4>
+                <p>Botão para iniciar um novo checklist para a criança.</p>
+            </div>
+        </div>
+
+        <div class="screenshot">
+            <img src="../assets/images/checklist-kid.png" alt="Lista de checklists da criança">
+            <div class="screenshot-caption">Histórico completo de checklists realizados</div>
+        </div>
+
+        <h3>5.3. Comparativo</h3>
+        <p>Exibe uma análise comparativa detalhada da evolução da criança entre diferentes avaliações.</p>
+
+        <div class="steps">
             <div class="step">
                 <h4>Analise os gráficos comparativos</h4>
                 <p>Visualize a evolução de cada domínio cognitivo entre a primeira e a última avaliação.</p>
@@ -234,111 +241,47 @@
 
             <div class="step">
                 <h4>Confira o percentual de progresso</h4>
-                <p>O sistema calcula automaticamente a taxa de evolução do paciente.</p>
+                <p>O sistema calcula automaticamente a taxa de evolução da criança.</p>
+            </div>
+
+            <div class="step">
+                <h4>Compare competências específicas</h4>
+                <p>Veja o desenvolvimento individual de cada competência ao longo do tempo.</p>
             </div>
         </div>
 
         <div class="screenshot">
-            <div class="screenshot-placeholder">
-                📊 OVERVIEW DE EVOLUÇÃO<br>
-                [Captura de tela: gráficos radar comparativos, percentuais e análise de progresso]
-            </div>
-            <div class="screenshot-caption">Overview mostrando evolução completa do paciente</div>
+            <img src="../assets/images/comparativo-kid.png" alt="Comparativo de evolução">
+            <div class="screenshot-caption">Gráficos comparativos mostrando a evolução da criança</div>
         </div>
 
-        <h2>6. Excluindo um Paciente</h2>
-
-        <div class="alert alert-danger">
-            <div class="icon">⚠️</div>
-            <div>
-                <strong>Atenção:</strong> Excluir um paciente é uma ação sensível. O sistema utiliza <strong>soft delete</strong>, ou seja, os dados não são apagados permanentemente e podem ser recuperados por um administrador.
-            </div>
-        </div>
+        <h3>5.4. Desenvolvimento</h3>
+        <p>Acessa a área de planos de desenvolvimento da criança.</p>
 
         <div class="steps">
             <div class="step">
-                <h4>Acesse a ficha do paciente</h4>
-                <p>Clique no nome dele na lista de pacientes.</p>
+                <h4>Visualize os planos ativos</h4>
+                <p>Veja todos os planos de desenvolvimento em andamento.</p>
             </div>
 
             <div class="step">
-                <h4>Clique no botão "Excluir"</h4>
-                <p>Localizado no canto superior direito, com ícone de lixeira.</p>
+                <h4>Crie novos planos</h4>
+                <p>Defina objetivos e competências a serem trabalhadas.</p>
             </div>
 
             <div class="step">
-                <h4>Confirme a exclusão</h4>
-                <p>Uma janela de confirmação será exibida. Digite "EXCLUIR" para confirmar.</p>
-            </div>
-
-            <div class="step">
-                <h4>Paciente será arquivado</h4>
-                <p>O paciente sairá da lista ativa, mas seus dados permanecerão no sistema.</p>
+                <h4>Acompanhe o progresso</h4>
+                <p>Monitore o cumprimento dos objetivos estabelecidos.</p>
             </div>
         </div>
 
-        <h2>7. Ações Rápidas na Lista</h2>
-
-        <p>Na tabela de pacientes, cada linha possui botões de <strong>ações rápidas</strong>:</p>
-
-        <table class="doc-table">
-            <thead>
-                <tr>
-                    <th>Ícone</th>
-                    <th>Ação</th>
-                    <th>Descrição</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><i class="bi bi-eye"></i></td>
-                    <td><strong>Visualizar</strong></td>
-                    <td>Abre a ficha completa do paciente</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-pencil"></i></td>
-                    <td><strong>Editar</strong></td>
-                    <td>Abre formulário de edição</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-clipboard-plus"></i></td>
-                    <td><strong>Nova Avaliação</strong></td>
-                    <td>Cria checklist para este paciente</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-file-earmark-pdf"></i></td>
-                    <td><strong>Gerar PDF</strong></td>
-                    <td>Exporta relatório completo do paciente</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-trash"></i></td>
-                    <td><strong>Excluir</strong></td>
-                    <td>Remove paciente da lista ativa</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>8. Filtros e Ordenação</h2>
-
-        <p>Use os recursos de filtro para encontrar pacientes rapidamente:</p>
-
-        <ul>
-            <li><strong>Busca por nome:</strong> Digite parte do nome na barra de busca</li>
-            <li><strong>Busca por CPF:</strong> Digite o CPF completo ou parcial</li>
-            <li><strong>Filtro por profissional:</strong> Selecione um profissional responsável</li>
-            <li><strong>Filtro por idade:</strong> Filtre por faixa etária (2-4, 4-6, 6-8 anos)</li>
-            <li><strong>Ordenação:</strong> Clique nos cabeçalhos da tabela para ordenar</li>
-        </ul>
-
-        <div class="alert alert-success">
-            <div class="icon">💡</div>
-            <div>
-                <strong>Dica profissional:</strong> Use a busca rápida (Ctrl+K) para encontrar um paciente de qualquer tela do sistema!
-            </div>
+        <div class="screenshot">
+            <img src="../assets/images/desenvolvimento-kid.png" alt="Planos de desenvolvimento">
+            <div class="screenshot-caption">Área de planos de desenvolvimento da criança</div>
         </div>
 
-        <h2>9. Próximos Passos</h2>
-        <p>Agora que você já sabe gerenciar pacientes, vamos aprender a criar avaliações!</p>
+        <h2>6. Próximos Passos</h2>
+        <p>Agora que você já sabe gerenciar crianças, vamos aprender a criar avaliações!</p>
 
         <div class="alert alert-info">
             <div class="icon">➡️</div>

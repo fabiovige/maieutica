@@ -91,7 +91,7 @@ documentation/
 |--------|--------|-----------|-------|
 | `index.html` | Menu Principal | Visão geral e cards de navegação | - |
 | `01-introducao.html` | Introdução | O que é Maiêutica, conceitos fundamentais (Kid, Checklist, Competência, Domínio, Escala 0-3) | Básico |
-| `02-primeiros-passos.html` | Primeiros Passos | Login, dashboard, menu principal, busca rápida | Básico |
+| `02-primeiros-passos.html` | Primeiros Passos | Login, dashboard, menu principal, atalhos de teclado | Básico |
 | `03-gestao-criancas.html` | Gestão de Crianças | Cadastrar, editar, visualizar ficha, overview de evolução | Essencial |
 | `04-criar-avaliacao.html` | Criar Avaliação | Iniciar checklist, selecionar paciente, filtrar competências, clonar avaliação | Essencial |
 | `05-preencher-avaliacao.html` | Preencher Avaliação | Como atribuir notas (0-3), observações clínicas, finalizar | Essencial |
