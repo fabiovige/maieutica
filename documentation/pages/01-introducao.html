@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introdução - Documentação Maiêutica</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="doc-header">
+        <h1><i class="bi bi-book"></i> Maiêutica</h1>
+        <span class="subtitle">Documentação do Sistema para Clínicas</span>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside class="doc-sidebar">
+        <div class="sidebar-search">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar na documentação...">
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../index.html"><span class="icon"><i class="bi bi-house-door-fill"></i></span>Início</a></li>
+                <li><a href="01-introducao.html"><span class="icon"><i class="bi bi-info-circle-fill"></i></span>Introdução<span class="badge">Básico</span></a></li>
+                <li><a href="02-primeiros-passos.html"><span class="icon"><i class="bi bi-play-circle-fill"></i></span>Primeiros Passos<span class="badge">Básico</span></a></li>
+                <li><a href="03-gestao-criancas.html"><span class="icon"><i class="bi bi-people-fill"></i></span>Gestão de Crianças</a></li>
+                <li><a href="04-criar-avaliacao.html"><span class="icon"><i class="bi bi-clipboard-plus"></i></span>Criar Avaliação</a></li>
+                <li><a href="05-preencher-avaliacao.html"><span class="icon"><i class="bi bi-pencil-square"></i></span>Preencher Avaliação</a></li>
+                <li><a href="06-visualizar-resultados.html"><span class="icon"><i class="bi bi-graph-up"></i></span>Visualizar Resultados</a></li>
+                <li><a href="07-reavaliacao.html"><span class="icon"><i class="bi bi-arrow-repeat"></i></span>Reavaliação</a></li>
+                <li><a href="08-planos-desenvolvimento.html"><span class="icon"><i class="bi bi-journal-medical"></i></span>Planos de Desenvolvimento</a></li>
+                <li><a href="09-gestao-profissionais.html"><span class="icon"><i class="bi bi-person-badge"></i></span>Gestão de Profissionais<span class="badge badge-warning">Admin</span></a></li>
+                <li><a href="10-relatorios-pdf.html"><span class="icon"><i class="bi bi-file-earmark-pdf"></i></span>Relatórios PDF</a></li>
+                <li><a href="11-biblioteca-competencias.html"><span class="icon"><i class="bi bi-archive"></i></span>Biblioteca de Competências</a></li>
+                <li><a href="12-dicas-boas-praticas.html"><span class="icon"><i class="bi bi-lightbulb-fill"></i></span>Dicas e Boas Práticas<span class="badge badge-success">Recomendado</span></a></li>
+                <li><a href="13-faq.html"><span class="icon"><i class="bi bi-question-circle-fill"></i></span>Perguntas Frequentes</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- CONTEÚDO -->
+    <main class="doc-content">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-doc">
+            <a href="../index.html">Início</a>
+            <span>/</span>
+            <span>Introdução</span>
+        </div>
+
+        <h1>📖 Introdução ao Maiêutica</h1>
+        <p>Bem-vindo ao sistema de avaliação cognitiva infantil. Esta seção apresenta os conceitos fundamentais que você precisa dominar para utilizar o Maiêutica com eficiência.</p>
+
+        <h2>O que é o Maiêutica?</h2>
+        <p><strong>Maiêutica</strong> é uma plataforma web desenvolvida especificamente para <strong>psicólogos clínicos</strong> que trabalham com avaliação cognitiva de crianças. O sistema permite:</p>
+
+        <ul>
+            <li>Realizar <strong>avaliações cognitivas padronizadas</strong> através de checklists estruturados</li>
+            <li>Acompanhar a <strong>evolução longitudinal</strong> do desenvolvimento infantil</li>
+            <li>Gerar <strong>análises quantitativas automáticas</strong> com gráficos e percentuais</li>
+            <li>Criar <strong>planos de desenvolvimento personalizados</strong> baseados em evidências</li>
+            <li>Produzir <strong>relatórios profissionais em PDF</strong> instantaneamente</li>
+        </ul>
+
+        <div class="alert alert-info">
+            <div class="icon">💡</div>
+            <div>
+                <strong>Objetivo Principal:</strong> O Maiêutica foi criado para substituir avaliações manuais em papel/planilhas, padronizando o processo e economizando tempo precioso dos profissionais.
+            </div>
+        </div>
+
+        <h2>Conceitos Fundamentais</h2>
+        <p>Antes de começar a usar o sistema, é essencial entender os seguintes conceitos:</p>
+
+        <h3>1. Kid (Criança/Paciente)</h3>
+        <p>É a <strong>entidade central</strong> do sistema. Representa o paciente que será avaliado.</p>
+
+        <p><strong>Informações cadastradas:</strong></p>
+        <ul>
+            <li>Dados pessoais: nome, CPF, data de nascimento</li>
+            <li>Responsável/guardião: nome, telefone, email</li>
+            <li>Profissional(is) responsável(is)</li>
+            <li>Observações clínicas</li>
+            <li>Histórico completo de avaliações</li>
+        </ul>
+
+        <h3>2. Checklist (Avaliação)</h3>
+        <p>Um <strong>formulário de avaliação cognitiva</strong> preenchido em uma data específica.</p>
+
+        <p><strong>Contém:</strong></p>
+        <ul>
+            <li>Data da avaliação</li>
+            <li>Lista de competências avaliadas</li>
+            <li>Notas atribuídas (0-3) para cada competência</li>
+            <li>Observações do profissional</li>
+            <li>Percentuais calculados automaticamente</li>
+        </ul>
+
+        <div class="alert alert-success">
+            <div class="icon">✅</div>
+            <div>
+                <strong>Importante:</strong> Um paciente pode ter múltiplos checklists ao longo do tempo, permitindo acompanhar sua evolução.
+            </div>
+        </div>
+
+        <h3>3. Competência (Habilidade Cognitiva)</h3>
+        <p>Uma <strong>habilidade específica</strong> que pode ser avaliada em uma criança.</p>
+
+        <p><strong>Exemplos:</strong></p>
+        <ul>
+            <li>"Identifica cores primárias"</li>
+            <li>"Mantém atenção por 5 minutos em atividade direcionada"</li>
+            <li>"Reconhece números de 1 a 10"</li>
+            <li>"Forma frases com sujeito + verbo + objeto"</li>
+        </ul>
+
+        <p>Cada competência:</p>
+        <ul>
+            <li>Pertence a um <strong>Domínio</strong> (área cognitiva)</li>
+            <li>Possui um <strong>Nível</strong> de dificuldade</li>
+            <li>É avaliada com notas de <code>0</code> a <code>3</code></li>
+        </ul>
+
+        <h3>4. Domínio (Área Cognitiva)</h3>
+        <p>Um <strong>agrupamento de competências relacionadas</strong> à mesma área do desenvolvimento cognitivo.</p>
+
+        <p><strong>Exemplos de domínios:</strong></p>
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Domínio</th>
+                    <th>Descrição</th>
+                    <th>Exemplo de Competência</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Linguagem Receptiva</strong></td>
+                    <td>Compreensão da linguagem falada</td>
+                    <td>"Compreende comandos simples"</td>
+                </tr>
+                <tr>
+                    <td><strong>Linguagem Expressiva</strong></td>
+                    <td>Produção de linguagem oral</td>
+                    <td>"Forma frases complexas"</td>
+                </tr>
+                <tr>
+                    <td><strong>Memória de Trabalho</strong></td>
+                    <td>Retenção temporária de informações</td>
+                    <td>"Lembra sequência de 4 dígitos"</td>
+                </tr>
+                <tr>
+                    <td><strong>Atenção Seletiva</strong></td>
+                    <td>Foco em estímulos relevantes</td>
+                    <td>"Mantém atenção em tarefa por 10 min"</td>
+                </tr>
+                <tr>
+                    <td><strong>Raciocínio Lógico</strong></td>
+                    <td>Resolução de problemas</td>
+                    <td>"Resolve problemas matemáticos simples"</td>
+                </tr>
+                <tr>
+                    <td><strong>Funções Executivas</strong></td>
+                    <td>Planejamento e controle</td>
+                    <td>"Planeja etapas de uma atividade"</td>
+                </tr>
+                <tr>
+                    <td><strong>Habilidades Sociais</strong></td>
+                    <td>Interação social</td>
+                    <td>"Compartilha brinquedos com colegas"</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>5. Nível (Complexidade)</h3>
+        <p>Indica o <strong>grau de dificuldade</strong> de uma competência.</p>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Nível</th>
+                    <th>Descrição</th>
+                    <th>Faixa Etária Típica</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Nível 1 - Básico</strong></td>
+                    <td>Competências fundamentais</td>
+                    <td>2-4 anos</td>
+                </tr>
+                <tr>
+                    <td><strong>Nível 2 - Intermediário</strong></td>
+                    <td>Competências em desenvolvimento</td>
+                    <td>4-6 anos</td>
+                </tr>
+                <tr>
+                    <td><strong>Nível 3 - Avançado</strong></td>
+                    <td>Competências complexas</td>
+                    <td>6-8 anos</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>6. Escala de Notas</h3>
+        <p>O sistema utiliza uma <strong>escala de 0 a 3</strong> para classificar o desenvolvimento de cada competência:</p>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Nota</th>
+                    <th>Classificação</th>
+                    <th>Descrição</th>
+                    <th>Cor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>0</strong></td>
+                    <td>Não testado</td>
+                    <td>Competência não foi avaliada na sessão</td>
+                    <td style="color: #999;">Cinza</td>
+                </tr>
+                <tr>
+                    <td><strong>1</strong></td>
+                    <td>Emergente</td>
+                    <td>Criança está começando a desenvolver a habilidade, mas com muita ajuda</td>
+                    <td style="color: #e74c3c;">Vermelho</td>
+                </tr>
+                <tr>
+                    <td><strong>2</strong></td>
+                    <td>Inconsistente</td>
+                    <td>Às vezes demonstra a habilidade, mas não de forma regular</td>
+                    <td style="color: #f39c12;">Amarelo</td>
+                </tr>
+                <tr>
+                    <td><strong>3</strong></td>
+                    <td>Consistente</td>
+                    <td>Habilidade totalmente desenvolvida e demonstrada regularmente</td>
+                    <td style="color: #50c878;">Verde</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alert alert-warning">
+            <div class="icon">⚠️</div>
+            <div>
+                <strong>Atenção:</strong> A nota <code>0</code> não significa "não sabe", mas sim "não foi testado". Use apenas quando a competência não foi avaliada na sessão.
+            </div>
+        </div>
+
+        <h3>7. Plano de Desenvolvimento</h3>
+        <p>Um <strong>documento de intervenção</strong> que define quais competências serão trabalhadas com o paciente.</p>
+
+        <p><strong>Contém:</strong></p>
+        <ul>
+            <li>Título e descrição do plano</li>
+            <li>Competências-alvo (geralmente as mais fracas)</li>
+            <li>Estratégias de intervenção terapêutica</li>
+            <li>Data de início e previsão de término</li>
+            <li>Status (ativo, em andamento, concluído)</li>
+        </ul>
+
+        <h2>Como Funciona o Cálculo de Percentuais?</h2>
+        <p>O sistema calcula automaticamente os percentuais de desenvolvimento usando a seguinte fórmula:</p>
+
+        <div class="alert alert-info">
+            <div class="icon">🧮</div>
+            <div>
+                <strong>Fórmula:</strong><br>
+                <code>Percentual do Domínio = (Soma das Notas / (Total de Competências × 3)) × 100</code>
+                <br><br>
+                <strong>Exemplo:</strong><br>
+                Se um domínio tem 5 competências com notas [3, 2, 3, 1, 2]:<br>
+                Soma = 11 | Total possível = 5 × 3 = 15<br>
+                Percentual = (11 / 15) × 100 = <strong>73,3%</strong>
+            </div>
+        </div>
+
+        <h2>Código de Cores para Percentuais</h2>
+        <p>O sistema utiliza um código de cores visual para facilitar a interpretação:</p>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Faixa</th>
+                    <th>Cor</th>
+                    <th>Interpretação</th>
+                    <th>Ação Recomendada</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>0-40%</strong></td>
+                    <td style="color: #e74c3c;">🔴 Vermelho</td>
+                    <td>Desenvolvimento inicial</td>
+                    <td>Priorizar no plano de intervenção</td>
+                </tr>
+                <tr>
+                    <td><strong>41-70%</strong></td>
+                    <td style="color: #f39c12;">🟡 Amarelo</td>
+                    <td>Desenvolvimento em progresso</td>
+                    <td>Continuar estimulando</td>
+                </tr>
+                <tr>
+                    <td><strong>71-100%</strong></td>
+                    <td style="color: #50c878;">🟢 Verde</td>
+                    <td>Desenvolvimento consolidado</td>
+                    <td>Manter e avançar complexidade</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Benefícios do Sistema</h2>
+
+        <div class="card-grid">
+            <div class="doc-card">
+                <div class="card-icon">⚡</div>
+                <h3>Agilidade</h3>
+                <p>Avaliações que levavam horas agora são feitas em minutos com cálculos automáticos.</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">📊</div>
+                <h3>Visualização</h3>
+                <p>Gráficos radar e de linha facilitam a interpretação e comunicação dos resultados.</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">📈</div>
+                <h3>Evolução</h3>
+                <p>Acompanhe o progresso do paciente ao longo do tempo com comparações automáticas.</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">🎯</div>
+                <h3>Precisão</h3>
+                <p>Padronização reduz inconsistências e aumenta a confiabilidade das avaliações.</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">📄</div>
+                <h3>Relatórios</h3>
+                <p>PDFs profissionais gerados instantaneamente para compartilhar com equipes e famílias.</p>
+            </div>
+
+            <div class="doc-card">
+                <div class="card-icon">🔒</div>
+                <h3>Segurança</h3>
+                <p>Dados protegidos, conformidade LGPD e controle de acesso por permissões.</p>
+            </div>
+        </div>
+
+        <h2>Próximos Passos</h2>
+        <p>Agora que você conhece os conceitos fundamentais, está pronto para começar a usar o sistema!</p>
+
+        <div class="alert alert-success">
+            <div class="icon">🚀</div>
+            <div>
+                <strong>Próxima etapa:</strong> Acesse <a href="02-primeiros-passos.html">Primeiros Passos</a> para aprender a fazer login, navegar pelo dashboard e explorar o menu principal.
+            </div>
+        </div>
+
+        <!-- Navegação -->
+        <div class="page-navigation">
+            <a href="../index.html" class="nav-btn prev">
+                <span class="icon">←</span>
+                Página anterior
+            </a>
+            <a href="02-primeiros-passos.html" class="nav-btn next">
+                Próxima página
+                <span class="icon">→</span>
+            </a>
+        </div>
+
+    </main>
+
+    <!-- Botão Voltar ao Topo -->
+    <div class="back-to-top">
+        <i class="bi bi-arrow-up"></i>
+    </div>
+
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>

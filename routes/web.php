@@ -125,3 +125,9 @@ Route::get('/analysis/{kidId}/level/{levelId}/{firstChecklistId?}/{secondCheckli
 Route::get('/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
 // routes/web.php
 Route::post('/kids/{kidId}/overview/generate-pdf', [KidsController::class, 'generatePdf'])->name('kids.generatePdf');
+
+// Documentação
+Route::get('/documentation', [App\Http\Controllers\DocumentationController::class, 'index'])->name('documentation.index');
+Route::get('/documentation/pages/{filename}', [App\Http\Controllers\DocumentationController::class, 'page'])->name('documentation.page');
+Route::get('/documentation/assets/{type}/{filename}', [App\Http\Controllers\DocumentationController::class, 'asset'])->name('documentation.asset');
+
