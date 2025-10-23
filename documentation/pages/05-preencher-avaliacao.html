@@ -39,39 +39,39 @@
         <h2>1. Sistema de Notas (Escala 0-3)</h2>
         <table class="doc-table">
             <thead>
-                <tr><th>Nota</th><th>Status</th><th>Quando Usar</th><th>Exemplo Prático</th></tr>
+                <tr><th>Nota</th><th>Coluna</th><th>Descrição</th><th>Quando Usar</th></tr>
             </thead>
             <tbody>
                 <tr>
                     <td><strong style="color: #999;">0</strong></td>
-                    <td>Não testado</td>
-                    <td>Competência não foi avaliada na sessão</td>
-                    <td>Não houve tempo ou não era relevante para o caso</td>
+                    <td><strong>X</strong></td>
+                    <td>Não observado</td>
+                    <td>A competência não foi observada ou testada durante a sessão</td>
                 </tr>
                 <tr>
                     <td><strong style="color: #e74c3c;">1</strong></td>
-                    <td>Emergente</td>
-                    <td>Criança está começando a desenvolver, precisa de muito suporte</td>
-                    <td>"Identifica cores, mas só com ajuda constante"</td>
+                    <td><strong>N</strong></td>
+                    <td>Difícil de obter / Não demonstra</td>
+                    <td>A criança não demonstra a competência ou é difícil de obter. Os pais/outros técnicos referem dificuldades na mesma competência</td>
                 </tr>
                 <tr>
                     <td><strong style="color: #f39c12;">2</strong></td>
-                    <td>Inconsistente</td>
-                    <td>Às vezes demonstra a habilidade, mas não regularmente</td>
-                    <td>"Em alguns momentos conta até 10, mas se perde"</td>
+                    <td><strong>P</strong></td>
+                    <td>Parcial ou com ajuda</td>
+                    <td>A criança só demonstra a competência de forma inconsistente ou com ajuda adicional. Os pais/técnicos relatam o mesmo, ou a criança demonstra alguns, mas não todos, os passos da competência</td>
                 </tr>
                 <tr>
                     <td><strong style="color: #50c878;">3</strong></td>
+                    <td><strong>A</strong></td>
                     <td>Consistente</td>
-                    <td>Habilidade totalmente desenvolvida e demonstrada com segurança</td>
-                    <td>"Forma frases complexas sem dificuldade"</td>
+                    <td>A criança demonstra claramente a competência e, no relatório dos pais/técnicos, é usada de forma consistente</td>
                 </tr>
             </tbody>
         </table>
 
         <div class="alert alert-warning">
             <div class="icon">⚠️</div>
-            <div><strong>Importante:</strong> Nota <code>0</code> ≠ "não sabe". Use apenas quando não testou a competência!</div>
+            <div><strong>Importante:</strong> Nota <code>0 (X)</code> significa "não observado", não que a criança não sabe. Use apenas quando não testou a competência!</div>
         </div>
 
         <h2>2. Como Atribuir Notas</h2>
@@ -81,77 +81,71 @@
                 <p>Entenda exatamente o que está sendo avaliado. Ex: "Mantém atenção em atividade direcionada por 5 minutos"</p>
             </div>
             <div class="step">
-                <h4>Relembre o comportamento da criança</h4>
-                <p>Baseie-se no que observou durante a sessão ou sessões recentes.</p>
+                <h4>Observe e avalie o desempenho da criança</h4>
+                <p>Baseie-se no que observou durante a sessão e nos relatos dos pais/outros técnicos.</p>
             </div>
             <div class="step">
-                <h4>Clique na nota correspondente (0, 1, 2 ou 3)</h4>
-                <p>Botões visuais mudam de cor quando selecionados.</p>
+                <h4>Selecione a coluna correspondente (X, N, P ou A)</h4>
+                <p>Clique na coluna que melhor representa o desempenho da criança naquela competência.</p>
             </div>
             <div class="step">
                 <h4>Veja o percentual atualizar automaticamente</h4>
-                <p>O sistema recalcula em tempo real os percentuais por domínio.</p>
+                <p>O sistema recalcula em tempo real os percentuais por domínio conforme você preenche.</p>
             </div>
         </div>
 
-        <div class="screenshot">
-            <div class="screenshot-placeholder">
-                ⭐ SISTEMA DE NOTAS<br>
-                [Captura de tela: lista de competências com botões 0-3, percentuais atualizando]
-            </div>
-            <div class="screenshot-caption">Interface de atribuição de notas com feedback visual</div>
-        </div>
-
-        <h2>3. Adicionando Observações</h2>
-        <p>Observações clínicas enriquecem a avaliação e ajudam na interpretação futura:</p>
-
-        <ul>
-            <li><strong>Observações Gerais:</strong> Campo de texto livre no final do checklist para comentários sobre a sessão completa</li>
-            <li><strong>Observações por Competência:</strong> Clique no ícone de comentário ao lado da nota para adicionar nota específica</li>
-        </ul>
-
-        <h3>Exemplos de Boas Observações:</h3>
-        <div class="card-grid">
-            <div class="doc-card">
-                <div class="card-icon">✅</div>
-                <h3>BOM</h3>
-                <p>"Criança cooperativa. Demonstrou atenção seletiva por 7 min com suporte verbal. Maior dificuldade em tarefas de memória auditiva."</p>
-            </div>
-            <div class="doc-card">
-                <div class="card-icon">❌</div>
-                <h3>EVITE</h3>
-                <p>"Foi bem." ou "Normal." – Observações vagas não agregam valor clínico.</p>
-            </div>
-        </div>
-
-        <h2>4. Salvando e Finalizando</h2>
+        <h3>Exemplos Práticos de Atribuição:</h3>
         <table class="doc-table">
-            <thead><tr><th>Ação</th><th>Quando Usar</th><th>Resultado</th></tr></thead>
+            <thead>
+                <tr><th>Competência</th><th>Observação</th><th>Nota</th><th>Justificativa</th></tr>
+            </thead>
             <tbody>
                 <tr>
-                    <td><strong>Salvar Rascunho</strong></td>
-                    <td>Precisa interromper o preenchimento</td>
-                    <td>Checklist fica com status "Em andamento", não aparece em relatórios</td>
+                    <td>Identifica cores primárias</td>
+                    <td>Não testado nesta sessão</td>
+                    <td><strong>X (0)</strong></td>
+                    <td>Não houve oportunidade de avaliar essa competência</td>
                 </tr>
                 <tr>
-                    <td><strong>Finalizar Avaliação</strong></td>
-                    <td>Concluiu a avaliação</td>
-                    <td>Checklist fica disponível para visualização, gráficos e relatórios</td>
+                    <td>Mantém contato visual</td>
+                    <td>Evita olhar nos olhos, pais relatam dificuldade em casa</td>
+                    <td><strong>N (1)</strong></td>
+                    <td>Criança não demonstra a competência e há relato consistente de dificuldade</td>
                 </tr>
                 <tr>
-                    <td><strong>Cancelar</strong></td>
-                    <td>Deseja descartar a avaliação</td>
-                    <td>Checklist é excluído (ação irreversível)</td>
+                    <td>Conta até 10</td>
+                    <td>Consegue com ajuda verbal, às vezes se perde após o 7</td>
+                    <td><strong>P (2)</strong></td>
+                    <td>Demonstra parcialmente, precisa de suporte e é inconsistente</td>
+                </tr>
+                <tr>
+                    <td>Reconhece o próprio nome</td>
+                    <td>Sempre responde ao nome, pais confirmam uso consistente</td>
+                    <td><strong>A (3)</strong></td>
+                    <td>Demonstra claramente e há confirmação de uso consistente</td>
                 </tr>
             </tbody>
         </table>
 
-        <div class="alert alert-success">
-            <div class="icon">💡</div>
-            <div><strong>Dica:</strong> Salve rascunhos frequentemente! O sistema não salva automaticamente.</div>
+        <div class="screenshot">
+            <img src="../assets/images/preencher-avaliacao.png" alt="Preenchendo avaliação">
+            <div class="screenshot-caption">Interface de atribuição de notas: X (0), N (1), P (2), A (3)</div>
         </div>
 
-        <h2>5. Próximos Passos</h2>
+        <h2>3. Salvamento Automático</h2>
+        <p>O sistema <strong>salva automaticamente</strong> cada avaliação ao clicar nas opções de cada competência.</p>
+
+        <div class="alert alert-success">
+            <div class="icon">✅</div>
+            <div><strong>Importante:</strong> Não é necessário clicar em "Salvar" durante o preenchimento. Cada nota atribuída é salva automaticamente no sistema!</div>
+        </div>
+
+        <div class="screenshot">
+            <img src="../assets/images/salvando-avaliacao.png" alt="Salvamento automático">
+            <div class="screenshot-caption">O sistema salva automaticamente ao clicar em cada opção (X, N, P ou A)</div>
+        </div>
+
+        <h2>4. Próximos Passos</h2>
         <div class="alert alert-info">
             <div class="icon">➡️</div>
             <div><strong>Próxima etapa:</strong> Acesse <a href="06-visualizar-resultados.html">Visualizar Resultados</a> para aprender a interpretar gráficos e percentuais.</div>

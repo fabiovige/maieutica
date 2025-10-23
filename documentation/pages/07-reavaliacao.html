@@ -48,42 +48,87 @@
         </table>
 
         <h2>2. Clonando Avaliação Anterior</h2>
+        <p>Para reavaliar uma criança mantendo as mesmas competências avaliadas anteriormente, utilize a funcionalidade de clonagem:</p>
+
         <div class="steps">
             <div class="step">
-                <h4>Acesse a ficha do paciente</h4>
-                <p>Clique em "Nova Avaliação"</p>
+                <h4>Acesse a lista de checklists da criança</h4>
+                <p>No menu de ações da criança, selecione "Checklists" para ver todas as avaliações realizadas.</p>
+
+                <div class="screenshot">
+                    <img src="../assets/images/checklist-kid-2.png" alt="Lista de checklists">
+                    <div class="screenshot-caption">Lista de checklists com opção de clonar avaliação anterior</div>
+                </div>
             </div>
+
             <div class="step">
-                <h4>Clique em "Clonar avaliação anterior"</h4>
-                <p>O sistema carrega as mesmas competências com notas zeradas</p>
+                <h4>Clique em "Clonar" no checklist desejado</h4>
+                <p>Localize o checklist que deseja clonar e clique no botão de clonagem.</p>
+
+                <div class="screenshot">
+                    <img src="../assets/images/clonar-checklist-2.png" alt="Clonando checklist">
+                    <div class="screenshot-caption">Ao clonar, o sistema cria uma nova avaliação com as mesmas competências</div>
+                </div>
             </div>
+
             <div class="step">
-                <h4>Preencha as novas notas</h4>
-                <p>Avalie com base no comportamento atual da criança</p>
+                <h4>O sistema fecha o checklist anterior e ativa o novo</h4>
+                <p>O checklist anterior é finalizado automaticamente e o novo fica ativo com as mesmas competências aplicadas, mas com notas zeradas para nova avaliação.</p>
             </div>
         </div>
 
         <div class="alert alert-success">
             <div class="icon">✅</div>
-            <div><strong>Vantagem:</strong> Manter as mesmas competências facilita a comparação direta de evolução!</div>
+            <div><strong>Vantagem:</strong> Ao clonar, você mantém a mesma estrutura de avaliação, facilitando a comparação direta de evolução entre as avaliações!</div>
         </div>
 
         <h2>3. Comparando Resultados</h2>
-        <p>O sistema gera automaticamente gráficos comparativos entre primeira e última avaliação:</p>
+        <p>Para visualizar a evolução da criança entre diferentes avaliações, acesse a área de comparativo:</p>
 
-        <ul>
-            <li><strong>Gráfico de linha:</strong> Evolução temporal dos percentuais por domínio</li>
-            <li><strong>Gráfico radar sobreposto:</strong> Comparação visual do perfil cognitivo</li>
-            <li><strong>Taxa de progresso:</strong> Percentual de melhora entre avaliações</li>
-        </ul>
+        <h3>3.1. Acessando o Comparativo</h3>
+        <div class="steps">
+            <div class="step">
+                <h4>No menu de ações da criança, clique em "Comparativo"</h4>
+                <p>Você será direcionado para a página de análise comparativa entre avaliações.</p>
+
+                <div class="screenshot">
+                    <img src="../assets/images/acessar-comparativo.png" alt="Acessar comparativo">
+                    <div class="screenshot-caption">Menu de ações com opção "Comparativo" destacada</div>
+                </div>
+            </div>
+        </div>
+
+        <h3>3.2. Visualizando a Tela de Comparativo</h3>
+        <p>A tela de comparativo apresenta diversos gráficos e métricas de evolução:</p>
 
         <div class="screenshot">
-            <div class="screenshot-placeholder">
-                📈 GRÁFICO DE EVOLUÇÃO<br>
-                [Exemplo: Linha mostrando Linguagem 45% → 73% em 6 meses]
-            </div>
-            <div class="screenshot-caption">Gráfico comparativo entre avaliações</div>
+            <img src="../assets/images/tela-comparativo.png" alt="Tela de comparativo">
+            <div class="screenshot-caption">Tela completa com gráficos comparativos entre avaliações</div>
         </div>
+
+        <p><strong>O que a tela mostra:</strong></p>
+        <ul>
+            <li><strong>Gráfico de linha:</strong> Evolução temporal dos percentuais por domínio ao longo das avaliações</li>
+            <li><strong>Gráfico radar sobreposto:</strong> Comparação visual do perfil cognitivo entre primeira e última avaliação</li>
+            <li><strong>Taxa de progresso:</strong> Percentual de melhora entre as avaliações</li>
+            <li><strong>Análise por período:</strong> Identificação de períodos de maior evolução</li>
+        </ul>
+
+        <h3>3.3. Detalhamento por Domínio</h3>
+        <p>Você pode visualizar os detalhes de evolução de cada domínio específico:</p>
+
+        <div class="screenshot">
+            <img src="../assets/images/comparatido-detalhe-dominio.png" alt="Detalhe de domínio">
+            <div class="screenshot-caption">Análise detalhada da evolução de um domínio específico</div>
+        </div>
+
+        <p><strong>Informações detalhadas incluem:</strong></p>
+        <ul>
+            <li>Competências específicas que evoluíram dentro do domínio</li>
+            <li>Comparação nota a nota (N → P → A)</li>
+            <li>Percentual de evolução em cada competência</li>
+            <li>Identificação de competências que não progrediram</li>
+        </ul>
 
         <h2>4. Interpretando a Evolução</h2>
         <table class="doc-table">
