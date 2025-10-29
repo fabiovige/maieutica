@@ -39,7 +39,7 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        $this->authorize('user-edit', $user);
+        $this->authorize('update', $user);
 
         try {
 
@@ -223,29 +223,21 @@ class UserController extends Controller
                 throw new \Exception(self::MSG_DELETE_USER_SELF);
             }
 
-            // Verifica se o usuário tem papéis atribuídos
-            if ($user->roles()->count() > 0) {
-                $message = label_case('Attempted to delete user with roles. ' . self::MSG_DELETE_USER_WITH_ROLE) . ' | User: ' . $user->name . ' (ID: ' . $user->id . ')';
-                Log::alert($message);
-
-                // Lança uma exceção para impedir a exclusão de usuários com papéis
-                throw new Exception(self::MSG_DELETE_USER_WITH_ROLE);
-            }
-
-            // Marca o usuário como deletado por
+            // Desativa o usuário antes de enviar para lixeira
+            $user->allow = false;
             $user->deleted_by = auth()->id();
-            $user->save(); // Usa save() em vez de update() quando há apenas uma mudança
+            $user->save();
 
-            // Exclui o usuário
+            // Envia para lixeira (soft delete)
             $user->delete();
 
             DB::commit();
 
             // Exibe a mensagem de sucesso
-            flash(self::MSG_DELETE_SUCCESS)->success();
+            flash('Usuário movido para a lixeira e desativado com sucesso.')->success();
 
             // Registra a ação de exclusão no log
-            $message = label_case('User deleted successfully. ' . self::MSG_DELETE_SUCCESS) . ' | Deleted User: ' . $user->name . ' (ID: ' . $user->id . ')';
+            $message = label_case('User moved to trash and deactivated. ') . ' | Deleted User: ' . $user->name . ' (ID: ' . $user->id . ')';
             Log::notice($message);
 
             // Redireciona para a lista de usuários
@@ -261,6 +253,56 @@ class UserController extends Controller
             Log::error($message);
 
             // Redireciona de volta
+            return redirect()->back();
+        }
+    }
+
+    public function trash()
+    {
+        $this->authorize('viewTrash', User::class);
+
+        $users = User::onlyTrashed()
+            ->with('roles')
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(15);
+
+        $message = label_case('View Trash Users') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+        Log::info($message);
+
+        return view('users.trash', compact('users'));
+    }
+
+    public function restore($id)
+    {
+        DB::beginTransaction();
+        try {
+            $user = User::onlyTrashed()->findOrFail($id);
+
+            $this->authorize('restore', $user);
+
+            // Restaura o usuário da lixeira
+            $user->restore();
+
+            // Reativa o usuário
+            $user->allow = true;
+            $user->save();
+
+            DB::commit();
+
+            flash('Usuário restaurado e reativado com sucesso.')->success();
+
+            $message = label_case('User restored and reactivated. ') . ' | Restored User: ' . $user->name . ' (ID: ' . $user->id . ')';
+            Log::notice($message);
+
+            return redirect()->route('users.trash');
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            flash('Erro ao restaurar usuário: ' . $e->getMessage())->warning();
+
+            $message = label_case('Error while restoring user: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
+            Log::error($message);
+
             return redirect()->back();
         }
     }

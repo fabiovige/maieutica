@@ -44,10 +44,38 @@
                     @endif
 
                     @if(auth()->user()->can('user-list'))
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('users.*') ? 'active' : '' }}"
+                               href="#"
+                               id="usersDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
                                 <i class="bi bi-person"></i> Usuários
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="usersDropdown">
+                                <li>
+                                    <a class="dropdown-item {{ request()->routeIs('users.index') ? 'active' : '' }}"
+                                       href="{{ route('users.index') }}">
+                                        <i class="bi bi-people"></i> Lista de Usuários
+                                    </a>
+                                </li>
+                                @can('viewTrash', App\Models\User::class)
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('users.trash') ? 'active' : '' }}"
+                                           href="{{ route('users.trash') }}">
+                                            <i class="bi bi-trash"></i> Lixeira
+                                            @php
+                                                $trashedCount = App\Models\User::onlyTrashed()->count();
+                                            @endphp
+                                            @if($trashedCount > 0)
+                                                <span class="badge bg-danger ms-1">{{ $trashedCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                @endcan
+                            </ul>
                         </li>
                     @endif
 

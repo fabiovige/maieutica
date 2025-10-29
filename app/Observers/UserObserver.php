@@ -83,7 +83,9 @@ class UserObserver
         try {
             if ($user->trashed()) {
                 // Buscar administradores usando Spatie Permission
-                $admins = User::role('superadmin')->get();
+                $admins = User::whereHas('roles', function($query) {
+                    $query->where('name', 'superadmin');
+                })->get();
 
                 if ($admins->isNotEmpty()) {
                     // Criar a instância do Mailable e depois chamar onQueue()

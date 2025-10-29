@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(php artisan tinker:*)",
-      "Bash(timeout 10 php artisan:*)"
+      "Bash(timeout 10 php artisan:*)",
+      "Bash(php artisan cache:clear:*)",
+      "Bash(php artisan config:clear:*)",
+      "Bash(php artisan view:clear:*)",
+      "Bash(php artisan:*)"
     ],
     "deny": [],
     "ask": []

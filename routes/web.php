@@ -70,6 +70,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
 
     // users
+    Route::get('users/trash', [UserController::class, 'trash'])->name('users.trash');
+    Route::post('users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::get('users/{id}/pdf', [UserController::class, 'pdf'])->name('users.pdf');
     Route::resource('users', UserController::class);
 

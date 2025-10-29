@@ -10,74 +10,91 @@ class UserPolicy
     use HandlesAuthorization;
 
     /**
-     * Método executado antes de qualquer outra permissão.
-     * Permite todas as ações para superadmin e admin.
-     *
-     * @param  string  $ability
-     * @return bool|null
-     */
-    /*public function before(User $user, $ability): ?bool
-    {
-        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
-            return true;
-        }
-
-        return null;
-    }*/
-
-    /**
-     * Determina se o usuário pode visualizar qualquer usuário (listagem).
+     * Listar usuários.
      */
     public function viewAny(User $user): bool
     {
-
+        // Pode listar todos se tiver permissão global
+        return $user->can('user-list-all');
     }
 
     /**
-     * Determina se o usuário pode visualizar um usuário específico.
+     * Visualizar um usuário específico.
      */
     public function view(User $user, User $model): bool
     {
+        // Pode visualizar todos se tiver permissão global
+        if ($user->can('user-show-all')) {
+            return true;
+        }
 
+        // Pode visualizar a si mesmo
+        return $user->id === $model->id;
     }
 
     /**
-     * Determina se o usuário pode criar novos usuários.
+     * Criar novos usuários.
      */
     public function create(User $user): bool
     {
-
+        // Apenas quem tem permissão de criar
+        return $user->can('user-create');
     }
 
     /**
-     * Determina se o usuário pode atualizar um usuário específico.
+     * Atualizar um usuário específico.
      */
     public function update(User $user, User $model): bool
     {
-        return true;
+        // Pode editar todos se tiver permissão global
+        if ($user->can('user-edit-all')) {
+            return true;
+        }
+
+        // Pode editar o próprio perfil
+        return $user->id === $model->id;
     }
 
     /**
-     * Determina se o usuário pode remover um usuário específico.
+     * Enviar usuário para a lixeira (soft delete).
      */
     public function delete(User $user, User $model): bool
     {
+        // Ninguém pode excluir a si mesmo
+        if ($user->id === $model->id) {
+            return false;
+        }
 
+        // Pode excluir qualquer usuário se tiver permissão global
+        return $user->can('user-delete-all');
     }
 
     /**
-     * Determina se o usuário pode restaurar um usuário específico.
+     * Visualizar a lixeira de usuários.
+     */
+    public function viewTrash(User $user): bool
+    {
+        return $user->can('user-list-all');
+    }
+
+    /**
+     * Restaurar um usuário.
      */
     public function restore(User $user, User $model): bool
     {
-
+        return $user->can('user-edit-all');
     }
 
     /**
-     * Determina se o usuário pode forçar a remoção de um usuário específico.
+     * Forçar exclusão permanente.
      */
     public function forceDelete(User $user, User $model): bool
     {
+        // Ninguém pode se excluir
+        if ($user->id === $model->id) {
+            return false;
+        }
 
+        return $user->can('user-delete-all');
     }
 }

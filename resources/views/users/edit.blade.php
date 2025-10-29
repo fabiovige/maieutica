@@ -168,14 +168,30 @@
                         </div>
                     </div>
                     <div class="card-footer bg-transparent mt-4">
-                        <div class="d-flex justify-content-start gap-2">
-                            <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
-                            <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                                <i class="bi bi-x-lg"></i> Cancelar
-                            </a>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                                <a href="{{ route('users.index') }}" class="btn btn-secondary">
+                                    <i class="bi bi-x-lg"></i> Cancelar
+                                </a>
+                            </div>
+
+                            @can('user-delete', $user)
+                                <button type="button" class="btn btn-danger" id="btnMoveToTrash">
+                                    <i class="bi bi-trash"></i> Mover para Lixeira
+                                </button>
+                            @endcan
                         </div>
                     </div>
             </form>
+
+            <!-- Form separado para delete -->
+            @can('user-delete', $user)
+            <form id="deleteForm" action="{{ route('users.destroy', $user->id) }}" method="POST" style="display: none;">
+                @csrf
+                @method('DELETE')
+            </form>
+            @endcan
         </div>
     </div>
 @endsection
@@ -183,13 +199,47 @@
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/cep-autocomplete.js') }}?v={{ time() }}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            // Máscaras de input
             if (typeof $.fn.mask !== 'undefined') {
                 $('input[name="phone"]').mask('(00) 00000-0000');
                 $('input[name="cep"]').mask('00000-000');
             }
+
+            // Confirmação para mover para lixeira
+            $('#btnMoveToTrash').on('click', function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Tem certeza?',
+                    html: '<strong>{{ $user->name }}</strong> será movido para a lixeira e <strong>desativado</strong>.<br><br>Esta ação pode ser revertida pelo administrador.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="bi bi-trash"></i> Sim, mover para lixeira',
+                    cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Mostra loading
+                        Swal.fire({
+                            title: 'Processando...',
+                            html: 'Movendo usuário para a lixeira',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Submete o form
+                        document.getElementById('deleteForm').submit();
+                    }
+                });
+            });
         });
     </script>
 @endpush
