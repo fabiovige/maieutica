@@ -19,7 +19,7 @@
                         </a>
                     </li>
 
-                    @if(auth()->user()->can('view checklists'))
+                    @if(auth()->user()->can('checklist-list'))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('checklists.*') ? 'active' : '' }}" href="{{ route('checklists.index') }}">
                                 <i class="bi bi-list-check"></i> Checklists
@@ -27,7 +27,7 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->can('view kids'))
+                    @if(auth()->user()->can('kid-list'))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('kids.*') ? 'active' : '' }}" href="{{ route('kids.index') }}">
                                 <i class="bi bi-people"></i> Crianças
@@ -35,7 +35,7 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->hasRole('admin') || auth()->user()->can('view competences'))
+                    @if(auth()->user()->can('competence-list'))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('competences.*') ? 'active' : '' }}" href="{{ route('competences.index') }}">
                                 <i class="bi bi-bookmark-star"></i> Competências
@@ -43,7 +43,7 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->can('view users'))
+                    @if(auth()->user()->can('user-list'))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
                                 <i class="bi bi-person"></i> Usuários
@@ -51,7 +51,7 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->can('view roles'))
+                    @if(auth()->user()->can('role-list'))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
                                 <i class="bi bi-shield-lock"></i> Perfis
@@ -67,7 +67,7 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->can('view professionals'))
+                    @if(auth()->user()->can('professional-list'))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('professionals.*') ? 'active' : '' }}" href="{{ route('professionals.index') }}">
                                 <i class="bi bi-person-badge"></i> Profissionais

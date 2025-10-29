@@ -30,7 +30,7 @@ $.datepicker.regional['pt-BR'] = {
 $.datepicker.setDefaults($.datepicker.regional['pt-BR']);
 
 $('.datepicker').datepicker();
-$('div.alert').delay(4000).fadeOut(500);
+//$('div.alert').delay(4000).fadeOut(500);
 
 $('.form-delete').click(function (e) {
     e.preventDefault();

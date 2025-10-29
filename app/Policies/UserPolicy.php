@@ -30,7 +30,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('list users');
+
     }
 
     /**
@@ -38,8 +38,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        // Permite visualizar se o usuário tem a permissão 'view users' ou se está visualizando a si mesmo
-        return $user->can('view users') || $user->id === $model->id;
+
     }
 
     /**
@@ -47,7 +46,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create users');
+
     }
 
     /**
@@ -55,8 +54,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        // Permite atualizar se o usuário tem a permissão ou se está atualizando a si mesmo
-        return $user->can('edit users') || $user->id === $model->id;
+        return true;
     }
 
     /**
@@ -64,13 +62,7 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        // Impede que o usuário remova a si mesmo
-        if ($user->id === $model->id) {
-            return false; // Não permite remover a si mesmo
-        }
 
-        // Verifica se o usuário tem permissão para remover outros usuários
-        return $user->can('remove users');
     }
 
     /**
@@ -78,8 +70,7 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        // Implementar se necessário
-        return $user->can('restore users');
+
     }
 
     /**
@@ -87,7 +78,6 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
-        // Implementar se necessário
-        return $user->can('force delete users');
+
     }
 }

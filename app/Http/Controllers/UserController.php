@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role as SpatieRole;
 use App\Models\Professional;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -21,14 +22,16 @@ class UserController extends Controller
 
     public function index()
     {
-        $this->authorize('view users');
+        $this->authorize('user-list');
 
-        $users = User::query()
-            ->when(! auth()->user()->hasRole('superadmin'), function ($query) {
-                $query->where('name', '!=', 'Super Admin');
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        if (auth()->user()->can('user-list-all')) {
+            $users = User::paginate(15);
+        } else {
+            // Usuários sem user-view-all não veem usuários privilegiados
+            $users = User::paginate(15)->reject(function($user) {
+                return $user->can('user-list-all');
+            });
+        }
 
         return view('users.index', compact('users'));
     }
@@ -36,7 +39,7 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        $this->authorize('update', $user);
+        $this->authorize('user-edit', $user);
 
         try {
 
@@ -50,6 +53,57 @@ class UserController extends Controller
             flash(self::MSG_NOT_FOUND)->warning();
 
             $message = label_case('Edit User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::error($message);
+
+            return redirect()->back();
+        }
+    }
+
+    public function update(UserRequest $request, User $user)
+    {
+        //$user = User::findOrFail($id);
+        $this->authorize('update', $user);
+
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+
+            $data['type'] = (! isset($data['type'])) ? User::TYPE_I : $data['type'];
+
+
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->phone = $request->phone;
+            $user->postal_code = $request->cep;
+            $user->street = $request->logradouro;
+            $user->number = $request->numero;
+            $user->complement = $request->complemento;
+            $user->neighborhood = $request->bairro;
+            $user->city = $request->cidade;
+            $user->state = $request->estado;
+            //$user->role_id = $request->role_id;
+            $user->updated_by = auth()->user()->id;
+            $user->allow = (bool) isset($request->allow);
+            $user->type = $data['type'];
+
+
+            $user->save();
+            $user->syncRoles($request->roles);
+
+            DB::commit();
+
+            flash(self::MSG_UPDATE_SUCCESS)->success();
+
+            $message = label_case('Update User ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            Log::notice($message);
+
+            return redirect()->route('users.edit', $user->id);
+        } catch (Exception $e) {
+            dd($e->getMessage());
+            DB::rollBack();
+            flash(self::MSG_UPDATE_ERROR)->warning();
+
+            $message = label_case('Update User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -81,7 +135,7 @@ class UserController extends Controller
 
     public function create()
     {
-        $this->authorize('create', User::class);
+        $this->authorize('user-create', User::class);
 
         $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
 
@@ -93,7 +147,7 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        $this->authorize('create', User::class);
+        $this->authorize('user-create', User::class);
 
         DB::beginTransaction();
         try {
@@ -125,20 +179,17 @@ class UserController extends Controller
             $user->temporaryPassword = $temporaryPassword;
             $user->save();
 
-
-            // Atribui o papel (role)
-            $role = SpatieRole::find($data['role_id']);
-            $user->syncRoles([]);
-            $user->assignRole($role->name);
+            $user->syncRoles($request->roles);
 
             // Se for profissional, criar registro na tabela professionals
+            /*
             if ($role->name === 'professional') {
                 Professional::create([
                     'specialty_id' => 1, // ID padrão, pode ser ajustado conforme necessidade
                     'registration_number' => 'Pendente',
                     'created_by' => auth()->id(),
                 ])->user()->attach($user->id);
-            }
+            }*/
 
             DB::commit();
 
@@ -155,58 +206,7 @@ class UserController extends Controller
         }
     }
 
-    public function update(UserRequest $request, $id)
-    {
-        $user = User::findOrFail($id);
-        $this->authorize('update', $user);
 
-        DB::beginTransaction();
-        try {
-            $data = $request->all();
-            $data['type'] = (! isset($data['type'])) ? User::TYPE_I : $data['type'];
-
-            $userData = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'postal_code' => $request->cep,
-                'street' => $request->logradouro,
-                'number' => $request->numero,
-                'complement' => $request->complemento,
-                'neighborhood' => $request->bairro,
-                'city' => $request->cidade,
-                'state' => $request->estado, // Ou você pode gerar uma senha aleatória
-                'role_id' => $request->role_id, // ROLE_PAIS (assumindo que 3 corresponde a ROLE_PAIS)
-                'updated_by' => auth()->user()->id,
-                'allow' => (bool) isset($request->allow),
-                'type' => $data['type'],
-            ];
-
-            $user->update($userData);
-
-            $role = SpatieRole::find($data['role_id']);
-            $user->syncRoles([]);
-            $user->assignRole($role->name);
-            $user->save();
-
-            DB::commit();
-
-            flash(self::MSG_UPDATE_SUCCESS)->success();
-
-            $message = label_case('Update User ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::notice($message);
-
-            return redirect()->route('users.edit', $id);
-        } catch (Exception $e) {
-            DB::rollBack();
-            flash(self::MSG_UPDATE_ERROR)->warning();
-
-            $message = label_case('Update User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
-            return redirect()->back();
-        }
-    }
 
     public function destroy(User $user)
     {

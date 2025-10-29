@@ -11,7 +11,7 @@
 @endsection
 
 @section('actions')
-    @can('create users')
+    @can('user-create')
         <a href="{{ route('users.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Novo Usuário
         </a>
@@ -54,20 +54,12 @@
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
                         <td>
-                            @foreach ($user->roles as $role)
-                                @if ($role->name === 'professional')
-                                    <span class="badge bg-info">Professional</span>
-                                @elseif($role->name === 'pais')
-                                    <span class="badge bg-success">Pais</span>
-                                @elseif($role->name === 'admin')
-                                    <span class="badge bg-dark">Administrador</span>
-                                @else
-                                    <span class="badge bg-secondary">{{ $role->name }}</span>
-                                @endif
+                            @foreach ( $user->getRoleNames() as $role )
+                                <span class="badge text-bg-info">{{  $role }}</span>
                             @endforeach
                         </td>
                         <td class="text-center">
-                            @can('edit users')
+                            @can('user-edit')
                                 <button type="button" onclick="window.location.href='{{ route('users.edit', $user->id) }}'"
                                     class="btn btn-sm btn-secondary">
                                     <i class="bi bi-pencil"></i> Editar

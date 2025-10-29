@@ -18,9 +18,9 @@
 @section('content')
     <div class="row justify-content-center">
         <div class="col-12">
-            <div class="card">
-                <form action="{{ route('users.store') }}" method="POST">
-                    @csrf
+            <form action="{{ route('users.store') }}" method="POST">
+                @csrf
+                <div class="card">
                     <div class="card-body">
 
                         <div class="row g-3">
@@ -41,24 +41,6 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <div class="col-md-6">
-                                <label for="role_id" class="form-label">Perfil</label>
-                                <select class="form-select @error('role_id') is-invalid @enderror" id="role_id"
-                                    name="role_id">
-                                    <option value="">Selecione...</option>
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role->id }}"
-                                            {{ old('role_id') == $role->id ? 'selected' : '' }}>
-                                            {{ $role->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('role_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
                             <div class="col-md-6">
                                 <label for="phone" class="form-label">Telefone</label>
                                 <input type="text" class="form-control @error('phone') is-invalid @enderror"
@@ -67,6 +49,25 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            <div class="col-md-6">
+                                <label for="role_id" class="form-label">Perfil</label>
+                                <select class="form-select @error('roles') is-invalid @enderror" id="role_id"
+                                    name="roles[]" multiple>
+                                    <option>...Selecione...</option>
+                                    @foreach ($roles as $role)
+                                        <option value="{{ $role->name }}"
+                                            {{ (is_array(old('roles')) && in_array($role->name, old('roles'))) ? 'selected' : '' }}>
+                                            {{ $role->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('roles')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+
 
                             <div class="col-12">
                                 <div class="form-check">
@@ -80,7 +81,13 @@
                                     @enderror
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="row g-3">
                             <!-- Seção de Endereço -->
                             <div class="col-12">
                                 <h5 class="mb-3">
@@ -105,7 +112,7 @@
                             <div class="col-md-6">
                                 <label for="logradouro" class="form-label">Logradouro</label>
                                 <input type="text" class="form-control @error('logradouro') is-invalid @enderror"
-                                    id="logradouro" name="logradouro" value="{{ old('logradouro') }}" readonly>
+                                    id="logradouro" name="logradouro" value="{{ old('logradouro') }}">
                                 @error('logradouro')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -133,7 +140,7 @@
                             <div class="col-md-4">
                                 <label for="bairro" class="form-label">Bairro</label>
                                 <input type="text" class="form-control @error('bairro') is-invalid @enderror"
-                                    id="bairro" name="bairro" value="{{ old('bairro') }}" readonly>
+                                    id="bairro" name="bairro" value="{{ old('bairro') }}" >
                                 @error('bairro')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -142,7 +149,7 @@
                             <div class="col-md-3">
                                 <label for="cidade" class="form-label">Cidade</label>
                                 <input type="text" class="form-control @error('cidade') is-invalid @enderror"
-                                    id="cidade" name="cidade" value="{{ old('cidade') }}" readonly>
+                                    id="cidade" name="cidade" value="{{ old('cidade') }}" >
                                 @error('cidade')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -151,13 +158,12 @@
                             <div class="col-md-1">
                                 <label for="estado" class="form-label">UF</label>
                                 <input type="text" class="form-control @error('estado') is-invalid @enderror"
-                                    id="estado" name="estado" value="{{ old('estado') }}" readonly>
+                                    id="estado" name="estado" value="{{ old('estado') }}" >
                                 @error('estado')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-
                     </div>
                     <div class="card-footer bg-transparent mt-4">
                         <div class="d-flex justify-content-start gap-2">
@@ -167,25 +173,22 @@
                             </a>
                         </div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     @endsection
 
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/cep-autocomplete.css') }}">
-    @endpush
 
-    @push('scripts')
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-        <script src="{{ asset('js/cep-autocomplete.js') }}"></script>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                if (typeof $.fn.mask !== 'undefined') {
-                    $('input[name="phone"]').mask('(00) 00000-0000');
-                    $('input[name="cep"]').mask('00000-000');
-                }
-            });
-        </script>
-    @endpush
+@push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="{{ asset('js/cep-autocomplete.js') }}?v={{ time() }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            if (typeof $.fn.mask !== 'undefined') {
+                $('input[name="phone"]').mask('(00) 00000-0000');
+                $('input[name="cep"]').mask('00000-000');
+            }
+        });
+    </script>
+@endpush
