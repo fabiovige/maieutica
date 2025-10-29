@@ -20,8 +20,8 @@ class ChecklistSeeder extends Seeder
 
         // checklists
         foreach ($kid as $kidId) {
-            // Criar 5 checklists para cada criança
-            foreach ([1, 2, 3] as $c => $v) {
+            // Criar 2 checklists para cada criança
+            foreach ([1, 2] as $c => $v) {
                 // levels
                 $indice = 4;
                 $arrLevel = [];
