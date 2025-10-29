@@ -15,15 +15,21 @@ class UserCreatedMail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $user;
+    public $password;
+    public $appName;
+    public $appUrl;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct(User $user, $password = null)
     {
         $this->user = $user;
+        $this->password = $password;
+        $this->appName = config('app.name');
+        $this->appUrl = config('app.url');
     }
 
     /**
@@ -34,7 +40,7 @@ class UserCreatedMail extends Mailable implements ShouldQueue
     public function envelope()
     {
         return new Envelope(
-            subject: 'Bem-vindo ao Sistema Maiêutica',
+            subject: 'Bem-vindo ao ' . config('app.name'),
         );
     }
 

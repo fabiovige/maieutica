@@ -2,10 +2,10 @@
 
 namespace App\Observers;
 
+use App\Mail\UserCreatedMail;
 use App\Mail\UserDeletedMail;
 use App\Mail\UserUpdatedMail;
 use App\Models\User;
-use App\Notifications\WelcomeNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -19,17 +19,27 @@ class UserObserver
     public function created(User $user)
     {
         try {
-            \Log::info('UserObserver: created event triggered', [
+            Log::info('UserObserver: created event triggered', [
                 'user_id' => $user->id,
                 'email' => $user->email,
             ]);
 
-            // O Observer é responsável por enviar o email de boas-vindas
-            $notification = new WelcomeNotification($user, $user->temporaryPassword);
-            $user->notify($notification);
+            // Criar a instância do Mailable e enfileirar
+            $email = (new UserCreatedMail($user, $user->temporaryPassword))->onQueue('emails');
+
+            // Enviar o e-mail para a fila
+            Mail::to($user->email)->queue($email);
+
+            Log::info('E-mail de boas-vindas enfileirado', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Erro no UserObserver: '.$e->getMessage());
+            Log::error('Falha ao enviar e-mail de boas-vindas', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 

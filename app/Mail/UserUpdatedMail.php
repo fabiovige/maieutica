@@ -15,6 +15,8 @@ class UserUpdatedMail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $user;
+    public $appName;
+    public $appUrl;
 
     /**
      * Create a new message instance.
@@ -23,7 +25,9 @@ class UserUpdatedMail extends Mailable implements ShouldQueue
      */
     public function __construct(User $user)
     {
-        $this->user = $user; // Atribua o usuário ao objeto da classe
+        $this->user = $user;
+        $this->appName = config('app.name');
+        $this->appUrl = config('app.url');
     }
 
     /**
