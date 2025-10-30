@@ -40,22 +40,36 @@ class ChecklistController extends Controller
 
             $kid = $request->kidId ? Kid::findOrFail($request->kidId) : null;
 
-            if ($request->kidId || auth()->user()->hasRole('pais')) {
-                if ($kid) {
-                    $queryChecklists->where('kid_id', $request->kidId);
-                } elseif (auth()->user()->hasRole('pais')) {
-
-                    $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
-                    $queryChecklists->whereIn('kid_id', $kids);
-                }
-            } elseif (auth()->user()->hasRole('professional')) {
-
-                $professionalId = auth()->user()->professional->first()->id;
-                $queryChecklists->whereHas('kid.professionals', function ($query) use ($professionalId) {
-                    $query->where('professional_id', $professionalId);
+            // Filtro de busca geral (nome da criança, ID do checklist)
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $queryChecklists->where(function($q) use ($search) {
+                    $q->where('id', 'like', '%' . $search . '%')
+                      ->orWhereHas('kid', function($kidQuery) use ($search) {
+                          $kidQuery->where('name', 'like', '%' . $search . '%');
+                      });
                 });
             }
 
+            // Se kidId foi passado, filtra por essa criança
+            if ($request->kidId) {
+                $queryChecklists->where('kid_id', $request->kidId);
+            }
+            // Se não foi passado kidId, aplica filtros baseados no tipo de usuário
+            elseif (!auth()->user()->can('checklist-list-all')) {
+                // Se for profissional, filtra pelos kids vinculados
+                if (auth()->user()->professional->count() > 0) {
+                    $professionalId = auth()->user()->professional->first()->id;
+                    $queryChecklists->whereHas('kid.professionals', function ($query) use ($professionalId) {
+                        $query->where('professional_id', $professionalId);
+                    });
+                }
+                // Se for responsável (pai), filtra pelos kids sob sua responsabilidade
+                else {
+                    $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
+                    $queryChecklists->whereIn('kid_id', $kids);
+                }
+            }
 
             $checklists = $queryChecklists->with('competences')
                 ->orderBy('created_at', 'desc')
@@ -294,31 +308,120 @@ class ChecklistController extends Controller
         $checklist = Checklist::findOrFail($id);
         $this->authorize('delete', $checklist);
 
+        DB::beginTransaction();
         try {
-            $message = label_case('Destroy Checklist ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            // Marca os planes associados como deletados
             if ($checklist->planes()->exists()) {
                 foreach ($checklist->planes as $plane) {
-                    $plane->deleted_by = Auth::id(); // Atribui o usuário que deletou
-                    $plane->save(); // Salva as alterações no banco de dados
-                    $plane->delete(); // Realiza a exclusão (soft delete, se for o caso)
+                    $plane->deleted_by = Auth::id();
+                    $plane->save();
+                    $plane->delete();
                 }
             }
 
-            // Exclui o Checklist
+            // Marca quem excluiu e move para lixeira
             $checklist->deleted_by = Auth::id();
             $checklist->save();
             $checklist->delete();
 
-            flash(self::MSG_DELETE_SUCCESS)->success();
+            DB::commit();
+
+            flash('Checklist movido para a lixeira com sucesso.')->success();
+
+            $message = label_case('Checklist moved to trash. ') . ' | Deleted Checklist: ID ' . $checklist->id;
+            Log::notice($message);
 
             return redirect()->route('checklists.index');
         } catch (\Exception $e) {
-            dd($e->getMessage());
-            $message = label_case('Destroy Checklist ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            DB::rollBack();
+
+            flash($e->getMessage())->warning();
+
+            $message = label_case('Error while deleting checklist: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
             Log::error($message);
 
-            flash(self::MSG_NOT_FOUND)->warning();
+            return redirect()->back();
+        }
+    }
+
+    public function trash()
+    {
+
+        //$this->authorize('viewTrash', Checklist::class);
+
+        $query = Checklist::onlyTrashed()->with(['kid', 'competences']);
+
+        // Aplica filtros baseados no tipo de usuário
+        if (!auth()->user()->can('checklist-list-all')) {
+            // Se for profissional, filtra pelos kids vinculados
+            if (auth()->user()->professional->count() > 0) {
+                $professionalId = auth()->user()->professional->first()->id;
+                $query->whereHas('kid.professionals', function ($q) use ($professionalId) {
+                    $q->where('professional_id', $professionalId);
+                });
+            }
+            // Se for responsável (pai), filtra pelos kids sob sua responsabilidade
+            else {
+                $kids = Kid::where('responsible_id', auth()->user()->id)->pluck('id');
+                $query->whereIn('kid_id', $kids);
+            }
+        }
+
+        $checklists = $query->orderBy('deleted_at', 'desc')->get();
+
+        foreach ($checklists as $checklist) {
+            try {
+                // Usa o ChecklistService para calcular o percentual
+                $checklist->developmentPercentage = $this->checklistService->percentualDesenvolvimento($checklist->id, true);
+            } catch (\Exception $e) {
+                // Se falhar, tenta calcular manualmente ou define como 0
+                $totalCompetences = $checklist->competences->count();
+                $testedCompetences = $checklist->competences->where('pivot.note', '>', 0)->count();
+                $checklist->developmentPercentage = $totalCompetences > 0
+                    ? round(($testedCompetences / $totalCompetences) * 100, 2)
+                    : 0;
+            }
+        }
+
+        $message = label_case('View Trash Checklists') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+        Log::info($message);
+
+        return view('checklists.trash', compact('checklists'));
+    }
+
+    public function restore($id)
+    {
+        DB::beginTransaction();
+        try {
+            $checklist = Checklist::onlyTrashed()->findOrFail($id);
+
+            $this->authorize('restore', $checklist);
+
+            // Restaura o checklist da lixeira
+            $checklist->restore();
+
+            // Restaura os planes associados
+            if ($checklist->planes()->onlyTrashed()->exists()) {
+                foreach ($checklist->planes()->onlyTrashed()->get() as $plane) {
+                    $plane->restore();
+                }
+            }
+
+            DB::commit();
+
+            flash('Checklist restaurado com sucesso.')->success();
+
+            $message = label_case('Checklist restored. ') . ' | Restored Checklist: ID ' . $checklist->id;
+            Log::notice($message);
+
+            return redirect()->route('checklists.trash');
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            flash('Erro ao restaurar checklist: ' . $e->getMessage())->warning();
+
+            $message = label_case('Error while restoring checklist: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
+            Log::error($message);
 
             return redirect()->back();
         }
@@ -332,7 +435,7 @@ class ChecklistController extends Controller
             $message = label_case('Fill Checklist ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
             $data = [
-                'is_admin' => auth()->user()->isAdmin(),
+                'is_admin' => auth()->user()->can('checklist-edit-all'),
                 'situation' => $checklist->situation,
                 'checklist_id' => $id,
                 'level_id' => $checklist->level,
@@ -446,7 +549,7 @@ class ChecklistController extends Controller
     {
         $this->authorize('create', Checklist::class);
 
-        if (! auth()->user()->can('create checklists')) {
+        if (! auth()->user()->can('checklist-create')) {
             flash('Você não tem permissão para clonar checklists.')->warning();
 
             return redirect()->route('checklists.index');

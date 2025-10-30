@@ -48,6 +48,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->midd
 Route::middleware(['auth'])->group(function () {
 
     // checklists
+    Route::get('checklists/trash', [ChecklistController::class, 'trash'])->name('checklists.trash');
+    Route::post('checklists/{id}/restore', [ChecklistController::class, 'restore'])->name('checklists.restore');
     Route::get('checklists/{id}/chart', [ChecklistController::class, 'chart'])->name('checklists.chart');
     Route::get('checklists/{id}/fill', [ChecklistController::class, 'fill'])->name('checklists.fill');
     Route::get('checklists/register', [ChecklistController::class, 'register'])->name('checklists.register');

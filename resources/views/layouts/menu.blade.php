@@ -82,11 +82,33 @@
     @endcan
 
     @can('checklist-list')
-    <li class="nav-item">
-        <a class="nav-link @if (request()->is('checklists*')) active @endif"
-           aria-current="page"
-           href="{{ route('checklists.index') }}">Checklists</a>
-    </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle @if (request()->is('checklists*')) active @endif"
+               href="#"
+               id="checklistsDropdown"
+               role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+                Checklists
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="checklistsDropdown">
+                <li>
+                    <a class="dropdown-item @if (request()->is('checklists') && !request()->is('checklists/trash')) active @endif"
+                       href="{{ route('checklists.index') }}">
+                        <i class="bi bi-list"></i> Listar Checklists
+                    </a>
+                </li>
+                @if(auth()->user()->can('checklist-edit') || auth()->user()->can('checklist-list-all'))
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item @if (request()->is('checklists/trash')) active @endif"
+                           href="{{ route('checklists.trash') }}">
+                            <i class="bi bi-trash"></i> Lixeira
+                        </a>
+                    </li>
+                @endif
+            </ul>
+        </li>
     @endcan
 
     @can('role-list')

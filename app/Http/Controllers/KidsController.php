@@ -144,7 +144,10 @@ class KidsController extends Controller
 
     public function showPlane(Kid $kid, $checklistId = null)
     {
-        $this->authorize('plane manual checklist', $kid);
+        // Verifica se tem permissão para plano manual OU se pode visualizar a criança
+        if (!auth()->user()->can('checklist-plane-manual') && !auth()->user()->can('kid-show')) {
+            abort(403, 'Você não tem permissão para acessar planos manuais.');
+        }
 
         try {
             Log::info('show', [
@@ -484,7 +487,10 @@ class KidsController extends Controller
 
     public function pdfPlaneAuto($kidId, $checklislId, $note)
     {
-        $this->authorize('plane automatic checklist');
+        // Verifica se tem permissão para plano automático
+        if (!auth()->user()->can('checklist-plane-automatic')) {
+            abort(403, 'Você não tem permissão para acessar planos automáticos.');
+        }
 
         try {
             // Primeiro, verificar se o kid existe

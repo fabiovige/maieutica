@@ -20,10 +20,38 @@
                     </li>
 
                     @if(auth()->user()->can('checklist-list'))
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('checklists.*') ? 'active' : '' }}" href="{{ route('checklists.index') }}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('checklists.*') ? 'active' : '' }}"
+                               href="#"
+                               id="checklistsDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
                                 <i class="bi bi-list-check"></i> Checklists
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="checklistsDropdown">
+                                <li>
+                                    <a class="dropdown-item {{ request()->routeIs('checklists.index') ? 'active' : '' }}"
+                                       href="{{ route('checklists.index') }}">
+                                        <i class="bi bi-list-check"></i> Lista de Checklists
+                                    </a>
+                                </li>
+                                @if(auth()->user()->can('checklist-edit') || auth()->user()->can('checklist-list-all'))
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('checklists.trash') ? 'active' : '' }}"
+                                           href="{{ route('checklists.trash') }}">
+                                            <i class="bi bi-trash"></i> Lixeira
+                                            @php
+                                                $trashedChecklistsCount = App\Models\Checklist::onlyTrashed()->count();
+                                            @endphp
+                                            @if($trashedChecklistsCount > 0)
+                                                <span class="badge bg-danger ms-1">{{ $trashedChecklistsCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
                         </li>
                     @endif
 
