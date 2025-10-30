@@ -19,7 +19,52 @@
 @endsection
 
 @section('content')
-    <table class="table table-hover table-bordered align-middle mt-3">
+    <!-- Filtro de Busca -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ route('professionals.index') }}" class="row g-3">
+                <div class="col-md-10">
+                    <label for="search" class="form-label">
+                        <i class="bi bi-search"></i> Buscar Profissional
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="search"
+                           name="search"
+                           placeholder="Buscar por nome, email, especialidade ou registro..."
+                           value="{{ request('search') }}">
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="d-flex gap-2 w-100">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        @if(request('search'))
+                            <a href="{{ route('professionals.index') }}" class="btn btn-secondary" title="Limpar filtro">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if(request('search'))
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Exibindo resultados da busca por "<strong>{{ request('search') }}</strong>".
+            <strong>{{ $professionals->total() }}</strong> profissional(is) encontrado(s).
+        </div>
+    @endif
+
+    @if ($professionals->isEmpty())
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Nenhum profissional encontrado.
+        </div>
+    @else
+        <table class="table table-hover table-bordered align-middle mt-3">
         <thead>
             <tr>
                 <th style="width: 60px;" class="text-center align-middle">ID</th>
@@ -119,6 +164,7 @@
     <div class="d-flex justify-content-end">
         {{ $professionals->links() }}
     </div>
+    @endif
 @endsection
 
 @push('styles')

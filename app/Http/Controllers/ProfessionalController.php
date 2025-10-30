@@ -14,13 +14,28 @@ use Illuminate\Support\Str;
 
 class ProfessionalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Professional::class);
 
-        $professionals = Professional::with(['user', 'specialty', 'kids'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(5);
+        $query = Professional::with(['user', 'specialty', 'kids']);
+
+        // Filtro de busca geral (nome do usuário, especialidade, registro)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('registration_number', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', '%' . $search . '%')
+                                ->orWhere('email', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('specialty', function($specialtyQuery) use ($search) {
+                      $specialtyQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        $professionals = $query->orderBy('created_at', 'desc')->paginate(5);
 
         return view('professionals.index', compact('professionals'));
     }
