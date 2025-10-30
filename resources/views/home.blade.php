@@ -9,101 +9,67 @@
     </nav>
     @endsection @section('content')
 
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
         <!-- Total de Crianças -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card bg-primary-lightest">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="fw-semibold d-block mb-1 text-primary">Crianças</span>
-                            <h3 class="card-title mb-0 text-primary">
-                                {{ $totalKids }}
-                            </h3>
-                            <small class="fw-semibold text-primary">
-                                <i class="bi bi-people-fill"></i> Total cadastrado
-                            </small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded">
-                                <i class="bi bi-people-fill fs-4 text-white"></i>
-                            </span>
+            <div class="card border-0 h-100 bg-secondary">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-people-fill fs-1 me-3"></i>
+                        <div>
+                            <h6 class="mb-0 opacity-75">Crianças</h6>
+                            <h2 class="mb-0 fw-bold">{{ $totalKids }}</h2>
                         </div>
                     </div>
+                    <small class="opacity-75">Total cadastrado</small>
                 </div>
             </div>
         </div>
 
         <!-- Total de Checklists -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card bg-primary-lightest">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="fw-semibold d-block mb-1 text-primary">Checklists</span>
-                            <h3 class="card-title mb-0 text-primary">
-                                {{ $totalChecklists }}
-                            </h3>
-                            <small class="fw-semibold text-primary">
-                                <i class="bi bi-clipboard2-check-fill"></i> Total de
-                                avaliações
-                            </small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded">
-                                <i class="bi bi-clipboard2-check-fill fs-4 text-white"></i>
-                            </span>
+            <div class="card border-0 h-100 bg-success">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-clipboard2-check-fill fs-1 me-3"></i>
+                        <div>
+                            <h6 class="mb-0 opacity-75">Checklists</h6>
+                            <h2 class="mb-0 fw-bold">{{ $totalChecklists }}</h2>
                         </div>
                     </div>
+                    <small class="opacity-75">Total de avaliações</small>
                 </div>
             </div>
         </div>
 
         <!-- Checklists em Andamento -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card bg-primary-lightest">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="fw-semibold d-block mb-1 text-primary">Em Andamento</span>
-                            <h3 class="card-title mb-0 text-primary">
-                                {{ $checklistsEmAndamento }}
-                            </h3>
-                            <small class="fw-semibold text-primary">
-                                <i class="bi bi-hourglass-split"></i> Checklists
-                                ativos
-                            </small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded">
-                                <i class="bi bi-hourglass-split fs-4 text-white"></i>
-                            </span>
+            <div class="card border-0 h-100 bg-warning">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-hourglass-split fs-1 me-3"></i>
+                        <div>
+                            <h6 class="mb-0 opacity-75">Em Andamento</h6>
+                            <h2 class="mb-0 fw-bold">{{ $checklistsEmAndamento }}</h2>
                         </div>
                     </div>
+                    <small class="opacity-75">Checklists ativos</small>
                 </div>
             </div>
         </div>
 
         <!-- Total de Profissionais -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card bg-primary-lightest">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="fw-semibold d-block mb-1 text-primary">Profissionais</span>
-                            <h3 class="card-title mb-0 text-primary">
-                                {{ $totalProfessionals }}
-                            </h3>
-                            <small class="fw-semibold text-primary">
-                                <i class="bi bi-person-badge-fill"></i> Equipe total
-                            </small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded">
-                                <i class="bi bi-person-badge-fill fs-4 text-white"></i>
-                            </span>
+            <div class="card border-0 h-100 bg-info">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-person-badge-fill fs-1 me-3"></i>
+                        <div>
+                            <h6 class="mb-0 opacity-75">Profissionais</h6>
+                            <h2 class="mb-0 fw-bold">{{ $totalProfessionals }}</h2>
                         </div>
                     </div>
+                    <small class="opacity-75">Equipe total</small>
                 </div>
             </div>
         </div>
@@ -136,7 +102,6 @@
                                     <th style="vertical-align: middle">
                                         Progresso
                                     </th>
-                                    <th style="vertical-align: middle"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -194,18 +159,6 @@
                                                 </div>
                                                 <span class="ms-2 small">{{ $kid->progress }}%</span>
                                             </div>
-                                        </td>
-                                        <td style="vertical-align: middle">
-                                            <a href="{{ route('kids.overview', $kid->id) }}"
-                                                class="btn btn-primary btn-sm">
-                                                <i class="bi bi-graph-up me-1"></i>
-                                                Desenvolvimento
-                                            </a>
-                                            <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}"
-                                                class="btn btn-primary btn-sm ms-1">
-                                                <i class="bi bi-list-check me-1"></i>
-                                                Checklists
-                                            </a>
                                         </td>
                                     </tr>
                                 @empty
