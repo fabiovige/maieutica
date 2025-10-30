@@ -92,6 +92,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
 
     // professionals
+    Route::get('professionals/trash', [ProfessionalController::class, 'trash'])->name('professionals.trash');
+    Route::post('professionals/{id}/restore', [ProfessionalController::class, 'restore'])->name('professionals.restore');
     Route::resource('professionals', ProfessionalController::class);
     Route::patch('professionals/{professional}/deactivate', [ProfessionalController::class, 'deactivate'])->name('professionals.deactivate');
     Route::patch('professionals/{professional}/activate', [ProfessionalController::class, 'activate'])->name('professionals.activate');

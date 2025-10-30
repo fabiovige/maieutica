@@ -132,7 +132,8 @@
 
 
 
-                @if (auth()->user()->hasRole('pais'))
+                @if (!auth()->user()->professional->count() && !auth()->user()->can('kid-edit-all'))
+                    {{-- Responsáveis (pais) não podem alterar profissionais --}}
                     @foreach ($kid->professionals as $professional)
                         <input type="hidden" name="professionals[]" value="{{ $professional->id }}">
                     @endforeach
@@ -144,7 +145,7 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                @if (!auth()->user()->hasRole('professional'))
+                                @if (!auth()->user()->professional->count())
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="professionals" class="form-label">Profissionais</label>

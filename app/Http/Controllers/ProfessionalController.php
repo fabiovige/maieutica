@@ -19,13 +19,8 @@ class ProfessionalController extends Controller
         $this->authorize('viewAny', Professional::class);
 
         $professionals = Professional::with(['user', 'specialty', 'kids'])
-            ->whereHas('user', function ($q) {
-                $q->whereHas('roles', function ($q) {
-                    $q->where('name', 'professional');
-                });
-            })
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(5);
 
         return view('professionals.index', compact('professionals'));
     }
@@ -92,15 +87,8 @@ class ProfessionalController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            // Atribuir role de profissional (se existir)
-            if (\Spatie\Permission\Models\Role::where('name', 'professional')->exists()) {
-                $user->assignRole('professional');
-            } else {
-                Log::warning('Role "professional" não existe. Profissional criado sem role específica.', [
-                    'user_id' => $user->id,
-                    'email' => $user->email
-                ]);
-            }
+            // Nota: Permissions devem ser atribuídas manualmente via painel de administração
+            // O sistema usa APENAS permissions, não roles para autorização
 
             // Criar o profissional
             $professional = Professional::create([
@@ -194,6 +182,91 @@ class ProfessionalController extends Controller
             Log::error('Erro ao atualizar profissional: ' . $e->getMessage());
             flash('Erro ao atualizar o profissional')->warning();
             return redirect()->back()->withInput();
+        }
+    }
+
+    public function destroy(Professional $professional)
+    {
+        $this->authorize('delete', $professional);
+
+        DB::beginTransaction();
+
+        try {
+            // Verifica se o profissional tem kids vinculados
+            if ($professional->kids()->count() > 0) {
+                throw new \Exception('Não é possível mover para lixeira, pois existem crianças vinculadas a este profissional.');
+            }
+
+            // Move para lixeira (soft delete)
+            $professional->delete();
+
+            DB::commit();
+            flash('Profissional movido para a lixeira com sucesso.')->success();
+
+            Log::notice('Professional moved to trash.', [
+                'professional_id' => $professional->id,
+                'user_id' => $professional->user->first()->id ?? null,
+            ]);
+
+            return redirect()->route('professionals.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flash($e->getMessage())->error();
+
+            Log::error('Error while deleting professional: ' . $e->getMessage(), [
+                'professional_id' => $professional->id,
+                'user_id' => auth()->id(),
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
+    public function trash()
+    {
+        $this->authorize('viewAny', Professional::class);
+
+        $professionals = Professional::onlyTrashed()
+            ->with(['user', 'specialty'])
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(5);
+
+        Log::info('View Trash Professionals | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')');
+
+        return view('professionals.trash', compact('professionals'));
+    }
+
+    public function restore($id)
+    {
+        DB::beginTransaction();
+        try {
+            $professional = Professional::onlyTrashed()->findOrFail($id);
+
+            $this->authorize('update', $professional);
+
+            // Restaura o profissional da lixeira
+            $professional->restore();
+
+            DB::commit();
+
+            flash('Profissional restaurado com sucesso.')->success();
+
+            Log::notice('Professional restored.', [
+                'professional_id' => $professional->id,
+                'user_id' => $professional->user->first()->id ?? null,
+            ]);
+
+            return redirect()->route('professionals.trash');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            flash('Erro ao restaurar profissional: ' . $e->getMessage())->warning();
+
+            Log::error('Error while restoring professional: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+            ]);
+
+            return redirect()->back();
         }
     }
 

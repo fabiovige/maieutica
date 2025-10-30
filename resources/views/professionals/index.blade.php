@@ -62,7 +62,7 @@
                             class="text-muted">{{ $professional->user->first() ? $professional->user->first()->phone : 'N/D' }}</small>
                     </td>
                     <td>
-                        <span class="badge bg-primary">
+                        <span class="badge bg-info">
                             {{ $professional->kids->count() }} crianças
                         </span>
                     </td>
@@ -75,14 +75,14 @@
                     </td>
                     <td>
                         <div class="btn-group">
-                            @can('edit professionals')
+                            @can('professional-edit')
                                 <a href="{{ route('professionals.edit', $professional->id) }}"
                                     class="btn btn-sm btn-primary me-2" title="Editar">
                                     <i class="bi bi-pencil"></i> Editar
                                 </a>
                             @endcan
 
-                            @can('deactivate professionals')
+                            @can('professional-deactivate')
                                 @if ($professional->user->first()?->allow)
                                     <form action="{{ route('professionals.deactivate', $professional->id) }}" method="POST"
                                         class="d-inline"
@@ -96,7 +96,7 @@
                                 @endif
                             @endcan
 
-                            @can('activate professionals')
+                            @can('professional-activate')
                                 @if (!$professional->user->first()?->allow)
                                     <form action="{{ route('professionals.activate', $professional->id) }}" method="POST"
                                         class="d-inline"

@@ -124,10 +124,38 @@
                     @endif
 
                     @if(auth()->user()->can('professional-list'))
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('professionals.*') ? 'active' : '' }}" href="{{ route('professionals.index') }}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('professionals.*') ? 'active' : '' }}"
+                               href="#"
+                               id="professionalsDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
                                 <i class="bi bi-person-badge"></i> Profissionais
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="professionalsDropdown">
+                                <li>
+                                    <a class="dropdown-item {{ request()->routeIs('professionals.index') ? 'active' : '' }}"
+                                       href="{{ route('professionals.index') }}">
+                                        <i class="bi bi-person-badge"></i> Lista de Profissionais
+                                    </a>
+                                </li>
+                                @can('professional-list')
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('professionals.trash') ? 'active' : '' }}"
+                                           href="{{ route('professionals.trash') }}">
+                                            <i class="bi bi-trash"></i> Lixeira
+                                            @php
+                                                $trashedProfessionalsCount = \App\Models\Professional::onlyTrashed()->count();
+                                            @endphp
+                                            @if($trashedProfessionalsCount > 0)
+                                                <span class="badge bg-danger ms-1">{{ $trashedProfessionalsCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                @endcan
+                            </ul>
                         </li>
                     @endif
                 </ul>

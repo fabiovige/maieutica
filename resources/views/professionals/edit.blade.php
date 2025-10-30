@@ -133,21 +133,38 @@
 
                     </div>
                     <div class="card-footer bg-transparent mt-4">
-                        <div class="d-flex justify-content-start gap-2">
-                            <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
-                            <a href="{{ route('professionals.index') }}" class="btn btn-secondary">
-                                <i class="bi bi-x-lg"></i> Cancelar
-                            </a>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                                <a href="{{ route('professionals.index') }}" class="btn btn-secondary">
+                                    <i class="bi bi-x-lg"></i> Cancelar
+                                </a>
+                            </div>
+
+                            @can('professional-delete')
+                                <button type="button" class="btn btn-danger" id="btnMoveToTrash">
+                                    <i class="bi bi-trash"></i> Mover para Lixeira
+                                </button>
+                            @endcan
                         </div>
                     </div>
                 </div>
             </form>
+
+            <!-- Form separado para delete -->
+            @can('professional-delete')
+            <form id="deleteForm" action="{{ route('professionals.destroy', $professional->id) }}" method="POST" style="display: none;">
+                @csrf
+                @method('DELETE')
+            </form>
+            @endcan
         </div>
     @endsection
 
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             $(document).ready(function() {
                 $('#phone').mask('(00) 00000-0000');
@@ -163,6 +180,36 @@
                     const selectedId = $(this).val();
                     const description = descriptions[selectedId] || '';
                     $(this).siblings('.form-text').text(description);
+                });
+
+                // Confirmação para mover para lixeira
+                $('#btnMoveToTrash').on('click', function(e) {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        title: 'Tem certeza?',
+                        html: '<strong>{{ $professional->user->first()->name ?? 'Este profissional' }}</strong> será movido para a lixeira.<br><br>Esta ação pode ser revertida.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: '<i class="bi bi-trash"></i> Sim, mover para lixeira',
+                        cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: 'Processando...',
+                                html: 'Movendo profissional para a lixeira',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            document.getElementById('deleteForm').submit();
+                        }
+                    });
                 });
             });
         </script>

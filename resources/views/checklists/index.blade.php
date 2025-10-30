@@ -215,7 +215,7 @@
                                     <td>
                                         <div class="dropdown">
                                             @php
-                                                $isAdmin = auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('superadmin'));
+                                                $isAdmin = auth()->check() && auth()->user()->can('checklist-edit-all');
                                             @endphp
                                             @can('edit checklists')
                                                 <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"

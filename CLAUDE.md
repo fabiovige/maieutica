@@ -280,3 +280,4 @@ tail -f storage/logs/laravel.log
 - nunca alterar as tabelas do banco de dados a não ser que eu autorize ou peça.
 - jamais altere o banco de dados
 - jamais utilize name role admin hardcode use as permissoes *-all
+- jamais iremos usar nomenclatura de roles , somente as permissions.

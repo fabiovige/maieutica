@@ -39,10 +39,12 @@ class KidsController extends Controller
 
         // Buscar crianças com paginação (15 por página)
         $kids = Kid::query()
-            ->when(auth()->user()->hasRole('pais'), function ($query) {
+            // Responsáveis veem apenas kids sob sua responsabilidade
+            ->when(!auth()->user()->can('kid-list-all') && !auth()->user()->professional->count(), function ($query) {
                 return $query->where('responsible_id', auth()->user()->id);
             })
-            ->when(auth()->user()->hasRole('professional'), function ($query) {
+            // Profissionais veem apenas seus kids
+            ->when(auth()->user()->professional->count() > 0, function ($query) {
                 $professionalId = auth()->user()->professional->first()->id;
 
                 return $query->whereHas('professionals', function ($q) use ($professionalId) {
@@ -96,16 +98,14 @@ class KidsController extends Controller
             $kid = Kid::create($kidData);
 
 
-            // Se o usuário logado for profissional, adiciona ele como profissional da criança
-            if (Auth::user()->hasRole('professional')) {
-                $professional = Auth::user()->professional->first();
+            // Se o usuário tem um professional vinculado, adiciona como profissional da criança
+            $professional = Auth::user()->professional->first();
 
-                if ($professional) {
-                    $kid->professionals()->attach($professional->id, [
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
-                }
+            if ($professional) {
+                $kid->professionals()->attach($professional->id, [
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
             }
 
 
