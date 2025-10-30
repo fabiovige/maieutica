@@ -15,7 +15,7 @@ class ProfessionalPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('professional-list');
+        return $user->can('professional-list') || $user->can('professional-list-all');
     }
 
     /**
@@ -23,7 +23,7 @@ class ProfessionalPolicy
      */
     public function view(User $user, Professional $professional): bool
     {
-        return $user->can('professional-list');
+        return $user->can('professional-show') || $user->can('professional-show-all');
     }
 
     /**
@@ -31,7 +31,7 @@ class ProfessionalPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('professional-create');
+        return $user->can('professional-create') || $user->can('professional-create-all');
     }
 
     /**
@@ -39,7 +39,7 @@ class ProfessionalPolicy
      */
     public function update(User $user, Professional $professional): bool
     {
-        return $user->can('professional-edit');
+        return $user->can('professional-edit') || $user->can('professional-edit-all');
     }
 
     /**
@@ -53,7 +53,7 @@ class ProfessionalPolicy
             return false;
         }
 
-        return $user->can('professional-delete');
+        return $user->can('professional-delete') || $user->can('professional-delete-all');
     }
 
     /**
@@ -61,7 +61,7 @@ class ProfessionalPolicy
      */
     public function viewTrash(User $user): bool
     {
-        return $user->can('professional-restore') || $user->can('professional-list-all');
+        return $user->can('professional-edit') || $user->can('professional-list-all');
     }
 
     /**
@@ -69,7 +69,7 @@ class ProfessionalPolicy
      */
     public function restore(User $user, Professional $professional): bool
     {
-        return $user->can('professional-restore') || $user->can('professional-edit-all');
+        return $user->can('professional-edit') || $user->can('professional-edit-all');
     }
 
     /**

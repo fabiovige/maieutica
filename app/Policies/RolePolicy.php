@@ -60,7 +60,7 @@ class RolePolicy
      */
     public function viewTrash(User $user): bool
     {
-        return $user->can('role-restore') || $user->can('role-list-all');
+        return $user->can('role-edit') || $user->can('role-list-all');
     }
 
     /**
@@ -68,7 +68,7 @@ class RolePolicy
      */
     public function restore(User $user, Role $role): bool
     {
-        return $user->can('role-restore') || $user->can('role-edit-all');
+        return $user->can('role-edit') || $user->can('role-edit-all');
     }
 
     /**

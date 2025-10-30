@@ -14,8 +14,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Pode listar todos se tiver permissão global
-        return $user->can('user-list-all');
+        return $user->can('user-list') || $user->can('user-list-all');
     }
 
     /**
@@ -23,8 +22,8 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        // Pode visualizar todos se tiver permissão global
-        if ($user->can('user-show-all')) {
+        // Pode visualizar se tem permissão
+        if ($user->can('user-show') || $user->can('user-show-all')) {
             return true;
         }
 
@@ -37,8 +36,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        // Apenas quem tem permissão de criar
-        return $user->can('user-create');
+        return $user->can('user-create') || $user->can('user-create-all');
     }
 
     /**
@@ -46,8 +44,8 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        // Pode editar todos se tiver permissão global
-        if ($user->can('user-edit-all')) {
+        // Pode editar se tem permissão
+        if ($user->can('user-edit') || $user->can('user-edit-all')) {
             return true;
         }
 
@@ -65,8 +63,7 @@ class UserPolicy
             return false;
         }
 
-        // Pode excluir qualquer usuário se tiver permissão global
-        return $user->can('user-delete-all');
+        return $user->can('user-delete') || $user->can('user-delete-all');
     }
 
     /**
@@ -74,7 +71,7 @@ class UserPolicy
      */
     public function viewTrash(User $user): bool
     {
-        return $user->can('user-list-all');
+        return $user->can('user-edit') || $user->can('user-list-all');
     }
 
     /**
@@ -82,7 +79,7 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        return $user->can('user-edit-all');
+        return $user->can('user-edit') || $user->can('user-edit-all');
     }
 
     /**

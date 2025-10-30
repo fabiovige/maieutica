@@ -35,14 +35,6 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->can('competence-list'))
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('competences.*') ? 'active' : '' }}" href="{{ route('competences.index') }}">
-                                <i class="bi bi-bookmark-star"></i> Competências
-                            </a>
-                        </li>
-                    @endif
-
                     @if(auth()->user()->can('user-list'))
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->routeIs('users.*') ? 'active' : '' }}"
