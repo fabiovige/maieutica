@@ -20,24 +20,36 @@ class UserController extends Controller
 {
     public function __construct() {}
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('user-list');
 
-        if (auth()->user()->can('user-list-all')) {
-            // Admin vê todos os usuários
-            $users = User::with('roles')->paginate(5);
-        } else {
-            // Usuários sem user-list-all não veem usuários privilegiados
-            $users = User::with('roles')
-                ->whereDoesntHave('permissions', function($query) {
-                    $query->where('name', 'user-list-all');
-                })
-                ->whereDoesntHave('roles.permissions', function($query) {
-                    $query->where('name', 'user-list-all');
-                })
-                ->paginate(5);
+        $query = User::with('roles');
+
+        // Filtro de busca geral (nome, email ou perfil)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%')
+                  ->orWhereHas('roles', function($roleQuery) use ($search) {
+                      $roleQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
         }
+
+        // Controle de permissões
+        if (!auth()->user()->can('user-list-all')) {
+            // Usuários sem user-list-all não veem usuários privilegiados
+            $query->whereDoesntHave('permissions', function($q) {
+                $q->where('name', 'user-list-all');
+            })
+            ->whereDoesntHave('roles.permissions', function($q) {
+                $q->where('name', 'user-list-all');
+            });
+        }
+
+        $users = $query->paginate(5);
 
         return view('users.index', compact('users'));
     }
