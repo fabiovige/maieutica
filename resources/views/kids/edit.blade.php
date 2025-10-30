@@ -224,11 +224,21 @@
 
 
                 <div class="card-footer bg-transparent mt-4">
-                    <div class="d-flex justify-content-start gap-2">
-                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
-                        <a href="{{ route('kids.index') }}" class="btn btn-secondary">
-                            <i class="bi bi-x-lg"></i> Cancelar
-                        </a>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex gap-2">
+                            <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                            <a href="{{ route('kids.index') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-lg"></i> Cancelar
+                            </a>
+                        </div>
+
+                        @can('kid-delete')
+                            <button type="button" class="btn btn-danger" id="btn-delete-kid"
+                                data-kid-id="{{ $kid->id }}"
+                                data-kid-name="{{ $kid->name }}">
+                                <i class="bi bi-trash"></i> Mover para Lixeira
+                            </button>
+                        @endcan
                     </div>
                 </div>
             </form>
@@ -237,7 +247,60 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Script para mover para lixeira
+        document.getElementById('btn-delete-kid')?.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const kidId = this.dataset.kidId;
+            const kidName = this.dataset.kidName;
+
+            Swal.fire({
+                title: 'Mover para lixeira?',
+                html: `<strong>${kidName}</strong> será movido(a) para a lixeira.<br><br>Você poderá restaurar depois se necessário.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash"></i> Sim, mover para lixeira',
+                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostra loading
+                    Swal.fire({
+                        title: 'Processando...',
+                        html: 'Movendo criança para lixeira',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Cria e submete o formulário
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/kids/${kidId}`;
+
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = '_token';
+                    csrfToken.value = '{{ csrf_token() }}';
+
+                    const methodField = document.createElement('input');
+                    methodField.type = 'hidden';
+                    methodField.name = '_method';
+                    methodField.value = 'DELETE';
+
+                    form.appendChild(csrfToken);
+                    form.appendChild(methodField);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+
         $(document).ready(function() {
             // Debug do formulário
             $('#kidForm').on('submit', function(e) {

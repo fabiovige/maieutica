@@ -55,6 +55,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('checklists', ChecklistController::class);
 
     // kids
+    Route::get('kids/trash', [KidsController::class, 'trash'])->name('kids.trash');
+    Route::post('kids/{id}/restore', [KidsController::class, 'restore'])->name('kids.restore');
     Route::get('kids/{kidId}/overview', [KidsController::class, 'overview'])->name('kids.overview');
     Route::get('kids/{kidId}/level/{levelId}/overview', [KidsController::class, 'overview'])->name('kids.overview.level');
 

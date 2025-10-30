@@ -18,7 +18,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role as SpatieRole;
 
 class KidsController extends Controller
 {
@@ -29,30 +28,41 @@ class KidsController extends Controller
         $this->overviewService = $overviewService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $this->authorize('view kids');
+        $this->authorize('viewAny', Kid::class);
 
-        if (request()->ajax()) {
-            return $this->index_data();
+        $query = Kid::with(['professionals.user', 'professionals.specialty', 'responsible']);
+
+        // Filtro de busca geral (nome, responsável)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhereHas('responsible', function($responsibleQuery) use ($search) {
+                      $responsibleQuery->where('name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('professionals', function($profQuery) use ($search) {
+                      $profQuery->whereHas('user', function($userQuery) use ($search) {
+                          $userQuery->where('name', 'like', '%' . $search . '%');
+                      });
+                  });
+            });
         }
 
-        // Buscar crianças com paginação (15 por página)
-        $kids = Kid::query()
-            // Responsáveis veem apenas kids sob sua responsabilidade
-            ->when(!auth()->user()->can('kid-list-all') && !auth()->user()->professional->count(), function ($query) {
-                return $query->where('responsible_id', auth()->user()->id);
-            })
-            // Profissionais veem apenas seus kids
-            ->when(auth()->user()->professional->count() > 0, function ($query) {
-                $professionalId = auth()->user()->professional->first()->id;
+        // Responsáveis veem apenas kids sob sua responsabilidade
+        if (!auth()->user()->can('kid-list-all') && !auth()->user()->professional->count()) {
+            $query->where('responsible_id', auth()->user()->id);
+        }
+        // Profissionais veem apenas seus kids
+        elseif (auth()->user()->professional->count() > 0) {
+            $professionalId = auth()->user()->professional->first()->id;
+            $query->whereHas('professionals', function ($q) use ($professionalId) {
+                $q->where('professional_id', $professionalId);
+            });
+        }
 
-                return $query->whereHas('professionals', function ($q) use ($professionalId) {
-                    $q->where('professional_id', $professionalId);
-                });
-            })
-            ->orderBy('name')
-            ->paginate(15);
+        $kids = $query->orderBy('name')->paginate(15);
 
         return view('kids.index', compact('kids'));
     }
@@ -61,15 +71,18 @@ class KidsController extends Controller
     {
         $this->authorize('create', Kid::class);
 
-        // Buscar usuários com o papel 'professional'
-        $professions = User::whereHas('roles', function ($query) {
-            $query->where('name', 'professional');
-        })->get();
+        // Buscar profissionais ativos através da tabela professionals
+        $professions = User::whereHas('professional', function ($query) {
+            $query->whereNull('deleted_at');
+        })
+        ->where('allow', true)
+        ->orderBy('name')
+        ->get();
 
-        // Buscar usuários com o papel 'pais'
-        $responsibles = User::whereHas('roles', function ($query) {
-            $query->where('name', 'pais');
-        })->get();
+        // Buscar usuários ativos para serem responsáveis
+        $responsibles = User::where('allow', true)
+            ->orderBy('name')
+            ->get();
 
         $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
@@ -188,31 +201,20 @@ class KidsController extends Controller
             $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            // Verificando se o papel 'pais' existe, caso contrário lançar exceção
-            $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (! $parentRole) {
-                throw new Exception("O papel 'pais' não existe no sistema.");
-            }
+            // Buscar profissionais ativos através da tabela professionals
+            $professions = User::whereHas('professional', function ($query) {
+                $query->whereNull('deleted_at')
+                      ->whereNotNull('specialty_id');
+            })
+            ->with(['professional.specialty'])
+            ->where('allow', true)
+            ->orderBy('name')
+            ->get();
 
-            // Verificando se o papel 'professional' existe, caso contrário lançar exceção
-            $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (! $professionalRole) {
-                throw new Exception("O papel 'professional' não existe no sistema.");
-            }
-
-            // Buscando usuários com o papel 'pais'
-            $responsibles = User::whereHas('roles', function ($query) {
-                $query->where('name', 'pais');
-            })->get();
-
-            // Buscando usuários com o papel 'professional'
-            $professions = User::whereHas('roles', function ($query) {
-                $query->where('name', 'professional');
-            })->with(['professional.specialty'])
-                ->whereHas('professional', function ($query) {
-                    $query->whereNotNull('specialty_id');
-                })->get();
-
+            // Buscar usuários ativos para serem responsáveis
+            $responsibles = User::where('allow', true)
+                ->orderBy('name')
+                ->get();
 
             return view('kids.edit', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
@@ -230,35 +232,26 @@ class KidsController extends Controller
         $this->authorize('view', $kid);
 
         try {
-            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('View Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            // Verificando se o papel 'pais' existe, caso contrário lançar exceção
-            $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (! $parentRole) {
-                throw new Exception("O papel 'pais' não existe no sistema.");
-            }
+            // Buscar profissionais ativos através da tabela professionals
+            $professions = User::whereHas('professional', function ($query) {
+                $query->whereNull('deleted_at');
+            })
+            ->where('allow', true)
+            ->orderBy('name')
+            ->get();
 
-            // Verificando se o papel 'professional' existe, caso contrário lançar exceção
-            $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (! $professionalRole) {
-                throw new Exception("O papel 'professional' não existe no sistema.");
-            }
-
-            // Buscando usuários com o papel 'pais'
-            $responsibles = User::whereHas('roles', function ($query) {
-                $query->where('name', 'pais');
-            })->get();
-
-            // Buscando usuários com o papel 'professional'
-            $professions = User::whereHas('roles', function ($query) {
-                $query->where('name', 'professional');
-            })->get();
+            // Buscar usuários ativos para serem responsáveis
+            $responsibles = User::where('allow', true)
+                ->orderBy('name')
+                ->get();
 
             return view('kids.eye', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('View Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             return redirect()->back();
@@ -324,20 +317,82 @@ class KidsController extends Controller
     public function destroy(Kid $kid)
     {
         $this->authorize('delete', $kid);
-        try {
-            $message = label_case('Destroy Kids ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
 
+        DB::beginTransaction();
+        try {
+            // Verifica se a criança tem checklists associados
+            if ($kid->checklists()->count() > 0) {
+                throw new Exception('Não é possível mover para lixeira. Esta criança possui checklists associados.');
+            }
+
+            // Marca quem excluiu
+            $kid->deleted_by = auth()->id();
+            $kid->save();
+
+            // Envia para lixeira (soft delete)
             $kid->delete();
-            flash(self::MSG_DELETE_SUCCESS)->success();
+
+            DB::commit();
+
+            flash('Criança movida para a lixeira com sucesso.')->success();
+
+            $message = label_case('Kid moved to trash. ') . ' | Deleted Kid: ' . $kid->name . ' (ID: ' . $kid->id . ')';
+            Log::notice($message);
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
+            DB::rollBack();
 
-            $message = label_case('Destroy Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            flash($e->getMessage())->warning();
+
+            $message = label_case('Error while deleting kid: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
             Log::error($message);
 
-            flash(self::MSG_NOT_FOUND)->warning();
+            return redirect()->back();
+        }
+    }
+
+    public function trash()
+    {
+        $this->authorize('viewTrash', Kid::class);
+
+        $kids = Kid::onlyTrashed()
+            ->with(['professionals.user', 'professionals.specialty', 'responsible'])
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(15);
+
+        $message = label_case('View Trash Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+        Log::info($message);
+
+        return view('kids.trash', compact('kids'));
+    }
+
+    public function restore($id)
+    {
+        DB::beginTransaction();
+        try {
+            $kid = Kid::onlyTrashed()->findOrFail($id);
+
+            $this->authorize('restore', $kid);
+
+            // Restaura a criança da lixeira
+            $kid->restore();
+
+            DB::commit();
+
+            flash('Criança restaurada com sucesso.')->success();
+
+            $message = label_case('Kid restored. ') . ' | Restored Kid: ' . $kid->name . ' (ID: ' . $kid->id . ')';
+            Log::notice($message);
+
+            return redirect()->route('kids.trash');
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            flash('Erro ao restaurar criança: ' . $e->getMessage())->warning();
+
+            $message = label_case('Error while restoring kid: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
+            Log::error($message);
 
             return redirect()->back();
         }

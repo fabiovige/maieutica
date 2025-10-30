@@ -195,7 +195,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-center mt-3">
-                @can('create kids')
+                @can('kid-edit')
                     <x-button icon="check" name="Atualizar dados da criança" type="submit" class="primary"></x-button>
                 @endcan
             </div>
@@ -204,6 +204,6 @@
     </div>
 </div>
 
-@include('includes.information-register', ['data' => $kid, 'action' => 'kids.destroy', 'can' => 'remove kids'])
+@include('includes.information-register', ['data' => $kid, 'action' => 'kids.destroy', 'can' => 'kid-delete'])
 
 @endsection

@@ -28,10 +28,38 @@
                     @endif
 
                     @if(auth()->user()->can('kid-list'))
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('kids.*') ? 'active' : '' }}" href="{{ route('kids.index') }}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('kids.*') ? 'active' : '' }}"
+                               href="#"
+                               id="kidsDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
                                 <i class="bi bi-people"></i> Crianças
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="kidsDropdown">
+                                <li>
+                                    <a class="dropdown-item {{ request()->routeIs('kids.index') ? 'active' : '' }}"
+                                       href="{{ route('kids.index') }}">
+                                        <i class="bi bi-people"></i> Lista de Crianças
+                                    </a>
+                                </li>
+                                @if(auth()->user()->can('kid-edit') || auth()->user()->can('kid-list-all'))
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('kids.trash') ? 'active' : '' }}"
+                                           href="{{ route('kids.trash') }}">
+                                            <i class="bi bi-trash"></i> Lixeira
+                                            @php
+                                                $trashedKidsCount = App\Models\Kid::onlyTrashed()->count();
+                                            @endphp
+                                            @if($trashedKidsCount > 0)
+                                                <span class="badge bg-danger ms-1">{{ $trashedKidsCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
                         </li>
                     @endif
 
@@ -52,7 +80,7 @@
                                         <i class="bi bi-people"></i> Lista de Usuários
                                     </a>
                                 </li>
-                                @can('viewTrash', App\Models\User::class)
+                                @if(auth()->user()->can('user-edit') || auth()->user()->can('user-list-all'))
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item {{ request()->routeIs('users.trash') ? 'active' : '' }}"
@@ -66,7 +94,7 @@
                                             @endif
                                         </a>
                                     </li>
-                                @endcan
+                                @endif
                             </ul>
                         </li>
                     @endif
