@@ -43,26 +43,23 @@
 
                     </div>
                     <div class="card-footer">
-
                         <div class="form-group d-flex justify-content-between align-items-center">
-                            @can('roles.update')
+                            @can('role-edit')
                                 <x-button href="{{route('roles.edit', $role->id)}}" icon="pencil" name="Editar" type="link" class="dark"></x-button>
                             @endcan
 
-                            @can('roles.store')
+                            @can('role-create')
                                 <x-button href="{{route('roles.create')}}" icon="plus" name="Cadastrar" type="link" class="dark"></x-button>
                             @endcan
 
-                            @can('roles.destroy')
+                            @can('role-delete')
                                 <form action="{{ route('roles.destroy', $role->id) }}" name="form-delete" method="post">
                                     @csrf
                                     @method('DELETE')
-                                    <x-button icon="trash" name="Enviar para lixeira" type="submit" class="danger form-delete"></x-button>
+                                    <x-button icon="trash" name="Excluir" type="submit" class="danger form-delete"></x-button>
                                 </form>
                             @endcan
-
                         </div>
-
                     </div>
                 </div>
 

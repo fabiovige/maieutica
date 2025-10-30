@@ -11,7 +11,7 @@
 @endsection
 
 @section('actions')
-    @can('create roles')
+    @can('role-create')
         <a href="{{ route('roles.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Novo Perfil
         </a>
@@ -19,9 +19,50 @@
 @endsection
 
 @section('content')
+
+    <!-- Filtro de Busca -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ route('roles.index') }}" class="row g-3">
+                <div class="col-md-10">
+                    <label for="search" class="form-label">
+                        <i class="bi bi-search"></i> Buscar Perfil
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="search"
+                           name="search"
+                           placeholder="Buscar por nome do perfil ou permissão..."
+                           value="{{ request('search') }}">
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="d-flex gap-2 w-100">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        @if(request('search'))
+                            <a href="{{ route('roles.index') }}" class="btn btn-secondary" title="Limpar filtro">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if(request('search'))
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Exibindo resultados da busca por "<strong>{{ request('search') }}</strong>".
+            <strong>{{ $roles->total() }}</strong> perfil(is) encontrado(s).
+        </div>
+    @endif
+
     @if ($roles->isEmpty())
         <div class="alert alert-info">
-            Nenhum perfil cadastrado.
+            Nenhum perfil encontrado.
         </div>
     @else
         <table class="table table-bordered mt-3">
@@ -44,20 +85,11 @@
                             @endforeach
                         </td>
                         <td class="text-center">
-                            @can('edit roles')
+                            @can('role-edit')
                                 <button type="button" onclick="window.location.href='{{ route('roles.edit', $role->id) }}'"
                                     class="btn btn-sm btn-secondary">
                                     <i class="bi bi-pencil"></i> Editar
                                 </button>
-                            @endcan
-                            @can('delete roles')
-                                <form action="{{ route('roles.destroy', $role->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este perfil?');">
-                                        <i class="bi bi-trash"></i> Excluir
-                                    </button>
-                                </form>
                             @endcan
                         </td>
                     </tr>
@@ -66,7 +98,7 @@
         </table>
 
         <div class="d-flex justify-content-end">
-            {{ $roles->links() }}
+            {{ $roles->appends(request()->query())->links() }}
         </div>
     @endif
 @endsection

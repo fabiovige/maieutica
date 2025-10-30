@@ -278,3 +278,5 @@ tail -f storage/logs/laravel.log
 - IDE helper files are regenerated automatically on `composer update`
 - Session lifetime is configurable via SESSION_LIFETIME in .env (default 120 minutes)
 - nunca alterar as tabelas do banco de dados a não ser que eu autorize ou peça.
+- jamais altere o banco de dados
+- jamais utilize name role admin hardcode use as permissoes *-all

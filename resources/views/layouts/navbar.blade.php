@@ -80,14 +80,42 @@
                     @endif
 
                     @if(auth()->user()->can('role-list'))
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('roles.*') ? 'active' : '' }}"
+                               href="#"
+                               id="rolesDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
                                 <i class="bi bi-shield-lock"></i> Perfis
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="rolesDropdown">
+                                <li>
+                                    <a class="dropdown-item {{ request()->routeIs('roles.index') ? 'active' : '' }}"
+                                       href="{{ route('roles.index') }}">
+                                        <i class="bi bi-shield-lock"></i> Lista de Perfis
+                                    </a>
+                                </li>
+                                @can('role-list')
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('roles.trash') ? 'active' : '' }}"
+                                           href="{{ route('roles.trash') }}">
+                                            <i class="bi bi-trash"></i> Lixeira
+                                            @php
+                                                $trashedRolesCount = \App\Models\Role::onlyTrashed()->count();
+                                            @endphp
+                                            @if($trashedRolesCount > 0)
+                                                <span class="badge bg-danger ms-1">{{ $trashedRolesCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                @endcan
+                            </ul>
                         </li>
                     @endif
 
-                    @if(auth()->user()->hasRole('admin') && auth()->user()->can('view logs'))
+                    @if(auth()->user()->can('view logs'))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('logs.*') ? 'active' : '' }}" href="{{ route('log-viewer::dashboard') }}">
                                 <i class="bi bi-journal-text"></i> Logs

@@ -16,6 +16,8 @@ class ProfessionalController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', Professional::class);
+
         $professionals = Professional::with(['user', 'specialty', 'kids'])
             ->whereHas('user', function ($q) {
                 $q->whereHas('roles', function ($q) {
@@ -30,6 +32,8 @@ class ProfessionalController extends Controller
 
     public function show(Professional $professional)
     {
+        $this->authorize('view', $professional);
+
         $professional->load(['user', 'specialty', 'kids']);
 
         return view('professionals.show', compact('professional'));
@@ -37,9 +41,9 @@ class ProfessionalController extends Controller
 
     public function edit(Professional $professional)
     {
+        $this->authorize('update', $professional);
+
         try {
-            //$professional->load(['user', 'specialty']);
-            
             $specialties = Specialty::orderBy('name')->get();
 
             return view('professionals.edit', compact('professional', 'specialties'));
@@ -53,6 +57,8 @@ class ProfessionalController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Professional::class);
+
         try {
             $specialties = Specialty::orderBy('name')->get();
 
@@ -67,48 +73,67 @@ class ProfessionalController extends Controller
 
     public function store(ProfessionalRequest $request)
     {
-        try {
-            DB::beginTransaction();
+        $this->authorize('create', Professional::class);
 
+        DB::beginTransaction();
+        try {
             $validated = $request->validated();
+
+            // Gerar senha temporária
+            $temporaryPassword = Str::random(10);
 
             // Criar o usuário
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
-                'password' => bcrypt(Str::random(10)), // Senha temporária
+                'password' => bcrypt($temporaryPassword),
                 'allow' => $request->has('allow'),
                 'created_by' => auth()->id(),
             ]);
 
-            // Atribuir role de profissional
-            $user->assignRole('professional');
+            // Atribuir role de profissional (se existir)
+            if (\Spatie\Permission\Models\Role::where('name', 'professional')->exists()) {
+                $user->assignRole('professional');
+            } else {
+                Log::warning('Role "professional" não existe. Profissional criado sem role específica.', [
+                    'user_id' => $user->id,
+                    'email' => $user->email
+                ]);
+            }
 
             // Criar o profissional
             $professional = Professional::create([
                 'specialty_id' => $validated['specialty_id'],
                 'registration_number' => $validated['registration_number'],
-                'bio' => $validated['bio'],
+                'bio' => $validated['bio'] ?? null,
                 'created_by' => auth()->id(),
             ]);
 
             // Vincular usuário ao profissional
             $professional->user()->attach($user->id);
 
-            // Enviar email com credenciais
-            $password = Str::random(10);
-            $user->update(['password' => bcrypt($password)]);
-            $user->notify(new WelcomeNotification($user, $password));
-
             DB::commit();
+
+            Log::notice('Profissional criado com sucesso.', [
+                'professional_id' => $professional->id,
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+
             flash('Profissional criado com sucesso.')->success();
 
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao salvar profissional: ' . $e->getMessage());
-            flash('Erro ao criar profissional.')->error();
+            Log::error('Erro ao salvar profissional: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            flash('Erro ao criar profissional: ' . $e->getMessage())->error();
 
             return redirect()->back()->withInput();
         }
@@ -116,8 +141,10 @@ class ProfessionalController extends Controller
 
     public function update(Request $request, $id)
     {
+        $professional = Professional::with('user')->findOrFail($id);
+        $this->authorize('update', $professional);
+
         try {
-            $professional = Professional::with('user')->findOrFail($id);
             $user = $professional->user->first();
 
             if (!$user) {
@@ -172,6 +199,8 @@ class ProfessionalController extends Controller
 
     public function deactivate(Professional $professional)
     {
+        $this->authorize('update', $professional);
+
         try {
             DB::beginTransaction();
 
@@ -200,6 +229,8 @@ class ProfessionalController extends Controller
 
     public function activate(Professional $professional)
     {
+        $this->authorize('update', $professional);
+
         try {
             DB::beginTransaction();
 

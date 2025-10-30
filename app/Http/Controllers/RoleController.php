@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission as SpatiePermission;
-use Spatie\Permission\Models\Role as SpatieRole;
 
 class RoleController extends Controller
 {
@@ -21,44 +20,45 @@ class RoleController extends Controller
     const MSG_DELETE_SUCCESS = 'Perfil excluído com sucesso!';
     const MSG_DELETE_ERROR = 'Erro ao excluir perfil.';
     const MSG_NOT_FOUND = 'Perfil não encontrado.';
-    const MSG_DELETE_ROLE_SELF = 'Você não pode excluir seu próprio perfil.';
 
-    private $role;
-
-    public function __construct(Role $role)
+    public function index(Request $request)
     {
-        $this->role = $role;
-        $this->middleware('permission:create roles')->only(['create', 'store']);
-        $this->middleware('permission:edit roles')->only(['edit', 'update']);
-        $this->middleware('permission:delete roles')->only('destroy');
-        $this->middleware('permission:view roles')->only(['index', 'show']);
-    }
+        $this->authorize('viewAny', Role::class);
 
-    public function index()
-    {
-        $this->authorize('view roles');
+        $query = Role::query();
 
-        $roles = SpatieRole::query()
-            ->where('name', '!=', 'superadmin')
-            ->orderBy('name')
-            ->paginate(15);
+        // Filtro de busca geral (nome do perfil ou permissão)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhereHas('permissions', function($permQuery) use ($search) {
+                      $permQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        $roles = $query->with('permissions')->orderBy('name')->paginate(5);
 
         return view('roles.index', compact('roles'));
     }
 
     public function create()
     {
+        $this->authorize('create', Role::class);
+
         $message = label_case('Create Role ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
 
-        // $resources = Resource::with('abilities')->orderBy('created_at')->get();
-        $permissions = SpatiePermission::all();
+        $permissions = SpatiePermission::orderBy('name')->get();
 
         return view('roles.create', compact('permissions'));
     }
 
     public function store(RoleRequest $request)
     {
+        $this->authorize('create', Role::class);
+
         DB::beginTransaction();
         try {
             // Obtém os dados do request e adiciona o ID do usuário que criou o role
@@ -66,7 +66,7 @@ class RoleController extends Controller
             $data['created_by'] = auth()->user()->id;
 
             // Cria o role com os dados fornecidos
-            $role = SpatieRole::create([
+            $role = Role::create([
                 'name' => $data['name'],
             ]);
 
@@ -101,8 +101,10 @@ class RoleController extends Controller
 
     public function show($id)
     {
+        $role = Role::findOrFail($id);
+        $this->authorize('view', $role);
+
         try {
-            $role = $this->role->findOrFail($id);
             $resources = Resource::with('abilities')->orderBy('created_at')->get();
             $abilities = Ability::assocAbilities($role, $resources);
             $message = label_case('Show Role ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -121,14 +123,14 @@ class RoleController extends Controller
 
     public function edit($id)
     {
+        $role = Role::findOrFail($id);
+        $this->authorize('update', $role);
+
         try {
-            $role = SpatieRole::findOrFail($id);
             $message = label_case('Edit Role ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
 
-            $permissions = SpatiePermission::all();
-
-            $abilities = [];
+            $permissions = SpatiePermission::orderBy('name')->get();
 
             return view('roles.edit', compact('role', 'permissions'));
         } catch (\Exception $e) {
@@ -143,16 +145,14 @@ class RoleController extends Controller
 
     public function update(RoleRequest $request, $id)
     {
+        $role = Role::findOrFail($id);
+        $this->authorize('update', $role);
+
         DB::beginTransaction();
         try {
-            // Busca o role pelo ID
-            $role = SpatieRole::findOrFail($id);
-
             // Atualiza as informações do role
             $data = $request->all();
-            $data['updated_by'] = auth()->user()->id;  // Adiciona o usuário que fez a atualização
-
-            // Atualiza o nome do role, ou outras informações pertinentes
+            $data['updated_by'] = auth()->user()->id;
 
             $role->update([
                 'name' => $data['name'],
@@ -185,33 +185,27 @@ class RoleController extends Controller
         }
     }
 
-    public function destroy(SpatieRole $role)
+    public function destroy(Role $role)
     {
+        $this->authorize('delete', $role);
+
         DB::beginTransaction();
 
         try {
-            // Verifica se o usuário autenticado está tentando excluir seu próprio papel
-            if (auth()->user()->hasRole($role->name)) {
-                throw new \Exception(self::MSG_DELETE_ROLE_SELF);
-            }
-
             // Verifica se existem usuários vinculados ao papel
             if ($role->users()->count() > 0) {
-                throw new \Exception('Não é possível excluir o papel, pois existem usuários vinculados a ele.');
+                throw new \Exception('Não é possível mover para lixeira, pois existem usuários vinculados a este perfil.');
             }
 
-            // Registra quem está deletando o papel
-            $role->save(); // Usa save para garantir a atualização
-
-            // Exclui o papel
+            // Envia para lixeira (soft delete)
             $role->delete();
 
             // Confirma a transação
             DB::commit();
-            flash(self::MSG_DELETE_SUCCESS)->success();
+            flash('Perfil movido para a lixeira com sucesso.')->success();
 
             // Log de sucesso
-            $message = label_case('Destroy Role ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Role moved to trash. ') . ' | Deleted Role: ' . $role->name . ' (ID: ' . $role->id . ')';
             Log::notice($message);
 
             // Redireciona para a listagem de roles
@@ -222,10 +216,56 @@ class RoleController extends Controller
             flash($e->getMessage())->error();
 
             // Log de erro
-            $message = label_case('Destroy Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+            $message = label_case('Error while deleting role: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
             Log::error($message);
 
             // Redireciona de volta com erro
+            return redirect()->back();
+        }
+    }
+
+    public function trash()
+    {
+        $this->authorize('viewAny', Role::class);
+
+        $roles = Role::onlyTrashed()
+            ->with('permissions')
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(5);
+
+        $message = label_case('View Trash Roles') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
+        Log::info($message);
+
+        return view('roles.trash', compact('roles'));
+    }
+
+    public function restore($id)
+    {
+        DB::beginTransaction();
+        try {
+            $role = Role::onlyTrashed()->findOrFail($id);
+
+            $this->authorize('update', $role);
+
+            // Restaura o perfil da lixeira
+            $role->restore();
+
+            DB::commit();
+
+            flash('Perfil restaurado com sucesso.')->success();
+
+            $message = label_case('Role restored. ') . ' | Restored Role: ' . $role->name . ' (ID: ' . $role->id . ')';
+            Log::notice($message);
+
+            return redirect()->route('roles.trash');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            flash('Erro ao restaurar perfil: ' . $e->getMessage())->warning();
+
+            $message = label_case('Error while restoring role: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
+            Log::error($message);
+
             return redirect()->back();
         }
     }

@@ -11,7 +11,7 @@
 @endsection
 
 @section('actions')
-    @can('create professionals')
+    @can('professional-create')
         <a href="{{ route('professionals.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Novo Profissional
         </a>

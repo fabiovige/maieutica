@@ -67,6 +67,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('kids', KidsController::class);
 
     // roles
+    Route::get('roles/trash', [RoleController::class, 'trash'])->name('roles.trash');
+    Route::post('roles/{id}/restore', [RoleController::class, 'restore'])->name('roles.restore');
     Route::resource('roles', RoleController::class);
 
     // users

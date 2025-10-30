@@ -22,7 +22,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $this->authorize('user-list');
+        $this->authorize('viewAny', User::class);
 
         $query = User::with('roles');
 
@@ -38,17 +38,6 @@ class UserController extends Controller
             });
         }
 
-        // Controle de permissões
-        if (!auth()->user()->can('user-list-all')) {
-            // Usuários sem user-list-all não veem usuários privilegiados
-            $query->whereDoesntHave('permissions', function($q) {
-                $q->where('name', 'user-list-all');
-            })
-            ->whereDoesntHave('roles.permissions', function($q) {
-                $q->where('name', 'user-list-all');
-            });
-        }
-
         $users = $query->paginate(5);
 
         return view('users.index', compact('users'));
@@ -60,8 +49,7 @@ class UserController extends Controller
         $this->authorize('update', $user);
 
         try {
-
-            $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
+            $roles = SpatieRole::orderBy('name')->get();
 
             $message = label_case('Edit User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
@@ -130,9 +118,10 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $this->authorize('view', User::class);
+        $user = User::findOrFail($id);
+        $this->authorize('view', $user);
+
         try {
-            $user = User::findOrFail($id);
             $roles = Role::all();
 
             $message = label_case('Show User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
@@ -153,9 +142,9 @@ class UserController extends Controller
 
     public function create()
     {
-        $this->authorize('user-create', User::class);
+        $this->authorize('create', User::class);
 
-        $roles = SpatieRole::where('name', '!=', 'superadmin')->get();
+        $roles = SpatieRole::orderBy('name')->get();
 
         $message = label_case('Create User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
         Log::info($message);
@@ -165,7 +154,7 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        $this->authorize('user-create', User::class);
+        $this->authorize('create', User::class);
 
         DB::beginTransaction();
         try {
