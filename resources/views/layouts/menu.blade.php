@@ -81,7 +81,7 @@
         </li>
     @endcan
 
-    @can('list checklists')
+    @can('checklist-list')
     <li class="nav-item">
         <a class="nav-link @if (request()->is('checklists*')) active @endif"
            aria-current="page"
@@ -89,7 +89,7 @@
     </li>
     @endcan
 
-    @can('list roles')
+    @can('role-list')
         <li class="nav-item">
             <a class="nav-link @if (request()->is('roles*')) active @endif"
                aria-current="page"
@@ -97,7 +97,7 @@
         </li>
     @endcan
 
-    @can('list competences')
+    @can('competence-list')
         <li class="nav-item">
             <a class="nav-link @if (request()->is('competences*')) active @endif"
                aria-current="page"

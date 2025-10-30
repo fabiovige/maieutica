@@ -147,7 +147,7 @@
                         </li>
                         @endcan
 
-                        @can('list checklists')
+                        @can('checklist-list')
                         <li>
                             <a
                                 class="dropdown-item"

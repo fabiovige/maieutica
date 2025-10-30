@@ -507,7 +507,7 @@ class ChecklistController extends Controller
                 'kid_id' => $request->kid_id ?? null,
                 'checklist_id' => $id ?? null
             ]);
-            
+
             flash(self::MSG_CLONE_ERROR)->error();
 
             return redirect()->route('checklists.index');
