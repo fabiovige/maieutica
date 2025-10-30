@@ -87,8 +87,16 @@ class ProfessionalController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            // Nota: Permissions devem ser atribuídas manualmente via painel de administração
-            // O sistema usa APENAS permissions, não roles para autorização
+            // Atribuir role 'profissional' (para agrupar permissions automaticamente)
+            // IMPORTANTE: O código usa APENAS can() para verificações, nunca hasRole()
+            if (\App\Models\Role::where('name', 'profissional')->exists()) {
+                $user->assignRole('profissional');
+            } else {
+                Log::warning('Role "profissional" não existe. User criado sem role.', [
+                    'user_id' => $user->id,
+                    'email' => $user->email
+                ]);
+            }
 
             // Criar o profissional
             $professional = Professional::create([
@@ -282,13 +290,21 @@ class ProfessionalController extends Controller
                 throw new \Exception('Usuário não encontrado');
             }
 
+            // Desativa o user vinculado
             $user->update([
                 'allow' => false,
                 'updated_by' => auth()->id(),
             ]);
 
             DB::commit();
-            flash('Profissional desativado com sucesso.')->success();
+
+            flash('Profissional desativado com sucesso. O usuário vinculado também foi desativado.')->success();
+
+            Log::notice('Professional e User vinculado desativados.', [
+                'professional_id' => $professional->id,
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+            ]);
 
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
@@ -312,13 +328,21 @@ class ProfessionalController extends Controller
                 throw new \Exception('Usuário não encontrado');
             }
 
+            // Ativa o user vinculado
             $user->update([
                 'allow' => true,
                 'updated_by' => auth()->id(),
             ]);
 
             DB::commit();
-            flash('Profissional ativado com sucesso.')->success();
+
+            flash('Profissional ativado com sucesso. O usuário vinculado também foi ativado.')->success();
+
+            Log::notice('Professional e User vinculado ativados.', [
+                'professional_id' => $professional->id,
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+            ]);
 
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {

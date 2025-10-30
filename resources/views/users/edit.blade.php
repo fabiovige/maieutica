@@ -54,9 +54,21 @@
 
                             <div class="col-md-6">
                                 <label for="role_id" class="form-label">Perfil</label>
+
+                                @if($user->professional->count() > 0)
+                                    <div class="alert alert-info mb-2 d-flex align-items-center" role="alert">
+                                        <i class="bi bi-info-circle-fill me-2"></i>
+                                        <small>
+                                            <strong>Perfil bloqueado:</strong> Este usuário está vinculado a um profissional e seu perfil não pode ser alterado.
+                                        </small>
+                                    </div>
+                                @endif
+
                                 <select class="form-select @error('role_id') is-invalid @enderror"
                                     id="role_id"
-                                    name="roles[]" multiple>
+                                    name="roles[]"
+                                    multiple
+                                    {{ $user->professional->count() > 0 ? 'disabled' : '' }}>
                                     <option>...Selecione...</option>
                                     @foreach ($roles as $role)
                                         <option value="{{ $role->name }}" {{ $user->hasRole($role->name) ? 'selected' : "" }}>{{ $role->name }}</option>

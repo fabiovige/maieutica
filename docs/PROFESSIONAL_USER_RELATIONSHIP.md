@@ -230,7 +230,13 @@ public function store(ProfessionalRequest $request)
         'created_by' => auth()->id(),
     ]);
 
-    // 2. Criar Professional
+    // 2. Atribuir role 'profissional' (agrupa permissions automaticamente)
+    // IMPORTANTE: O código usa APENAS can() para verificações, nunca hasRole()
+    if (\App\Models\Role::where('name', 'profissional')->exists()) {
+        $user->assignRole('profissional');
+    }
+
+    // 3. Criar Professional
     $professional = Professional::create([
         'specialty_id' => $request->specialty_id,
         'registration_number' => $request->registration_number,
@@ -238,7 +244,7 @@ public function store(ProfessionalRequest $request)
         'created_by' => auth()->id(),
     ]);
 
-    // 3. Vincular User ao Professional
+    // 4. Vincular User ao Professional
     $professional->user()->attach($user->id);
 
     DB::commit();
@@ -249,8 +255,9 @@ public function store(ProfessionalRequest $request)
 - ✅ 1 registro em `users`
 - ✅ 1 registro em `professionals`
 - ✅ 1 registro em `user_professional` (pivot)
+- ✅ Role 'profissional' atribuído ao User (com todas as permissions do role)
 
-### 2. Exclusão de Professional
+### 2. Exclusão de Professional e User
 
 **Quando um Professional é movido para lixeira:**
 
@@ -275,7 +282,156 @@ public function destroy(Professional $professional)
 
 **⚠️ IMPORTANTE:** O User NÃO é deletado quando o Professional é movido para lixeira.
 
-### 3. Verificação de Professional
+---
+
+**Quando um User vinculado a Professional é movido para lixeira:**
+
+```php
+public function destroy(User $user)
+{
+    // Verifica se o user está vinculado a um professional
+    $professional = $user->professional->first();
+    if ($professional) {
+        // Verifica se o professional tem kids vinculados
+        if ($professional->kids()->count() > 0) {
+            throw new \Exception('Não é possível mover para lixeira. Este usuário está vinculado a um profissional que possui crianças atendidas.');
+        }
+
+        // Move o professional para lixeira primeiro
+        $professional->delete();
+    }
+
+    // Move o user para lixeira
+    $user->delete();
+}
+```
+
+**O que acontece:**
+- ✅ User vai para lixeira (`deleted_at` preenchido)
+- ✅ Professional vinculado TAMBÉM vai para lixeira automaticamente
+- ✅ Vínculo na pivot permanece
+- ✅ Ambos podem ser restaurados
+- ❌ Não permite exclusão se o professional tiver kids vinculados
+
+**⚠️ IMPORTANTE:** Quando um User vinculado a Professional é deletado, o Professional TAMBÉM é movido para lixeira automaticamente, pois ambos estão intimamente ligados.
+
+---
+
+**Restauração de User vinculado a Professional:**
+
+```php
+public function restore($id)
+{
+    $user = User::onlyTrashed()->findOrFail($id);
+
+    // Verifica se o user tem professional vinculado na lixeira
+    $professional = $user->professional()->onlyTrashed()->first();
+
+    // Restaura o usuário da lixeira
+    $user->restore();
+
+    // Restaura o professional vinculado se existir
+    if ($professional) {
+        $professional->restore();
+    }
+}
+```
+
+**O que acontece:**
+- ✅ User é restaurado
+- ✅ Professional vinculado TAMBÉM é restaurado automaticamente
+- ✅ Ambos voltam ao estado ativo
+- ✅ Vínculo permanece intacto
+
+### 3. Proteção de Roles em Usuários de Profissionais
+
+**Regra de Negócio:** Usuários criados através da criação de um profissional devem permanecer com o papel de 'profissional' para sempre e não podem ter seu role alterado.
+
+**Implementação:**
+
+**Backend (UserController):**
+```php
+public function update(UserRequest $request, User $user)
+{
+    $this->authorize('update', $user);
+
+    DB::beginTransaction();
+    try {
+        // ... atualização dos dados do user ...
+
+        $user->save();
+
+        // Proteção: Não permite mudar roles se o user está vinculado a um Professional
+        if ($user->professional->count() > 0) {
+            // User vinculado a professional - mantém role 'profissional' fixo
+            if (!$user->hasRole('profissional')) {
+                $user->assignRole('profissional');
+            }
+            Log::info('Tentativa de alterar role de user profissional bloqueada.', [
+                'user_id' => $user->id,
+                'attempted_roles' => $request->roles,
+            ]);
+        } else {
+            // User normal - pode mudar roles livremente
+            $user->syncRoles($request->roles);
+        }
+
+        DB::commit();
+        return redirect()->route('users.edit', $user->id);
+    } catch (Exception $e) {
+        DB::rollBack();
+        return redirect()->back();
+    }
+}
+```
+
+**Frontend (users/edit.blade.php):**
+```blade
+<div class="col-md-6">
+    <label for="role_id" class="form-label">Perfil</label>
+
+    @if($user->professional->count() > 0)
+        <div class="alert alert-info mb-2 d-flex align-items-center" role="alert">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <small>
+                <strong>Perfil bloqueado:</strong> Este usuário está vinculado a um profissional
+                e seu perfil não pode ser alterado.
+            </small>
+        </div>
+    @endif
+
+    <select class="form-select"
+        id="role_id"
+        name="roles[]"
+        multiple
+        {{ $user->professional->count() > 0 ? 'disabled' : '' }}>
+        <option>...Selecione...</option>
+        @foreach ($roles as $role)
+            <option value="{{ $role->name }}" {{ $user->hasRole($role->name) ? 'selected' : "" }}>
+                {{ $role->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
+```
+
+**Comportamento:**
+- ✅ Usuários criados via `users.create` podem ter seus roles alterados livremente
+- ✅ Usuários criados via `professionals.create` têm o select de roles desabilitado na view
+- ✅ Tentativas de alterar roles via backend são bloqueadas e logadas
+- ✅ Role 'profissional' é forçado mesmo se alterado manualmente
+- ✅ Mensagem explicativa é exibida na interface informando a restrição
+
+**Validação:**
+```php
+// Verificar se user é vinculado a professional
+if ($user->professional->count() > 0) {
+    // User vinculado - role protegido
+    // Não pode alterar via interface nem programaticamente
+}
+```
+
+### 4. Verificação de Professional
 
 **Como saber se um User é um Professional:**
 
@@ -293,6 +449,92 @@ if ($user->can('kid-list')) {
 ```
 
 **⚠️ NUNCA USE:** `$user->hasRole('profissional')` - O sistema usa APENAS permissions!
+
+### 5. Ativação e Desativação
+
+**Quando um Professional é desativado:**
+
+```php
+public function deactivate(Professional $professional)
+{
+    $user = $professional->user->first();
+
+    // Desativa o user vinculado
+    $user->update([
+        'allow' => false,
+        'updated_by' => auth()->id(),
+    ]);
+}
+```
+
+**O que acontece:**
+- ✅ User vinculado é desativado (`allow = false`)
+- ✅ Professional e User ficam inativos juntos
+- ✅ Ambos não conseguem mais fazer login
+- ✅ Pode ser revertido via ativação
+
+**Quando um Professional é ativado:**
+
+```php
+public function activate(Professional $professional)
+{
+    $user = $professional->user->first();
+
+    // Ativa o user vinculado
+    $user->update([
+        'allow' => true,
+        'updated_by' => auth()->id(),
+    ]);
+}
+```
+
+**O que acontece:**
+- ✅ User vinculado é ativado (`allow = true`)
+- ✅ Professional e User ficam ativos juntos
+- ✅ Ambos podem fazer login normalmente
+
+**⚠️ IMPORTANTE:** Ativação/desativação de Professional SEMPRE afeta o User vinculado.
+
+---
+
+**Visualização na Interface:**
+
+Na lista de usuários (users.index), uma coluna "Status" mostra badges diferenciadas:
+
+- **Badge Verde** `Ativo` - Usuário ativo (`allow = true`)
+- **Badge Cinza** `Desativado` - Usuário desativado manualmente (`allow = false`, sem professional)
+- **Badge Amarela** `Desativado (Profissional)` - Usuário desativado porque está vinculado a um profissional desativado (`allow = false`, com professional vinculado)
+
+O badge amarelo possui um tooltip explicativo: "Desativado porque está vinculado a um profissional desativado"
+
+Isso permite identificar visualmente quando um usuário está desativado por estar vinculado a um profissional.
+
+### 6. Resumo: Exclusão, Restauração, Ativação e Desativação
+
+**Matriz de Comportamentos:**
+
+| Ação | O que é afetado | Consequência |
+|------|-----------------|--------------|
+| Deletar Professional | Professional apenas | User permanece ativo |
+| Deletar User (sem professional) | User apenas | Comportamento normal |
+| Deletar User (COM professional) | User + Professional | Ambos vão para lixeira juntos |
+| Restaurar Professional | Professional apenas | User permanece ativo (já estava ativo) |
+| Restaurar User (sem professional) | User apenas | Comportamento normal |
+| Restaurar User (COM professional na lixeira) | User + Professional | Ambos são restaurados juntos |
+| **Desativar Professional** | **User vinculado** | **Ambos ficam inativos (allow=false)** |
+| **Ativar Professional** | **User vinculado** | **Ambos ficam ativos (allow=true)** |
+
+**Regras Importantes:**
+
+**Exclusão:**
+- ⬆️ Professional deletado → User permanece ativo (exclusão "para cima")
+- ⬇️ User deletado → Professional também é deletado (exclusão "para baixo")
+- Esta assimetria existe porque o Professional é dependente do User, mas o User pode existir sem Professional
+
+**Ativação/Desativação:**
+- 🔄 Professional desativado → User também é desativado (sincronização)
+- 🔄 Professional ativado → User também é ativado (sincronização)
+- Professional e User vinculado sempre mantêm o mesmo estado (ativo/inativo)
 
 ---
 
@@ -348,7 +590,42 @@ if ($professional) {
 
 ### Sistema de Permissions (Spatie)
 
-**O sistema NÃO usa roles para lógica de negócio, apenas permissions!**
+**⚠️ REGRA IMPORTANTE:**
+- ✅ **Roles SÃO atribuídos** aos users (para agrupar permissions automaticamente)
+- ❌ **Roles NÃO SÃO usados** no código para lógica de negócio (nunca usar `hasRole()`)
+- ✅ **Permissions SÃO usados** no código para autorização (sempre usar `can()`)
+
+**Resumo:**
+- `$user->assignRole('profissional')` → ✅ OK (atribui o role com suas permissions)
+- `if ($user->hasRole('profissional'))` → ❌ NUNCA USAR (use can() ao invés)
+- `if ($user->can('kid-list'))` → ✅ SEMPRE USAR (verifica permission)
+
+### Diferença: Atribuir vs Verificar Roles
+
+**Atribuir Role (✅ FAZER):**
+```php
+// Ao criar professional, atribui o role para agrupar permissions
+$user->assignRole('profissional');
+```
+
+**Verificar Role (❌ NÃO FAZER):**
+```php
+// ❌ ERRADO - Nunca usar hasRole() para lógica de negócio
+if ($user->hasRole('profissional')) {
+    // ...
+}
+
+// ✅ CORRETO - Sempre usar can() para verificar autorização
+if ($user->can('kid-list')) {
+    // ...
+}
+```
+
+**Por que essa distinção?**
+- Roles existem para **agrupar permissions** e facilitar a atribuição
+- Permissions são mais **granulares** e flexíveis
+- Se mudar o nome do role, o código com `hasRole()` quebra
+- Se usar `can()`, o código continua funcionando independente dos roles
 
 **Permissions de Professional:**
 - `professional-list` - Listar profissionais
@@ -451,19 +728,19 @@ $professional = Professional::create([
     'created_by' => auth()->id(),
 ]);
 
-// 3. Vincular
+// 3. Atribuir role 'profissional' (agrupa permissions automaticamente)
+if (\App\Models\Role::where('name', 'profissional')->exists()) {
+    $user->assignRole('profissional');
+}
+
+// 4. Vincular
 $professional->user()->attach($user->id);
 
-// 4. Atribuir permissions ao user
-$user->givePermissionTo([
-    'kid-list',
-    'kid-create',
-    'kid-edit',
-    'checklist-list',
-    'checklist-create',
-]);
-
 DB::commit();
+
+// Nota: O role 'profissional' já vem com as permissions necessárias.
+// Se precisar de permissions adicionais específicas:
+// $user->givePermissionTo(['alguma-permission-extra']);
 ```
 
 ### Obter dados do Professional a partir do User
@@ -612,13 +889,21 @@ Ao trabalhar com Professional ↔ User, lembre-se:
 
 - ✅ Sempre usar `->first()` ao acessar `$user->professional` ou `$professional->user`
 - ✅ Verificar `$user->professional->count() > 0` antes de acessar
-- ✅ Nunca usar `hasRole()` na lógica de negócio, apenas `can()`
+- ✅ Role 'profissional' é atribuído automaticamente ao criar professional
+- ✅ Nunca usar `hasRole()` na lógica de negócio, sempre usar `can()`
 - ✅ Professional soft delete não deleta o User
-- ✅ Não permitir delete se houver kids vinculados
+- ✅ **User soft delete DELETA o Professional vinculado automaticamente**
+- ✅ **User restore RESTAURA o Professional vinculado automaticamente**
+- ✅ **Professional desativar DESATIVA o User vinculado automaticamente**
+- ✅ **Professional ativar ATIVA o User vinculado automaticamente**
+- ✅ Não permitir delete se houver kids vinculados (tanto user quanto professional)
 - ✅ Professional não pode deletar a si mesmo
 - ✅ Sempre usar transactions ao criar Professional+User
 - ✅ Permissions devem ser atribuídas manualmente ao User
 - ✅ A relação é 1:1, mas implementada como many-to-many com constraint
+- ✅ Usuários vinculados a profissionais não podem ter seus roles alterados
+- ✅ Role 'profissional' é protegido e forçado para users com professional vinculado
+- ✅ Professional e User vinculado sempre mantêm o mesmo estado (ativo/inativo)
 
 ---
 
@@ -637,11 +922,41 @@ A: Sim! Usuários comuns (pais, admin) não têm Professional vinculado.
 A: Verifique `$user->professional->count() > 0` ou `$user->can('kid-list')`.
 
 **Q: Devo usar roles ou permissions?**
-A: **APENAS PERMISSIONS!** Roles servem só para agrupar permissions internamente.
+A: **Depende do contexto:**
+   - **Atribuição:** Use `assignRole('profissional')` para atribuir o role ao user (agrupa permissions)
+   - **Verificação:** Use `can('permission')` para verificar autorização (NUNCA use `hasRole()`)
+   - **Resumo:** Roles são atribuídos, mas permissions são verificadas no código
+
+**Q: Posso alterar o role de um usuário que é profissional?**
+A: **Não!** Usuários criados através da criação de um profissional têm o role 'profissional' protegido e não pode ser alterado. A interface mostra um alerta e desabilita o select. Tentativas de alteração via backend são bloqueadas e logadas. Apenas usuários criados diretamente pela tela de usuários podem ter seus roles alterados livremente.
+
+**Q: O que acontece quando deleto um User que é Professional?**
+A: **Exclusão em cascata!** Quando você deleta um User que possui Professional vinculado, AMBOS são movidos para a lixeira automaticamente. Isso acontece porque User e Professional vinculados são considerados uma unidade. O sistema verifica se o Professional tem kids vinculados e bloqueia a exclusão caso tenha. Da mesma forma, ao restaurar o User, o Professional também é restaurado automaticamente.
+
+**Q: Por que deletar Professional não deleta o User, mas deletar User deleta o Professional?**
+A: **Assimetria intencional!** O Professional é dependente do User (precisa de uma conta de acesso), mas o User pode existir independentemente (pode ser um responsável, admin, etc). Por isso:
+- Deletar Professional → User continua ativo (pode virar outro tipo de usuário)
+- Deletar User com Professional → Ambos vão para lixeira (não faz sentido ter Professional sem User)
+
+**Q: O que acontece quando desativo um Professional?**
+A: **Sincronização automática!** Quando você desativa um Professional (via botão "Desativar" na lista), o User vinculado também é desativado automaticamente (`allow = false`). Ambos ficam inativos e não conseguem mais fazer login. A mesma sincronização acontece ao ativar: Professional ativado → User ativado. Isso garante que Professional e User vinculado sempre mantêm o mesmo estado (ativo/inativo).
+
+**Q: Como identificar visualmente na lista de usuários se um user está desativado por causa do profissional?**
+A: **Badges diferenciadas na coluna Status!** Na lista de usuários existe uma coluna "Status" que mostra:
+- **Badge Verde "Ativo"** → Usuário ativo e funcionando normalmente
+- **Badge Cinza "Desativado"** → Usuário desativado manualmente (não tem professional vinculado)
+- **Badge Amarela "Desativado (Profissional)"** → Usuário desativado porque está vinculado a um profissional que foi desativado
+
+A badge amarela possui um tooltip que explica: "Desativado porque está vinculado a um profissional desativado". Isso facilita identificar rapidamente o motivo da desativação.
 
 ---
 
 **Documento criado em:** 2025-10-30
-**Versão:** 1.0
+**Versão:** 1.4
+**Última atualização:** 2025-10-30
+- v1.1: Adicionado proteção de roles para usuários profissionais
+- v1.2: Adicionado exclusão/restauração em cascata de User → Professional
+- v1.3: Adicionado sincronização de ativação/desativação Professional ↔ User
+- v1.4: Adicionado coluna Status na lista de usuários com badges diferenciadas (visual para identificar users desativados por profissional)
 **Autor:** Claude Code
 **Projeto:** Maiêutica - Sistema de Avaliação Cognitiva Infantil

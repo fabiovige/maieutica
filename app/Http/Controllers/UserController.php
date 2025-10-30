@@ -24,7 +24,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $query = User::with('roles');
+        $query = User::with(['roles', 'professional']);
 
         // Filtro de busca geral (nome, email ou perfil)
         if ($request->filled('search')) {
@@ -94,7 +94,21 @@ class UserController extends Controller
 
 
             $user->save();
-            $user->syncRoles($request->roles);
+
+            // Proteção: Não permite mudar roles se o user está vinculado a um Professional
+            if ($user->professional->count() > 0) {
+                // User vinculado a professional - mantém role 'profissional' fixo
+                if (!$user->hasRole('profissional')) {
+                    $user->assignRole('profissional');
+                }
+                Log::info('Tentativa de alterar role de user profissional bloqueada.', [
+                    'user_id' => $user->id,
+                    'attempted_roles' => $request->roles,
+                ]);
+            } else {
+                // User normal - pode mudar roles livremente
+                $user->syncRoles($request->roles);
+            }
 
             DB::commit();
 
@@ -230,6 +244,25 @@ class UserController extends Controller
                 throw new \Exception(self::MSG_DELETE_USER_SELF);
             }
 
+            // Verifica se o user está vinculado a um professional
+            $professional = $user->professional->first();
+            if ($professional) {
+                // Verifica se o professional tem kids vinculados
+                if ($professional->kids()->count() > 0) {
+                    throw new \Exception('Não é possível mover para lixeira. Este usuário está vinculado a um profissional que possui crianças atendidas.');
+                }
+
+                // Move o professional para lixeira primeiro
+                $professional->deleted_by = auth()->id();
+                $professional->save();
+                $professional->delete();
+
+                Log::notice('Professional vinculado também movido para lixeira.', [
+                    'professional_id' => $professional->id,
+                    'user_id' => $user->id,
+                ]);
+            }
+
             // Desativa o usuário antes de enviar para lixeira
             $user->allow = false;
             $user->deleted_by = auth()->id();
@@ -241,7 +274,11 @@ class UserController extends Controller
             DB::commit();
 
             // Exibe a mensagem de sucesso
-            flash('Usuário movido para a lixeira e desativado com sucesso.')->success();
+            $successMessage = 'Usuário movido para a lixeira e desativado com sucesso.';
+            if ($professional) {
+                $successMessage .= ' O profissional vinculado também foi movido para a lixeira.';
+            }
+            flash($successMessage)->success();
 
             // Registra a ação de exclusão no log
             $message = label_case('User moved to trash and deactivated. ') . ' | Deleted User: ' . $user->name . ' (ID: ' . $user->id . ')';
@@ -287,6 +324,9 @@ class UserController extends Controller
 
             $this->authorize('restore', $user);
 
+            // Verifica se o user tem professional vinculado na lixeira
+            $professional = $user->professional()->onlyTrashed()->first();
+
             // Restaura o usuário da lixeira
             $user->restore();
 
@@ -294,9 +334,23 @@ class UserController extends Controller
             $user->allow = true;
             $user->save();
 
+            // Restaura o professional vinculado se existir
+            if ($professional) {
+                $professional->restore();
+
+                Log::notice('Professional vinculado também restaurado.', [
+                    'professional_id' => $professional->id,
+                    'user_id' => $user->id,
+                ]);
+            }
+
             DB::commit();
 
-            flash('Usuário restaurado e reativado com sucesso.')->success();
+            $successMessage = 'Usuário restaurado e reativado com sucesso.';
+            if ($professional) {
+                $successMessage .= ' O profissional vinculado também foi restaurado.';
+            }
+            flash($successMessage)->success();
 
             $message = label_case('User restored and reactivated. ') . ' | Restored User: ' . $user->name . ' (ID: ' . $user->id . ')';
             Log::notice($message);

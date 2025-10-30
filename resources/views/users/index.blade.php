@@ -73,6 +73,7 @@
                     <th>Nome</th>
                     <th>Email</th>
                     <th>Perfil</th>
+                    <th style="width: 150px;" class="text-center">Status</th>
                     <th class="text-center" style="width: 100px;">Ações</th>
                 </tr>
             </thead>
@@ -99,6 +100,25 @@
                             @endforeach
                         </td>
                         <td class="text-center">
+                            @if($user->allow)
+                                <span class="badge bg-success" title="Usuário ativo">
+                                    <i class="bi bi-check-circle"></i> Ativo
+                                </span>
+                            @else
+                                @if($user->professional->count() > 0)
+                                    <span class="badge bg-warning text-dark"
+                                          title="Desativado porque está vinculado a um profissional desativado"
+                                          data-bs-toggle="tooltip">
+                                        <i class="bi bi-person-badge"></i> Desativado (Profissional)
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary" title="Usuário desativado">
+                                        <i class="bi bi-x-circle"></i> Desativado
+                                    </span>
+                                @endif
+                            @endif
+                        </td>
+                        <td class="text-center">
                             @can('user-edit')
                                 <button type="button" onclick="window.location.href='{{ route('users.edit', $user->id) }}'"
                                     class="btn btn-sm btn-secondary">
@@ -116,3 +136,15 @@
         </div>
     @endif
 @endsection
+
+@push('scripts')
+<script>
+    // Inicializa tooltips do Bootstrap
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+@endpush
