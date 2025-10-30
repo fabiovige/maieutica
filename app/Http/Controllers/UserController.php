@@ -25,12 +25,18 @@ class UserController extends Controller
         $this->authorize('user-list');
 
         if (auth()->user()->can('user-list-all')) {
-            $users = User::paginate(15);
+            // Admin vê todos os usuários
+            $users = User::with('roles')->paginate(5);
         } else {
-            // Usuários sem user-view-all não veem usuários privilegiados
-            $users = User::paginate(15)->reject(function($user) {
-                return $user->can('user-list-all');
-            });
+            // Usuários sem user-list-all não veem usuários privilegiados
+            $users = User::with('roles')
+                ->whereDoesntHave('permissions', function($query) {
+                    $query->where('name', 'user-list-all');
+                })
+                ->whereDoesntHave('roles.permissions', function($query) {
+                    $query->where('name', 'user-list-all');
+                })
+                ->paginate(5);
         }
 
         return view('users.index', compact('users'));
