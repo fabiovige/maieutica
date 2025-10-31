@@ -9,6 +9,7 @@
     </nav>
     @endsection @section('content')
 
+    @can('dashboard-manage')
     <div class="row g-4 mb-4">
         <!-- Total de Crianças -->
         <div class="col-12 col-sm-6 col-xl-3">
@@ -74,6 +75,7 @@
             </div>
         </div>
     </div>
+    @endcan
 
     <!-- Após a div row dos cards -->
     <div class="row g-4">

@@ -23,6 +23,21 @@ class ProfessionalController extends Controller
                 $query->whereNull('kids.deleted_at');
             }]);
 
+        // Filtrar por tipo de usuário
+        $user = auth()->user();
+
+        // Admin vê todos os profissionais
+        if (!$user->can('professional-list-all')) {
+            // Profissional vê apenas seus próprios dados
+            $userProfessional = $user->professional->first();
+            if ($userProfessional) {
+                $query->where('id', $userProfessional->id);
+            } else {
+                // Se não é profissional e não tem permissão -all, não vê nada
+                $query->whereRaw('1 = 0');
+            }
+        }
+
         // Filtro de busca geral (nome do usuário, especialidade, registro)
         if ($request->filled('search')) {
             $search = $request->search;

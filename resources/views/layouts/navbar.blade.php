@@ -36,7 +36,7 @@
                                         <i class="bi bi-list-check"></i> Lista de Checklists
                                     </a>
                                 </li>
-                                @if(auth()->user()->can('checklist-edit') || auth()->user()->can('checklist-list-all'))
+                                @can('checklist-list-all')
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item {{ request()->routeIs('checklists.trash') ? 'active' : '' }}"
@@ -50,7 +50,7 @@
                                             @endif
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
                             </ul>
                         </li>
                     @endif
@@ -72,7 +72,7 @@
                                         <i class="bi bi-people"></i> Lista de Crianças
                                     </a>
                                 </li>
-                                @if(auth()->user()->can('kid-edit') || auth()->user()->can('kid-list-all'))
+                                @can('kid-list-all')
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item {{ request()->routeIs('kids.trash') ? 'active' : '' }}"
@@ -86,7 +86,7 @@
                                             @endif
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
                             </ul>
                         </li>
                     @endif
@@ -108,7 +108,7 @@
                                         <i class="bi bi-people"></i> Lista de Usuários
                                     </a>
                                 </li>
-                                @if(auth()->user()->can('user-edit') || auth()->user()->can('user-list-all'))
+                                @can('user-list-all')
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item {{ request()->routeIs('users.trash') ? 'active' : '' }}"
@@ -122,7 +122,7 @@
                                             @endif
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
                             </ul>
                         </li>
                     @endif
@@ -144,7 +144,7 @@
                                         <i class="bi bi-shield-lock"></i> Lista de Perfis
                                     </a>
                                 </li>
-                                @can('role-list')
+                                @can('role-list-all')
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item {{ request()->routeIs('roles.trash') ? 'active' : '' }}"
@@ -188,7 +188,7 @@
                                         <i class="bi bi-person-badge"></i> Lista de Profissionais
                                     </a>
                                 </li>
-                                @can('professional-list')
+                                @can('professional-list-all')
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item {{ request()->routeIs('professionals.trash') ? 'active' : '' }}"

@@ -30,7 +30,7 @@
                         </a>
                     </li>
                 @endcan
-                @if(auth()->user()->can('kid-edit') || auth()->user()->can('kid-list-all'))
+                @can('kid-list-all')
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item @if (request()->is('kids/trash')) active @endif"
@@ -38,7 +38,7 @@
                             <i class="bi bi-trash"></i> Lixeira
                         </a>
                     </li>
-                @endif
+                @endcan
             </ul>
         </li>
     @endcan
@@ -68,7 +68,7 @@
                         </a>
                     </li>
                 @endcan
-                @if(auth()->user()->can('user-edit') || auth()->user()->can('user-list-all'))
+                @can('user-list-all')
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item @if (request()->is('users/trash')) active @endif"
@@ -76,7 +76,7 @@
                             <i class="bi bi-trash"></i> Lixeira
                         </a>
                     </li>
-                @endif
+                @endcan
             </ul>
         </li>
     @endcan
@@ -98,7 +98,7 @@
                         <i class="bi bi-list"></i> Listar Checklists
                     </a>
                 </li>
-                @if(auth()->user()->can('checklist-edit') || auth()->user()->can('checklist-list-all'))
+                @can('checklist-list-all')
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item @if (request()->is('checklists/trash')) active @endif"
@@ -106,7 +106,7 @@
                             <i class="bi bi-trash"></i> Lixeira
                         </a>
                     </li>
-                @endif
+                @endcan
             </ul>
         </li>
     @endcan

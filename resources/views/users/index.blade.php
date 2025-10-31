@@ -119,12 +119,34 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            @can('user-edit')
-                                <button type="button" onclick="window.location.href='{{ route('users.edit', $user->id) }}'"
-                                    class="btn btn-sm btn-secondary">
-                                    <i class="bi bi-pencil"></i> Editar
+                            <div class="dropdown">
+                                <button
+                                    class="btn btn-sm btn-secondary dropdown-toggle"
+                                    type="button"
+                                    id="dropdownMenuButton{{ $user->id }}"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    Ações
                                 </button>
-                            @endcan
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $user->id }}">
+                                    @can('user-show')
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('users.show', $user->id) }}">
+                                            <i class="bi bi-eye"></i> Visualizar
+                                        </a>
+                                    </li>
+                                    @endcan
+
+                                    @can('user-edit')
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
+                                            <i class="bi bi-pencil"></i> Editar
+                                        </a>
+                                    </li>
+                                    @endcan
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 @endforeach

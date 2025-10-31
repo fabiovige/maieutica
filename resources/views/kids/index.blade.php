@@ -147,7 +147,7 @@
                         </li>
                         @endcan
 
-                        @can('checklist-list')
+                        @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
                         <li>
                             <a
                                 class="dropdown-item"
@@ -156,7 +156,9 @@
                                 <i class="bi bi-card-checklist"></i> Checklists
                             </a>
                         </li>
-                        @endcan
+                        @endif
+
+                        @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
                         <li>
                             <a
                                 class="dropdown-item"
@@ -174,6 +176,7 @@
                                 <i class="bi bi-bar-chart"></i> Desenvolvimento
                             </a>
                         </li>
+                        @endif
                     </ul>
                 </div>
             </td>
