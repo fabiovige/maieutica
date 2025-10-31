@@ -108,7 +108,7 @@
                     </td>
                     <td>
                         <span class="badge bg-info">
-                            {{ $professional->kids->count() }} crianças
+                            {{ $professional->kids_count }} crianças
                         </span>
                     </td>
                     <td>

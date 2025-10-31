@@ -18,7 +18,10 @@ class ProfessionalController extends Controller
     {
         $this->authorize('viewAny', Professional::class);
 
-        $query = Professional::with(['user', 'specialty', 'kids']);
+        $query = Professional::with(['user', 'specialty'])
+            ->withCount(['kids' => function ($query) {
+                $query->whereNull('kids.deleted_at');
+            }]);
 
         // Filtro de busca geral (nome do usuário, especialidade, registro)
         if ($request->filled('search')) {

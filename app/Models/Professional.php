@@ -30,6 +30,7 @@ class Professional extends Model
 
     public function kids()
     {
-        return $this->belongsToMany(Kid::class, 'kid_professional');
+        return $this->belongsToMany(Kid::class, 'kid_professional')
+            ->whereNull('kids.deleted_at');
     }
 }

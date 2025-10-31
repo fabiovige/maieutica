@@ -77,7 +77,8 @@ class Kid extends BaseModel
     // Novo relacionamento many-to-many com professionals
     public function professionals()
     {
-        return $this->belongsToMany(Professional::class, 'kid_professional');
+        return $this->belongsToMany(Professional::class, 'kid_professional')
+            ->whereNull('professionals.deleted_at');
     }
 
     public function checklists()
