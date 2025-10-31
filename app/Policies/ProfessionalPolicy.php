@@ -23,7 +23,20 @@ class ProfessionalPolicy
      */
     public function view(User $user, Professional $professional): bool
     {
-        return $user->can('professional-show') || $user->can('professional-show-all');
+        // Admin pode visualizar qualquer profissional
+        if ($user->can('professional-show-all')) {
+            return true;
+        }
+
+        // Profissional só pode visualizar seu próprio perfil
+        if ($user->can('professional-show')) {
+            $userProfessional = $user->professional->first();
+            if ($userProfessional && $userProfessional->id === $professional->id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -39,7 +52,20 @@ class ProfessionalPolicy
      */
     public function update(User $user, Professional $professional): bool
     {
-        return $user->can('professional-edit') || $user->can('professional-edit-all');
+        // Admin pode editar qualquer profissional
+        if ($user->can('professional-edit-all')) {
+            return true;
+        }
+
+        // Profissional só pode editar seu próprio perfil
+        if ($user->can('professional-edit')) {
+            $userProfessional = $user->professional->first();
+            if ($userProfessional && $userProfessional->id === $professional->id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -47,13 +73,8 @@ class ProfessionalPolicy
      */
     public function delete(User $user, Professional $professional): bool
     {
-        // Profissional não pode deletar a si mesmo
-        $professionalUser = $professional->user->first();
-        if ($professionalUser && $user->id === $professionalUser->id) {
-            return false;
-        }
-
-        return $user->can('professional-delete') || $user->can('professional-delete-all');
+        // Apenas admin pode deletar profissionais
+        return $user->can('professional-delete-all');
     }
 
     /**
@@ -61,7 +82,8 @@ class ProfessionalPolicy
      */
     public function viewTrash(User $user): bool
     {
-        return $user->can('professional-edit') || $user->can('professional-list-all');
+        // Apenas admin pode ver a lixeira de profissionais
+        return $user->can('professional-list-all');
     }
 
     /**
@@ -69,7 +91,8 @@ class ProfessionalPolicy
      */
     public function restore(User $user, Professional $professional): bool
     {
-        return $user->can('professional-edit') || $user->can('professional-edit-all');
+        // Apenas admin pode restaurar profissionais
+        return $user->can('professional-edit-all');
     }
 
     /**

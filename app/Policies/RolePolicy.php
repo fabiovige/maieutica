@@ -23,7 +23,7 @@ class RolePolicy
      */
     public function view(User $user, Role $role): bool
     {
-        return $user->can('role-list') || $user->can('role-list-all');
+        return $user->can('role-show') || $user->can('role-show-all');
     }
 
     /**
@@ -47,12 +47,8 @@ class RolePolicy
      */
     public function delete(User $user, Role $role): bool
     {
-        // Usuário não pode deletar seu próprio perfil
-        if ($user->hasRole($role->name)) {
-            return false;
-        }
-
-        return $user->can('role-delete') || $user->can('role-delete-all');
+        // Apenas admin pode deletar roles
+        return $user->can('role-delete-all');
     }
 
     /**
@@ -60,7 +56,8 @@ class RolePolicy
      */
     public function viewTrash(User $user): bool
     {
-        return $user->can('role-edit') || $user->can('role-list-all');
+        // Apenas admin pode ver a lixeira de roles
+        return $user->can('role-list-all');
     }
 
     /**
@@ -68,7 +65,8 @@ class RolePolicy
      */
     public function restore(User $user, Role $role): bool
     {
-        return $user->can('role-edit') || $user->can('role-edit-all');
+        // Apenas admin pode restaurar roles
+        return $user->can('role-edit-all');
     }
 
     /**

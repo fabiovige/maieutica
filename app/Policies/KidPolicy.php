@@ -71,7 +71,20 @@ class KidPolicy
      */
     public function delete(User $user, Kid $kid): bool
     {
-        return $user->can('kid-delete') || $user->can('kid-delete-all');
+        // Admin pode deletar qualquer kid
+        if ($user->can('kid-delete-all')) {
+            return true;
+        }
+
+        // Profissionais só podem deletar kids vinculados a eles
+        if ($user->can('kid-delete')) {
+            $professional = $user->professional->first();
+            if ($professional && $kid->professionals->contains($professional->id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -79,7 +92,8 @@ class KidPolicy
      */
     public function viewTrash(User $user): bool
     {
-        return $user->can('kid-edit') || $user->can('kid-list-all');
+        // Apenas usuários com permissão -all podem ver a lixeira completa
+        return $user->can('kid-list-all');
     }
 
     /**
@@ -87,7 +101,20 @@ class KidPolicy
      */
     public function restore(User $user, Kid $kid): bool
     {
-        return $user->can('kid-edit') || $user->can('kid-edit-all');
+        // Admin pode restaurar qualquer kid
+        if ($user->can('kid-edit-all')) {
+            return true;
+        }
+
+        // Profissionais só podem restaurar kids vinculados a eles
+        if ($user->can('kid-edit')) {
+            $professional = $user->professional->first();
+            if ($professional && $kid->professionals()->withTrashed()->get()->contains($professional->id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -21,16 +21,60 @@ class HomeController extends Controller
 
     public function index()
     {
-        // Cards principais
-        $totalKids = Kid::count();
-        $totalChecklists = Checklist::count();
-        $checklistsEmAndamento = Checklist::where('situation', 'a')->count();
-        $totalProfessionals = Professional::count();
+        $user = auth()->user();
 
-        // Lista de crianças com paginação e cálculo de progresso
-        $kids = Kid::with(['responsible', 'professionals', 'checklists'])
-            ->latest()
-            ->paginate(10);
+        // Verifica se é profissional
+        $isProfessional = $user->professional->count() > 0;
+        $professional = $isProfessional ? $user->professional->first() : null;
+
+        // Cards principais - ajustados por tipo de usuário
+        if ($user->can('kid-list-all')) {
+            // Admin vê tudo
+            $totalKids = Kid::count();
+            $totalChecklists = Checklist::count();
+            $checklistsEmAndamento = Checklist::where('situation', 'a')->count();
+            $totalProfessionals = Professional::count();
+        } elseif ($isProfessional) {
+            // Profissional vê apenas suas crianças
+            $totalKids = $professional->kids()->count();
+            $totalChecklists = Checklist::whereHas('kid.professionals', function($q) use ($professional) {
+                $q->where('professional_id', $professional->id);
+            })->count();
+            $checklistsEmAndamento = Checklist::where('situation', 'a')
+                ->whereHas('kid.professionals', function($q) use ($professional) {
+                    $q->where('professional_id', $professional->id);
+                })->count();
+            $totalProfessionals = Professional::count();
+        } else {
+            // Responsável vê apenas suas crianças
+            $totalKids = Kid::where('responsible_id', $user->id)->count();
+            $totalChecklists = Checklist::whereHas('kid', function($q) use ($user) {
+                $q->where('responsible_id', $user->id);
+            })->count();
+            $checklistsEmAndamento = Checklist::where('situation', 'a')
+                ->whereHas('kid', function($q) use ($user) {
+                    $q->where('responsible_id', $user->id);
+                })->count();
+            $totalProfessionals = Professional::count();
+        }
+
+        // Lista de crianças com paginação - filtrada por tipo de usuário
+        $kidsQuery = Kid::with(['responsible', 'professionals', 'checklists']);
+
+        if ($user->can('kid-list-all')) {
+            // Admin vê todas
+            $kidsQuery->latest();
+        } elseif ($isProfessional) {
+            // Profissional vê apenas as vinculadas a ele
+            $kidsQuery->whereHas('professionals', function($q) use ($professional) {
+                $q->where('professional_id', $professional->id);
+            })->latest();
+        } else {
+            // Responsável vê apenas as suas
+            $kidsQuery->where('responsible_id', $user->id)->latest();
+        }
+
+        $kids = $kidsQuery->paginate(10);
 
         // Calculando o progresso para cada criança
         foreach ($kids as $kid) {

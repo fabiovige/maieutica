@@ -23,14 +23,22 @@ class ChecklistPolicy
      */
     public function view(User $user, Checklist $checklist): bool
     {
-        // Pode visualizar se tem permissão
-        if ($user->can('checklist-show') || $user->can('checklist-show-all')) {
+        // Admin pode visualizar qualquer checklist
+        if ($user->can('checklist-show-all')) {
             return true;
         }
 
         // Profissionais podem visualizar checklists que criaram
-        if ($checklist->created_by === $user->id) {
+        if ($user->can('checklist-show') && $checklist->created_by === $user->id) {
             return true;
+        }
+
+        // Profissionais podem visualizar checklists de kids vinculados a eles
+        if ($user->can('checklist-show')) {
+            $professional = $user->professional->first();
+            if ($professional && $checklist->kid && $checklist->kid->professionals->contains($professional->id)) {
+                return true;
+            }
         }
 
         // Responsáveis podem visualizar checklists de suas crianças
@@ -54,14 +62,22 @@ class ChecklistPolicy
      */
     public function update(User $user, Checklist $checklist): bool
     {
-        // Pode editar se tem permissão
-        if ($user->can('checklist-edit') || $user->can('checklist-edit-all')) {
+        // Admin pode editar qualquer checklist
+        if ($user->can('checklist-edit-all')) {
             return true;
         }
 
         // Profissionais podem editar checklists que criaram
-        if ($checklist->created_by === $user->id) {
+        if ($user->can('checklist-edit') && $checklist->created_by === $user->id) {
             return true;
+        }
+
+        // Profissionais podem editar checklists de kids vinculados a eles
+        if ($user->can('checklist-edit')) {
+            $professional = $user->professional->first();
+            if ($professional && $checklist->kid && $checklist->kid->professionals->contains($professional->id)) {
+                return true;
+            }
         }
 
         return false;
@@ -72,14 +88,22 @@ class ChecklistPolicy
      */
     public function delete(User $user, Checklist $checklist): bool
     {
-        // Pode deletar se tem permissão
-        if ($user->can('checklist-delete') || $user->can('checklist-delete-all')) {
+        // Admin pode deletar qualquer checklist
+        if ($user->can('checklist-delete-all')) {
             return true;
         }
 
         // Profissionais podem deletar checklists que criaram
-        if ($checklist->created_by === $user->id) {
+        if ($user->can('checklist-delete') && $checklist->created_by === $user->id) {
             return true;
+        }
+
+        // Profissionais podem deletar checklists de kids vinculados a eles
+        if ($user->can('checklist-delete')) {
+            $professional = $user->professional->first();
+            if ($professional && $checklist->kid && $checklist->kid->professionals->contains($professional->id)) {
+                return true;
+            }
         }
 
         return false;
@@ -90,7 +114,8 @@ class ChecklistPolicy
      */
     public function viewTrash(User $user): bool
     {
-        return $user->can('checklist-edit') || $user->can('checklist-list-all');
+        // Apenas usuários com permissão -all podem ver a lixeira completa
+        return $user->can('checklist-list-all');
     }
 
     /**
@@ -98,7 +123,25 @@ class ChecklistPolicy
      */
     public function restore(User $user, Checklist $checklist): bool
     {
-        return $user->can('checklist-edit') || $user->can('checklist-edit-all');
+        // Admin pode restaurar qualquer checklist
+        if ($user->can('checklist-edit-all')) {
+            return true;
+        }
+
+        // Profissionais podem restaurar checklists que criaram
+        if ($user->can('checklist-edit') && $checklist->created_by === $user->id) {
+            return true;
+        }
+
+        // Profissionais podem restaurar checklists de kids vinculados a eles
+        if ($user->can('checklist-edit')) {
+            $professional = $user->professional->first();
+            if ($professional && $checklist->kid && $checklist->kid->professionals()->withTrashed()->get()->contains($professional->id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

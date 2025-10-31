@@ -58,12 +58,8 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        // Ninguém pode excluir a si mesmo
-        if ($user->id === $model->id) {
-            return false;
-        }
-
-        return $user->can('user-delete') || $user->can('user-delete-all');
+        // Apenas admin pode deletar usuários
+        return $user->can('user-delete-all');
     }
 
     /**
@@ -71,7 +67,8 @@ class UserPolicy
      */
     public function viewTrash(User $user): bool
     {
-        return $user->can('user-edit') || $user->can('user-list-all');
+        // Apenas admin pode ver a lixeira de usuários
+        return $user->can('user-list-all');
     }
 
     /**
@@ -79,7 +76,8 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        return $user->can('user-edit') || $user->can('user-edit-all');
+        // Apenas admin pode restaurar usuários
+        return $user->can('user-edit-all');
     }
 
     /**

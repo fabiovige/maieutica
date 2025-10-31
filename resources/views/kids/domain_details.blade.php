@@ -7,7 +7,7 @@
             <a href="{{ route('home.index') }}">Home</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="{{ url('/analysis/1/level/0') }}">Comparativo</a>
+            <a href="{{ url('/analysis/' . $kid->id . '/level/0') }}">Comparativo</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page">
             Detalhes do Domínio
@@ -16,7 +16,7 @@
 </nav>
 @endsection @section('title') Domínio @endsection @section('breadcrumb-items')
 <li class="breadcrumb-item">
-    <a href="{{ url('/analysis/1/level/0') }}">Comparativo</a>
+    <a href="{{ url('/analysis/' . $kid->id . '/level/0') }}">Comparativo</a>
 </li>
 <li class="breadcrumb-item active" aria-current="page">
     <i class="bi bi-eye"></i> Visão Geral
