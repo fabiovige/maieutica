@@ -91,7 +91,7 @@
     </div>
 </div>
 
-<div class="row">
+<!--<div class="row">
     <div class="col-md-12 mt-3">
         <div class="d-flex justify-content-between">
             <h3>Habilidades e Percentis</h3>
@@ -134,7 +134,6 @@
                             3) Não desenvolvido @else Não Avaliado @endif
                         </td>
                         <td>
-                            <!-- Barra de Progresso -->
                             <div class="progress">
                                 <div
                                     class="progress-bar"
@@ -169,7 +168,7 @@
             </table>
         </div>
     </div>
-</div>
+</div>-->
 @endsection @push('scripts')
 <!-- Scripts para os gráficos -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
