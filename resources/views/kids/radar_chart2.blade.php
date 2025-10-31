@@ -238,7 +238,7 @@ Comparativo
                 x: {
                     title: {
                         display: true,
-                        text: 'Competências'
+                        text: 'Domínios'
                     }
                 }
             },

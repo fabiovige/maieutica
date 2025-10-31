@@ -432,14 +432,13 @@
                         responsive: true,
                         scales: {
                             x: {
-                                stacked: true,
                                 title: {
                                     display: true,
                                     text: 'Domínios'
                                 }
                             },
                             y: {
-                                stacked: true,
+                                beginAtZero: true,
                                 title: {
                                     display: true,
                                     text: 'Quantidade de Itens'
