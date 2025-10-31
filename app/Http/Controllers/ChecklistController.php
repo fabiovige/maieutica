@@ -272,9 +272,32 @@ class ChecklistController extends Controller
         $checklist = Checklist::findOrFail($id);
         $this->authorize('update', $checklist);
 
+        DB::beginTransaction();
         try {
             $message = label_case('Update Checklists ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::info($message);
+
+            // Atualizar dados da criança se fornecidos
+            if ($request->has('kid_name') || $request->has('kid_birth_date')) {
+                $kid = $checklist->kid;
+
+                if ($request->filled('kid_name')) {
+                    $kid->name = $request->kid_name;
+                }
+
+                if ($request->filled('kid_birth_date')) {
+                    $kid->birth_date = $request->kid_birth_date;
+                }
+
+                $kid->updated_by = Auth::id();
+                $kid->save();
+
+                Log::notice('Kid data updated via checklist edit', [
+                    'kid_id' => $kid->id,
+                    'checklist_id' => $checklist->id,
+                    'updated_by' => Auth::id(),
+                ]);
+            }
 
             $data = $request->all();
             $data['updated_by'] = Auth::id();
@@ -283,6 +306,8 @@ class ChecklistController extends Controller
                 $checklist->situation = $data['situation'];
             }
             $checklist->update($data);
+
+            DB::commit();
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
@@ -293,13 +318,14 @@ class ChecklistController extends Controller
             }
             return redirect()->route('checklists.index');
         } catch (\Exception $e) {
+            DB::rollBack();
 
             $message = label_case('Update Checklists ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
             Log::error($message);
 
             flash(self::MSG_UPDATE_ERROR)->warning();
 
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
     }
 

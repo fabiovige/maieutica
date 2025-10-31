@@ -241,7 +241,7 @@
                                 <td><span
                                         class="badge {{ $checklist->situation_label === 'Aberto' ? 'bg-success' : 'bg-secondary' }}">{{ $checklist->situation_label }}</span>
                                 </td>
-                                <td>{{ $checklist->created_at }}</td>
+                                <td>{{ $checklist->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
 
                                     <div class="progress" role="progressbar" aria-label="checklist{{ $checklist->id }}"

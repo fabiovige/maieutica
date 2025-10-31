@@ -140,7 +140,28 @@ class KidsController extends Controller
         }
     }
 
-    public function show(Kid $kid) {}
+    public function show(Kid $kid)
+    {
+        $this->authorize('view', $kid);
+
+        try {
+            $kid->load(['responsible', 'professionals.user', 'professionals.specialty', 'checklists' => function ($query) {
+                $query->orderBy('created_at', 'desc')->limit(5);
+            }]);
+
+            Log::info('View Kid Details', [
+                'kid_id' => $kid->id,
+                'user' => auth()->user()->name,
+                'user_id' => auth()->user()->id,
+            ]);
+
+            return view('kids.show-details', compact('kid'));
+        } catch (\Exception $e) {
+            Log::error('Error viewing kid: ' . $e->getMessage());
+            flash('Erro ao visualizar dados da criança.')->error();
+            return redirect()->route('kids.index');
+        }
+    }
 
     public function showPlane(Kid $kid, $checklistId = null)
     {

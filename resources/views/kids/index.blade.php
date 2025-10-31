@@ -137,6 +137,17 @@
                         class="dropdown-menu"
                         aria-labelledby="dropdownMenuButton"
                     >
+                        @if(auth()->user()->can('kid-show') || auth()->user()->id === $kid->responsible_id)
+                        <li>
+                            <a
+                                class="dropdown-item"
+                                href="{{ route('kids.show', $kid->id) }}"
+                            >
+                                <i class="bi bi-eye"></i> Visualizar
+                            </a>
+                        </li>
+                        @endif
+
                         @can('kid-edit')
                         <li>
                             <a
