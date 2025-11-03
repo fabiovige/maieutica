@@ -9,6 +9,21 @@
  */
 function getRadarChartOptions() {
     return {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        // Formata o valor com 1 casa decimal
+                        label += context.parsed.r.toFixed(1);
+                        return label;
+                    }
+                }
+            }
+        },
         scales: {
             r: {
                 suggestedMin: 0,
@@ -51,10 +66,11 @@ function createRadarChart(canvasId, labels, datasets) {
 /**
  * Converte percentual (0-100) para escala de notas (0-3)
  * @param {number} percentage - Percentual de 0 a 100
- * @returns {number} - Valor na escala 0-3
+ * @returns {number} - Valor na escala 0-3, arredondado para 1 casa decimal
  */
 function percentageToNoteScale(percentage) {
-    return (percentage / 100) * 3;
+    const raw = (percentage / 100) * 3;
+    return parseFloat(raw.toFixed(1));
 }
 
 /**

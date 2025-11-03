@@ -23,6 +23,10 @@
 </style>
 @endpush
 
+@section('title')
+    Visualizar Checklist
+@endsection
+
 @section('breadcrumb-items')
     <li class="breadcrumb-item"><a href="{{ route('checklists.index') }}">Checklists</a></li>
     <li class="breadcrumb-item">

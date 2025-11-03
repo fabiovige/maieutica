@@ -167,7 +167,7 @@ Comparativo
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ asset('js/radar-chart-helper.js') }}"></script>
+<script src="{{ asset('js/radar-chart-helper.js') }}?v={{ filemtime(public_path('js/radar-chart-helper.js')) }}"></script>
 <script type="text/javascript">
     // Dados para os Gráficos
     var ctxBar = document.getElementById('barChart').getContext('2d');
