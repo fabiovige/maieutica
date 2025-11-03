@@ -10,6 +10,7 @@ use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
 use App\Models\User;
+use App\Services\Logging\KidLogger;
 use App\Services\OverviewService;
 use App\Util\MyPdf;
 use Auth;
@@ -22,10 +23,12 @@ use Illuminate\Support\Facades\Log;
 class KidsController extends Controller
 {
     protected $overviewService;
+    protected $kidLogger;
 
-    public function __construct(OverviewService $overviewService)
+    public function __construct(OverviewService $overviewService, KidLogger $kidLogger)
     {
         $this->overviewService = $overviewService;
+        $this->kidLogger = $kidLogger;
     }
 
     public function index(Request $request)
@@ -64,6 +67,12 @@ class KidsController extends Controller
 
         $kids = $query->orderBy('name')->paginate(15);
 
+        // Log kids list access with filters
+        $this->kidLogger->listed([
+            'search' => $request->input('search'),
+            'total_results' => $kids->total(),
+        ]);
+
         return view('kids.index', compact('kids'));
     }
 
@@ -84,8 +93,8 @@ class KidsController extends Controller
             ->orderBy('name')
             ->get();
 
-        $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
+        // Log removed - create form access doesn't need logging (low value)
+        // We log actual kid creation in store() method
 
         return view('kids.create', compact('professions', 'responsibles'));
     }
@@ -96,9 +105,6 @@ class KidsController extends Controller
 
         DB::beginTransaction();
         try {
-            $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
             $kidData = [
                 'name' => $request->name,
                 'birth_date' => $request->birth_date,
@@ -110,7 +116,6 @@ class KidsController extends Controller
 
             $kid = Kid::create($kidData);
 
-
             // Se o usuário tem um professional vinculado, adiciona como profissional da criança
             $professional = Auth::user()->professional->first();
 
@@ -119,10 +124,19 @@ class KidsController extends Controller
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
+
+                // Log professional attachment
+                $this->kidLogger->professionalAttached($kid, $professional->id, [
+                    'source' => 'auto_attach_on_create',
+                ]);
             }
 
-
-            Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
+            // KidObserver will log the creation at model level
+            // We log at controller level with additional context
+            $this->kidLogger->created($kid, [
+                'source' => 'controller',
+                'has_professional' => !is_null($professional),
+            ]);
 
             flash(self::MSG_CREATE_SUCCESS)->success();
 
@@ -130,11 +144,12 @@ class KidsController extends Controller
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
-
             DB::rollBack();
             flash(self::MSG_CREATE_ERROR)->warning();
-            $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+
+            $this->kidLogger->operationFailed('store', $e, [
+                'request_data' => $request->safe()->only(['gender', 'ethnicity', 'responsible_id']),
+            ]);
 
             return redirect()->route('kids.index');
         }
@@ -149,15 +164,11 @@ class KidsController extends Controller
                 $query->orderBy('created_at', 'desc')->limit(5);
             }]);
 
-            Log::info('View Kid Details', [
-                'kid_id' => $kid->id,
-                'user' => auth()->user()->name,
-                'user_id' => auth()->user()->id,
-            ]);
+            $this->kidLogger->viewed($kid, 'details');
 
             return view('kids.show-details', compact('kid'));
         } catch (\Exception $e) {
-            Log::error('Error viewing kid: ' . $e->getMessage());
+            $this->kidLogger->operationFailed('show', $e, ['kid_id' => $kid->id]);
             flash('Erro ao visualizar dados da criança.')->error();
             return redirect()->route('kids.index');
         }
@@ -171,14 +182,8 @@ class KidsController extends Controller
         }
 
         try {
-            Log::info('show', [
-                'user' => auth()->user()->name,
-                'id' => auth()->user()->id,
-            ]);
-
             if ($kid->checklists()->count() === 0) {
                 flash(self::MSG_NOT_FOUND_CHECKLIST_USER)->warning();
-
                 return redirect()->back();
             }
 
@@ -194,6 +199,10 @@ class KidsController extends Controller
                 $checklist = $checklists[0];
             }
 
+            $this->kidLogger->viewed($kid, 'plane', [
+                'checklist_id' => $checklist->id,
+            ]);
+
             $data = [
                 'kid' => $kid,
                 'professionals' => $kid->professionals->pluck('name'),
@@ -208,10 +217,7 @@ class KidsController extends Controller
 
             return view('kids.show', $data);
         } catch (Exception $e) {
-
-            $message = label_case('Error show kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
+            $this->kidLogger->operationFailed('showPlane', $e, ['kid_id' => $kid->id]);
             flash(self::MSG_NOT_FOUND)->warning();
 
             return redirect()->back();
@@ -222,8 +228,8 @@ class KidsController extends Controller
     {
         $this->authorize('update', $kid);
         try {
-            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            // Log removed - form access logging is low value
+            // We log actual updates in update() method
 
             // Buscar profissionais ativos através da tabela professionals
             $professions = User::whereHas('professional', function ($query) {
@@ -243,9 +249,7 @@ class KidsController extends Controller
             return view('kids.edit', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
+            $this->kidLogger->operationFailed('edit', $e, ['kid_id' => $kid->id]);
             return redirect()->back();
         }
     }
@@ -256,8 +260,7 @@ class KidsController extends Controller
         $this->authorize('view', $kid);
 
         try {
-            $message = label_case('View Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            $this->kidLogger->viewed($kid, 'eye');
 
             // Buscar profissionais ativos através da tabela professionals
             $professions = User::whereHas('professional', function ($query) {
@@ -275,9 +278,7 @@ class KidsController extends Controller
             return view('kids.eye', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
-            $message = label_case('View Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
+            $this->kidLogger->operationFailed('eyeKid', $e, ['kid_id' => $kid->id]);
             return redirect()->back();
         }
     }
@@ -296,6 +297,12 @@ class KidsController extends Controller
 
         try {
             DB::beginTransaction();
+
+            // Get original professionals before sync for logging
+            $originalProfessionals = $kid->professionals()->pluck('professional_id')->toArray();
+
+            // Get original data for change tracking
+            $originalData = $kid->only(['name', 'birth_date', 'gender', 'ethnicity', 'responsible_id']);
 
             $kid->update([
                 'name' => $validated['name'],
@@ -322,6 +329,38 @@ class KidsController extends Controller
             // Sincroniza os profissionais mantendo o is_primary
             $kid->professionals()->sync($syncData);
 
+            // Log professional changes
+            $newProfessionals = array_map('intval', $professionals);
+            $attached = array_diff($newProfessionals, $originalProfessionals);
+            $detached = array_diff($originalProfessionals, $newProfessionals);
+
+            foreach ($attached as $professionalId) {
+                $this->kidLogger->professionalAttached($kid, $professionalId, [
+                    'is_primary' => $professionalId == $primaryProfessional,
+                ]);
+            }
+
+            foreach ($detached as $professionalId) {
+                $this->kidLogger->professionalDetached($kid, $professionalId);
+            }
+
+            // Track what changed
+            $changes = [];
+            $newData = $kid->only(['name', 'birth_date', 'gender', 'ethnicity', 'responsible_id']);
+            foreach ($newData as $key => $value) {
+                if ($originalData[$key] != $value) {
+                    $changes[$key] = ['old' => $originalData[$key], 'new' => $value];
+                }
+            }
+
+            // Log successful update (KidObserver will also log at model level)
+            $this->kidLogger->updated($kid, $changes, [
+                'source' => 'controller',
+                'professionals_changed' => !empty($attached) || !empty($detached),
+                'attached_count' => count($attached),
+                'detached_count' => count($detached),
+            ]);
+
             DB::commit();
 
             return redirect()
@@ -329,7 +368,11 @@ class KidsController extends Controller
                 ->with('success', 'Criança atualizada com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao atualizar criança: ' . $e->getMessage());
+
+            $this->kidLogger->operationFailed('update', $e, [
+                'kid_id' => $kid->id,
+                'request_data' => $request->safe()->only(['gender', 'ethnicity', 'responsible_id']),
+            ]);
 
             return redirect()
                 ->back()
@@ -356,12 +399,15 @@ class KidsController extends Controller
             // Envia para lixeira (soft delete)
             $kid->delete();
 
+            // KidObserver will log at model level
+            $this->kidLogger->deleted($kid, [
+                'source' => 'controller',
+                'has_checklists' => $kid->checklists()->count() > 0,
+            ]);
+
             DB::commit();
 
             flash('Criança movida para a lixeira com sucesso.')->success();
-
-            $message = label_case('Kid moved to trash. ') . ' | Deleted Kid: ' . $kid->name . ' (ID: ' . $kid->id . ')';
-            Log::notice($message);
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
@@ -369,8 +415,9 @@ class KidsController extends Controller
 
             flash($e->getMessage())->warning();
 
-            $message = label_case('Error while deleting kid: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
-            Log::error($message);
+            $this->kidLogger->operationFailed('destroy', $e, [
+                'kid_id' => $kid->id,
+            ]);
 
             return redirect()->back();
         }
@@ -385,8 +432,7 @@ class KidsController extends Controller
             ->orderBy('deleted_at', 'desc')
             ->paginate(15);
 
-        $message = label_case('View Trash Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
+        $this->kidLogger->trashViewed(['total_trashed' => $kids->total()]);
 
         return view('kids.trash', compact('kids'));
     }
@@ -402,12 +448,14 @@ class KidsController extends Controller
             // Restaura a criança da lixeira
             $kid->restore();
 
+            // KidObserver will log at model level
+            $this->kidLogger->restored($kid, [
+                'source' => 'controller',
+            ]);
+
             DB::commit();
 
             flash('Criança restaurada com sucesso.')->success();
-
-            $message = label_case('Kid restored. ') . ' | Restored Kid: ' . $kid->name . ' (ID: ' . $kid->id . ')';
-            Log::notice($message);
 
             return redirect()->route('kids.trash');
         } catch (Exception $e) {
@@ -415,8 +463,9 @@ class KidsController extends Controller
 
             flash('Erro ao restaurar criança: ' . $e->getMessage())->warning();
 
-            $message = label_case('Error while restoring kid: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
-            Log::error($message);
+            $this->kidLogger->operationFailed('restore', $e, [
+                'kid_id' => $id,
+            ]);
 
             return redirect()->back();
         }
@@ -491,13 +540,17 @@ class KidsController extends Controller
                 }
             }
 
+            // Log successful PDF generation
+            $this->kidLogger->pdfGenerated($kid, 'plane', [
+                'plane_id' => $plane->id,
+                'plane_name' => $plane->name,
+                'competences_count' => $plane->competences()->count(),
+            ]);
+
             $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
         } catch (Exception $e) {
-            $message = label_case('Plane Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error('Exibe Plano Erro', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+            $this->kidLogger->pdfGenerationFailed($kid ?? Kid::find($id), 'plane', $e, [
+                'plane_id' => $id,
             ]);
 
             flash(self::MSG_NOT_FOUND)->warning();
@@ -621,9 +674,26 @@ class KidsController extends Controller
                 }
             }
 
+            // Log successful PDF generation
+            $this->kidLogger->pdfGenerated($kid, 'plane_auto', [
+                'plane_id' => $plane->id,
+                'plane_name' => $plane->name,
+                'checklist_id' => $checklist->id,
+                'note' => $note,
+                'competences_count' => count($competencesNotes),
+            ]);
+
             $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
         } catch (Exception $e) {
-            Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
+            $this->kidLogger->pdfGenerationFailed(
+                $kid ?? Kid::find($kidId),
+                'plane_auto',
+                $e,
+                [
+                    'checklist_id' => $checklislId,
+                    'note' => $note,
+                ]
+            );
             flash($e->getMessage())->error();
 
             return redirect()->back();
@@ -715,9 +785,25 @@ class KidsController extends Controller
                 }
             }
 
+            // Log successful PDF generation
+            $this->kidLogger->pdfGenerated($kid, 'plane_auto_view', [
+                'plane_id' => $plane->id,
+                'plane_name' => $plane->name,
+                'checklist_id' => $checklist->id,
+                'competences_count' => count($competences),
+            ]);
+
             $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
         } catch (Exception $e) {
-            Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
+            $this->kidLogger->pdfGenerationFailed(
+                $kid ?? Kid::find($kidId),
+                'plane_auto_view',
+                $e,
+                [
+                    'checklist_id' => $checklislId,
+                    'plane_id' => $planeId,
+                ]
+            );
             flash('Erro ao gerar o plano: ' . $e->getMessage())->error();
 
             return redirect()->back();
@@ -786,11 +872,14 @@ class KidsController extends Controller
             ]);
 
             if ($request->hasFile('photo')) {
+                $oldPhoto = $kid->photo;
+
                 // Remove foto antiga se existir
-                if ($kid->photo) {
-                    $oldPhotoPath = public_path('images/kids/' . $kid->photo);
+                if ($oldPhoto) {
+                    $oldPhotoPath = public_path('images/kids/' . $oldPhoto);
                     if (file_exists($oldPhotoPath)) {
                         unlink($oldPhotoPath);
+                        $this->kidLogger->photoDeleted($kid, $oldPhoto);
                     }
                 }
 
@@ -806,18 +895,19 @@ class KidsController extends Controller
                 $file->move($path, $fileName);
 
                 // Salva o caminho relativo no banco
-                $kid->update(['photo' => 'images/kids/' . $fileName]);
+                $photoPath = 'images/kids/' . $fileName;
+                $kid->update(['photo' => $photoPath]);
+
+                $this->kidLogger->photoUploaded($kid, $photoPath, [
+                    'replaced_photo' => !is_null($oldPhoto),
+                ]);
 
                 flash('Foto atualizada com sucesso!')->success();
-                Log::info('Foto da criança atualizada', [
-                    'kid_id' => $kid->id,
-                    'path' => $kid->photo,
-                ]);
             }
 
             return redirect()->back();
         } catch (Exception $e) {
-            Log::error('Erro ao atualizar foto: ' . $e->getMessage());
+            $this->kidLogger->operationFailed('uploadPhoto', $e, ['kid_id' => $kid->id]);
             flash('Erro ao atualizar foto.')->error();
 
             return redirect()->back();
@@ -1627,6 +1717,14 @@ class KidsController extends Controller
 
         $html .= '</tbody></table>';
         $pdf->writeHTML($html, true, false, true, false, '');
+
+        // Log successful PDF generation
+        $this->kidLogger->pdfGenerated($kid, 'overview', [
+            'checklist_id' => $currentChecklist->id,
+            'level_id' => $levelId,
+            'has_bar_chart' => !empty($barChartImage),
+            'has_radar_chart' => !empty($radarChartImage),
+        ]);
 
         // Gerar o PDF e retorná-lo como resposta
         return response($pdf->Output('overview.pdf', 'S'), 200)
