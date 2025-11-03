@@ -1,4 +1,4 @@
-git tag -a 1.9.0 -m "Release 1.9.0 - feat: tutorial para gerenciamento de checklist"
+git tag -a 2.0.0 -m "Release 2.0.0"
 
 git push --tags
 

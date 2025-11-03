@@ -131,11 +131,9 @@
                                             <td>{{ $checklist->id }}</td>
                                             <td>{{ $checklist->created_at->format('d/m/Y H:i') }}</td>
                                             <td>
-                                                @if($checklist->status === 'completed')
-                                                    <span class="badge bg-success">Completo</span>
-                                                @else
-                                                    <span class="badge bg-warning">Em andamento</span>
-                                                @endif
+                                                <span class="badge {{ $checklist->situation === 'a' ? 'bg-success' : 'bg-secondary' }}">
+                                                    {{ $checklist->situation_label }}
+                                                </span>
                                             </td>
                                             <td>
                                                 <a href="{{ route('checklists.show', $checklist->id) }}"

@@ -1,13 +1,36 @@
 @extends('layouts.app')
 
-@section('breadcrumb')
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('home.index') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('checklists.index') }}">Checklist</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Gerenciar</li>
-        </ol>
-    </nav>
+@push('styles')
+<style>
+    /* Estilos para cards de status do checklist */
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        min-width: 60px;
+        font-size: 1.75rem;
+        flex-shrink: 0;
+    }
+
+    /* Cores customizadas para status */
+    .status-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .status-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+@endpush
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item"><a href="{{ route('checklists.index') }}">Checklists</a></li>
+    <li class="breadcrumb-item">
+        <a href="{{ route('kids.show', $checklist->kid->id) }}">{{ $checklist->kid->name }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+        Checklist #{{ $checklist->id }}
+    </li>
 @endsection
 
 @section('content')
@@ -32,18 +55,27 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mb-4 mt-3">
         @foreach($checklist->getStatusAvaliation($checklist->id) as $status)
-            <div class="col-md-3">
-                <div class="card">
+            @php
+                $statusColors = [
+                    0 => ['bg' => 'secondary', 'text' => 'Não observado'],
+                    1 => ['bg' => 'warning', 'text' => 'Em desenvolvimento'],
+                    2 => ['bg' => 'danger', 'text' => 'Não desenvolvido'],
+                    3 => ['bg' => 'success', 'text' => 'Desenvolvido']
+                ];
+                $color = $statusColors[$status->note]['bg'] ?? 'secondary';
+            @endphp
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">{{ $status->note_description }}</h5>
+                        <h6 class="card-title text-muted mb-3">{{ $status->note_description }}</h6>
                         <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                <i class="bi bi-clipboard-check"></i>
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-{{ $color }}">
+                                <i class="bi bi-clipboard-check text-white"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>{{ $status->total_competences }}</h6>
+                                <h4 class="mb-0 fw-bold">{{ $status->total_competences }}</h4>
                                 <span class="text-muted small">competências</span>
                             </div>
                         </div>

@@ -69,14 +69,12 @@
                                     </td>
                                     <td class="customColumn">
                                         <h5 v-if="component.note === 0"><span
-                                                class="badge bg-light text-dark customColumn">Não observado</span></h5>
+                                                class="badge bg-secondary text-white customColumn">Não observado</span></h5>
                                         <h5 v-if="component.note === 1"><span
-                                                class="badge bg-warning text-dark customColumn">Em
-                                                desenvolvimento</span></h5>
-                                        <h5 v-if="component.note === 2"><span class="badge bg-danger customColumn">Não
-                                                desenvolvido</span></h5>
+                                                class="badge bg-warning text-dark customColumn">Em desenvolvimento</span></h5>
+                                        <h5 v-if="component.note === 2"><span class="badge bg-danger customColumn">Não desenvolvido</span></h5>
                                         <h5 v-if="component.note === 3"><span
-                                                class="badge bg-primary customColumn">Desenvolvido</span></h5>
+                                                class="badge bg-success customColumn">Desenvolvido</span></h5>
                                     </td>
                                 </tr>
                             </tbody>
@@ -123,8 +121,20 @@ export default {
 
 <style scoped>
 .customColumn {
-    width: 120px;
-    white-space: nowrap;
+    min-width: 160px;
+    max-width: 180px;
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 0.5rem;
+}
+
+.customColumn .badge {
+    white-space: normal;
+    word-wrap: break-word;
+    display: inline-block;
+    max-width: 100%;
+    line-height: 1.3;
+    padding: 0.4em 0.6em;
 }
 
 .customColumnCode {
@@ -140,5 +150,17 @@ export default {
 
 .customLink:hover {
     color: #0a53be;
+}
+
+/* Responsividade para mobile */
+@media (max-width: 768px) {
+    .customColumn {
+        min-width: 120px;
+        max-width: 150px;
+    }
+
+    .customColumn .badge {
+        font-size: 0.8rem;
+    }
 }
 </style>
