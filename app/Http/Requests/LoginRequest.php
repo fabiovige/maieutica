@@ -17,7 +17,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => 'required|email|max:255',
             'password' => 'required|string|min:1|max:255',
-            /*'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
                 // Em ambiente de desenvolvimento, não validar o reCAPTCHA
                 if (!app()->environment('production')) {
                     return;
@@ -41,7 +41,7 @@ class LoginRequest extends FormRequest
                         $fail('Erro na verificação do reCAPTCHA.');
                     }
                 }
-            }]*/
+            }]
         ];
     }
 

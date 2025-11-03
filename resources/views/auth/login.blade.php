@@ -250,6 +250,17 @@
             transform: translateY(0);
         }
 
+        .recaptcha-container {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .recaptcha-container > div {
+            transform: scale(0.95);
+            transform-origin: center;
+        }
+
         /* Responsividade */
         @media (max-width: 480px) {
             body {
@@ -276,6 +287,10 @@
                 flex-direction: column;
                 gap: 12px;
                 align-items: flex-start;
+            }
+
+            .recaptcha-container > div {
+                transform: scale(0.85);
             }
         }
     </style>
@@ -351,6 +366,10 @@
                         <a href="{{ route('password.request') }}" class="forgot-link">
                             Esqueceu a senha?
                         </a>
+                    </div>
+
+                    <div class="recaptcha-container">
+                        {!! htmlFormSnippet() !!}
                     </div>
 
                     <button type="submit" class="btn-login">
