@@ -47,11 +47,38 @@ export default function usePlanes() {
 
     // Cria um novo plano associado a uma competência
     const createPlanes = async (kid_id, plane_id, competence_id) => {
+        // Valida plane_id antes de fazer a chamada à API
+        if (!plane_id || plane_id === 'undefined' || plane_id === null) {
+            swal({
+                title: 'Atenção',
+                text: 'Você precisa criar um plano primeiro antes de adicionar competências.',
+                icon: 'warning',
+            });
+            return;
+        }
+
         isLoadingPlane.value = true
 
         await axios.get(`/api/planes/storeplane?kid_id=${kid_id}&plane_id=${plane_id}&competence_id=${competence_id}`)
             .then(() => {
                 getCompetences(plane_id); // Atualiza as competências após criar o plano
+            })
+            .catch(error => {
+                console.error('Erro ao armazenar plano:', error);
+                if (error.response && error.response.status === 422) {
+                    // Erro de validação do backend
+                    swal({
+                        title: 'Erro de Validação',
+                        text: error.response.data.message || 'Dados inválidos. Verifique e tente novamente.',
+                        icon: 'error',
+                    });
+                } else {
+                    swal({
+                        title: 'Erro',
+                        text: 'Ocorreu um erro ao adicionar a competência ao plano.',
+                        icon: 'error',
+                    });
+                }
             })
             .finally(() => {
                 isLoadingPlane.value = false;

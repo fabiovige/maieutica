@@ -76,8 +76,8 @@ Plano Manual
                         aria-labelledby="nav-plane-tab">
                         <Planes :checklists="{{ $checklists }}" :checklist_id="{{ $checklist_id }}"
                             :kid_id="{{ $kid->id }}" :age-in-months="{{ $ageInMonths }}"
-                            :can-create-plane="{{ Auth::user()->can('create planes') }}"
-                            :can-view-plane="{{ Auth::user()->can('view planes') }}"></Planes>
+                            :can-create-plane="{{ Auth::user()->can('plan-create') }}"
+                            :can-view-plane="{{ Auth::user()->can('plan-show') }}"></Planes>
                     </div>
                 </div>
                 @endif

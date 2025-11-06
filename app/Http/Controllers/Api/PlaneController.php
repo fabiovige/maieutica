@@ -44,10 +44,28 @@ class PlaneController
 
     public function storePlane(Request $request)
     {
-        $plane = Plane::where('id', $request->plane_id)->first();
+        $validated = $request->validate([
+            'plane_id' => 'required|exists:planes,id',
+            'competence_id' => 'required|exists:competences,id',
+            'kid_id' => 'required|exists:kids,id',
+        ]);
+
+        $plane = Plane::findOrFail($validated['plane_id']);
+
+        // Verifica se o plano pertence à criança
+        if ($plane->kid_id != $validated['kid_id']) {
+            return response()->json([
+                'error' => 'Este plano não pertence a esta criança'
+            ], 403);
+        }
+
         $arrCompetences = $plane->competences()->pluck('id')->toArray();
-        $arrCompetences[] = (int) $request->competence_id;
-        $plane->competences()->sync($arrCompetences);
+
+        // Evita duplicatas
+        if (!in_array($validated['competence_id'], $arrCompetences)) {
+            $arrCompetences[] = (int) $validated['competence_id'];
+            $plane->competences()->sync($arrCompetences);
+        }
 
         return new PlaneResource($plane);
     }
