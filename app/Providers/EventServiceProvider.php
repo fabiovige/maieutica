@@ -5,10 +5,12 @@ namespace App\Providers;
 use App\Models\Checklist;
 use App\Models\Kid;
 use App\Models\Professional;
+use App\Models\Role;
 use App\Models\User;
 use App\Observers\ChecklistObserver;
 use App\Observers\KidObserver;
 use App\Observers\ProfessionalObserver;
+use App\Observers\RoleObserver;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -21,6 +23,7 @@ class EventServiceProvider extends ServiceProvider
         Checklist::class => [ChecklistObserver::class],
         Kid::class => [KidObserver::class],
         Professional::class => [ProfessionalObserver::class],
+        Role::class => [RoleObserver::class],
     ];
 
     /**
@@ -44,6 +47,7 @@ class EventServiceProvider extends ServiceProvider
         Checklist::observe(ChecklistObserver::class);
         Kid::observe(KidObserver::class);
         Professional::observe(ProfessionalObserver::class);
+        Role::observe(RoleObserver::class);
         User::observe(UserObserver::class);
     }
 }

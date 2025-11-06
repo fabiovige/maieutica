@@ -6,13 +6,20 @@ use App\Http\Requests\RoleRequest;
 use App\Models\Ability;
 use App\Models\Resource;
 use App\Models\Role;
+use App\Services\Logging\RoleLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 
 class RoleController extends Controller
 {
+    protected $roleLogger;
+
+    public function __construct(RoleLogger $roleLogger)
+    {
+        $this->roleLogger = $roleLogger;
+    }
+
     const MSG_CREATE_SUCCESS = 'Perfil criado com sucesso!';
     const MSG_CREATE_ERROR = 'Erro ao criar perfil.';
     const MSG_UPDATE_SUCCESS = 'Perfil atualizado com sucesso!';
@@ -40,15 +47,17 @@ class RoleController extends Controller
 
         $roles = $query->with('permissions')->orderBy('name')->paginate(5);
 
+        $this->roleLogger->listed([
+            'search' => $request->input('search'),
+            'total_results' => $roles->total(),
+        ]);
+
         return view('roles.index', compact('roles'));
     }
 
     public function create()
     {
         $this->authorize('create', Role::class);
-
-        $message = label_case('Create Role ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
 
         $permissions = SpatiePermission::orderBy('name')->get();
 
@@ -71,17 +80,27 @@ class RoleController extends Controller
             ]);
 
             // Sincroniza as permissões com o role criado
+            $permissions = [];
             if ($request->has('permissions')) {
-                $role->syncPermissions($request->input('permissions'));
+                $permissions = $request->input('permissions');
+                $role->syncPermissions($permissions);
+
+                // Log permissions sync
+                $this->roleLogger->permissionsSynced($role, [], $permissions, [
+                    'source' => 'controller',
+                    'on_creation' => true,
+                ]);
             }
+
+            // Observer will log at model level
+            $this->roleLogger->created($role, [
+                'source' => 'controller',
+                'permissions_count' => count($permissions),
+            ]);
 
             // Confirma a transação
             DB::commit();
             flash(self::MSG_CREATE_SUCCESS)->success();
-
-            // Log de sucesso
-            $message = label_case('Store Role ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::notice($message);
 
             // Redireciona para a página de listagem de roles
             return redirect()->route('roles.index');
@@ -89,10 +108,10 @@ class RoleController extends Controller
             // Reverte a transação em caso de erro
             DB::rollBack();
 
-            // Mensagem de erro e log do erro
+            $this->roleLogger->operationFailed('store', $e);
+
+            // Mensagem de erro
             flash(self::MSG_CREATE_ERROR)->error();
-            $message = label_case('Store Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
 
             // Redireciona de volta para a página de criação, com os dados antigos
             return redirect()->back()->withInput();
@@ -107,15 +126,16 @@ class RoleController extends Controller
         try {
             $resources = Resource::with('abilities')->orderBy('created_at')->get();
             $abilities = Ability::assocAbilities($role, $resources);
-            $message = label_case('Show Role ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+
+            $this->roleLogger->viewed($role, 'details');
 
             return view('roles.show', compact('role', 'abilities'));
         } catch (\Exception $e) {
-            flash(self::MSG_NOT_FOUND)->error();
+            $this->roleLogger->operationFailed('show', $e, [
+                'role_id' => $id,
+            ]);
 
-            $message = label_case('Show Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            flash(self::MSG_NOT_FOUND)->error();
 
             return redirect()->route('roles.index');
         }
@@ -127,17 +147,17 @@ class RoleController extends Controller
         $this->authorize('update', $role);
 
         try {
-            $message = label_case('Edit Role ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
             $permissions = SpatiePermission::orderBy('name')->get();
+
+            $this->roleLogger->viewed($role, 'edit');
 
             return view('roles.edit', compact('role', 'permissions'));
         } catch (\Exception $e) {
-            flash(self::MSG_UPDATE_ERROR)->error();
+            $this->roleLogger->operationFailed('edit', $e, [
+                'role_id' => $id,
+            ]);
 
-            $message = label_case('Edit Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            flash(self::MSG_UPDATE_ERROR)->error();
 
             return redirect()->route('roles.index');
         }
@@ -150,6 +170,10 @@ class RoleController extends Controller
 
         DB::beginTransaction();
         try {
+            // Get original data for change tracking
+            $originalData = $role->only(['name']);
+            $oldPermissions = $role->permissions->pluck('name')->toArray();
+
             // Atualiza as informações do role
             $data = $request->all();
             $data['updated_by'] = auth()->user()->id;
@@ -159,15 +183,36 @@ class RoleController extends Controller
             ]);
 
             // Sincroniza as permissões associadas ao role
-            $role->syncPermissions($request->input('permissions'));
+            $newPermissions = $request->input('permissions') ?? [];
+            $role->syncPermissions($newPermissions);
+
+            // Track what changed
+            $changes = [];
+            $newData = $role->only(['name']);
+            foreach ($newData as $key => $value) {
+                if ($originalData[$key] != $value) {
+                    $changes[$key] = ['old' => $originalData[$key], 'new' => $value];
+                }
+            }
+
+            // Log permissions sync
+            if ($oldPermissions != $newPermissions) {
+                $this->roleLogger->permissionsSynced($role, $oldPermissions, $newPermissions, [
+                    'source' => 'controller',
+                ]);
+            }
+
+            // Observer will log at model level
+            if (!empty($changes)) {
+                $this->roleLogger->updated($role, $changes, [
+                    'source' => 'controller',
+                    'permissions_changed' => $oldPermissions != $newPermissions,
+                ]);
+            }
 
             // Confirma a transação
             DB::commit();
             flash(self::MSG_UPDATE_SUCCESS)->success();
-
-            // Loga a ação de sucesso
-            $message = label_case('Update Role ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::notice($message);
 
             // Redireciona para a página de edição
             return redirect()->route('roles.edit', $id);
@@ -175,10 +220,12 @@ class RoleController extends Controller
             // Se der erro, desfaz a transação
             DB::rollBack();
 
-            // Flash message e log do erro
+            $this->roleLogger->operationFailed('update', $e, [
+                'role_id' => $id,
+            ]);
+
+            // Flash message
             flash(self::MSG_UPDATE_ERROR)->error();
-            $message = label_case('Update Role ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
 
             // Redireciona de volta para a página anterior
             return redirect()->back();
@@ -193,20 +240,27 @@ class RoleController extends Controller
 
         try {
             // Verifica se existem usuários vinculados ao papel
-            if ($role->users()->count() > 0) {
+            $usersCount = $role->users()->count();
+            if ($usersCount > 0) {
+                $this->roleLogger->accessDenied('delete', $role, [
+                    'reason' => 'Role tem usuários vinculados',
+                    'users_count' => $usersCount,
+                ]);
+
                 throw new \Exception('Não é possível mover para lixeira, pois existem usuários vinculados a este perfil.');
             }
 
             // Envia para lixeira (soft delete)
             $role->delete();
 
+            // Observer will log at model level
+            $this->roleLogger->deleted($role, [
+                'source' => 'controller',
+            ]);
+
             // Confirma a transação
             DB::commit();
             flash('Perfil movido para a lixeira com sucesso.')->success();
-
-            // Log de sucesso
-            $message = label_case('Role moved to trash. ') . ' | Deleted Role: ' . $role->name . ' (ID: ' . $role->id . ')';
-            Log::notice($message);
 
             // Redireciona para a listagem de roles
             return redirect()->route('roles.index');
@@ -215,9 +269,9 @@ class RoleController extends Controller
             DB::rollBack();
             flash($e->getMessage())->error();
 
-            // Log de erro
-            $message = label_case('Error while deleting role: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
-            Log::error($message);
+            $this->roleLogger->operationFailed('destroy', $e, [
+                'role_id' => $role->id,
+            ]);
 
             // Redireciona de volta com erro
             return redirect()->back();
@@ -233,8 +287,9 @@ class RoleController extends Controller
             ->orderBy('deleted_at', 'desc')
             ->paginate(5);
 
-        $message = label_case('View Trash Roles') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
+        $this->roleLogger->trashViewed([
+            'total_trashed' => $roles->total(),
+        ]);
 
         return view('roles.trash', compact('roles'));
     }
@@ -250,12 +305,14 @@ class RoleController extends Controller
             // Restaura o perfil da lixeira
             $role->restore();
 
+            // Observer will log at model level
+            $this->roleLogger->restored($role, [
+                'source' => 'controller',
+            ]);
+
             DB::commit();
 
             flash('Perfil restaurado com sucesso.')->success();
-
-            $message = label_case('Role restored. ') . ' | Restored Role: ' . $role->name . ' (ID: ' . $role->id . ')';
-            Log::notice($message);
 
             return redirect()->route('roles.trash');
         } catch (\Exception $e) {
@@ -263,8 +320,9 @@ class RoleController extends Controller
 
             flash('Erro ao restaurar perfil: ' . $e->getMessage())->warning();
 
-            $message = label_case('Error while restoring role: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
-            Log::error($message);
+            $this->roleLogger->operationFailed('restore', $e, [
+                'role_id' => $id,
+            ]);
 
             return redirect()->back();
         }
