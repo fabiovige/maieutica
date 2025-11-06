@@ -6,11 +6,22 @@ use App\Mail\UserCreatedMail;
 use App\Mail\UserDeletedMail;
 use App\Mail\UserUpdatedMail;
 use App\Models\User;
+use App\Services\Logging\UserLogger;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class UserObserver
 {
+    protected $userLogger;
+
+    /**
+     * UserObserver constructor.
+     * Inject UserLogger for centralized logging.
+     */
+    public function __construct(UserLogger $userLogger)
+    {
+        $this->userLogger = $userLogger;
+    }
     /**
      * Handle the User "created" event.
      *
@@ -18,6 +29,11 @@ class UserObserver
      */
     public function created(User $user)
     {
+        // Observer logs at model level - controller logs business operations
+        $this->userLogger->created($user, [
+            'source' => 'observer',
+        ]);
+
         try {
             Log::info('UserObserver: created event triggered', [
                 'user_id' => $user->id,
@@ -50,6 +66,22 @@ class UserObserver
      */
     public function updated(User $user)
     {
+        // Get the changed attributes
+        $changes = [];
+        foreach ($user->getDirty() as $field => $newValue) {
+            $changes[$field] = [
+                'old' => $user->getOriginal($field),
+                'new' => $newValue,
+            ];
+        }
+
+        // Only log if there are actual changes
+        if (!empty($changes)) {
+            $this->userLogger->updated($user, $changes, [
+                'source' => 'observer',
+            ]);
+        }
+
         try {
             // Criar a instância do Mailable e depois chamar onQueue()
             $email = (new UserUpdatedMail($user))->onQueue('emails');
@@ -80,6 +112,10 @@ class UserObserver
      */
     public function deleted(User $user)
     {
+        $this->userLogger->deleted($user, [
+            'source' => 'observer',
+        ]);
+
         try {
             if ($user->trashed()) {
                 // Buscar administradores usando Spatie Permission
@@ -121,16 +157,25 @@ class UserObserver
      */
     public function restored(User $user)
     {
-        //
+        $this->userLogger->restored($user, [
+            'source' => 'observer',
+        ]);
     }
 
     /**
      * Handle the User "force deleted" event.
+     * This is a permanent deletion and should be logged carefully.
      *
      * @return void
      */
     public function forceDeleted(User $user)
     {
-        //
+        // Force delete is a critical operation - use alert level
+        // We'll log through the logger but note it's permanent deletion
+        $this->userLogger->deleted($user, [
+            'source' => 'observer',
+            'permanent' => true,
+            'warning' => 'User permanently deleted from database',
+        ]);
     }
 }

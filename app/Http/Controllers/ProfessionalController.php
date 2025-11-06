@@ -7,13 +7,20 @@ use App\Models\Professional;
 use App\Models\Specialty;
 use App\Models\User;
 use App\Notifications\WelcomeNotification;
+use App\Services\Logging\ProfessionalLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ProfessionalController extends Controller
 {
+    protected $professionalLogger;
+
+    public function __construct(ProfessionalLogger $professionalLogger)
+    {
+        $this->professionalLogger = $professionalLogger;
+    }
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', Professional::class);
@@ -55,6 +62,11 @@ class ProfessionalController extends Controller
 
         $professionals = $query->orderBy('created_at', 'desc')->paginate(5);
 
+        $this->professionalLogger->listed([
+            'search' => $request->input('search'),
+            'total_results' => $professionals->total(),
+        ]);
+
         return view('professionals.index', compact('professionals'));
     }
 
@@ -63,6 +75,8 @@ class ProfessionalController extends Controller
         $this->authorize('view', $professional);
 
         $professional->load(['user', 'specialty', 'kids']);
+
+        $this->professionalLogger->viewed($professional, 'details');
 
         return view('professionals.show', compact('professional'));
     }
@@ -74,9 +88,14 @@ class ProfessionalController extends Controller
         try {
             $specialties = Specialty::orderBy('name')->get();
 
+            $this->professionalLogger->viewed($professional, 'edit');
+
             return view('professionals.edit', compact('professional', 'specialties'));
         } catch (\Exception $e) {
-            Log::error('Erro ao editar profissional: ' . $e->getMessage());
+            $this->professionalLogger->operationFailed('edit', $e, [
+                'professional_id' => $professional->id,
+            ]);
+
             flash('Erro ao carregar dados do profissional.')->error();
 
             return redirect()->route('professionals.index');
@@ -92,7 +111,8 @@ class ProfessionalController extends Controller
 
             return view('professionals.create', compact('specialties'));
         } catch (\Exception $e) {
-            Log::error('Erro ao criar profissional: ' . $e->getMessage());
+            $this->professionalLogger->operationFailed('create', $e);
+
             flash('Erro ao carregar formulário de criação.')->error();
 
             return redirect()->route('professionals.index');
@@ -125,9 +145,8 @@ class ProfessionalController extends Controller
             if (\App\Models\Role::where('name', 'profissional')->exists()) {
                 $user->assignRole('profissional');
             } else {
-                Log::warning('Role "profissional" não existe. User criado sem role.', [
-                    'user_id' => $user->id,
-                    'email' => $user->email
+                $this->professionalLogger->roleMissing($user->id, 'profissional', [
+                    'email' => $user->email,
                 ]);
             }
 
@@ -142,25 +161,28 @@ class ProfessionalController extends Controller
             // Vincular usuário ao profissional
             $professional->user()->attach($user->id);
 
-            DB::commit();
-
-            Log::notice('Profissional criado com sucesso.', [
-                'professional_id' => $professional->id,
-                'user_id' => $user->id,
-                'email' => $user->email
+            // Log user linking
+            $this->professionalLogger->userLinked($professional, $user->id, [
+                'source' => 'controller',
+                'on_creation' => true,
             ]);
+
+            // Observer will log at model level
+            $this->professionalLogger->created($professional, [
+                'source' => 'controller',
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+            ]);
+
+            DB::commit();
 
             flash('Profissional criado com sucesso.')->success();
 
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao salvar profissional: ' . $e->getMessage(), [
-                'exception' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
+
+            $this->professionalLogger->operationFailed('store', $e);
 
             flash('Erro ao criar profissional: ' . $e->getMessage())->error();
 
@@ -193,6 +215,10 @@ class ProfessionalController extends Controller
 
             DB::beginTransaction();
 
+            // Get original data for change tracking
+            $originalProfessionalData = $professional->only(['specialty_id', 'registration_number', 'bio']);
+            $originalUserData = $user->only(['name', 'email', 'phone', 'allow']);
+
             // Atualizar dados do usuário
             $user->update([
                 'name' => $request->name,
@@ -210,6 +236,33 @@ class ProfessionalController extends Controller
                 'updated_by' => auth()->id()
             ]);
 
+            // Track what changed in professional
+            $changes = [];
+            $newProfessionalData = $professional->only(['specialty_id', 'registration_number', 'bio']);
+            foreach ($newProfessionalData as $key => $value) {
+                if ($originalProfessionalData[$key] != $value) {
+                    $changes[$key] = ['old' => $originalProfessionalData[$key], 'new' => $value];
+                }
+            }
+
+            // Track what changed in user
+            $userChanges = [];
+            $newUserData = $user->only(['name', 'email', 'phone', 'allow']);
+            foreach ($newUserData as $key => $value) {
+                if ($originalUserData[$key] != $value) {
+                    $userChanges[$key] = ['old' => $originalUserData[$key], 'new' => $value];
+                }
+            }
+
+            // Observer will log at model level
+            if (!empty($changes)) {
+                $this->professionalLogger->updated($professional, $changes, [
+                    'source' => 'controller',
+                    'user_also_updated' => !empty($userChanges),
+                    'user_changes' => $userChanges,
+                ]);
+            }
+
             DB::commit();
 
             flash('Profissional atualizado com sucesso!')->success();
@@ -220,7 +273,11 @@ class ProfessionalController extends Controller
                 ->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao atualizar profissional: ' . $e->getMessage());
+
+            $this->professionalLogger->operationFailed('update', $e, [
+                'professional_id' => $id,
+            ]);
+
             flash('Erro ao atualizar o profissional')->warning();
             return redirect()->back()->withInput();
         }
@@ -234,30 +291,37 @@ class ProfessionalController extends Controller
 
         try {
             // Verifica se o profissional tem kids vinculados
-            if ($professional->kids()->count() > 0) {
+            $kidsCount = $professional->kids()->count();
+            if ($kidsCount > 0) {
+                $this->professionalLogger->accessDenied('delete', $professional, [
+                    'reason' => 'Profissional tem crianças vinculadas',
+                    'kids_count' => $kidsCount,
+                ]);
+
                 throw new \Exception('Não é possível mover para lixeira, pois existem crianças vinculadas a este profissional.');
             }
 
             // Move para lixeira (soft delete)
             $professional->delete();
 
-            DB::commit();
-            flash('Profissional movido para a lixeira com sucesso.')->success();
-
-            Log::notice('Professional moved to trash.', [
-                'professional_id' => $professional->id,
+            // Observer will log at model level
+            $this->professionalLogger->deleted($professional, [
+                'source' => 'controller',
                 'user_id' => $professional->user->first()->id ?? null,
             ]);
+
+            DB::commit();
+            flash('Profissional movido para a lixeira com sucesso.')->success();
 
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            flash($e->getMessage())->error();
 
-            Log::error('Error while deleting professional: ' . $e->getMessage(), [
+            $this->professionalLogger->operationFailed('destroy', $e, [
                 'professional_id' => $professional->id,
-                'user_id' => auth()->id(),
             ]);
+
+            flash($e->getMessage())->error();
 
             return redirect()->back();
         }
@@ -272,7 +336,9 @@ class ProfessionalController extends Controller
             ->orderBy('deleted_at', 'desc')
             ->paginate(5);
 
-        Log::info('View Trash Professionals | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')');
+        $this->professionalLogger->trashViewed([
+            'total_trashed' => $professionals->total(),
+        ]);
 
         return view('professionals.trash', compact('professionals'));
     }
@@ -288,24 +354,25 @@ class ProfessionalController extends Controller
             // Restaura o profissional da lixeira
             $professional->restore();
 
+            // Observer will log at model level
+            $this->professionalLogger->restored($professional, [
+                'source' => 'controller',
+                'user_id' => $professional->user->first()->id ?? null,
+            ]);
+
             DB::commit();
 
             flash('Profissional restaurado com sucesso.')->success();
-
-            Log::notice('Professional restored.', [
-                'professional_id' => $professional->id,
-                'user_id' => $professional->user->first()->id ?? null,
-            ]);
 
             return redirect()->route('professionals.trash');
         } catch (\Exception $e) {
             DB::rollBack();
 
-            flash('Erro ao restaurar profissional: ' . $e->getMessage())->warning();
-
-            Log::error('Error while restoring professional: ' . $e->getMessage(), [
-                'user_id' => auth()->id(),
+            $this->professionalLogger->operationFailed('restore', $e, [
+                'professional_id' => $id,
             ]);
+
+            flash('Erro ao restaurar profissional: ' . $e->getMessage())->warning();
 
             return redirect()->back();
         }
@@ -329,20 +396,24 @@ class ProfessionalController extends Controller
                 'updated_by' => auth()->id(),
             ]);
 
-            DB::commit();
-
-            flash('Profissional desativado com sucesso. O usuário vinculado também foi desativado.')->success();
-
-            Log::notice('Professional e User vinculado desativados.', [
-                'professional_id' => $professional->id,
+            $this->professionalLogger->deactivated($professional, [
+                'source' => 'controller',
                 'user_id' => $user->id,
                 'user_name' => $user->name,
             ]);
 
+            DB::commit();
+
+            flash('Profissional desativado com sucesso. O usuário vinculado também foi desativado.')->success();
+
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao desativar profissional: ' . $e->getMessage());
+
+            $this->professionalLogger->operationFailed('deactivate', $e, [
+                'professional_id' => $professional->id,
+            ]);
+
             flash('Erro ao desativar profissional.')->error();
 
             return redirect()->back();
@@ -367,20 +438,24 @@ class ProfessionalController extends Controller
                 'updated_by' => auth()->id(),
             ]);
 
-            DB::commit();
-
-            flash('Profissional ativado com sucesso. O usuário vinculado também foi ativado.')->success();
-
-            Log::notice('Professional e User vinculado ativados.', [
-                'professional_id' => $professional->id,
+            $this->professionalLogger->activated($professional, [
+                'source' => 'controller',
                 'user_id' => $user->id,
                 'user_name' => $user->name,
             ]);
 
+            DB::commit();
+
+            flash('Profissional ativado com sucesso. O usuário vinculado também foi ativado.')->success();
+
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao ativar profissional: ' . $e->getMessage());
+
+            $this->professionalLogger->operationFailed('activate', $e, [
+                'professional_id' => $professional->id,
+            ]);
+
             flash('Erro ao ativar profissional.')->error();
 
             return redirect()->back();

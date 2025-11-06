@@ -6,11 +6,11 @@ use App\Http\Requests\UserRequest;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\WelcomeNotification;
+use App\Services\Logging\UserLogger;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role as SpatieRole;
 use App\Models\Professional;
@@ -18,7 +18,12 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function __construct() {}
+    protected $userLogger;
+
+    public function __construct(UserLogger $userLogger)
+    {
+        $this->userLogger = $userLogger;
+    }
 
     public function index(Request $request)
     {
@@ -40,6 +45,11 @@ class UserController extends Controller
 
         $users = $query->paginate(5);
 
+        $this->userLogger->listed([
+            'search' => $request->input('search'),
+            'total_results' => $users->total(),
+        ]);
+
         return view('users.index', compact('users'));
     }
 
@@ -51,15 +61,13 @@ class UserController extends Controller
         try {
             $roles = SpatieRole::orderBy('name')->get();
 
-            $message = label_case('Edit User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            $this->userLogger->viewed($user, 'edit');
 
             return view('users.edit', compact('user', 'roles'));
         } catch (Exception $e) {
-            flash(self::MSG_NOT_FOUND)->warning();
+            $this->userLogger->operationFailed('edit', $e, ['user_id' => $id]);
 
-            $message = label_case('Edit User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            flash(self::MSG_NOT_FOUND)->warning();
 
             return redirect()->back();
         }
@@ -76,6 +84,11 @@ class UserController extends Controller
 
             $data['type'] = (! isset($data['type'])) ? User::TYPE_I : $data['type'];
 
+            // Get original data for change tracking
+            $originalData = $user->only(['name', 'email', 'phone', 'postal_code', 'street', 'number', 'complement', 'neighborhood', 'city', 'state', 'allow', 'type']);
+
+            // Track old roles before changes
+            $oldRoles = $user->roles->pluck('name')->toArray();
 
             $user->name = $request->name;
             $user->email = $request->email;
@@ -101,8 +114,9 @@ class UserController extends Controller
                 if (!$user->hasRole('profissional')) {
                     $user->assignRole('profissional');
                 }
-                Log::info('Tentativa de alterar role de user profissional bloqueada.', [
-                    'user_id' => $user->id,
+                // Log tentativa de alterar role bloqueada
+                $this->userLogger->accessDenied('change-role', $user, [
+                    'reason' => 'User vinculado a professional',
                     'attempted_roles' => $request->roles,
                 ]);
             } else {
@@ -110,21 +124,51 @@ class UserController extends Controller
                 $user->syncRoles($request->roles);
             }
 
+            // Track new roles after changes
+            $newRoles = $user->roles->pluck('name')->toArray();
+
+            // Log role changes
+            if ($oldRoles != $newRoles) {
+                $removedRoles = array_diff($oldRoles, $newRoles);
+                $addedRoles = array_diff($newRoles, $oldRoles);
+
+                foreach ($removedRoles as $roleName) {
+                    $this->userLogger->roleRemoved($user, $roleName, ['source' => 'controller']);
+                }
+
+                foreach ($addedRoles as $roleName) {
+                    $this->userLogger->roleAssigned($user, $roleName, ['source' => 'controller']);
+                }
+            }
+
+            // Track what changed
+            $changes = [];
+            $newData = $user->only(['name', 'email', 'phone', 'postal_code', 'street', 'number', 'complement', 'neighborhood', 'city', 'state', 'allow', 'type']);
+            foreach ($newData as $key => $value) {
+                if ($originalData[$key] != $value) {
+                    $changes[$key] = ['old' => $originalData[$key], 'new' => $value];
+                }
+            }
+
+            // Log successful update (UserObserver will also log at model level)
+            $this->userLogger->updated($user, $changes, [
+                'source' => 'controller',
+                'roles_changed' => !empty($removedRoles) || !empty($addedRoles),
+            ]);
+
             DB::commit();
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
-            $message = label_case('Update User ' . self::MSG_UPDATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::notice($message);
-
             return redirect()->route('users.edit', $user->id);
         } catch (Exception $e) {
-            dd($e->getMessage());
             DB::rollBack();
-            flash(self::MSG_UPDATE_ERROR)->warning();
 
-            $message = label_case('Update User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            $this->userLogger->operationFailed('update', $e, [
+                'user_id' => $user->id,
+            ]);
+
+            flash(self::MSG_UPDATE_ERROR)->warning();
 
             return redirect()->back();
         }
@@ -138,17 +182,13 @@ class UserController extends Controller
         try {
             $roles = Role::all();
 
-            $message = label_case('Show User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            $this->userLogger->viewed($user, 'details');
 
             return view('users.show', compact('user', 'roles'));
         } catch (Exception $e) {
-            $message = self::MSG_NOT_FOUND;
+            $this->userLogger->operationFailed('show', $e, ['user_id' => $id]);
 
-            flash($message)->warning();
-
-            $message = label_case('Show User ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            flash(self::MSG_NOT_FOUND)->warning();
 
             return redirect()->back();
         }
@@ -159,9 +199,6 @@ class UserController extends Controller
         $this->authorize('create', User::class);
 
         $roles = SpatieRole::orderBy('name')->get();
-
-        $message = label_case('Create User ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
 
         return view('users.create', compact('roles'));
     }
@@ -202,25 +239,30 @@ class UserController extends Controller
 
             $user->syncRoles($request->roles);
 
-            // Se for profissional, criar registro na tabela professionals
-            /*
-            if ($role->name === 'professional') {
-                Professional::create([
-                    'specialty_id' => 1, // ID padrão, pode ser ajustado conforme necessidade
-                    'registration_number' => 'Pendente',
-                    'created_by' => auth()->id(),
-                ])->user()->attach($user->id);
-            }*/
+            // Log role assignment
+            foreach ($request->roles as $roleName) {
+                $this->userLogger->roleAssigned($user, $roleName, [
+                    'source' => 'controller',
+                    'on_creation' => true,
+                ]);
+            }
+
+            // Log user creation with additional context
+            $this->userLogger->created($user, [
+                'source' => 'controller',
+                'roles' => $request->roles,
+            ]);
 
             DB::commit();
 
             flash(self::MSG_CREATE_SUCCESS)->success();
-            Log::notice('Usuário criado com sucesso. ID: ' . $user->id . ' Email: ' . $user->email);
 
             return redirect()->route('users.index');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao criar usuário: ' . $e->getMessage());
+
+            $this->userLogger->operationFailed('store', $e);
+
             flash(self::MSG_CREATE_ERROR)->warning();
 
             return redirect()->back();
@@ -237,8 +279,9 @@ class UserController extends Controller
         try {
             // Verifica se o usuário autenticado está tentando excluir a si mesmo
             if (auth()->id() == $user->id) {
-                $message = label_case('Attempted to delete self. ' . self::MSG_DELETE_USER_SELF) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
-                Log::alert($message);
+                $this->userLogger->accessDenied('delete-self', $user, [
+                    'reason' => 'Usuário tentou excluir a si mesmo',
+                ]);
 
                 // Lança uma exceção para bloquear a operação
                 throw new \Exception(self::MSG_DELETE_USER_SELF);
@@ -257,9 +300,8 @@ class UserController extends Controller
                 $professional->save();
                 $professional->delete();
 
-                Log::notice('Professional vinculado também movido para lixeira.', [
-                    'professional_id' => $professional->id,
-                    'user_id' => $user->id,
+                $this->userLogger->professionalUnlinked($user, $professional->id, [
+                    'reason' => 'Professional movido para lixeira junto com user',
                 ]);
             }
 
@@ -271,6 +313,12 @@ class UserController extends Controller
             // Envia para lixeira (soft delete)
             $user->delete();
 
+            // UserObserver will log at model level
+            $this->userLogger->deleted($user, [
+                'source' => 'controller',
+                'professional_also_deleted' => !is_null($professional),
+            ]);
+
             DB::commit();
 
             // Exibe a mensagem de sucesso
@@ -280,21 +328,17 @@ class UserController extends Controller
             }
             flash($successMessage)->success();
 
-            // Registra a ação de exclusão no log
-            $message = label_case('User moved to trash and deactivated. ') . ' | Deleted User: ' . $user->name . ' (ID: ' . $user->id . ')';
-            Log::notice($message);
-
             // Redireciona para a lista de usuários
             return redirect()->route('users.index');
         } catch (Exception $e) {
             DB::rollBack();
 
+            $this->userLogger->operationFailed('destroy', $e, [
+                'user_id' => $user->id,
+            ]);
+
             // Exibe uma mensagem de erro ao usuário
             flash($e->getMessage())->warning();
-
-            // Registra o erro no log
-            $message = label_case('Error while deleting user: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
-            Log::error($message);
 
             // Redireciona de volta
             return redirect()->back();
@@ -310,8 +354,9 @@ class UserController extends Controller
             ->orderBy('deleted_at', 'desc')
             ->paginate(15);
 
-        $message = label_case('View Trash Users') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
+        $this->userLogger->trashViewed([
+            'total_trashed' => $users->total(),
+        ]);
 
         return view('users.trash', compact('users'));
     }
@@ -338,11 +383,16 @@ class UserController extends Controller
             if ($professional) {
                 $professional->restore();
 
-                Log::notice('Professional vinculado também restaurado.', [
-                    'professional_id' => $professional->id,
-                    'user_id' => $user->id,
+                $this->userLogger->professionalLinked($user, $professional->id, [
+                    'reason' => 'Professional restaurado junto com user',
                 ]);
             }
+
+            // UserObserver will log at model level
+            $this->userLogger->restored($user, [
+                'source' => 'controller',
+                'professional_also_restored' => !is_null($professional),
+            ]);
 
             DB::commit();
 
@@ -352,17 +402,15 @@ class UserController extends Controller
             }
             flash($successMessage)->success();
 
-            $message = label_case('User restored and reactivated. ') . ' | Restored User: ' . $user->name . ' (ID: ' . $user->id . ')';
-            Log::notice($message);
-
             return redirect()->route('users.trash');
         } catch (Exception $e) {
             DB::rollBack();
 
-            flash('Erro ao restaurar usuário: ' . $e->getMessage())->warning();
+            $this->userLogger->operationFailed('restore', $e, [
+                'user_id' => $id,
+            ]);
 
-            $message = label_case('Error while restoring user: ' . $e->getMessage()) . ' | User: ' . auth()->user()->name . ' (ID: ' . auth()->id() . ')';
-            Log::error($message);
+            flash('Erro ao restaurar usuário: ' . $e->getMessage())->warning();
 
             return redirect()->back();
         }
@@ -375,15 +423,15 @@ class UserController extends Controller
 
             $pdf = PDF::loadView('users.show', compact('user'));
 
-            $message = label_case('PDF Users Teste ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            $this->userLogger->viewed($user, 'pdf');
 
             return $pdf->download('user.pdf');
         } catch (Exception $e) {
-            flash(self::MSG_DELETE_ERROR)->warning();
+            $this->userLogger->operationFailed('pdf', $e, [
+                'user_id' => $id,
+            ]);
 
-            $message = label_case('Destroy Users ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            flash(self::MSG_DELETE_ERROR)->warning();
 
             return redirect()->back();
         }
