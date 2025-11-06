@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Checklist;
 use App\Models\Kid;
 use App\Models\User;
+use App\Observers\ChecklistObserver;
 use App\Observers\KidObserver;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Registered;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Event;
 class EventServiceProvider extends ServiceProvider
 {
     protected $observers = [
+        Checklist::class => [ChecklistObserver::class],
         Kid::class => [KidObserver::class],
     ];
 
@@ -35,6 +38,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Checklist::observe(ChecklistObserver::class);
         Kid::observe(KidObserver::class);
         User::observe(UserObserver::class);
     }
