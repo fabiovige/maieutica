@@ -168,7 +168,7 @@ export default {
         })
 
         watchEffect(() => {
-            search_plane.value = plane.value.id
+            search_plane.value = plane.value?.id || null
         })
 
         function search_competences(event) {
