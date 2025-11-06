@@ -14,51 +14,47 @@ class UserSeeder extends Seeder
         // Definição dos usuários a serem criados
         $users = [
             [
-                'name' => 'Fabio Martins',
-                'email' => 'fabiovige@gmail.com',
+                'name' => 'Fabio User 01',
+                'email' => 'user01@gmail.com',
                 'password' => 'password', // senha simples para teste
-                'created_by' => null, // ou o ID do criador, se aplicável
-                'role' => 'superadmin',
-            ],
-            [
-                'name' => 'Ricardo Nascimento',
-                'email' => 'ricardo@mailinator.com',
-                'password' => 'password',
-                'created_by' => 1, // criado por superadmin
+                'created_by' => 1, // ou o ID do criador, se aplicável
                 'role' => 'admin',
             ],
             [
-                'name' => 'Flávia Moreno',
-                'email' => 'flavia@mailinator.com',
+                'name' => 'Ricardo User 02',
+                'email' => 'user02@gmail.com',
                 'password' => 'password',
-                'created_by' => 2, // criado por admin
-                'role' => 'Professional',
+                'created_by' => 1, // criado por admin
+                'role' => 'admin',
             ],
             [
-                'name' => 'Maria da Silva',
-                'email' => 'maria@maildrop.cc',
+                'name' => 'Flávia User 03',
+                'email' => 'user03@gmail.com',
                 'password' => 'password',
-                'created_by' => 2, // criado por admin
-                'role' => 'pais',
+                'created_by' => 1, // criado por admin
+                'role' => 'profissional',
+            ],
+            [
+                'name' => 'Maria User 04',
+                'email' => 'user04@gmail.com',
+                'password' => 'password',
+                'created_by' => 1, // criado por admin
+                'role' => 'responsavel',
             ],
         ];
 
         User::flushEventListeners();
         foreach ($users as $userData) {
-            // Atribuir role antes de criar o usuário, se necessário
             $roleName = $userData['role'];
             unset($userData['role']);
 
-            // Criar o usuário
             $user = User::create([
                 'name' => $userData['name'],
                 'email' => $userData['email'],
                 'password' => Hash::make($userData['password']),
                 'created_by' => $userData['created_by'],
-                // Adicione outros campos conforme necessário
             ]);
 
-            // Atribuir o role usando o nome
             $user->assignRole($roleName);
         }
         User::observe(UserObserver::class);

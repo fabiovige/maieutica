@@ -2,34 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Models\Role as SpatieRole;
 
-class Role extends Model
+class Role extends SpatieRole
 {
-    use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['name', 'role', 'created_by', 'updated_by', 'deleted_by'];
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
 
-    public const ROLE_SUPER_ADMIN = 1;
-
-    public const ROLE_ADMIN = 2;
-
-    public const ROLE_PAIS = 3;
-
-    public const ROLE_PROFESSION = 4;
-
-    public $perPage = 15;
-
-    public function users()
-    {
-        return $this->hasMany(User::class);
-    }
-
-    public function abilities()
-    {
-        return $this->belongsToMany(Ability::class);
-    }
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'guard_name',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+    ];
 }

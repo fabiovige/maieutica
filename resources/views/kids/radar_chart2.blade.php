@@ -167,9 +167,9 @@ Comparativo
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ asset('js/radar-chart-helper.js') }}?v={{ filemtime(public_path('js/radar-chart-helper.js')) }}"></script>
 <script type="text/javascript">
     // Dados para os Gráficos
-    var ctxRadar = document.getElementById('radarChart').getContext('2d');
     var ctxBar = document.getElementById('barChart').getContext('2d');
 
     var radarLabels = @json(array_column($radarDataDomains, 'domain'));
@@ -204,35 +204,8 @@ Comparativo
         });
     @endif
 
-    // Configuração comum para os gráficos
-    var commonOptions = {
-        scales: {
-            r: {
-                suggestedMin: 0,
-                suggestedMax: 3,
-                ticks: {
-                    stepSize: 1,
-                    callback: function (value) {
-                        if (value === 0) return 'Não observado';
-                        if (value === 1) return 'Não desenvolvido';
-                        if (value === 2) return 'Em desenvolvimento';
-                        if (value === 3) return 'Desenvolvido';
-                        return value;
-                    }
-                }
-            }
-        }
-    };
-
-    // Gráfico de Radar
-    var radarChart = new Chart(ctxRadar, {
-        type: 'radar',
-        data: {
-            labels: radarLabels,
-            datasets: datasets
-        },
-        options: commonOptions
-    });
+    // Gráfico de Radar usando helper
+    var radarChart = createRadarChart('radarChart', radarLabels, datasets);
 
     // Gráfico de Barras
     var barChart = new Chart(ctxBar, {
@@ -265,7 +238,7 @@ Comparativo
                 x: {
                     title: {
                         display: true,
-                        text: 'Competências'
+                        text: 'Domínios'
                     }
                 }
             },

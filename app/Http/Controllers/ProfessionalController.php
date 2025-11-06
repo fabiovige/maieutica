@@ -14,22 +14,54 @@ use Illuminate\Support\Str;
 
 class ProfessionalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $professionals = Professional::with(['user', 'specialty', 'kids'])
-            ->whereHas('user', function ($q) {
-                $q->whereHas('roles', function ($q) {
-                    $q->where('name', 'professional');
-                });
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $this->authorize('viewAny', Professional::class);
+
+        $query = Professional::with(['user', 'specialty'])
+            ->withCount(['kids' => function ($query) {
+                $query->whereNull('kids.deleted_at');
+            }]);
+
+        // Filtrar por tipo de usuário
+        $user = auth()->user();
+
+        // Admin vê todos os profissionais
+        if (!$user->can('professional-list-all')) {
+            // Profissional vê apenas seus próprios dados
+            $userProfessional = $user->professional->first();
+            if ($userProfessional) {
+                $query->where('id', $userProfessional->id);
+            } else {
+                // Se não é profissional e não tem permissão -all, não vê nada
+                $query->whereRaw('1 = 0');
+            }
+        }
+
+        // Filtro de busca geral (nome do usuário, especialidade, registro)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('registration_number', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', '%' . $search . '%')
+                                ->orWhere('email', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('specialty', function($specialtyQuery) use ($search) {
+                      $specialtyQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        $professionals = $query->orderBy('created_at', 'desc')->paginate(5);
 
         return view('professionals.index', compact('professionals'));
     }
 
     public function show(Professional $professional)
     {
+        $this->authorize('view', $professional);
+
         $professional->load(['user', 'specialty', 'kids']);
 
         return view('professionals.show', compact('professional'));
@@ -37,9 +69,9 @@ class ProfessionalController extends Controller
 
     public function edit(Professional $professional)
     {
+        $this->authorize('update', $professional);
+
         try {
-            //$professional->load(['user', 'specialty']);
-            
             $specialties = Specialty::orderBy('name')->get();
 
             return view('professionals.edit', compact('professional', 'specialties'));
@@ -53,6 +85,8 @@ class ProfessionalController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Professional::class);
+
         try {
             $specialties = Specialty::orderBy('name')->get();
 
@@ -67,48 +101,68 @@ class ProfessionalController extends Controller
 
     public function store(ProfessionalRequest $request)
     {
-        try {
-            DB::beginTransaction();
+        $this->authorize('create', Professional::class);
 
+        DB::beginTransaction();
+        try {
             $validated = $request->validated();
+
+            // Gerar senha temporária
+            $temporaryPassword = Str::random(10);
 
             // Criar o usuário
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
-                'password' => bcrypt(Str::random(10)), // Senha temporária
+                'password' => bcrypt($temporaryPassword),
                 'allow' => $request->has('allow'),
                 'created_by' => auth()->id(),
             ]);
 
-            // Atribuir role de profissional
-            $user->assignRole('professional');
+            // Atribuir role 'profissional' (para agrupar permissions automaticamente)
+            // IMPORTANTE: O código usa APENAS can() para verificações, nunca hasRole()
+            if (\App\Models\Role::where('name', 'profissional')->exists()) {
+                $user->assignRole('profissional');
+            } else {
+                Log::warning('Role "profissional" não existe. User criado sem role.', [
+                    'user_id' => $user->id,
+                    'email' => $user->email
+                ]);
+            }
 
             // Criar o profissional
             $professional = Professional::create([
                 'specialty_id' => $validated['specialty_id'],
                 'registration_number' => $validated['registration_number'],
-                'bio' => $validated['bio'],
+                'bio' => $validated['bio'] ?? null,
                 'created_by' => auth()->id(),
             ]);
 
             // Vincular usuário ao profissional
             $professional->user()->attach($user->id);
 
-            // Enviar email com credenciais
-            $password = Str::random(10);
-            $user->update(['password' => bcrypt($password)]);
-            $user->notify(new WelcomeNotification($user, $password));
-
             DB::commit();
+
+            Log::notice('Profissional criado com sucesso.', [
+                'professional_id' => $professional->id,
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+
             flash('Profissional criado com sucesso.')->success();
 
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao salvar profissional: ' . $e->getMessage());
-            flash('Erro ao criar profissional.')->error();
+            Log::error('Erro ao salvar profissional: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            flash('Erro ao criar profissional: ' . $e->getMessage())->error();
 
             return redirect()->back()->withInput();
         }
@@ -116,8 +170,10 @@ class ProfessionalController extends Controller
 
     public function update(Request $request, $id)
     {
+        $professional = Professional::with('user')->findOrFail($id);
+        $this->authorize('update', $professional);
+
         try {
-            $professional = Professional::with('user')->findOrFail($id);
             $user = $professional->user->first();
 
             if (!$user) {
@@ -170,8 +226,95 @@ class ProfessionalController extends Controller
         }
     }
 
+    public function destroy(Professional $professional)
+    {
+        $this->authorize('delete', $professional);
+
+        DB::beginTransaction();
+
+        try {
+            // Verifica se o profissional tem kids vinculados
+            if ($professional->kids()->count() > 0) {
+                throw new \Exception('Não é possível mover para lixeira, pois existem crianças vinculadas a este profissional.');
+            }
+
+            // Move para lixeira (soft delete)
+            $professional->delete();
+
+            DB::commit();
+            flash('Profissional movido para a lixeira com sucesso.')->success();
+
+            Log::notice('Professional moved to trash.', [
+                'professional_id' => $professional->id,
+                'user_id' => $professional->user->first()->id ?? null,
+            ]);
+
+            return redirect()->route('professionals.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flash($e->getMessage())->error();
+
+            Log::error('Error while deleting professional: ' . $e->getMessage(), [
+                'professional_id' => $professional->id,
+                'user_id' => auth()->id(),
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
+    public function trash()
+    {
+        $this->authorize('viewAny', Professional::class);
+
+        $professionals = Professional::onlyTrashed()
+            ->with(['user', 'specialty'])
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(5);
+
+        Log::info('View Trash Professionals | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')');
+
+        return view('professionals.trash', compact('professionals'));
+    }
+
+    public function restore($id)
+    {
+        DB::beginTransaction();
+        try {
+            $professional = Professional::onlyTrashed()->findOrFail($id);
+
+            $this->authorize('update', $professional);
+
+            // Restaura o profissional da lixeira
+            $professional->restore();
+
+            DB::commit();
+
+            flash('Profissional restaurado com sucesso.')->success();
+
+            Log::notice('Professional restored.', [
+                'professional_id' => $professional->id,
+                'user_id' => $professional->user->first()->id ?? null,
+            ]);
+
+            return redirect()->route('professionals.trash');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            flash('Erro ao restaurar profissional: ' . $e->getMessage())->warning();
+
+            Log::error('Error while restoring professional: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
     public function deactivate(Professional $professional)
     {
+        $this->authorize('update', $professional);
+
         try {
             DB::beginTransaction();
 
@@ -180,13 +323,21 @@ class ProfessionalController extends Controller
                 throw new \Exception('Usuário não encontrado');
             }
 
+            // Desativa o user vinculado
             $user->update([
                 'allow' => false,
                 'updated_by' => auth()->id(),
             ]);
 
             DB::commit();
-            flash('Profissional desativado com sucesso.')->success();
+
+            flash('Profissional desativado com sucesso. O usuário vinculado também foi desativado.')->success();
+
+            Log::notice('Professional e User vinculado desativados.', [
+                'professional_id' => $professional->id,
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+            ]);
 
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {
@@ -200,6 +351,8 @@ class ProfessionalController extends Controller
 
     public function activate(Professional $professional)
     {
+        $this->authorize('update', $professional);
+
         try {
             DB::beginTransaction();
 
@@ -208,13 +361,21 @@ class ProfessionalController extends Controller
                 throw new \Exception('Usuário não encontrado');
             }
 
+            // Ativa o user vinculado
             $user->update([
                 'allow' => true,
                 'updated_by' => auth()->id(),
             ]);
 
             DB::commit();
-            flash('Profissional ativado com sucesso.')->success();
+
+            flash('Profissional ativado com sucesso. O usuário vinculado também foi ativado.')->success();
+
+            Log::notice('Professional e User vinculado ativados.', [
+                'professional_id' => $professional->id,
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+            ]);
 
             return redirect()->route('professionals.index');
         } catch (\Exception $e) {

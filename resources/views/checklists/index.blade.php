@@ -5,26 +5,13 @@
 @endsection
 
 @section('breadcrumb-items')
-    @if ($kid)
-        <li class="breadcrumb-item">
-
-            <a href="{{ route('kids.index') }}">
-                <i class="bi bi-people"></i> Crianças
-            </a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">
-            <i class="bi bi-card-checklist"></i> Checklists
-        </li>
-    @else
-        <li class="breadcrumb-item active" aria-current="page">
-            <i class="bi bi-card-checklist"></i> Checklists
-        </li>
-    @endif
+    <li class="breadcrumb-item active" aria-current="page">
+        <i class="bi bi-card-checklist"></i> Checklists
     </li>
 @endsection
 
 @section('actions')
-    @can('create checklists')
+    @can('checklist-create')
         @if ($kid)
             <button onclick="openDateModal()" class="btn btn-primary">
                 <span class="d-flex align-items-center">
@@ -164,6 +151,48 @@
         @endif
     </div>
 
+    <!-- Filtro de Busca -->
+    @if (!isset($kid))
+        <div class="card mb-3">
+            <div class="card-body">
+                <form method="GET" action="{{ route('checklists.index') }}" class="row g-3">
+                    <div class="col-md-10">
+                        <label for="search" class="form-label">
+                            <i class="bi bi-search"></i> Buscar Checklist
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="search"
+                               name="search"
+                               placeholder="Buscar por criança, ID do checklist..."
+                               value="{{ request('search') }}">
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <div class="d-flex gap-2 w-100">
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                            @if(request('search'))
+                                <a href="{{ route('checklists.index') }}" class="btn btn-secondary" title="Limpar filtro">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if(request('search'))
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                Exibindo resultados da busca por "<strong>{{ request('search') }}</strong>".
+                <strong>{{ $checklists->count() }}</strong> checklist(s) encontrado(s).
+            </div>
+        @endif
+    @endif
+
     <div class="row">
         <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-12' }}">
 
@@ -199,7 +228,7 @@
                                 <td><span
                                         class="badge {{ $checklist->situation_label === 'Aberto' ? 'bg-success' : 'bg-secondary' }}">{{ $checklist->situation_label }}</span>
                                 </td>
-                                <td>{{ $checklist->created_at }}</td>
+                                <td>{{ $checklist->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
 
                                     <div class="progress" role="progressbar" aria-label="checklist{{ $checklist->id }}"
@@ -211,13 +240,13 @@
 
                                     {{ $checklist->developmentPercentage }}%
                                 </td>
-                                @can('edit checklists')
+
                                     <td>
                                         <div class="dropdown">
                                             @php
-                                                $isAdmin = auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('superadmin'));
+                                                $isAdmin = auth()->check() && auth()->user()->can('checklist-edit-all');
                                             @endphp
-                                            @can('edit checklists')
+                                            @can('checklist-edit')
                                                 <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
                                                     id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
                                                     @if($checklist->situation_label !== 'Aberto' && !$isAdmin) disabled @endif>
@@ -225,42 +254,42 @@
                                                 </button>
                                             @endcan
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                @if ($checklist->situation_label === 'Aberto' || $isAdmin)
-                                                    @can('edit checklists')
+
+                                                    @can('checklist-edit')
                                                         <li><a class="dropdown-item"
                                                                 href="{{ isset($kid) ? route('checklists.edit', ['checklist' => $checklist->id, 'kidId' => $kid->id]) : route('checklists.edit', $checklist->id) }}">
                                                                 <i class="bi bi-pencil"></i> Editar
                                                             </a></li>
                                                     @endcan
-                                                    @can('avaliation checklist')
+                                                    @can('checklist-avaliation')
                                                         <li><a class="dropdown-item"
                                                                 href="{{ route('checklists.fill', $checklist->id) }}">
                                                                 <i class="bi bi-check2-square"></i> Avaliação
                                                             </a></li>
                                                     @endcan
-                                                    @can('plane manual checklist')
+                                                    @can('checklist-plane-manual')
                                                         <li><a class="dropdown-item"
                                                                 href="{{ route('kids.showPlane', $checklist->kid->id) }}">
                                                                 <i class="bi bi-check2-square"></i> Plano Manual
                                                             </a></li>
                                                     @endcan
-                                                    @can('plane automatic checklist')
+                                                    @can('checklist-plane-automatic')
                                                         <li><a class="dropdown-item"
                                                                 href="{{ route('kid.plane-automatic', ['kidId' => $checklist->kid->id, 'checklistId' => $checklist->id]) }}">
                                                                 <i class="bi bi-file-earmark-pdf"></i> Plano Automático
                                                             </a></li>
                                                     @endcan
-                                                    @can('clone checklists')
+                                                    @can('checklist-clone')
                                                         <li><a class="dropdown-item"
                                                                 href="{{ route('checklists.clonar', ['id' => $checklist->id, 'kid_id' => $checklist->kid_id]) }}">
                                                                 <i class="bi bi-copy"></i> Clonar
                                                             </a></li>
                                                     @endcan
-                                                @endif
+
                                             </ul>
                                         </div>
                                     </td>
-                                @endcan
+
                             </tr>
                         @endforeach
                     @endif

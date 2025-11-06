@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan tinker:*)",
+      "Bash(timeout 10 php artisan:*)",
+      "Bash(php artisan cache:clear:*)",
+      "Bash(php artisan config:clear:*)",
+      "Bash(php artisan view:clear:*)",
+      "Bash(php artisan:*)",
+      "Bash(php -l:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

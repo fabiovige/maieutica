@@ -14,112 +14,146 @@ class RoleAndPermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Criação de Roles
-        $superAdmin = Role::firstOrCreate(['name' => 'superadmin']);
         $admin = Role::firstOrCreate(['name' => 'admin']);
-        $pais = Role::firstOrCreate(['name' => 'pais']);
-        $professional = Role::firstOrCreate(['name' => 'professional']);
+        $responsavel = Role::firstOrCreate(['name' => 'responsavel']);
+        $profissional = Role::firstOrCreate(['name' => 'profissional']);
 
         // Criação de Permissões
         $permissions = [
             // Usuários
-            'list users',
-            'view users',
-            'create users',
-            'edit users',
-            'remove users',
+            'user-list',
+            'user-show',
+            'user-create',
+            'user-edit',
+            'user-delete',
+            'user-list-all',
+            'user-show-all',
+            'user-edit-all',
+            'user-delete-all',
 
             // Crianças
-            'list kids',
-            'view kids',
-            'create kids',
-            'edit kids',
-            'remove kids',
+            'kid-list',
+            'kid-show',
+            'kid-create',
+            'kid-edit',
+            'kid-delete',
+            'kid-list-all',
+            'kid-show-all',
+            'kid-edit-all',
+            'kid-delete-all',
 
-            // Planes
-            'list planes',
-            'view planes',
-            'create planes',
-            'edit planes',
-            'remove planes',
+            // Planos
+            'plan-list',
+            'plan-show',
+            'plan-create',
+            'plan-edit',
+            'plan-delete',
+            'plan-list-all',
+            'plan-show-all',
+            'plan-edit-all',
+            'plan-delete-all',
 
-            // Roles
-            'list roles',
-            'view roles',
-            'create roles',
-            'edit roles',
-            'remove roles',
+            // Perfis (Roles)
+            'role-list',
+            'role-show',
+            'role-create',
+            'role-edit',
+            'role-delete',
+            'role-list-all',
+            'role-show-all',
+            'role-edit-all',
+            'role-delete-all',
 
             // Checklists
-            'list checklists',
-            'view checklists',
-            'create checklists',
-            'edit checklists',
-            'remove checklists',
-            'fill checklists',
-            'clone checklists',
-            'plane automatic checklist',
-            'plane manual checklist',
-            'avaliation checklist',
+            'checklist-list',
+            'checklist-show',
+            'checklist-create',
+            'checklist-edit',
+            'checklist-delete',
+            'checklist-list-all',
+            'checklist-show-all',
+            'checklist-edit-all',
+            'checklist-delete-all',
+            'checklist-fill',
+            'checklist-clone',
+            'checklist-plane-automatic',
+            'checklist-plane-manual',
+            'checklist-avaliation',
 
-            // Professionals
-            'list professionals',
-            'view professionals',
-            'create professionals',
-            'edit professionals',
-            'remove professionals',
-            'activate professionals',
-            'deactivate professionals',
+            // Profissionais
+            'professional-list',
+            'professional-show',
+            'professional-create',
+            'professional-edit',
+            'professional-delete',
+            'professional-list-all',
+            'professional-show-all',
+            'professional-edit-all',
+            'professional-delete-all',
+            'professional-activate',
+            'professional-deactivate',
 
-            // Competences
-            'list competences',
-            'edit competences',
+            // Competências
+            'competence-list',
+            'competence-edit',
+            'competence-list-all',
+            'competence-edit-all',
 
-            // Permissões Adicionais
-            'manage dashboard',
+            // Permissões adicionais / administrativas
+            'dashboard-manage',
         ];
+
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Atribuição de Permissões aos Roles
-        $superAdmin->syncPermissions($permissions);
-
-        // Admin tem todas as permissões relacionadas a usuários, roles, kids e checklists
         $admin->syncPermissions($permissions);
 
-        // professional tem permissões limitadas
-        $professional->syncPermissions([
-            'list kids',
-            'view kids',
-            'create kids',
-            'edit kids',
+        $permissionsProfissional = [
+            // Usuários
+            'user-list',
+            'user-show',
+            'user-create',
+            'user-edit',
 
-            'list checklists',
-            'create checklists',
-            'edit checklists',
-            'clone checklists',
-            'plane automatic checklist',
-            'plane manual checklist',
-            'avaliation checklist',
+            // Crianças
+            'kid-list',
+            'kid-show',
+            'kid-create',
+            'kid-edit',
 
-            'list planes',
-            'view planes',
-            'create planes',
-            'edit planes',
-            'remove planes',
+            // Planos
+            'plan-list',
+            'plan-show',
+            'plan-create',
+            'plan-edit',
 
-            // Competences
-            'list competences',
-            'edit competences',
-        ]);
+            // Checklists
+            'checklist-list',
+            'checklist-show',
+            'checklist-create',
+            'checklist-edit',
+            'checklist-fill',
+            'checklist-clone',
+            'checklist-plane-automatic',
+            'checklist-plane-manual',
+            'checklist-avaliation',
 
-        // Pais tem permissões limitadas aos seus filhos e checklists
-        $pais->syncPermissions([
-            'list kids',
-            'view kids',
-            'edit kids',
-            'list checklists',
+            // Profissionais
+            'professional-list',
+            'professional-show',
+            'professional-create',
+            'professional-edit',
+            'professional-activate',
+            'professional-deactivate',
+        ];
+        $profissional->syncPermissions($permissionsProfissional);
+
+        $responsavel->syncPermissions([
+            'kid-list',
+            'kid-show',
+            'kid-edit',
         ]);
     }
 }

@@ -11,7 +11,7 @@
 @endsection
 
 @section('actions')
-    @can('create professionals')
+    @can('professional-create')
         <a href="{{ route('professionals.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Novo Profissional
         </a>
@@ -19,7 +19,52 @@
 @endsection
 
 @section('content')
-    <table class="table table-hover table-bordered align-middle mt-3">
+    <!-- Filtro de Busca -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ route('professionals.index') }}" class="row g-3">
+                <div class="col-md-10">
+                    <label for="search" class="form-label">
+                        <i class="bi bi-search"></i> Buscar Profissional
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="search"
+                           name="search"
+                           placeholder="Buscar por nome, email, especialidade ou registro..."
+                           value="{{ request('search') }}">
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="d-flex gap-2 w-100">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        @if(request('search'))
+                            <a href="{{ route('professionals.index') }}" class="btn btn-secondary" title="Limpar filtro">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if(request('search'))
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Exibindo resultados da busca por "<strong>{{ request('search') }}</strong>".
+            <strong>{{ $professionals->total() }}</strong> profissional(is) encontrado(s).
+        </div>
+    @endif
+
+    @if ($professionals->isEmpty())
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Nenhum profissional encontrado.
+        </div>
+    @else
+        <table class="table table-hover table-bordered align-middle mt-3">
         <thead>
             <tr>
                 <th style="width: 60px;" class="text-center align-middle">ID</th>
@@ -62,8 +107,8 @@
                             class="text-muted">{{ $professional->user->first() ? $professional->user->first()->phone : 'N/D' }}</small>
                     </td>
                     <td>
-                        <span class="badge bg-primary">
-                            {{ $professional->kids->count() }} crianças
+                        <span class="badge bg-info">
+                            {{ $professional->kids_count }} crianças
                         </span>
                     </td>
                     <td>
@@ -75,14 +120,14 @@
                     </td>
                     <td>
                         <div class="btn-group">
-                            @can('edit professionals')
+                            @can('professional-edit')
                                 <a href="{{ route('professionals.edit', $professional->id) }}"
                                     class="btn btn-sm btn-primary me-2" title="Editar">
                                     <i class="bi bi-pencil"></i> Editar
                                 </a>
                             @endcan
 
-                            @can('deactivate professionals')
+                            @can('professional-deactivate')
                                 @if ($professional->user->first()?->allow)
                                     <form action="{{ route('professionals.deactivate', $professional->id) }}" method="POST"
                                         class="d-inline"
@@ -96,7 +141,7 @@
                                 @endif
                             @endcan
 
-                            @can('activate professionals')
+                            @can('professional-activate')
                                 @if (!$professional->user->first()?->allow)
                                     <form action="{{ route('professionals.activate', $professional->id) }}" method="POST"
                                         class="d-inline"
@@ -119,6 +164,7 @@
     <div class="d-flex justify-content-end">
         {{ $professionals->links() }}
     </div>
+    @endif
 @endsection
 
 @push('styles')

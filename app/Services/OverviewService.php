@@ -151,24 +151,37 @@ class OverviewService
                 ->get();
 
             $itemsTotal = $competences->count();
-            $itemsValid = 0;
+
+            // Obter avaliações (ignorando nota 0)
             $currentEvaluations = DB::table('checklist_competence')
                 ->where('checklist_id', $currentChecklist->id)
-                ->where('note', '<>', 0)
                 ->whereIn('competence_id', $competences->pluck('id'))
                 ->select('competence_id', 'note')
                 ->get()
                 ->keyBy('competence_id');
 
-            $itemsTested = $currentEvaluations->count();
+            // Calcular média das notas (mesma lógica do analysis)
+            $sumNotes = 0;
+            $countNotes = 0;
+            $itemsValid = 0;
+
             foreach ($competences as $competence) {
                 $evaluation = $currentEvaluations->get($competence->id);
-                if ($evaluation && $evaluation->note == 3) {
-                    $itemsValid++;
+                if ($evaluation && $evaluation->note !== null && $evaluation->note !== 0) {
+                    $sumNotes += $evaluation->note;
+                    $countNotes++;
+
+                    if ($evaluation->note == 3) {
+                        $itemsValid++;
+                    }
                 }
             }
 
-            $percentage = $itemsTested > 0 ? ($itemsValid / $itemsTested) * 100 : 0;
+            $itemsTested = $countNotes;
+            $average = $countNotes > 0 ? $sumNotes / $countNotes : 0;
+
+            // Converter média (0-3) para percentual (0-100) para manter compatibilidade
+            $percentage = ($average / 3) * 100;
             $itemsInvalid = $itemsTested - $itemsValid;
 
             $domainData[] = [
@@ -192,8 +205,8 @@ class OverviewService
         $totalPercentageGeral = 0;
         $totalDomains = count($domainData);
         foreach ($domainData as $domain) {
-            $percentage = $domain['itemsTested'] > 0 ? ($domain['itemsValid'] / $domain['itemsTested']) * 100 : 0;
-            $totalPercentageGeral += $percentage;
+            // Usar o percentual já calculado (baseado na média 0-3)
+            $totalPercentageGeral += $domain['percentage'];
         }
 
         return round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0, 2);

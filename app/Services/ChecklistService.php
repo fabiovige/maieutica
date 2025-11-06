@@ -13,12 +13,15 @@ class ChecklistService
      * Calcula o percentual de desenvolvimento de um checklist
      *
      * @param int $checklistId
+     * @param bool $withTrashed Se deve incluir soft deleted
      * @return float
      */
-    public function percentualDesenvolvimento($checklistId)
+    public function percentualDesenvolvimento($checklistId, $withTrashed = false)
     {
         // Obter o checklist pelo ID
-        $currentChecklist = Checklist::findOrFail($checklistId);
+        $currentChecklist = $withTrashed
+            ? Checklist::withTrashed()->findOrFail($checklistId)
+            : Checklist::findOrFail($checklistId);
 
         // Obter todos os domínios
         $domains = Domain::all();

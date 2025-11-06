@@ -161,7 +161,7 @@
                     </div>
                     <div class="tab-pane fade" id="radar-chart" role="tabpanel" aria-labelledby="radar-tab">
                         <div class="mt-3">
-                            <canvas id="radarChart" width="720" height="720"></canvas>
+                            <canvas id="radarChart" width="400" height="400"></canvas>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="domain-chart" role="tabpanel" aria-labelledby="domain-tab">
@@ -268,6 +268,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="{{ asset('js/radar-chart-helper.js') }}?v={{ filemtime(public_path('js/radar-chart-helper.js')) }}"></script>
 
         <script>
             // Registrar o plugin
@@ -311,7 +312,6 @@
                 }
 
                 var ctxBar = document.getElementById('barChart').getContext('2d');
-                var ctxRadar = document.getElementById('radarChart').getContext('2d');
                 var ctxBarItems2 = document.getElementById('barChartItems2').getContext('2d');
 
                 var barColors = domainPercentages.map(percentage => getProgressColor(percentage));
@@ -381,85 +381,17 @@
                     }
                 });
 
-                // Radar Chart - Versão otimizada para PDF
-                var radarChart = new Chart(ctxRadar, {
-                    type: 'radar',
-                    data: {
-                        labels: domainData.map(domain => domain.abbreviation),
-                        datasets: [{
-                            label: 'Percentual de Habilidades Adquiridas',
-                            data: domainPercentages,
-                            backgroundColor: 'rgba(54, 162, 235, 0.3)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 2,
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        animation: {
-                            duration: 0 // Desabilitar animações para melhor captura
-                        },
-                        scales: {
-                            r: {
-                                beginAtZero: true,
-                                max: 100,
-                                min: 0,
-                                ticks: {
-                                    stepSize: 20,
-                                    font: {
-                                        size: 12
-                                    },
-                                    callback: function(value) {
-                                        return value + '%';
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.1)'
-                                },
-                                angleLines: {
-                                    color: 'rgba(0, 0, 0, 0.1)'
-                                },
-                                pointLabels: {
-                                    font: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    }
-                                }
-                            }
-                        },
-                        plugins: {
-                            datalabels: {
-                                display: false
-                            },
-                            legend: {
-                                display: true,
-                                position: 'bottom',
-                                labels: {
-                                    font: {
-                                        size: 12
-                                    },
-                                    padding: 20
-                                }
-                            },
-                            tooltip: {
-                                enabled: true,
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.dataset.label + ': ' + context.parsed.r + '%';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+                // Converter percentuais (0-100) para escala de notas (0-3) usando helper
+                var radarDataScaled = domainPercentages.map(percentageToNoteScale);
+
+                // Radar Chart usando helper
+                var radarChart = createRadarChart('radarChart', domainData.map(domain => domain.abbreviation), [{
+                    label: 'Média de Desenvolvimento',
+                    data: radarDataScaled,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]);
 
                 // Bar Chart Items 2
                 var barChartItems2 = new Chart(ctxBarItems2, {
@@ -500,14 +432,13 @@
                         responsive: true,
                         scales: {
                             x: {
-                                stacked: true,
                                 title: {
                                     display: true,
                                     text: 'Domínios'
                                 }
                             },
                             y: {
-                                stacked: true,
+                                beginAtZero: true,
                                 title: {
                                     display: true,
                                     text: 'Quantidade de Itens'

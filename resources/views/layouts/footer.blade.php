@@ -15,8 +15,8 @@
                         <a href="#" class="text-muted small text-decoration-none">
                             <i class="bi bi-shield-check"></i> Privacidade
                         </a>
-                        <a href="{{ route('tutorial.index') }}" class="text-muted small text-decoration-none">
-                            <i class="bi bi-question-circle"></i> Tutorial
+                        <a href="{{ route('documentation.index') }}" class="text-muted small text-decoration-none">
+                            <i class="bi bi-question-circle"></i> Documentação
                         </a>
                         <span class="badge bg-secondary">
                             <i class="bi bi-code-slash"></i> v{{ config('app.version') }}

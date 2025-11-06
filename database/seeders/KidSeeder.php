@@ -12,8 +12,8 @@ class KidSeeder extends Seeder
     public function run()
     {
         // Buscar responsáveis
-        $responsible1 = User::where('email', 'responsible1@example.com')->first();
-        $responsible2 = User::where('email', 'responsible2@example.com')->first();
+        $responsible1 = User::where('email', 'user05@gmail.com')->first();
+        $responsible2 = User::where('email', 'user06@gmail.com')->first();
 
         // Criar primeira criança
         $kid1 = Kid::create([
@@ -36,12 +36,9 @@ class KidSeeder extends Seeder
         ]);
 
         // Associar profissionais às crianças
-        $professional1 = Professional::where('registration_number', 'CRM12345')->first();
-        $professional2 = Professional::where('registration_number', 'CRM67890')->first();
+        $profissional = Professional::where('registration_number', 'ABCD123')->first();
 
-        if ($professional1 && $professional2) {
-            $kid1->professionals()->attach($professional1->id);
-            $kid2->professionals()->attach($professional2->id);
-        }
+        $kid1->professionals()->attach($profissional->id);
+        $kid2->professionals()->attach($profissional->id);
     }
 }

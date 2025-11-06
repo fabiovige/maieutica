@@ -4,187 +4,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name') }} - Login</title>
+    <title>{{ config('app.name') }} - Acesso</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <!-- reCAPTCHA Script -->
     {!! htmlScriptTagJsApi() !!}
 
     <style>
-        body {
-            background-color: #f8f9fa;
+        * {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            box-sizing: border-box;
         }
 
-        .login-container {
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
             min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            box-sizing: border-box;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 440px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .login-card {
-            width: 100%;
-            max-width: 400px;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            background: white;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            overflow: hidden;
         }
 
         .login-header {
-            background: #d7e2ec;
-            padding: 20px;
-            border-radius: 10px 10px 0 0;
+            padding: 48px 40px 32px;
             text-align: center;
+            background: #ffffff;
         }
 
-        .login-header h4 {
-            margin: 0;
-            color: #333;
+        .logo-container {
+            margin-bottom: 24px;
+        }
+
+        .logo-container img {
+            max-width: 180px;
+            height: auto;
+        }
+
+        .login-header h1 {
+            font-size: 24px;
             font-weight: 600;
+            color: #1a2332;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .login-header p {
+            font-size: 15px;
+            color: #64748b;
+            font-weight: 400;
+            margin: 0;
         }
 
         .login-body {
-            padding: 30px;
+            padding: 0 40px 48px;
         }
 
-        .btn-login {
-            width: 100%;
-            padding: 12px;
+        .alert-danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 24px;
+            color: #991b1b;
+            font-size: 14px;
+        }
+
+        .alert-danger ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .alert-danger li {
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert-danger li:before {
+            content: "•";
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
             font-weight: 500;
-            font-size: 1.1rem;
-            margin-top: 1rem;
-            border-radius: 5px;
+            color: #334155;
+            margin-bottom: 8px;
+            letter-spacing: -0.2px;
         }
 
-        .form-floating {
-            margin-bottom: 1rem;
+        .input-wrapper {
             position: relative;
         }
 
-        .form-floating .bi {
+        .input-icon {
             position: absolute;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            left: 15px;
-            z-index: 4;
-            color: #6c757d;
-            font-size: 16px;
+            color: #94a3b8;
+            font-size: 18px;
+            pointer-events: none;
         }
 
-        .form-floating input {
-            padding-left: 45px !important;
-            height: 58px;
-            border-radius: 5px;
-        }
-
-        .form-floating label {
-            padding-left: 45px;
-            color: #6c757d;
+        .form-control {
+            width: 100%;
+            height: 48px;
+            padding: 12px 16px 12px 46px;
+            font-size: 15px;
+            color: #1e293b;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
         }
 
         .form-control:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            outline: none;
+            background: #ffffff;
+            border-color: #4aa4ee;
+            box-shadow: 0 0 0 4px rgba(74, 164, 238, 0.08);
         }
 
-        .invalid-feedback {
-            display: block;
-            font-size: 0.875rem;
+        .form-control::placeholder {
+            color: #94a3b8;
         }
 
-        .forgot-password {
-            text-align: right;
-            margin-bottom: 1rem;
+        .form-control.is-invalid {
+            border-color: #ef4444;
         }
 
-        .forgot-password a {
-            color: #6c757d;
-            font-size: 0.9rem;
-            text-decoration: none;
-            display: inline-flex;
+        .form-extras {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 5px;
-            transition: color 0.2s;
-        }
-
-        .forgot-password a:hover {
-            color: #0d6efd;
-            text-decoration: none;
+            margin-bottom: 28px;
         }
 
         .form-check {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 1.5rem;
         }
 
         .form-check-input {
-            margin-top: 0;
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 5px;
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .form-check-input:checked {
+            background-color: #4aa4ee;
+            border-color: #4aa4ee;
+        }
+
+        .form-check-input:focus {
+            box-shadow: 0 0 0 4px rgba(74, 164, 238, 0.08);
         }
 
         .form-check-label {
+            font-size: 14px;
+            color: #475569;
             cursor: pointer;
             user-select: none;
+            font-weight: 400;
         }
 
-        .alert-danger {
-            border-left: 4px solid #dc3545;
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
+        .forgot-link {
+            font-size: 14px;
+            color: #4aa4ee;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
         }
 
-        .alert-danger ul {
-            padding-left: 1rem;
-            margin-bottom: 0;
+        .forgot-link:hover {
+            color: #3286ca;
         }
 
-        .alert-danger li {
-            margin-bottom: 0.25rem;
+        .btn-login {
+            width: 100%;
+            height: 48px;
+            background: linear-gradient(135deg, #4aa4ee 0%, #3d9ce0 100%);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #3d9ce0 0%, #3286ca 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(74, 164, 238, 0.25);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .recaptcha-container {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .recaptcha-container > div {
+            transform: scale(0.95);
+            transform-origin: center;
         }
 
         /* Responsividade */
         @media (max-width: 480px) {
-            .login-container {
-                padding: 10px;
+            body {
+                padding: 16px;
+            }
+
+            .login-header {
+                padding: 36px 24px 24px;
             }
 
             .login-body {
-                padding: 20px;
+                padding: 0 24px 36px;
             }
 
-            .login-card {
-                max-width: 100%;
+            .login-header h1 {
+                font-size: 22px;
+            }
+
+            .login-header p {
+                font-size: 14px;
+            }
+
+            .form-extras {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .recaptcha-container > div {
+                transform: scale(0.85);
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="login-container">
-        <div class="card login-card">
+    <div class="login-wrapper">
+        <div class="login-card">
             <div class="login-header">
-                <h4 class="mb-0">
-                    <i class="bi bi-shield-lock me-2"></i>
-                    {{ config('app.name') }}
-                </h4>
+                <div class="logo-container">
+                    <img src="{{ asset('images/logo_login_transparente.png') }}" alt="{{ config('app.name') }}">
+                </div>
+                <h1>Bem-vindo</h1>
+                <p>Acesse sua conta para continuar</p>
             </div>
+
             <div class="login-body">
                 @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
+                    <div class="alert-danger">
+                        <ul>
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -195,47 +321,58 @@
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 
-                    <div class="form-floating">
-                        <i class="bi bi-envelope"></i>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
-                            name="email" value="{{ old('email') }}" placeholder="nome@exemplo.com" required
-                            autofocus>
-                        <label for="email">E-mail</label>
-                    </div>
-
-                    <div class="form-floating">
-                        <i class="bi bi-key"></i>
-                        <input type="password" class="form-control @error('password') is-invalid @enderror"
-                            id="password" name="password" placeholder="Senha" required>
-                        <label for="password">Senha</label>
-                    </div>
-
-                    <div class="forgot-password">
-                        <a href="{{ route('password.request') }}">
-                            <i class="bi bi-question-circle"></i>
-                            Esqueceu sua senha?
-                        </a>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember" id="remember"
-                            {{ old('remember') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="remember">
-                            <i class="bi bi-clock-history me-1"></i>
-                            Lembrar-me
-                        </label>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div style="display: flex; justify-content: center;">
-                                
-                            </div>
+                    <div class="form-group">
+                        <label for="email" class="form-label">E-mail</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-envelope input-icon"></i>
+                            <input
+                                type="email"
+                                class="form-control @error('email') is-invalid @enderror"
+                                id="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                placeholder="seu@email.com"
+                                required
+                                autofocus>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-login">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                    <div class="form-group">
+                        <label for="password" class="form-label">Senha</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-lock input-icon"></i>
+                            <input
+                                type="password"
+                                class="form-control @error('password') is-invalid @enderror"
+                                id="password"
+                                name="password"
+                                placeholder="••••••••"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-extras">
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="remember"
+                                id="remember"
+                                {{ old('remember') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="remember">
+                                Lembrar-me
+                            </label>
+                        </div>
+                        <a href="{{ route('password.request') }}" class="forgot-link">
+                            Esqueceu a senha?
+                        </a>
+                    </div>
+
+                    <div class="recaptcha-container">
+                        {!! htmlFormSnippet() !!}
+                    </div>
+
+                    <button type="submit" class="btn-login">
                         Entrar
                     </button>
                 </form>

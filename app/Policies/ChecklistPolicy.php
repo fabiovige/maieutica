@@ -5,91 +5,150 @@ namespace App\Policies;
 use App\Models\Checklist;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Auth\Access\Response;
 
 class ChecklistPolicy
 {
     use HandlesAuthorization;
 
     /**
-     * Método executado antes de qualquer outra permissão.
-     * Permite todas as ações para superadmin e admin.
-     *
-     * @param  string  $ability
-     * @return bool|null
+     * Listar checklists.
      */
-    public function before(User $user, $ability)
-    {
-        if (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('superadmin'))) {
-            return true;
-        }
-    }
-
     public function viewAny(User $user): bool
     {
-        return (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('professional') || $user->hasRole('pais') || $user->hasRole('superadmin')));
+        return $user->can('checklist-list') || $user->can('checklist-list-all');
     }
 
     /**
-     * Determina se o usuário pode visualizar o registro de um checklist.
+     * Visualizar um checklist específico.
      */
     public function view(User $user, Checklist $checklist): bool
     {
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) return true;
-        if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
-            return $checklist->created_by === $user->id;
+        // Admin pode visualizar qualquer checklist
+        if ($user->can('checklist-show-all')) {
+            return true;
         }
-        if (method_exists($user, 'hasRole') && $user->hasRole('pais')) {
-            return $checklist->kid->responsible_id === $user->id;
+
+        // Profissionais podem visualizar checklists que criaram
+        if ($user->can('checklist-show') && $checklist->created_by === $user->id) {
+            return true;
         }
+
+        // Profissionais podem visualizar checklists de kids vinculados a eles
+        if ($user->can('checklist-show')) {
+            $professional = $user->professional->first();
+            if ($professional && $checklist->kid && $checklist->kid->professionals->contains($professional->id)) {
+                return true;
+            }
+        }
+
+        // Responsáveis podem visualizar checklists de suas crianças
+        if ($checklist->kid && $checklist->kid->responsible_id === $user->id) {
+            return true;
+        }
+
         return false;
     }
 
     /**
-     * Determina se o usuário pode criar um registro de checklist.
+     * Criar novos checklists.
      */
     public function create(User $user): bool
     {
-        return (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('professional')));
+        return $user->can('checklist-create') || $user->can('checklist-create-all');
     }
 
     /**
-     * Determina se o usuário pode atualizar o registro de um checklist.
+     * Atualizar um checklist específico.
      */
     public function update(User $user, Checklist $checklist): bool
     {
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) return true;
-        if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
-            return $checklist->created_by === $user->id;
+        // Admin pode editar qualquer checklist
+        if ($user->can('checklist-edit-all')) {
+            return true;
         }
+
+        // Profissionais podem editar checklists que criaram
+        if ($user->can('checklist-edit') && $checklist->created_by === $user->id) {
+            return true;
+        }
+
+        // Profissionais podem editar checklists de kids vinculados a eles
+        if ($user->can('checklist-edit')) {
+            $professional = $user->professional->first();
+            if ($professional && $checklist->kid && $checklist->kid->professionals->contains($professional->id)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
     /**
-     * Determina se o usuário pode deletar o registro de um checklist.
+     * Enviar checklist para a lixeira (soft delete).
      */
     public function delete(User $user, Checklist $checklist): bool
     {
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) return true;
-        if (method_exists($user, 'hasRole') && $user->hasRole('professional')) {
-            return $checklist->created_by === $user->id;
+        // Admin pode deletar qualquer checklist
+        if ($user->can('checklist-delete-all')) {
+            return true;
         }
+
+        // Profissionais podem deletar checklists que criaram
+        if ($user->can('checklist-delete') && $checklist->created_by === $user->id) {
+            return true;
+        }
+
+        // Profissionais podem deletar checklists de kids vinculados a eles
+        if ($user->can('checklist-delete')) {
+            $professional = $user->professional->first();
+            if ($professional && $checklist->kid && $checklist->kid->professionals->contains($professional->id)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
     /**
-     * Determina se o usuário pode restaurar o registro de um checklist deletado.
+     * Visualizar a lixeira de checklists.
      */
-    public function restore(User $user, Checklist $checklist): bool
+    public function viewTrash(User $user): bool
     {
-        return (method_exists($user, 'hasRole') && $user->hasRole('admin'));
+        // Apenas usuários com permissão -all podem ver a lixeira completa
+        return $user->can('checklist-list-all');
     }
 
     /**
-     * Determina se o usuário pode forçar a exclusão do registro de um checklist.
+     * Restaurar um checklist.
+     */
+    public function restore(User $user, Checklist $checklist): bool
+    {
+        // Admin pode restaurar qualquer checklist
+        if ($user->can('checklist-edit-all')) {
+            return true;
+        }
+
+        // Profissionais podem restaurar checklists que criaram
+        if ($user->can('checklist-edit') && $checklist->created_by === $user->id) {
+            return true;
+        }
+
+        // Profissionais podem restaurar checklists de kids vinculados a eles
+        if ($user->can('checklist-edit')) {
+            $professional = $user->professional->first();
+            if ($professional && $checklist->kid && $checklist->kid->professionals()->withTrashed()->get()->contains($professional->id)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Forçar exclusão permanente.
      */
     public function forceDelete(User $user, Checklist $checklist): bool
     {
-        return (method_exists($user, 'hasRole') && $user->hasRole('admin'));
+        return $user->can('checklist-delete-all');
     }
 }

@@ -10,6 +10,7 @@ use App\Models\Domain;
 use App\Models\Kid;
 use App\Models\Plane;
 use App\Models\User;
+use App\Services\Logging\KidLogger;
 use App\Services\OverviewService;
 use App\Util\MyPdf;
 use Auth;
@@ -18,39 +19,59 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role as SpatieRole;
 
 class KidsController extends Controller
 {
     protected $overviewService;
+    protected $kidLogger;
 
-    public function __construct(OverviewService $overviewService)
+    public function __construct(OverviewService $overviewService, KidLogger $kidLogger)
     {
         $this->overviewService = $overviewService;
+        $this->kidLogger = $kidLogger;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $this->authorize('view kids');
+        $this->authorize('viewAny', Kid::class);
 
-        if (request()->ajax()) {
-            return $this->index_data();
+        $query = Kid::with(['professionals.user', 'professionals.specialty', 'responsible']);
+
+        // Filtro de busca geral (nome, responsável)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhereHas('responsible', function($responsibleQuery) use ($search) {
+                      $responsibleQuery->where('name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('professionals', function($profQuery) use ($search) {
+                      $profQuery->whereHas('user', function($userQuery) use ($search) {
+                          $userQuery->where('name', 'like', '%' . $search . '%');
+                      });
+                  });
+            });
         }
 
-        // Buscar crianças com paginação (15 por página)
-        $kids = Kid::query()
-            ->when(auth()->user()->hasRole('pais'), function ($query) {
-                return $query->where('responsible_id', auth()->user()->id);
-            })
-            ->when(auth()->user()->hasRole('professional'), function ($query) {
-                $professionalId = auth()->user()->professional->first()->id;
+        // Responsáveis veem apenas kids sob sua responsabilidade
+        if (!auth()->user()->can('kid-list-all') && !auth()->user()->professional->count()) {
+            $query->where('responsible_id', auth()->user()->id);
+        }
+        // Profissionais veem apenas seus kids
+        elseif (auth()->user()->professional->count() > 0) {
+            $professionalId = auth()->user()->professional->first()->id;
+            $query->whereHas('professionals', function ($q) use ($professionalId) {
+                $q->where('professional_id', $professionalId);
+            });
+        }
 
-                return $query->whereHas('professionals', function ($q) use ($professionalId) {
-                    $q->where('professional_id', $professionalId);
-                });
-            })
-            ->orderBy('name')
-            ->paginate(15);
+        $kids = $query->orderBy('name')->paginate(15);
+
+        // Log kids list access with filters
+        $this->kidLogger->listed([
+            'search' => $request->input('search'),
+            'total_results' => $kids->total(),
+        ]);
 
         return view('kids.index', compact('kids'));
     }
@@ -59,18 +80,21 @@ class KidsController extends Controller
     {
         $this->authorize('create', Kid::class);
 
-        // Buscar usuários com o papel 'professional'
-        $professions = User::whereHas('roles', function ($query) {
-            $query->where('name', 'professional');
-        })->get();
+        // Buscar profissionais ativos através da tabela professionals
+        $professions = User::whereHas('professional', function ($query) {
+            $query->whereNull('deleted_at');
+        })
+        ->where('allow', true)
+        ->orderBy('name')
+        ->get();
 
-        // Buscar usuários com o papel 'pais'
-        $responsibles = User::whereHas('roles', function ($query) {
-            $query->where('name', 'pais');
-        })->get();
+        // Buscar usuários ativos para serem responsáveis
+        $responsibles = User::where('allow', true)
+            ->orderBy('name')
+            ->get();
 
-        $message = label_case('Create Kids') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-        Log::info($message);
+        // Log removed - create form access doesn't need logging (low value)
+        // We log actual kid creation in store() method
 
         return view('kids.create', compact('professions', 'responsibles'));
     }
@@ -81,9 +105,6 @@ class KidsController extends Controller
 
         DB::beginTransaction();
         try {
-            $message = label_case('Store Kids ' . self::MSG_CREATE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
-
             $kidData = [
                 'name' => $request->name,
                 'birth_date' => $request->birth_date,
@@ -95,21 +116,27 @@ class KidsController extends Controller
 
             $kid = Kid::create($kidData);
 
+            // Se o usuário tem um professional vinculado, adiciona como profissional da criança
+            $professional = Auth::user()->professional->first();
 
-            // Se o usuário logado for profissional, adiciona ele como profissional da criança
-            if (Auth::user()->hasRole('professional')) {
-                $professional = Auth::user()->professional->first();
+            if ($professional) {
+                $kid->professionals()->attach($professional->id, [
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
 
-                if ($professional) {
-                    $kid->professionals()->attach($professional->id, [
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
-                }
+                // Log professional attachment
+                $this->kidLogger->professionalAttached($kid, $professional->id, [
+                    'source' => 'auto_attach_on_create',
+                ]);
             }
 
-
-            Log::info('Kid created: ' . $kid->id . ' created by: ' . auth()->user()->id);
+            // KidObserver will log the creation at model level
+            // We log at controller level with additional context
+            $this->kidLogger->created($kid, [
+                'source' => 'controller',
+                'has_professional' => !is_null($professional),
+            ]);
 
             flash(self::MSG_CREATE_SUCCESS)->success();
 
@@ -117,31 +144,46 @@ class KidsController extends Controller
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
-
             DB::rollBack();
             flash(self::MSG_CREATE_ERROR)->warning();
-            $message = label_case('Store Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+
+            $this->kidLogger->operationFailed('store', $e, [
+                'request_data' => $request->safe()->only(['gender', 'ethnicity', 'responsible_id']),
+            ]);
 
             return redirect()->route('kids.index');
         }
     }
 
-    public function show(Kid $kid) {}
+    public function show(Kid $kid)
+    {
+        $this->authorize('view', $kid);
+
+        try {
+            $kid->load(['responsible', 'professionals.user', 'professionals.specialty', 'checklists' => function ($query) {
+                $query->orderBy('created_at', 'desc')->limit(5);
+            }]);
+
+            $this->kidLogger->viewed($kid, 'details');
+
+            return view('kids.show-details', compact('kid'));
+        } catch (\Exception $e) {
+            $this->kidLogger->operationFailed('show', $e, ['kid_id' => $kid->id]);
+            flash('Erro ao visualizar dados da criança.')->error();
+            return redirect()->route('kids.index');
+        }
+    }
 
     public function showPlane(Kid $kid, $checklistId = null)
     {
-        $this->authorize('plane manual checklist', $kid);
+        // Verifica se tem permissão para plano manual OU se pode visualizar a criança
+        if (!auth()->user()->can('checklist-plane-manual') && !auth()->user()->can('kid-show')) {
+            abort(403, 'Você não tem permissão para acessar planos manuais.');
+        }
 
         try {
-            Log::info('show', [
-                'user' => auth()->user()->name,
-                'id' => auth()->user()->id,
-            ]);
-
             if ($kid->checklists()->count() === 0) {
                 flash(self::MSG_NOT_FOUND_CHECKLIST_USER)->warning();
-
                 return redirect()->back();
             }
 
@@ -157,6 +199,10 @@ class KidsController extends Controller
                 $checklist = $checklists[0];
             }
 
+            $this->kidLogger->viewed($kid, 'plane', [
+                'checklist_id' => $checklist->id,
+            ]);
+
             $data = [
                 'kid' => $kid,
                 'professionals' => $kid->professionals->pluck('name'),
@@ -171,10 +217,7 @@ class KidsController extends Controller
 
             return view('kids.show', $data);
         } catch (Exception $e) {
-
-            $message = label_case('Error show kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
+            $this->kidLogger->operationFailed('showPlane', $e, ['kid_id' => $kid->id]);
             flash(self::MSG_NOT_FOUND)->warning();
 
             return redirect()->back();
@@ -185,41 +228,28 @@ class KidsController extends Controller
     {
         $this->authorize('update', $kid);
         try {
-            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            // Log removed - form access logging is low value
+            // We log actual updates in update() method
 
-            // Verificando se o papel 'pais' existe, caso contrário lançar exceção
-            $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (! $parentRole) {
-                throw new Exception("O papel 'pais' não existe no sistema.");
-            }
+            // Buscar profissionais ativos através da tabela professionals
+            $professions = User::whereHas('professional', function ($query) {
+                $query->whereNull('deleted_at')
+                      ->whereNotNull('specialty_id');
+            })
+            ->with(['professional.specialty'])
+            ->where('allow', true)
+            ->orderBy('name')
+            ->get();
 
-            // Verificando se o papel 'professional' existe, caso contrário lançar exceção
-            $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (! $professionalRole) {
-                throw new Exception("O papel 'professional' não existe no sistema.");
-            }
-
-            // Buscando usuários com o papel 'pais'
-            $responsibles = User::whereHas('roles', function ($query) {
-                $query->where('name', 'pais');
-            })->get();
-
-            // Buscando usuários com o papel 'professional'
-            $professions = User::whereHas('roles', function ($query) {
-                $query->where('name', 'professional');
-            })->with(['professional.specialty'])
-                ->whereHas('professional', function ($query) {
-                    $query->whereNotNull('specialty_id');
-                })->get();
-
+            // Buscar usuários ativos para serem responsáveis
+            $responsibles = User::where('allow', true)
+                ->orderBy('name')
+                ->get();
 
             return view('kids.edit', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
+            $this->kidLogger->operationFailed('edit', $e, ['kid_id' => $kid->id]);
             return redirect()->back();
         }
     }
@@ -230,37 +260,25 @@ class KidsController extends Controller
         $this->authorize('view', $kid);
 
         try {
-            $message = label_case('Edit Kids ') . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
+            $this->kidLogger->viewed($kid, 'eye');
 
-            // Verificando se o papel 'pais' existe, caso contrário lançar exceção
-            $parentRole = SpatieRole::where('name', 'pais')->first();
-            if (! $parentRole) {
-                throw new Exception("O papel 'pais' não existe no sistema.");
-            }
+            // Buscar profissionais ativos através da tabela professionals
+            $professions = User::whereHas('professional', function ($query) {
+                $query->whereNull('deleted_at');
+            })
+            ->where('allow', true)
+            ->orderBy('name')
+            ->get();
 
-            // Verificando se o papel 'professional' existe, caso contrário lançar exceção
-            $professionalRole = SpatieRole::where('name', 'professional')->first();
-            if (! $professionalRole) {
-                throw new Exception("O papel 'professional' não existe no sistema.");
-            }
-
-            // Buscando usuários com o papel 'pais'
-            $responsibles = User::whereHas('roles', function ($query) {
-                $query->where('name', 'pais');
-            })->get();
-
-            // Buscando usuários com o papel 'professional'
-            $professions = User::whereHas('roles', function ($query) {
-                $query->where('name', 'professional');
-            })->get();
+            // Buscar usuários ativos para serem responsáveis
+            $responsibles = User::where('allow', true)
+                ->orderBy('name')
+                ->get();
 
             return view('kids.eye', compact('kid', 'responsibles', 'professions'));
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
-            $message = label_case('Update Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
-
+            $this->kidLogger->operationFailed('eyeKid', $e, ['kid_id' => $kid->id]);
             return redirect()->back();
         }
     }
@@ -279,6 +297,12 @@ class KidsController extends Controller
 
         try {
             DB::beginTransaction();
+
+            // Get original professionals before sync for logging
+            $originalProfessionals = $kid->professionals()->pluck('professional_id')->toArray();
+
+            // Get original data for change tracking
+            $originalData = $kid->only(['name', 'birth_date', 'gender', 'ethnicity', 'responsible_id']);
 
             $kid->update([
                 'name' => $validated['name'],
@@ -305,6 +329,38 @@ class KidsController extends Controller
             // Sincroniza os profissionais mantendo o is_primary
             $kid->professionals()->sync($syncData);
 
+            // Log professional changes
+            $newProfessionals = array_map('intval', $professionals);
+            $attached = array_diff($newProfessionals, $originalProfessionals);
+            $detached = array_diff($originalProfessionals, $newProfessionals);
+
+            foreach ($attached as $professionalId) {
+                $this->kidLogger->professionalAttached($kid, $professionalId, [
+                    'is_primary' => $professionalId == $primaryProfessional,
+                ]);
+            }
+
+            foreach ($detached as $professionalId) {
+                $this->kidLogger->professionalDetached($kid, $professionalId);
+            }
+
+            // Track what changed
+            $changes = [];
+            $newData = $kid->only(['name', 'birth_date', 'gender', 'ethnicity', 'responsible_id']);
+            foreach ($newData as $key => $value) {
+                if ($originalData[$key] != $value) {
+                    $changes[$key] = ['old' => $originalData[$key], 'new' => $value];
+                }
+            }
+
+            // Log successful update (KidObserver will also log at model level)
+            $this->kidLogger->updated($kid, $changes, [
+                'source' => 'controller',
+                'professionals_changed' => !empty($attached) || !empty($detached),
+                'attached_count' => count($attached),
+                'detached_count' => count($detached),
+            ]);
+
             DB::commit();
 
             return redirect()
@@ -312,7 +368,11 @@ class KidsController extends Controller
                 ->with('success', 'Criança atualizada com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao atualizar criança: ' . $e->getMessage());
+
+            $this->kidLogger->operationFailed('update', $e, [
+                'kid_id' => $kid->id,
+                'request_data' => $request->safe()->only(['gender', 'ethnicity', 'responsible_id']),
+            ]);
 
             return redirect()
                 ->back()
@@ -324,20 +384,88 @@ class KidsController extends Controller
     public function destroy(Kid $kid)
     {
         $this->authorize('delete', $kid);
-        try {
-            $message = label_case('Destroy Kids ' . self::MSG_DELETE_SUCCESS) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::info($message);
 
+        DB::beginTransaction();
+        try {
+            // Verifica se a criança tem checklists associados
+            if ($kid->checklists()->count() > 0) {
+                throw new Exception('Não é possível mover para lixeira. Esta criança possui checklists associados.');
+            }
+
+            // Marca quem excluiu
+            $kid->deleted_by = auth()->id();
+            $kid->save();
+
+            // Envia para lixeira (soft delete)
             $kid->delete();
-            flash(self::MSG_DELETE_SUCCESS)->success();
+
+            // KidObserver will log at model level
+            $this->kidLogger->deleted($kid, [
+                'source' => 'controller',
+                'has_checklists' => $kid->checklists()->count() > 0,
+            ]);
+
+            DB::commit();
+
+            flash('Criança movida para a lixeira com sucesso.')->success();
 
             return redirect()->route('kids.index');
         } catch (Exception $e) {
+            DB::rollBack();
 
-            $message = label_case('Destroy Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error($message);
+            flash($e->getMessage())->warning();
 
-            flash(self::MSG_NOT_FOUND)->warning();
+            $this->kidLogger->operationFailed('destroy', $e, [
+                'kid_id' => $kid->id,
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
+    public function trash()
+    {
+        $this->authorize('viewTrash', Kid::class);
+
+        $kids = Kid::onlyTrashed()
+            ->with(['professionals.user', 'professionals.specialty', 'responsible'])
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(15);
+
+        $this->kidLogger->trashViewed(['total_trashed' => $kids->total()]);
+
+        return view('kids.trash', compact('kids'));
+    }
+
+    public function restore($id)
+    {
+        DB::beginTransaction();
+        try {
+            $kid = Kid::onlyTrashed()->findOrFail($id);
+
+            $this->authorize('restore', $kid);
+
+            // Restaura a criança da lixeira
+            $kid->restore();
+
+            // KidObserver will log at model level
+            $this->kidLogger->restored($kid, [
+                'source' => 'controller',
+            ]);
+
+            DB::commit();
+
+            flash('Criança restaurada com sucesso.')->success();
+
+            return redirect()->route('kids.trash');
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            flash('Erro ao restaurar criança: ' . $e->getMessage())->warning();
+
+            $this->kidLogger->operationFailed('restore', $e, [
+                'kid_id' => $id,
+            ]);
 
             return redirect()->back();
         }
@@ -412,13 +540,17 @@ class KidsController extends Controller
                 }
             }
 
+            // Log successful PDF generation
+            $this->kidLogger->pdfGenerated($kid, 'plane', [
+                'plane_id' => $plane->id,
+                'plane_name' => $plane->name,
+                'competences_count' => $plane->competences()->count(),
+            ]);
+
             $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
         } catch (Exception $e) {
-            $message = label_case('Plane Kids ' . $e->getMessage()) . ' | User:' . auth()->user()->name . '(ID:' . auth()->user()->id . ')';
-            Log::error('Exibe Plano Erro', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+            $this->kidLogger->pdfGenerationFailed($kid ?? Kid::find($id), 'plane', $e, [
+                'plane_id' => $id,
             ]);
 
             flash(self::MSG_NOT_FOUND)->warning();
@@ -429,7 +561,10 @@ class KidsController extends Controller
 
     public function pdfPlaneAuto($kidId, $checklislId, $note)
     {
-        $this->authorize('plane automatic checklist');
+        // Verifica se tem permissão para plano automático
+        if (!auth()->user()->can('checklist-plane-automatic')) {
+            abort(403, 'Você não tem permissão para acessar planos automáticos.');
+        }
 
         try {
             // Primeiro, verificar se o kid existe
@@ -539,9 +674,26 @@ class KidsController extends Controller
                 }
             }
 
+            // Log successful PDF generation
+            $this->kidLogger->pdfGenerated($kid, 'plane_auto', [
+                'plane_id' => $plane->id,
+                'plane_name' => $plane->name,
+                'checklist_id' => $checklist->id,
+                'note' => $note,
+                'competences_count' => count($competencesNotes),
+            ]);
+
             $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
         } catch (Exception $e) {
-            Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
+            $this->kidLogger->pdfGenerationFailed(
+                $kid ?? Kid::find($kidId),
+                'plane_auto',
+                $e,
+                [
+                    'checklist_id' => $checklislId,
+                    'note' => $note,
+                ]
+            );
             flash($e->getMessage())->error();
 
             return redirect()->back();
@@ -633,9 +785,25 @@ class KidsController extends Controller
                 }
             }
 
+            // Log successful PDF generation
+            $this->kidLogger->pdfGenerated($kid, 'plane_auto_view', [
+                'plane_id' => $plane->id,
+                'plane_name' => $plane->name,
+                'checklist_id' => $checklist->id,
+                'competences_count' => count($competences),
+            ]);
+
             $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
         } catch (Exception $e) {
-            Log::error('Erro em pdfPlaneAuto: ' . $e->getMessage());
+            $this->kidLogger->pdfGenerationFailed(
+                $kid ?? Kid::find($kidId),
+                'plane_auto_view',
+                $e,
+                [
+                    'checklist_id' => $checklislId,
+                    'plane_id' => $planeId,
+                ]
+            );
             flash('Erro ao gerar o plano: ' . $e->getMessage())->error();
 
             return redirect()->back();
@@ -704,11 +872,14 @@ class KidsController extends Controller
             ]);
 
             if ($request->hasFile('photo')) {
+                $oldPhoto = $kid->photo;
+
                 // Remove foto antiga se existir
-                if ($kid->photo) {
-                    $oldPhotoPath = public_path('images/kids/' . $kid->photo);
+                if ($oldPhoto) {
+                    $oldPhotoPath = public_path('images/kids/' . $oldPhoto);
                     if (file_exists($oldPhotoPath)) {
                         unlink($oldPhotoPath);
+                        $this->kidLogger->photoDeleted($kid, $oldPhoto);
                     }
                 }
 
@@ -724,18 +895,19 @@ class KidsController extends Controller
                 $file->move($path, $fileName);
 
                 // Salva o caminho relativo no banco
-                $kid->update(['photo' => 'images/kids/' . $fileName]);
+                $photoPath = 'images/kids/' . $fileName;
+                $kid->update(['photo' => $photoPath]);
+
+                $this->kidLogger->photoUploaded($kid, $photoPath, [
+                    'replaced_photo' => !is_null($oldPhoto),
+                ]);
 
                 flash('Foto atualizada com sucesso!')->success();
-                Log::info('Foto da criança atualizada', [
-                    'kid_id' => $kid->id,
-                    'path' => $kid->photo,
-                ]);
             }
 
             return redirect()->back();
         } catch (Exception $e) {
-            Log::error('Erro ao atualizar foto: ' . $e->getMessage());
+            $this->kidLogger->operationFailed('uploadPhoto', $e, ['kid_id' => $kid->id]);
             flash('Erro ao atualizar foto.')->error();
 
             return redirect()->back();
@@ -1545,6 +1717,14 @@ class KidsController extends Controller
 
         $html .= '</tbody></table>';
         $pdf->writeHTML($html, true, false, true, false, '');
+
+        // Log successful PDF generation
+        $this->kidLogger->pdfGenerated($kid, 'overview', [
+            'checklist_id' => $currentChecklist->id,
+            'level_id' => $levelId,
+            'has_bar_chart' => !empty($barChartImage),
+            'has_radar_chart' => !empty($radarChartImage),
+        ]);
 
         // Gerar o PDF e retorná-lo como resposta
         return response($pdf->Output('overview.pdf', 'S'), 200)

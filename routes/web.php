@@ -48,6 +48,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->midd
 Route::middleware(['auth'])->group(function () {
 
     // checklists
+    Route::get('checklists/trash', [ChecklistController::class, 'trash'])->name('checklists.trash');
+    Route::post('checklists/{id}/restore', [ChecklistController::class, 'restore'])->name('checklists.restore');
     Route::get('checklists/{id}/chart', [ChecklistController::class, 'chart'])->name('checklists.chart');
     Route::get('checklists/{id}/fill', [ChecklistController::class, 'fill'])->name('checklists.fill');
     Route::get('checklists/register', [ChecklistController::class, 'register'])->name('checklists.register');
@@ -55,6 +57,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('checklists', ChecklistController::class);
 
     // kids
+    Route::get('kids/trash', [KidsController::class, 'trash'])->name('kids.trash');
+    Route::post('kids/{id}/restore', [KidsController::class, 'restore'])->name('kids.restore');
     Route::get('kids/{kidId}/overview', [KidsController::class, 'overview'])->name('kids.overview');
     Route::get('kids/{kidId}/level/{levelId}/overview', [KidsController::class, 'overview'])->name('kids.overview.level');
 
@@ -67,9 +71,13 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('kids', KidsController::class);
 
     // roles
+    Route::get('roles/trash', [RoleController::class, 'trash'])->name('roles.trash');
+    Route::post('roles/{id}/restore', [RoleController::class, 'restore'])->name('roles.restore');
     Route::resource('roles', RoleController::class);
 
     // users
+    Route::get('users/trash', [UserController::class, 'trash'])->name('users.trash');
+    Route::post('users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::get('users/{id}/pdf', [UserController::class, 'pdf'])->name('users.pdf');
     Route::resource('users', UserController::class);
 
@@ -88,6 +96,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
 
     // professionals
+    Route::get('professionals/trash', [ProfessionalController::class, 'trash'])->name('professionals.trash');
+    Route::post('professionals/{id}/restore', [ProfessionalController::class, 'restore'])->name('professionals.restore');
     Route::resource('professionals', ProfessionalController::class);
     Route::patch('professionals/{professional}/deactivate', [ProfessionalController::class, 'deactivate'])->name('professionals.deactivate');
     Route::patch('professionals/{professional}/activate', [ProfessionalController::class, 'activate'])->name('professionals.activate');

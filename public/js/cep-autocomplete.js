@@ -25,46 +25,6 @@ function initCepAutocomplete() {
         if (complementoInput) complementoInput.value = '';
     }
 
-    // Função para desabilitar campos de endereço
-    function disableAddressFields() {
-        if (logradouroInput) {
-            logradouroInput.disabled = true;
-            logradouroInput.classList.add('auto-filled');
-        }
-        if (bairroInput) {
-            bairroInput.disabled = true;
-            bairroInput.classList.add('auto-filled');
-        }
-        if (cidadeInput) {
-            cidadeInput.disabled = true;
-            cidadeInput.classList.add('auto-filled');
-        }
-        if (estadoInput) {
-            estadoInput.disabled = true;
-            estadoInput.classList.add('auto-filled');
-        }
-    }
-
-    // Função para habilitar campos de endereço
-    function enableAddressFields() {
-        if (logradouroInput) {
-            logradouroInput.disabled = false;
-            logradouroInput.classList.remove('auto-filled');
-        }
-        if (bairroInput) {
-            bairroInput.disabled = false;
-            bairroInput.classList.remove('auto-filled');
-        }
-        if (cidadeInput) {
-            cidadeInput.disabled = false;
-            cidadeInput.classList.remove('auto-filled');
-        }
-        if (estadoInput) {
-            estadoInput.disabled = false;
-            estadoInput.classList.remove('auto-filled');
-        }
-    }
-
     // Função para buscar endereço por CEP
     async function searchAddressByCep(cep) {
         try {
@@ -73,12 +33,8 @@ function initCepAutocomplete() {
 
             if (cep.length !== 8) {
                 clearAddressFields();
-                enableAddressFields();
                 return;
             }
-
-            // Desabilita campos durante a busca
-            disableAddressFields();
 
             // Mostra indicador de carregamento
             if (cepInput) {
@@ -96,7 +52,6 @@ function initCepAutocomplete() {
             if (data.erro) {
                 // CEP não encontrado
                 clearAddressFields();
-                enableAddressFields();
                 alert('CEP não encontrado. Por favor, verifique o CEP informado.');
                 return;
             }
@@ -111,9 +66,6 @@ function initCepAutocomplete() {
             if (numeroInput) numeroInput.value = '';
             if (complementoInput) complementoInput.value = '';
 
-            // Mantém campos desabilitados (apenas número e complemento editáveis)
-            disableAddressFields();
-
             // Foca no campo número
             if (numeroInput) {
                 setTimeout(() => {
@@ -124,7 +76,6 @@ function initCepAutocomplete() {
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
             clearAddressFields();
-            enableAddressFields();
             alert('Erro ao buscar CEP. Tente novamente.');
         } finally {
             // Remove indicador de carregamento
@@ -165,11 +116,6 @@ function initCepAutocomplete() {
             }, 500);
         }
     });
-
-    // Inicializa campos como desabilitados se já há CEP preenchido
-    if (cepInput.value && cepInput.value.replace(/\D/g, '').length >= 8) {
-        disableAddressFields();
-    }
 }
 
 // Inicializa quando o DOM estiver carregado

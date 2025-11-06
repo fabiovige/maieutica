@@ -1,11 +1,5 @@
 @extends('layouts.app')
 
-
-@section('title')
-    Perfis
-@endsection
-
-
 @section('title')
     Perfis
 @endsection
@@ -21,21 +15,16 @@
     </li>
 @endsection
 
-
-
-
 @section('content')
     <div class="row">
-
         <div class="col-12">
-
             <form action="{{ route('roles.store') }}" method="post">
                 @csrf
                 @method('POST')
 
                 <div class="card">
                     <div class="card-header">
-                        Cadastrar
+                        Cadastrar papel
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-2">
@@ -51,18 +40,17 @@
                         <label>Permissões</label>
 
                         <div class="custom-control custom-checkbox">
-
                             <div class="form-check">
                                 <input class="form-check-input permission-input" type="checkbox" id="checkAll">
                                 <label class="form-check-label" for="checkAll">
                                     Selecionar Todos
                                 </label>
                             </div>
-
                         </div>
+
                         <div class="row">
                             @foreach ($permissions as $permission)
-                                <div class="col-md-4 py-2">
+                                <div class="col-md-12 py-2">
                                     <div class="custom-control custom-checkbox">
                                         <div class="form-check">
                                             <input class="form-check-input permission-input" type="checkbox"
@@ -80,17 +68,14 @@
                     </div>
 
                     <div class="card-footer d-flex justify-content-start gap-2">
-                        <x-button icon="check-lg" name="Salvar" type="submit" class="success"></x-button>
+                        <x-button icon="check" name="Salvar" type="submit" class="success"></x-button>
                         <a href="{{ route('roles.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-lg"></i> Cancelar
                         </a>
                     </div>
                 </div>
-
             </form>
-
         </div>
-
     </div>
 @endsection
 
@@ -104,7 +89,7 @@
 
         // Verifica se todas as permissões estão marcadas e ajusta o "Selecionar Todos"
         $('.permission-input').on('click', function() {
-            if ($('.permission-input:checked').length === $('.permission-input').length) {
+            if ($('.permission-input:checked').length === $('.permission-input').length - 1) {
                 $('#checkAll').prop('checked', true);
             } else {
                 $('#checkAll').prop('checked', false);

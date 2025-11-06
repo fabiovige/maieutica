@@ -23,30 +23,42 @@
                 <div class="card-body">
                     <div class="form-group">
                         <div class="row">
+                            <input type="hidden" name="kid_id" value="{{ $checklist->kid_id }}" />
                             <div class="col">
-                                <label for="name">Criança</label> <br />
+                                <label for="kid_name">Criança <span class="text-danger">*</span></label> <br />
                                 <input
-                                    disabled
-                                    class="form-control"
+                                    class="form-control @error('kid_name') is-invalid @enderror"
                                     type="text"
-                                    name="name"
-                                    value="{{ $checklist->kid->name }}"
-                                    readonly
+                                    id="kid_name"
+                                    name="kid_name"
+                                    value="{{ old('kid_name', $checklist->kid->name) }}"
+                                    required
                                 />
+                                @error('kid_name')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                                @enderror
                             </div>
                             <div class="col">
-                                <label for="birth_date"
-                                    >Data de nascimento</label
+                                <label for="kid_birth_date"
+                                    >Data de nascimento <span class="text-danger">*</span></label
                                 >
                                 <br />
                                 <input
-                                    disabled
-                                    class="form-control"
+                                    class="form-control @error('kid_birth_date') is-invalid @enderror"
                                     type="text"
-                                    name="birth_date"
-                                    value="{{ $checklist->kid->birth_date }}"
-                                    readonly
+                                    id="kid_birth_date"
+                                    name="kid_birth_date"
+                                    value="{{ old('kid_birth_date', $checklist->kid->birth_date) }}"
+                                    placeholder="dd/mm/aaaa"
+                                    required
                                 />
+                                @error('kid_birth_date')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                                @enderror
                             </div>
                             <div class="col">
                                 <label for="created_at">Data de criação</label>
@@ -101,24 +113,95 @@
                         </select>
                     </div>
                 </div>
-                <div class="card-footer d-flex justify-content-start gap-2">
-                    <x-button
-                        icon="check-lg"
-                        name="Salvar"
-                        type="submit"
-                        class="success"
-                    ></x-button>
-                    <a
-                        href="{{ route('checklists.index', ['kidId' => $checklist->kid_id]) }}"
-                        class="btn btn-secondary"
-                    >
-                        <i class="bi bi-x-lg"></i> Cancelar
-                    </a>
+                <div class="card-footer bg-transparent mt-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex gap-2">
+                            <x-button
+                                icon="check-lg"
+                                name="Salvar"
+                                type="submit"
+                                class="success"
+                            ></x-button>
+                            <a
+                                href="{{ route('checklists.index', ['kidId' => $checklist->kid_id]) }}"
+                                class="btn btn-secondary"
+                            >
+                                <i class="bi bi-x-lg"></i> Cancelar
+                            </a>
+                        </div>
+
+                        @can('checklist-delete')
+                            <button type="button" class="btn btn-danger" id="btn-delete-checklist"
+                                data-checklist-id="{{ $checklist->id }}"
+                                data-kid-name="{{ $checklist->kid->name }}">
+                                <i class="bi bi-trash"></i> Mover para Lixeira
+                            </button>
+                        @endcan
+                    </div>
                 </div>
             </div>
         </form>
     </div>
 </div>
+@endsection
 
-@include('includes.information-register', [ 'data' => $checklist, 'action' =>
-'checklists.destroy', 'can' => 'remove checklists', ]) @endsection
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script>
+        // Máscara para data de nascimento
+        $('#kid_birth_date').mask('00/00/0000', {placeholder: "dd/mm/aaaa"});
+
+        // Script para mover para lixeira
+        document.getElementById('btn-delete-checklist')?.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const checklistId = this.dataset.checklistId;
+            const kidName = this.dataset.kidName;
+
+            Swal.fire({
+                title: 'Mover para lixeira?',
+                html: `O checklist da criança <strong>${kidName}</strong> será movido para a lixeira.<br><br>Você poderá restaurar depois se necessário.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash"></i> Sim, mover para lixeira',
+                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostra loading
+                    Swal.fire({
+                        title: 'Processando...',
+                        html: 'Movendo checklist para lixeira',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Cria e submete o formulário
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/checklists/${checklistId}`;
+
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = '_token';
+                    csrfToken.value = '{{ csrf_token() }}';
+
+                    const methodField = document.createElement('input');
+                    methodField.type = 'hidden';
+                    methodField.name = '_method';
+                    methodField.value = 'DELETE';
+
+                    form.appendChild(csrfToken);
+                    form.appendChild(methodField);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+    </script>
+@endpush

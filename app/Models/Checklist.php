@@ -94,24 +94,25 @@ class Checklist extends Model
     {
         $query = self::query();
 
-        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
-            // Superadmin ou admin pode ver todos os checklists e seus relacionamentos
+        // Usuários com permissão *-all veem todos os checklists
+        if (auth()->user()->can('checklist-list-all')) {
             $query->with(['kid']);
-        } elseif (auth()->user()->hasRole('professional')) {
+        }
+        // Profissionais veem apenas checklists de suas crianças
+        elseif (auth()->user()->professional->count() > 0) {
             $professionalId = auth()->user()->professional->first()->id;
 
             $query->whereHas('kid', function ($q) use ($professionalId) {
                 $q->whereHas('professionals', function ($q) use ($professionalId) {
                     $q->where('professional_id', $professionalId);
                 });
-            })
-                ->with(['kid']);
-        } elseif (auth()->user()->hasRole('pais')) {
-            // Pais podem ver checklists associados às crianças pelas quais são responsáveis
+            })->with(['kid']);
+        }
+        // Responsáveis (pais) veem apenas checklists de suas crianças
+        else {
             $query->whereHas('kid', function ($q) {
                 $q->where('responsible_id', auth()->user()->id);
-            })
-                ->with(['kid']);
+            })->with(['kid']);
         }
 
         return $query;

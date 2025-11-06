@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\User;
-use App\Observers\UserObserver;
 use App\View\Components\Address;
 use App\View\Components\Button;
 use App\View\Components\Table;
@@ -39,8 +37,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('table', Table::class);
         Blade::component('address', Address::class);
 
-        // Observers
-        User::observe(UserObserver::class);
+        // Observers registrados no EventServiceProvider
 
         // Configuração para resolver o problema de SSL com o reCAPTCHA
         \Illuminate\Support\Facades\Http::macro('noSslVerification', function () {

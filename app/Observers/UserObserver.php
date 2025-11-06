@@ -2,10 +2,10 @@
 
 namespace App\Observers;
 
+use App\Mail\UserCreatedMail;
 use App\Mail\UserDeletedMail;
 use App\Mail\UserUpdatedMail;
 use App\Models\User;
-use App\Notifications\WelcomeNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -19,17 +19,27 @@ class UserObserver
     public function created(User $user)
     {
         try {
-            \Log::info('UserObserver: created event triggered', [
+            Log::info('UserObserver: created event triggered', [
                 'user_id' => $user->id,
                 'email' => $user->email,
             ]);
 
-            // O Observer é responsável por enviar o email de boas-vindas
-            $notification = new WelcomeNotification($user, $user->temporaryPassword);
-            $user->notify($notification);
+            // Criar a instância do Mailable e enfileirar
+            $email = (new UserCreatedMail($user, $user->temporaryPassword))->onQueue('emails');
+
+            // Enviar o e-mail para a fila
+            Mail::to($user->email)->queue($email);
+
+            Log::info('E-mail de boas-vindas enfileirado', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Erro no UserObserver: '.$e->getMessage());
+            Log::error('Falha ao enviar e-mail de boas-vindas', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
@@ -40,7 +50,6 @@ class UserObserver
      */
     public function updated(User $user)
     {
-        // dd('updated');
         try {
             // Criar a instância do Mailable e depois chamar onQueue()
             $email = (new UserUpdatedMail($user))->onQueue('emails');
@@ -48,19 +57,11 @@ class UserObserver
             // Enviar o e-mail para a fila
             Mail::to($user->email)->queue($email);
 
-            Log::alert('E-mail de atualização enfileirado para o usuário', [
+            Log::info('E-mail de atualização enfileirado para o usuário', [
                 'user_id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'phone' => $user->phone,
-                'street' => $user->street,
-                'city' => $user->city,
-                'state' => $user->state,
-                'country' => $user->country,
-                'neighborhood' => $user->neighborhood,
-                'postal_code' => $user->postal_code,
                 'updated_at' => $user->updated_at,
-                'updated_by' => auth()->user()->id,
             ]);
 
         } catch (\Exception $e) {
@@ -70,9 +71,6 @@ class UserObserver
                 'error' => $e->getMessage(),
             ]);
         }
-
-        // Continuar o processo de log, mesmo que o e-mail falhe
-        Log::info('Usuário atualizado UserObserver', ['user_id' => $user->id]);
     }
 
     /**
@@ -82,35 +80,36 @@ class UserObserver
      */
     public function deleted(User $user)
     {
-        // dd('deleted');
-        if ($user->trashed()) {
+        try {
+            if ($user->trashed()) {
+                // Buscar administradores usando Spatie Permission
+                $admins = User::whereHas('roles', function($query) {
+                    $query->where('name', 'superadmin');
+                })->get();
 
-            $admin = User::where('role_id', 1)->first(); // Ajuste a query conforme a role de admin
-            if ($admin) {
+                if ($admins->isNotEmpty()) {
+                    // Criar a instância do Mailable e depois chamar onQueue()
+                    $email = (new UserDeletedMail($user))->onQueue('emails');
 
-                // Criar a instância do Mailable e depois chamar onQueue()
-                $email = (new UserDeletedMail($user))->onQueue('emails');
+                    // Enviar para todos os admins e para o próprio usuário
+                    $recipients = $admins->pluck('email')->push($user->email)->unique();
 
-                // Enviar o e-mail para a fila
-                Mail::to($admin->email)
-                    ->cc($user->email)
-                    ->cc($user->email)
-                    ->queue($email);
+                    Mail::to($recipients->first())
+                        ->cc($recipients->slice(1)->toArray())
+                        ->queue($email);
+                }
+
+                Log::alert('Usuário excluído', [
+                    'user_id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'deleted_at' => $user->deleted_at,
+                ]);
             }
-
-            Log::alert('Usuário excluído UserObserver', [
+        } catch (\Exception $e) {
+            Log::error('Falha ao enviar e-mail de exclusão', [
                 'user_id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'street' => $user->street,
-                'city' => $user->city,
-                'state' => $user->state,
-                'country' => $user->country,
-                'neighborhood' => $user->neighborhood,
-                'postal_code' => $user->postal_code,
-                'deleted_at' => $user->deleted_at,
-                'deleted_by' => auth()->user()->id,
+                'error' => $e->getMessage(),
             ]);
         }
     }

@@ -90,7 +90,7 @@ Plano Manual
 
 </div>
 
-@include('includes.information-register', ['data' => $kid, 'action' => 'kids.destroy', 'can' => 'remove kids'])
+@include('includes.information-register', ['data' => $kid, 'action' => 'kids.destroy', 'can' => 'kid-delete'])
 @endsection
 
 @push('scripts')
