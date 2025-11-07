@@ -60,7 +60,7 @@ class ProfessionalController extends Controller
             });
         }
 
-        $professionals = $query->orderBy('created_at', 'desc')->paginate(5);
+        $professionals = $query->orderBy('created_at', 'desc')->paginate(self::PAGINATION_DEFAULT);
 
         $this->professionalLogger->listed([
             'search' => $request->input('search'),
@@ -334,7 +334,7 @@ class ProfessionalController extends Controller
         $professionals = Professional::onlyTrashed()
             ->with(['user', 'specialty'])
             ->orderBy('deleted_at', 'desc')
-            ->paginate(5);
+            ->paginate(self::PAGINATION_DEFAULT);
 
         $this->professionalLogger->trashViewed([
             'total_trashed' => $professionals->total(),

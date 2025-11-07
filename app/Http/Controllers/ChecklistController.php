@@ -73,7 +73,7 @@ class ChecklistController extends Controller
             $checklists = $queryChecklists->with('competences')
                 ->orderBy('created_at', 'desc')
                 ->orderBy('id', 'desc')
-                ->get();
+                ->paginate(self::PAGINATION_DEFAULT);
 
             foreach ($checklists as $checklist) {
                 $checklist->developmentPercentage = $this->percentualDesenvolvimento($checklist->id);

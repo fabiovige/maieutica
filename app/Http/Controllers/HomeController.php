@@ -74,7 +74,7 @@ class HomeController extends Controller
             $kidsQuery->where('responsible_id', $user->id)->latest();
         }
 
-        $kids = $kidsQuery->paginate(10);
+        $kids = $kidsQuery->paginate(self::PAGINATION_DEFAULT);
 
         // Calculando o progresso para cada criança
         foreach ($kids as $kid) {

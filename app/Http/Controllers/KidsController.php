@@ -65,7 +65,7 @@ class KidsController extends Controller
             });
         }
 
-        $kids = $query->orderBy('name')->paginate(15);
+        $kids = $query->orderBy('name')->paginate(self::PAGINATION_DEFAULT);
 
         // Log kids list access with filters
         $this->kidLogger->listed([
@@ -430,7 +430,7 @@ class KidsController extends Controller
         $kids = Kid::onlyTrashed()
             ->with(['professionals.user', 'professionals.specialty', 'responsible'])
             ->orderBy('deleted_at', 'desc')
-            ->paginate(15);
+            ->paginate(self::PAGINATION_DEFAULT);
 
         $this->kidLogger->trashViewed(['total_trashed' => $kids->total()]);
 
