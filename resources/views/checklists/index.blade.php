@@ -296,6 +296,11 @@
                 </tbody>
             </table>
 
+            <!-- Pagination Links -->
+            <div class="d-flex justify-content-center mt-3">
+                {{ $checklists->links() }}
+            </div>
+
         </div>
         @if (isset($kid))
             <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-6' }} mt-2">

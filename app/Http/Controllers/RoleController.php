@@ -45,7 +45,7 @@ class RoleController extends Controller
             });
         }
 
-        $roles = $query->with('permissions')->orderBy('name')->paginate(5);
+        $roles = $query->with('permissions')->orderBy('name')->paginate(self::PAGINATION_DEFAULT);
 
         $this->roleLogger->listed([
             'search' => $request->input('search'),
@@ -285,7 +285,7 @@ class RoleController extends Controller
         $roles = Role::onlyTrashed()
             ->with('permissions')
             ->orderBy('deleted_at', 'desc')
-            ->paginate(5);
+            ->paginate(self::PAGINATION_DEFAULT);
 
         $this->roleLogger->trashViewed([
             'total_trashed' => $roles->total(),

@@ -43,7 +43,7 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->paginate(5);
+        $users = $query->paginate(self::PAGINATION_DEFAULT);
 
         $this->userLogger->listed([
             'search' => $request->input('search'),
@@ -352,7 +352,7 @@ class UserController extends Controller
         $users = User::onlyTrashed()
             ->with('roles')
             ->orderBy('deleted_at', 'desc')
-            ->paginate(15);
+            ->paginate(self::PAGINATION_DEFAULT);
 
         $this->userLogger->trashViewed([
             'total_trashed' => $users->total(),

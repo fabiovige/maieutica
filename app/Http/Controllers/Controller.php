@@ -14,6 +14,14 @@ class Controller extends BaseController
     use DispatchesJobs;
     use ValidatesRequests;
 
+    /**
+     * Default pagination value for all controllers
+     */
+    public const PAGINATION_DEFAULT = 10;
+
+    /**
+     * @deprecated Not being used. Use PAGINATION_DEFAULT constant instead.
+     */
     public $paginate = 15;
 
     public const MSG_CLONE_SUCCESS = 'Checklist clonado com sucesso.';

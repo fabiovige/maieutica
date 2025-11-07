@@ -161,13 +161,13 @@
                             <div class="mb-3">
                                 @if ($kid->photo)
                                     <img src="{{ asset($kid->photo) }}"
-                                         class="rounded-circle border border-3 border-primary"
+                                         class="rounded-circle"
                                          width="100"
                                          height="100"
                                          style="object-fit: cover;"
                                          alt="{{ $kid->name }}">
                                 @else
-                                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center border border-3 border-primary"
+                                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center"
                                          style="width: 100px; height: 100px;">
                                         <i class="bi bi-person text-white" style="font-size: 3rem;"></i>
                                     </div>
