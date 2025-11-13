@@ -65,6 +65,13 @@ php artisan test
 # Run specific test suite
 ./vendor/bin/phpunit --testsuite Unit
 ./vendor/bin/phpunit --testsuite Feature
+
+# Run specific test file
+php artisan test tests/Unit/ExampleTest.php
+./vendor/bin/phpunit tests/Feature/ExampleTest.php
+
+# Run specific test method
+php artisan test --filter test_method_name
 ```
 
 ### Code Quality
@@ -484,6 +491,15 @@ All policies (RolePolicy, UserPolicy, ProfessionalPolicy) are **standardized** t
 
 See `docs/PROFESSIONAL_USER_RELATIONSHIP.md` for detailed documentation on Professional-User relationships and authorization patterns.
 
+## Additional Documentation
+
+For detailed documentation on specific topics, see the `docs/` folder:
+
+- `PROFESSIONAL_USER_RELATIONSHIP.md` - Comprehensive guide on Professional-User relationships, authorization patterns, and lifecycle management (creation, deletion, activation/deactivation)
+- `checklistLogger.md`, `professionalLogger.md`, `roleLogger.md`, `userLogger.md` - Logging documentation for specific entities
+- `cep-autocomplete.md`, `implementacao-cep.md` - Brazilian postal code (CEP) integration documentation
+- `routes_checklist.md` - Route structure documentation
+
 ## Important Notes
 
 - The system uses Brazilian Portuguese localization (`lucascudo/laravel-pt-br-localization`)
@@ -493,3 +509,4 @@ See `docs/PROFESSIONAL_USER_RELATIONSHIP.md` for detailed documentation on Profe
 - Session lifetime is configurable via SESSION_LIFETIME in .env (default 120 minutes)
 - **Database changes:** Never alter database tables without explicit authorization
 - **Authorization:** See "Authorization System" section - NEVER use `hasRole()` for authorization logic, ALWAYS use `can()` with permissions
+- **Windows development:** This project is developed on Windows (MINGW64). Most commands work cross-platform, but file paths use Windows format in local development
