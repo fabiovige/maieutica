@@ -309,10 +309,19 @@ Comparativo
             var secondChecklistId = document.getElementById('secondChecklistId').value;
             var levelId = document.getElementById('comparisonLevelId').value;
 
-            if (firstChecklistId && secondChecklistId && levelId) {
-                var url = "{{ url('analysis') }}/" + "{{ $kid->id }}" +
-                         "/level/" + levelId + "/" +
-                         firstChecklistId + "/" + secondChecklistId;
+            // Nível é obrigatório, mas checklists são opcionais
+            if (levelId) {
+                var url = "{{ url('analysis') }}/" + "{{ $kid->id }}" + "/level/" + levelId;
+
+                // Adiciona checklists à URL se estiverem selecionados
+                if (firstChecklistId) {
+                    url += "/" + firstChecklistId;
+
+                    if (secondChecklistId) {
+                        url += "/" + secondChecklistId;
+                    }
+                }
+
                 window.location.href = url;
             }
         }
