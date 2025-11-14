@@ -37,7 +37,7 @@ Comparativo
                                 <select name="firstChecklistId" id="firstChecklistId" class="form-select">
                                     <option value="">-- Selecione --</option>
                                     @foreach($allChecklists as $checklist)
-                                    <option value="{{ $checklist->id }}" {{ isset($firstChecklist) && $firstChecklist->id === $checklist->id ? 'selected' : '' }}>
+                                    <option value="{{ $checklist->id }}" {{ $firstChecklist?->id === $checklist->id ? 'selected' : '' }}>
                                         {{ $checklist->name ?? 'Checklist ' . $checklist->id }} - {{ $checklist->created_at->format('d/m/Y') }}
                                     </option>
                                     @endforeach
@@ -52,7 +52,7 @@ Comparativo
                                 <select name="secondChecklistId" id="secondChecklistId" class="form-select">
                                     <option value="">-- Selecione --</option>
                                     @foreach($allChecklists as $checklist)
-                                    <option value="{{ $checklist->id }}" {{ isset($secondChecklist) && $secondChecklist->id === $checklist->id ? 'selected' : '' }}>
+                                    <option value="{{ $checklist->id }}" {{ $secondChecklist?->id === $checklist->id ? 'selected' : '' }}>
                                         {{ $checklist->name ?? 'Checklist ' . $checklist->id }} - {{ $checklist->created_at->format('d/m/Y') }}
                                     </option>
                                     @endforeach
@@ -139,7 +139,7 @@ Comparativo
                         'kidId' => $kid->id,
                         'levelId' => $levelId,
                         'domainId' => $domain->id,
-                        'checklistId' => $secondChecklist->id ?? $firstChecklist->id
+                        'checklistId' => $secondChecklist?->id ?? $firstChecklist?->id
                     ]) }}"
                     class="text-decoration-none">
                         <div class="d-flex align-items-center p-3 border-bottom position-relative domain-item">

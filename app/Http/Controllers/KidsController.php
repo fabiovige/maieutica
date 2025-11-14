@@ -1231,6 +1231,17 @@ class KidsController extends Controller
         $firstChecklist = $firstChecklistId ? Checklist::find($firstChecklistId) : null;
         $secondChecklist = $secondChecklistId ? Checklist::find($secondChecklistId) : null;
 
+        // Validar se há checklists disponíveis
+        if ($allChecklists->count() === 0) {
+            flash('Esta criança ainda não possui checklists para realizar análise comparativa.')->warning();
+            return redirect()->route('kids.show', $kidId);
+        }
+
+        // Se só há 1 checklist e nenhum foi selecionado, usar como primeiro
+        if (!$firstChecklist && $allChecklists->count() > 0) {
+            $firstChecklist = $allChecklists->first();
+        }
+
         // Preparar os dados para o radar geral por domínios
         $radarDataDomains = [];
         $levels = [];
