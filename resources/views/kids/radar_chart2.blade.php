@@ -120,27 +120,54 @@ Comparativo
                     <canvas id="barChart" width="400" height="200"></canvas>
                     <div class="mt-4">
                         @php
-                            // Prepara labels e datasets para o componente
+                            // Prepara labels e datasets
                             $radarLabels = array_column($radarDataDomains, 'domain');
+
+                            // Datasets para o gráfico de radar (escala 0-3)
                             $radarDatasets = [];
 
+                            // Datasets para o gráfico de barras (escala 0-100 percentual)
+                            $barDatasets = [];
+
                             if ($firstChecklist) {
+                                $firstData = array_map(fn($item) => $item['firstAverage'] ?? 0, $radarDataDomains);
+
+                                // Para o radar: escala 0-3
                                 $radarDatasets[] = [
                                     'label' => 'Checklist 1 - ' . $firstChecklist->created_at->format('d/m/Y'),
-                                    // Mantém escala 0-3 (tooltip mostrará percentual)
-                                    'data' => array_map(fn($item) => $item['firstAverage'] ?? 0, $radarDataDomains),
+                                    'data' => $firstData,
                                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                                    'borderColor' => 'rgba(54, 162, 235, 1)',
+                                    'borderWidth' => 1
+                                ];
+
+                                // Para o bar: converte para percentual (0-100)
+                                $barDatasets[] = [
+                                    'label' => 'Checklist 1 - ' . $firstChecklist->created_at->format('d/m/Y'),
+                                    'data' => array_map(fn($value) => round(($value / 3) * 100, 1), $firstData),
+                                    'backgroundColor' => 'rgba(54, 162, 235, 0.6)',
                                     'borderColor' => 'rgba(54, 162, 235, 1)',
                                     'borderWidth' => 1
                                 ];
                             }
 
                             if ($secondChecklist) {
+                                $secondData = array_map(fn($item) => $item['secondAverage'] ?? 0, $radarDataDomains);
+
+                                // Para o radar: escala 0-3
                                 $radarDatasets[] = [
                                     'label' => 'Checklist 2 - ' . $secondChecklist->created_at->format('d/m/Y'),
-                                    // Mantém escala 0-3 (tooltip mostrará percentual)
-                                    'data' => array_map(fn($item) => $item['secondAverage'] ?? 0, $radarDataDomains),
+                                    'data' => $secondData,
                                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+                                    'borderColor' => 'rgba(255, 99, 132, 1)',
+                                    'borderWidth' => 1
+                                ];
+
+                                // Para o bar: converte para percentual (0-100)
+                                $barDatasets[] = [
+                                    'label' => 'Checklist 2 - ' . $secondChecklist->created_at->format('d/m/Y'),
+                                    'data' => array_map(fn($value) => round(($value / 3) * 100, 1), $secondData),
+                                    'backgroundColor' => 'rgba(255, 99, 132, 0.6)',
                                     'borderColor' => 'rgba(255, 99, 132, 1)',
                                     'borderWidth' => 1
                                 ];
@@ -199,39 +226,40 @@ Comparativo
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script type="text/javascript">
+    // Registrar o plugin
+    Chart.register(ChartDataLabels);
+
     document.addEventListener('DOMContentLoaded', function() {
         // Dados para o Gráfico de Barras
         var ctxBar = document.getElementById('barChart').getContext('2d');
         var radarLabels = @json($radarLabels);
-        var datasets = @json($radarDatasets);
+        var barDatasets = @json($barDatasets);
 
-        // Gráfico de Barras
+        // Gráfico de Barras (em percentual)
         var barChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
                 labels: radarLabels,
-                datasets: datasets
+                datasets: barDatasets
             },
             options: {
                 scales: {
                     y: {
                         beginAtZero: true,
                         suggestedMin: 0,
-                        suggestedMax: 3,
+                        suggestedMax: 100,
                         ticks: {
-                            stepSize: 1,
+                            stepSize: 25,
                             callback: function (value) {
-                                if (value === 0) return 'Não observado';
-                                if (value === 1) return 'Não desenvolvido';
-                                if (value === 2) return 'Em desenvolvimento';
-                                if (value === 3) return 'Desenvolvido';
-                                return value;
+                                return value + '%';
                             }
                         },
                         title: {
                             display: true,
-                            text: 'Nível'
+                            text: 'Percentual de Desenvolvimento'
                         }
                     },
                     x: {
@@ -245,6 +273,31 @@ Comparativo
                     legend: {
                         display: true,
                         position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y.toFixed(1) + '%';
+                                return label;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#000',
+                        font: {
+                            weight: 'bold',
+                            size: 11
+                        },
+                        formatter: function(value) {
+                            return value.toFixed(1) + '%';
+                        },
+                        padding: 4
                     }
                 }
             }
