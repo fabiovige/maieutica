@@ -184,6 +184,7 @@
                                     <th>Cadastro</th>
                                     <th>Responsável</th>
                                     <th>Profissionais</th>
+                                    <th style="width: 150px;">Progresso</th>
                                     <th class="text-end" style="width: 280px;">Ações</th>
                                 </tr>
                             </thead>
@@ -243,6 +244,22 @@
                                             @else
                                                 <span class="text-muted small">Nenhum</span>
                                             @endif
+                                        </td>
+
+                                        <!-- Progresso -->
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress flex-grow-1" style="height: 8px;">
+                                                    <div class="progress-bar"
+                                                         role="progressbar"
+                                                         style="width: {{ $kid->progress_percentage ?? 0 }}%; background-color: {{ get_progress_color($kid->progress_percentage ?? 0) }}"
+                                                         aria-valuenow="{{ $kid->progress_percentage ?? 0 }}"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                <small class="text-nowrap fw-semibold">{{ $kid->progress_percentage ?? 0 }}%</small>
+                                            </div>
                                         </td>
 
                                         <!-- Ações -->
@@ -371,6 +388,24 @@
                                         @else
                                             <span class="text-muted small">Nenhum profissional atribuído</span>
                                         @endif
+                                    </div>
+                                </div>
+
+                                <!-- Progresso Geral -->
+                                <div class="mb-2">
+                                    <div class="d-flex align-items-center mb-1 small">
+                                        <i class="bi bi-graph-up text-muted me-2"></i>
+                                        <span class="text-muted">Progresso:</span>
+                                        <span class="ms-auto fw-semibold">{{ $kid->progress_percentage ?? 0 }}%</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar"
+                                             role="progressbar"
+                                             style="width: {{ $kid->progress_percentage ?? 0 }}%; background-color: {{ get_progress_color($kid->progress_percentage ?? 0) }}"
+                                             aria-valuenow="{{ $kid->progress_percentage ?? 0 }}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
