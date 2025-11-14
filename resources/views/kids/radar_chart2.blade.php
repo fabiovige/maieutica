@@ -119,7 +119,40 @@ Comparativo
                 <div class="card-body">
                     <canvas id="barChart" width="400" height="200"></canvas>
                     <div class="mt-4">
-                        <canvas id="radarChart" width="400" height="400"></canvas>
+                        @php
+                            // Prepara labels e datasets para o componente
+                            $radarLabels = array_column($radarDataDomains, 'domain');
+                            $radarDatasets = [];
+
+                            if ($firstChecklist) {
+                                $radarDatasets[] = [
+                                    'label' => 'Checklist 1 - ' . $firstChecklist->created_at->format('d/m/Y'),
+                                    // Mantém escala 0-3 (tooltip mostrará percentual)
+                                    'data' => array_map(fn($item) => $item['firstAverage'] ?? 0, $radarDataDomains),
+                                    'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                                    'borderColor' => 'rgba(54, 162, 235, 1)',
+                                    'borderWidth' => 1
+                                ];
+                            }
+
+                            if ($secondChecklist) {
+                                $radarDatasets[] = [
+                                    'label' => 'Checklist 2 - ' . $secondChecklist->created_at->format('d/m/Y'),
+                                    // Mantém escala 0-3 (tooltip mostrará percentual)
+                                    'data' => array_map(fn($item) => $item['secondAverage'] ?? 0, $radarDataDomains),
+                                    'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+                                    'borderColor' => 'rgba(255, 99, 132, 1)',
+                                    'borderWidth' => 1
+                                ];
+                            }
+                        @endphp
+
+                        <x-radar-chart
+                            :labels="$radarLabels"
+                            :datasets="$radarDatasets"
+                            canvasId="radarChart"
+                            :showPercentageInTooltip="true"
+                        />
                     </div>
                 </div>
             </div>
@@ -166,109 +199,76 @@ Comparativo
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ asset('js/radar-chart-helper.js') }}?v={{ filemtime(public_path('js/radar-chart-helper.js')) }}"></script>
 <script type="text/javascript">
-    // Dados para os Gráficos
-    var ctxBar = document.getElementById('barChart').getContext('2d');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dados para o Gráfico de Barras
+        var ctxBar = document.getElementById('barChart').getContext('2d');
+        var radarLabels = @json($radarLabels);
+        var datasets = @json($radarDatasets);
 
-    var radarLabels = @json(array_column($radarDataDomains, 'domain'));
-
-    var radarDataFirst = @json(array_map(function ($item) {
-        return $item['firstAverage'] ?? 0;
-    }, $radarDataDomains));
-
-    var radarDataSecond = @json(array_map(function ($item) {
-        return $item['secondAverage'] ?? 0;
-    }, $radarDataDomains));
-
-    var datasets = [];
-
-    @if ($firstChecklist)
-        datasets.push({
-            label: 'Checklist 1 - {{ $firstChecklist->created_at->format('d/m/Y') }}',
-            data: radarDataFirst,
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        });
-    @endif
-
-    @if ($secondChecklist)
-        datasets.push({
-            label: 'Checklist 2 - {{ $secondChecklist->created_at->format('d/m/Y') }}',
-            data: radarDataSecond,
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1
-        });
-    @endif
-
-    // Gráfico de Radar usando helper
-    var radarChart = createRadarChart('radarChart', radarLabels, datasets);
-
-    // Gráfico de Barras
-    var barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: radarLabels,
-            datasets: datasets
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    suggestedMin: 0,
-                    suggestedMax: 3,
-                    ticks: {
-                        stepSize: 1,
-                        callback: function (value) {
-                            if (value === 0) return 'Não observado';
-                            if (value === 1) return 'Não desenvolvido';
-                            if (value === 2) return 'Em desenvolvimento';
-                            if (value === 3) return 'Desenvolvido';
-                            return value;
+        // Gráfico de Barras
+        var barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: radarLabels,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMin: 0,
+                        suggestedMax: 3,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function (value) {
+                                if (value === 0) return 'Não observado';
+                                if (value === 1) return 'Não desenvolvido';
+                                if (value === 2) return 'Em desenvolvimento';
+                                if (value === 3) return 'Desenvolvido';
+                                return value;
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Nível'
                         }
                     },
-                    title: {
-                        display: true,
-                        text: 'Nível'
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Domínios'
+                        }
                     }
                 },
-                x: {
-                    title: {
+                plugins: {
+                    legend: {
                         display: true,
-                        text: 'Domínios'
+                        position: 'top'
                     }
                 }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
-                }
+            }
+        });
+
+        // Função para atualizar a URL quando os selects mudarem
+        function updateUrl() {
+            var firstChecklistId = document.getElementById('firstChecklistId').value;
+            var secondChecklistId = document.getElementById('secondChecklistId').value;
+            var levelId = document.getElementById('comparisonLevelId').value;
+
+            if (firstChecklistId && secondChecklistId && levelId) {
+                var url = "{{ url('analysis') }}/" + "{{ $kid->id }}" +
+                         "/level/" + levelId + "/" +
+                         firstChecklistId + "/" + secondChecklistId;
+                window.location.href = url;
             }
         }
+
+        // Adicionar listeners para os selects
+        document.getElementById('firstChecklistId').addEventListener('change', updateUrl);
+        document.getElementById('secondChecklistId').addEventListener('change', updateUrl);
+        document.getElementById('comparisonLevelId').addEventListener('change', updateUrl);
     });
-
-    // Função para atualizar a URL quando os selects mudarem
-    function updateUrl() {
-        var firstChecklistId = document.getElementById('firstChecklistId').value;
-        var secondChecklistId = document.getElementById('secondChecklistId').value;
-        var levelId = document.getElementById('comparisonLevelId').value;
-
-        if (firstChecklistId && secondChecklistId && levelId) {
-            var url = "{{ url('analysis') }}/" + "{{ $kid->id }}" +
-                     "/level/" + levelId + "/" +
-                     firstChecklistId + "/" + secondChecklistId;
-            window.location.href = url;
-        }
-    }
-
-    // Adicionar listeners para os selects
-    document.getElementById('firstChecklistId').addEventListener('change', updateUrl);
-    document.getElementById('secondChecklistId').addEventListener('change', updateUrl);
-    document.getElementById('comparisonLevelId').addEventListener('change', updateUrl);
 </script>
 @endpush
 

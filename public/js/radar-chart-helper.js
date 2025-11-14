@@ -5,42 +5,122 @@
 
 /**
  * Opções padrão para gráficos de radar do sistema
- * Escala 0-3 com labels textuais
+ * Escala 0-3 com labels textuais OU 0-100 com percentuais
+ * @param {boolean} showPercentageInTooltip - Se true, exibe percentual ao invés de nota no tooltip
+ * @param {boolean} usePercentageScale - Se true, usa escala 0-100 ao invés de 0-3
  */
-function getRadarChartOptions() {
-    return {
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.dataset.label || '';
-                        if (label) {
-                            label += ': ';
+function getRadarChartOptions(showPercentageInTooltip = false, usePercentageScale = false) {
+    if (usePercentageScale) {
+        // Escala em percentual (0-100)
+        return {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += context.parsed.r.toFixed(1) + '%';
+                            return label;
                         }
-                        // Formata o valor com 1 casa decimal
-                        label += context.parsed.r.toFixed(1);
-                        return label;
+                    }
+                },
+                datalabels: {
+                    color: '#000',
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    borderRadius: 4,
+                    font: {
+                        weight: 'bold',
+                        size: 11
+                    },
+                    formatter: function(value) {
+                        return value.toFixed(1) + '%';
+                    },
+                    padding: 4
+                }
+            },
+            scales: {
+                r: {
+                    suggestedMin: 0,
+                    suggestedMax: 100,
+                    ticks: {
+                        stepSize: 25,
+                        callback: function (value) {
+                            if (value === 0) return '0% - Não observado';
+                            if (value === 33.33 || value === 25) return '33% - Não desenvolvido';
+                            if (value === 66.67 || value === 50) return '67% - Em desenvolvimento';
+                            if (value === 75) return '75%';
+                            if (value === 100) return '100% - Desenvolvido';
+                            return value + '%';
+                        }
                     }
                 }
             }
-        },
-        scales: {
-            r: {
-                suggestedMin: 0,
-                suggestedMax: 3,
-                ticks: {
-                    stepSize: 1,
-                    callback: function (value) {
-                        if (value === 0) return 'Não observado';
-                        if (value === 1) return 'Não desenvolvido';
-                        if (value === 2) return 'Em desenvolvimento';
-                        if (value === 3) return 'Desenvolvido';
-                        return value;
+        };
+    } else {
+        // Escala 0-3 (original)
+        return {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+
+                            // Se showPercentageInTooltip = true, converte para percentual
+                            if (showPercentageInTooltip) {
+                                const percentage = noteScaleToPercentage(context.parsed.r);
+                                label += percentage.toFixed(1) + '%';
+                            } else {
+                                // Formata o valor com 1 casa decimal (nota 0-3)
+                                label += context.parsed.r.toFixed(1);
+                            }
+
+                            return label;
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#000',
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    borderRadius: 4,
+                    font: {
+                        weight: 'bold',
+                        size: 11
+                    },
+                    formatter: function(value) {
+                        // Se showPercentageInTooltip = true, exibe percentual no label
+                        if (showPercentageInTooltip) {
+                            const percentage = noteScaleToPercentage(value);
+                            return percentage.toFixed(1) + '%';
+                        } else {
+                            return value.toFixed(1);
+                        }
+                    },
+                    padding: 4
+                }
+            },
+            scales: {
+                r: {
+                    suggestedMin: 0,
+                    suggestedMax: 3,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function (value) {
+                            if (value === 0) return 'Não observado';
+                            if (value === 1) return 'Não desenvolvido';
+                            if (value === 2) return 'Em desenvolvimento';
+                            if (value === 3) return 'Desenvolvido';
+                            return value;
+                        }
                     }
                 }
             }
-        }
-    };
+        };
+    }
 }
 
 /**
@@ -48,9 +128,11 @@ function getRadarChartOptions() {
  * @param {string} canvasId - ID do elemento canvas
  * @param {Array} labels - Labels para os eixos do radar
  * @param {Array} datasets - Datasets do Chart.js (pode conter múltiplos datasets)
+ * @param {boolean} showPercentageInTooltip - Se true, exibe percentual ao invés de nota no tooltip
+ * @param {boolean} usePercentageScale - Se true, usa escala 0-100 ao invés de 0-3
  * @returns {Chart} - Instância do Chart.js
  */
-function createRadarChart(canvasId, labels, datasets) {
+function createRadarChart(canvasId, labels, datasets, showPercentageInTooltip = false, usePercentageScale = false) {
     const ctx = document.getElementById(canvasId).getContext('2d');
 
     return new Chart(ctx, {
@@ -59,7 +141,7 @@ function createRadarChart(canvasId, labels, datasets) {
             labels: labels,
             datasets: datasets
         },
-        options: getRadarChartOptions()
+        options: getRadarChartOptions(showPercentageInTooltip, usePercentageScale)
     });
 }
 
