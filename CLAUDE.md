@@ -204,6 +204,17 @@ Plane (Development Plan)
 - Comparative analysis between evaluation sessions
 - Automatic development plan generation based on weakest competences
 
+**File Uploads:**
+- **Kid Photo/Avatar Upload:**
+  - **Accepted formats:** JPG, JPEG, PNG, BMP, GIF, SVG, WEBP (Laravel `image` validation)
+  - **Maximum size:** 1 MB (1024 KB)
+  - **Storage location:** `public/images/kids/`
+  - **Naming convention:** `{timestamp}_{kid_id}.{extension}`
+  - **Implementation:** `KidsController::uploadPhoto()` at line 867
+  - **Validation:** Located at `app/Http/Controllers/KidsController.php:870-872`
+  - **Note:** No automatic image resizing - images should be pre-sized appropriately
+  - Old photos are automatically deleted when new ones are uploaded
+
 **Security & Authorization:**
 - Laravel Sanctum for API authentication
 - Spatie Laravel Permission for role/permission management

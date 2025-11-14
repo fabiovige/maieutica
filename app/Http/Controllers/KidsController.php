@@ -65,7 +65,7 @@ class KidsController extends Controller
             });
         }
 
-        $kids = $query->orderBy('name')->paginate(self::PAGINATION_DEFAULT);
+        $kids = $query->orderBy('created_at', 'desc')->paginate(self::PAGINATION_DEFAULT);
 
         // Log kids list access with filters
         $this->kidLogger->listed([
@@ -116,26 +116,49 @@ class KidsController extends Controller
 
             $kid = Kid::create($kidData);
 
-            // Se o usuário tem um professional vinculado, adiciona como profissional da criança
-            $professional = Auth::user()->professional->first();
+            // Processar profissionais selecionados no formulário
+            $professionals = $request->input('professionals', []);
 
-            if ($professional) {
-                $kid->professionals()->attach($professional->id, [
+            // Se o usuário tem um professional vinculado e não há profissionais no form, adiciona automaticamente
+            $userProfessional = Auth::user()->professional->first();
+
+            if ($userProfessional && empty($professionals)) {
+                // Comportamento antigo: auto-attach se o form não enviou profissionais
+                $kid->professionals()->attach($userProfessional->id, [
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
 
                 // Log professional attachment
-                $this->kidLogger->professionalAttached($kid, $professional->id, [
+                $this->kidLogger->professionalAttached($kid, $userProfessional->id, [
                     'source' => 'auto_attach_on_create',
                 ]);
+            } elseif (!empty($professionals)) {
+                // Novo comportamento: anexar profissionais selecionados no formulário
+                $syncData = [];
+                foreach ($professionals as $professionalId) {
+                    $syncData[$professionalId] = [
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
+
+                $kid->professionals()->sync($syncData);
+
+                // Log professional attachments
+                foreach ($professionals as $professionalId) {
+                    $this->kidLogger->professionalAttached($kid, $professionalId, [
+                        'source' => 'form_selection_on_create',
+                    ]);
+                }
             }
 
             // KidObserver will log the creation at model level
             // We log at controller level with additional context
             $this->kidLogger->created($kid, [
                 'source' => 'controller',
-                'has_professional' => !is_null($professional),
+                'has_professional' => !empty($professionals) || !is_null($userProfessional),
+                'professionals_count' => count($professionals),
             ]);
 
             flash(self::MSG_CREATE_SUCCESS)->success();
