@@ -67,6 +67,12 @@ class KidsController extends Controller
 
         $kids = $query->orderBy('created_at', 'desc')->paginate(self::PAGINATION_DEFAULT);
 
+        // Calcular progresso para cada criança
+        foreach ($kids as $kid) {
+            $overviewData = $this->overviewService->getOverviewData($kid->id);
+            $kid->progress_percentage = round($overviewData['totalPercentage'], 2);
+        }
+
         // Log kids list access with filters
         $this->kidLogger->listed([
             'search' => $request->input('search'),
