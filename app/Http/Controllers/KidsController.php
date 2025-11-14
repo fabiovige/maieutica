@@ -1670,13 +1670,13 @@ class KidsController extends Controller
         $pdf->SetFont('helvetica', '', 14, '', 'C');
 
         $pdf->Cell(0, 10, 'Relatório de Visão Geral da Criança', 0, 1, 'C');
-        $this->addChartToPdf($pdf, $barChartImage, 'Gráfico de Barras: Percentual de Habilidades', 170);
+        $this->addChartToPdf($pdf, $barChartImage, 'Gráfico de Barras: Percentual de Habilidades', 160);
 
         $pdf->AddPage();
-        $this->addChartToPdf($pdf, $radarChartImage, 'Gráfico de Radar: Análise de Competências', 306);
+        $this->addChartToPdf($pdf, $radarChartImage, 'Gráfico de Radar: Análise de Competências', 160);
 
         $pdf->AddPage();
-        $this->addChartToPdf($pdf, $barChartItems2Image, 'Análise Geral dos Itens', 170);
+        $this->addChartToPdf($pdf, $barChartItems2Image, 'Análise Geral dos Itens', 160);
 
         // Adicionar tabela de domínios
         $pdf->AddPage();
@@ -1797,13 +1797,23 @@ class KidsController extends Controller
                         if (file_put_contents($tempImagePath, $decodedImage)) {
                             // Verificar se o arquivo existe e é legível
                             if (file_exists($tempImagePath) && is_readable($tempImagePath) && filesize($tempImagePath) > 100) {
+                                // Calcular largura máxima permitida para evitar estouro
+                                $pageWidth = $pdf->getPageWidth(); // 210mm para A4
+                                $margins = PDF_MARGIN_LEFT + PDF_MARGIN_RIGHT; // 30mm (15 + 15)
+                                $maxAllowedWidth = $pageWidth - $margins - 10; // 170mm (com margem de segurança de 10mm)
+
+                                // Validar e ajustar largura se necessário
+                                if ($width === null || $width > $maxAllowedWidth) {
+                                    $width = $maxAllowedWidth;
+                                    \Log::info("Largura do gráfico '$title' ajustada para {$maxAllowedWidth}mm para caber na página");
+                                }
+
                                 // Calcular a posição X para centralizar a imagem
-                                $pageWidth = $pdf->getPageWidth();
                                 $x = ($pageWidth - $width) / 2;
 
                                 // Adicionar imagem centralizada
                                 $pdf->Image($tempImagePath, $x, '', $width, $height, 'PNG');
-                                \Log::info("Gráfico '$title' adicionado com sucesso ao PDF");
+                                \Log::info("Gráfico '$title' adicionado com sucesso ao PDF (largura: {$width}mm)");
                             } else {
                                 \Log::warning("Arquivo de imagem não é válido para '$title'");
                                 $this->addErrorMessage($pdf, "Gráfico não disponível");
