@@ -161,7 +161,32 @@
                     </div>
                     <div class="tab-pane fade" id="radar-chart" role="tabpanel" aria-labelledby="radar-tab">
                         <div class="mt-3">
-                            <canvas id="radarChart" width="400" height="400"></canvas>
+                            @php
+                                // Prepara dados do radar para o componente
+                                $radarLabels = array_map(fn($domain) => $domain['abbreviation'], $domainData);
+
+                                // Converte percentual (0-100) para escala de notas (0-3)
+                                // Arredonda para 1 casa decimal (mesma lógica do gráfico de análise)
+                                $radarDataScaled = array_map(function($domain) {
+                                    $raw = ($domain['percentage'] / 100) * 3;
+                                    return round($raw, 1);
+                                }, $domainData);
+
+                                $radarDatasets = [[
+                                    'label' => 'Média de Desenvolvimento',
+                                    'data' => $radarDataScaled,
+                                    'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                                    'borderColor' => 'rgba(54, 162, 235, 1)',
+                                    'borderWidth' => 1
+                                ]];
+                            @endphp
+
+                            <x-radar-chart
+                                :labels="$radarLabels"
+                                :datasets="$radarDatasets"
+                                canvasId="radarChart"
+                                :showPercentageInTooltip="true"
+                            />
                         </div>
                     </div>
                     <div class="tab-pane fade" id="domain-chart" role="tabpanel" aria-labelledby="domain-tab">
@@ -268,7 +293,6 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="{{ asset('js/radar-chart-helper.js') }}?v={{ filemtime(public_path('js/radar-chart-helper.js')) }}"></script>
 
         <script>
             // Registrar o plugin
@@ -380,18 +404,6 @@
                         }
                     }
                 });
-
-                // Converter percentuais (0-100) para escala de notas (0-3) usando helper
-                var radarDataScaled = domainPercentages.map(percentageToNoteScale);
-
-                // Radar Chart usando helper
-                var radarChart = createRadarChart('radarChart', domainData.map(domain => domain.abbreviation), [{
-                    label: 'Média de Desenvolvimento',
-                    data: radarDataScaled,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]);
 
                 // Bar Chart Items 2
                 var barChartItems2 = new Chart(ctxBarItems2, {
