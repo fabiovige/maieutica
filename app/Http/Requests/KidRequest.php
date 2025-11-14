@@ -30,7 +30,7 @@ class KidRequest extends FormRequest
             'ethnicity' => 'nullable|string|in:branco,pardo,negro,indigena,amarelo,multiracial,nao_declarado,outro',
             'responsible_id' => 'nullable|exists:users,id',
             'professionals' => 'nullable|array',
-            'professionals.*' => 'exists:users,id',
+            'professionals.*' => 'exists:professionals,id',
         ];
     }
 

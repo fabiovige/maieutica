@@ -143,7 +143,7 @@
 @endsection
 
 @section('content')
-    <div class="row mb-4">
+    <div class="row">
         @if (isset($kid))
             <div class="col-md-12">
                 <x-kid-info-card :kid="$kid" />
