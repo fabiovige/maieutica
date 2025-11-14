@@ -57,7 +57,6 @@ class OverviewService
                 'levelId' => $levelId,
                 'levels' => [],
                 'domains' => collect([]),
-                'averagePercentage' => 0,
                 'checklistId' => $checklistId
             ];
         }
@@ -86,7 +85,6 @@ class OverviewService
         $totalItemsTotal = array_sum(array_column($domainData, 'itemsTotal'));
 
         $totalPercentage = $totalItemsTested > 0 ? ($totalItemsValid / $totalItemsTested) * 100 : 0;
-        $averagePercentage = $this->calculateAveragePercentage($domainData);
 
         // Calcular a idade de desenvolvimento
         $developmentalAgeInMonths = $ageInMonths * ($totalPercentage / 100);
@@ -119,7 +117,6 @@ class OverviewService
             'levelId',
             'levels',
             'domains',
-            'averagePercentage',
             'checklistId'
         );
     }
@@ -198,17 +195,5 @@ class OverviewService
         }
 
         return $domainData;
-    }
-
-    private function calculateAveragePercentage($domainData)
-    {
-        $totalPercentageGeral = 0;
-        $totalDomains = count($domainData);
-        foreach ($domainData as $domain) {
-            // Usar o percentual já calculado (baseado na média 0-3)
-            $totalPercentageGeral += $domain['percentage'];
-        }
-
-        return round($totalDomains > 0 ? $totalPercentageGeral / $totalDomains : 0, 2);
     }
 }

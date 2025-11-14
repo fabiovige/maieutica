@@ -96,11 +96,11 @@
                     <div class="col-md-6">
                         <h3>Progresso Geral</h3>
                         <div class="progress" role="progressbar" aria-label="{{ $kid->name }}"
-                            aria-valuenow="{{ $averagePercentage }}" aria-valuemin="0" aria-valuemax="100"
+                            aria-valuenow="{{ round($totalPercentage, 2) }}" aria-valuemin="0" aria-valuemax="100"
                             style="height: 30px">
                             <div class="progress-bar progress-bar-striped"
-                                style="width: {{ $averagePercentage }}%; background-color: {{ get_progress_color($averagePercentage) }}">
-                                {{ $averagePercentage }}%
+                                style="width: {{ round($totalPercentage, 2) }}%; background-color: {{ get_progress_color($totalPercentage) }}">
+                                {{ round($totalPercentage, 2) }}%
                             </div>
                         </div>
 
