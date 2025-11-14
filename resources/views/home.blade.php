@@ -127,6 +127,18 @@
     </div>
     @endcan
 
+    <!-- Paginação Superior -->
+    @if($kids->hasPages())
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Minhas Crianças</h5>
+            <div>
+                {{ $kids->links() }}
+            </div>
+        </div>
+    @else
+        <h5 class="mb-3">Minhas Crianças</h5>
+    @endif
+
     <!-- Grid de Cards de Crianças -->
     <div class="row g-4 mb-4">
         @forelse($kids as $kid)

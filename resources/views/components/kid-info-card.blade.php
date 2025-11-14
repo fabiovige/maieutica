@@ -89,5 +89,84 @@
                 </div>
             </div>
         </div>
+
+        <!-- Botões de Ação -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    @can('kid-edit')
+                        <a href="{{ route('kids.edit', $kid->id) }}"
+                           class="btn btn-warning"
+                           title="Editar Criança">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                    @endcan
+
+                    @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
+                        <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}"
+                           class="btn btn-success"
+                           title="Ver Checklists da Criança">
+                            <i class="bi bi-card-checklist"></i> Checklists
+                        </a>
+                    @endif
+
+                    @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
+                        <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}"
+                           class="btn btn-purple"
+                           title="Análise Comparativa">
+                            <i class="bi bi-clipboard-data"></i> Comparativo
+                        </a>
+
+                        <a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}"
+                           class="btn btn-orange"
+                           title="Desenvolvimento da Criança">
+                            <i class="bi bi-bar-chart"></i> Desenvolvimento
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    /* Botão roxo customizado */
+    .btn-purple {
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+        color: #fff;
+    }
+
+    .btn-purple:hover {
+        background-color: #5a32a3;
+        border-color: #5a32a3;
+        color: #fff;
+    }
+
+    .btn-purple:focus,
+    .btn-purple:active {
+        background-color: #5a32a3;
+        border-color: #5a32a3;
+        color: #fff;
+    }
+
+    /* Botão laranja customizado */
+    .btn-orange {
+        background-color: #fd7e14;
+        border-color: #fd7e14;
+        color: #fff;
+    }
+
+    .btn-orange:hover {
+        background-color: #e36b0a;
+        border-color: #e36b0a;
+        color: #fff;
+    }
+
+    .btn-orange:focus,
+    .btn-orange:active {
+        background-color: #e36b0a;
+        border-color: #e36b0a;
+        color: #fff;
+    }
+</style>
