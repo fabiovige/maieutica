@@ -127,43 +127,47 @@
         </li>
     @endcan
 
-    @can('template-list')
+    @if(auth()->user()->can('document-list') || auth()->user()->can('template-list'))
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle @if (request()->is('document-templates*') || request()->is('generated-documents*')) active @endif"
+            <a class="nav-link dropdown-toggle @if (request()->is('generated-documents*') || request()->is('document-templates*')) active @endif"
                href="#"
-               id="documentsDropdown"
+               id="reportsDropdown"
                role="button"
                data-bs-toggle="dropdown"
                aria-expanded="false">
-                Documentos
+                <i class="bi bi-file-text me-1"></i>Relatórios
             </a>
-            <ul class="dropdown-menu" aria-labelledby="documentsDropdown">
-                <li>
-                    <a class="dropdown-item @if (request()->is('document-templates*')) active @endif"
-                       href="{{ route('document-templates.index') }}">
-                        <i class="bi bi-file-earmark-text"></i> Templates
-                    </a>
-                </li>
+            <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
                 @can('document-list')
                     <li>
-                        <a class="dropdown-item @if (request()->is('generated-documents*')) active @endif"
+                        <a class="dropdown-item @if (request()->is('generated-documents') && !request()->is('generated-documents/create')) active @endif"
                            href="{{ route('generated-documents.index') }}">
                             <i class="bi bi-file-pdf"></i> Documentos Gerados
                         </a>
                     </li>
                 @endcan
+
                 @can('document-generate')
-                    <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item"
+                        <a class="dropdown-item @if (request()->is('generated-documents/create')) active @endif"
                            href="{{ route('generated-documents.create') }}">
                             <i class="bi bi-plus-lg"></i> Gerar Documento
                         </a>
                     </li>
                 @endcan
+
+                @can('template-list')
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item @if (request()->is('document-templates*')) active @endif"
+                           href="{{ route('document-templates.index') }}">
+                            <i class="bi bi-file-earmark-text"></i> Templates de Documentos
+                        </a>
+                    </li>
+                @endcan
             </ul>
         </li>
-    @endcan
+    @endif
 
     <!-- Tutorial - Disponível para todos os usuários -->
     <li class="nav-item">

@@ -77,7 +77,14 @@ class GeneratedDocumentController extends Controller
 
         $generatedDocument->load(['documentTemplate', 'kid', 'user', 'checklist']);
 
-        return view('generated-documents.show', compact('generatedDocument'));
+        // Carregar PDF em base64 para exibição inline
+        $pdfBase64 = null;
+        if (\Storage::exists($generatedDocument->file_path)) {
+            $pdfContent = \Storage::get($generatedDocument->file_path);
+            $pdfBase64 = base64_encode($pdfContent);
+        }
+
+        return view('generated-documents.show', compact('generatedDocument', 'pdfBase64'));
     }
 
     /**
@@ -155,6 +162,20 @@ class GeneratedDocumentController extends Controller
     }
 
     /**
+     * Preview the generated document PDF inline.
+     */
+    public function preview(GeneratedDocument $generatedDocument)
+    {
+        $this->authorize('view', $generatedDocument);
+
+        try {
+            return $this->documentGenerator->previewDocument($generatedDocument);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erro ao visualizar documento: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Remove the specified document (soft delete).
      */
     public function destroy(GeneratedDocument $generatedDocument)
@@ -188,5 +209,23 @@ class GeneratedDocumentController extends Controller
             ->paginate(self::PAGINATION_DEFAULT);
 
         return view('generated-documents.by-kid', compact('documents', 'kid'));
+    }
+
+    /**
+     * Get checklists for a specific kid (AJAX endpoint).
+     */
+    public function getKidChecklists(Kid $kid)
+    {
+        $checklists = Checklist::where('kid_id', $kid->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($checklist) {
+                return [
+                    'id' => $checklist->id,
+                    'label' => 'Checklist #' . $checklist->id . ' - ' . $checklist->created_at->format('d/m/Y'),
+                ];
+            });
+
+        return response()->json($checklists);
     }
 }

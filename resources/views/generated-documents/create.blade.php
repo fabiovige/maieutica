@@ -149,13 +149,45 @@
 
         // Limpar opções
         checklistSelect.innerHTML = '<option value="">Carregando...</option>';
+        checklistSelect.disabled = true;
 
         if (kidId) {
-            // Buscar checklists da criança (via AJAX se necessário)
-            // Por enquanto, vamos deixar vazio
-            checklistSelect.innerHTML = '<option value="">Nenhum checklist disponível</option>';
+            // Buscar checklists da criança via AJAX
+            fetch(`/ajax/kids/${kidId}/checklists`)
+                .then(response => response.json())
+                .then(data => {
+                    checklistSelect.innerHTML = '<option value="">Nenhum checklist selecionado</option>';
+
+                    if (data.length > 0) {
+                        data.forEach(checklist => {
+                            const option = document.createElement('option');
+                            option.value = checklist.id;
+                            option.textContent = checklist.label;
+                            checklistSelect.appendChild(option);
+                        });
+                    } else {
+                        checklistSelect.innerHTML = '<option value="">Nenhum checklist encontrado para esta criança</option>';
+                    }
+
+                    checklistSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar checklists:', error);
+                    checklistSelect.innerHTML = '<option value="">Erro ao carregar checklists</option>';
+                    checklistSelect.disabled = false;
+                });
         } else {
             checklistSelect.innerHTML = '<option value="">Selecione uma criança primeiro</option>';
+            checklistSelect.disabled = false;
+        }
+    });
+
+    // Carregar checklists se já houver uma criança selecionada (pré-seleção)
+    document.addEventListener('DOMContentLoaded', function() {
+        const kidSelect = document.getElementById('kid_id');
+        if (kidSelect.value) {
+            // Disparar o evento change para carregar os checklists
+            kidSelect.dispatchEvent(new Event('change'));
         }
     });
 </script>

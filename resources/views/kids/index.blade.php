@@ -289,6 +289,14 @@
                                                     </a>
                                                 @endif
 
+                                                @can('document-list')
+                                                    <a href="{{ route('generated-documents.index', ['kid_id' => $kid->id]) }}"
+                                                       class="btn btn-info btn-sm"
+                                                       title="Documentos">
+                                                        <i class="bi bi-file-pdf"></i>
+                                                    </a>
+                                                @endcan
+
                                                 @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
                                                     <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}"
                                                        class="btn btn-purple btn-sm"
@@ -437,33 +445,48 @@
                                     </div>
                                 </div>
 
-                                <!-- Linha 2: Checklists, Comparativo e Desenvolvimento -->
-                                <div class="d-grid gap-2">
+                                <!-- Linha 2: Checklists e Documentos -->
+                                <div class="d-grid gap-2 mb-2">
                                     <div class="row g-2">
                                         @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
-                                            <div class="col-4">
+                                            <div class="col-6">
                                                 <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}"
                                                    class="btn btn-success btn-sm w-100"
                                                    title="Ver checklists">
-                                                    <i class="bi bi-card-checklist"></i>
+                                                    <i class="bi bi-card-checklist"></i> Checklists
                                                 </a>
                                             </div>
                                         @endif
 
+                                        @can('document-list')
+                                            <div class="col-6">
+                                                <a href="{{ route('generated-documents.index', ['kid_id' => $kid->id]) }}"
+                                                   class="btn btn-info btn-sm w-100"
+                                                   title="Ver documentos">
+                                                    <i class="bi bi-file-pdf"></i> Documentos
+                                                </a>
+                                            </div>
+                                        @endcan
+                                    </div>
+                                </div>
+
+                                <!-- Linha 3: Comparativo e Desenvolvimento -->
+                                <div class="d-grid gap-2">
+                                    <div class="row g-2">
                                         @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
-                                            <div class="col-4">
+                                            <div class="col-6">
                                                 <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}"
                                                    class="btn btn-purple btn-sm w-100"
                                                    title="Comparativo">
-                                                    <i class="bi bi-clipboard-data"></i>
+                                                    <i class="bi bi-clipboard-data"></i> Comparativo
                                                 </a>
                                             </div>
 
-                                            <div class="col-4">
+                                            <div class="col-6">
                                                 <a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}"
                                                    class="btn btn-orange btn-sm w-100"
                                                    title="Desenvolvimento">
-                                                    <i class="bi bi-bar-chart"></i>
+                                                    <i class="bi bi-bar-chart"></i> Desenvolvimento
                                                 </a>
                                             </div>
                                         @endif

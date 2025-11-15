@@ -23,6 +23,45 @@
 
 @section('content')
 
+    <!-- Visualizador de PDF -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-file-pdf"></i> Pré-visualização do Documento</h5>
+                    <div>
+                        @can('document-download')
+                            <a href="{{ route('generated-documents.download', $generatedDocument) }}" class="btn btn-sm btn-success">
+                                <i class="bi bi-download"></i> Baixar PDF
+                            </a>
+                        @endcan
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    @if($pdfBase64)
+                        <embed
+                            src="data:application/pdf;base64,{{ $pdfBase64 }}"
+                            type="application/pdf"
+                            style="width: 100%; height: 800px; border: none;"
+                            title="Visualização do PDF">
+                        <div class="text-center p-3 bg-light">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i>
+                                Se o PDF não carregar, <a href="{{ route('generated-documents.download', $generatedDocument) }}">clique aqui para baixar</a>.
+                            </small>
+                        </div>
+                    @else
+                        <div class="text-center p-5">
+                            <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                            <p class="mt-3">Arquivo PDF não encontrado.</p>
+                            <p class="text-muted">O arquivo pode ter sido removido ou está temporariamente indisponível.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <!-- Informações do Documento -->
         <div class="col-md-8">
@@ -103,7 +142,7 @@
                                     @foreach($generatedDocument->data_used as $key => $value)
                                         @if(!empty($value))
                                             <tr>
-                                                <td><code>{{ '{{' . $key . '}}' }}</code></td>
+                                                <td><code>{!! '{{' . e($key) . '}}' !!}</code></td>
                                                 <td>{{ is_array($value) ? json_encode($value) : $value }}</td>
                                             </tr>
                                         @endif

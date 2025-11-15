@@ -116,7 +116,9 @@ Route::middleware(['auth'])->group(function () {
     // generated documents
     Route::post('generated-documents/generate', [GeneratedDocumentController::class, 'generate'])->name('generated-documents.generate');
     Route::get('generated-documents/{generatedDocument}/download', [GeneratedDocumentController::class, 'download'])->name('generated-documents.download');
+    Route::get('generated-documents/{generatedDocument}/preview', [GeneratedDocumentController::class, 'preview'])->name('generated-documents.preview');
     Route::get('generated-documents/kid/{kid}', [GeneratedDocumentController::class, 'byKid'])->name('generated-documents.by-kid');
+    Route::get('ajax/kids/{kid}/checklists', [GeneratedDocumentController::class, 'getKidChecklists'])->name('ajax.kids.checklists');
     Route::resource('generated-documents', GeneratedDocumentController::class)->only(['index', 'show', 'create', 'destroy']);
 
     // TUTORIAL
