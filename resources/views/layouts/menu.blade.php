@@ -127,6 +127,44 @@
         </li>
     @endcan
 
+    @can('template-list')
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle @if (request()->is('document-templates*') || request()->is('generated-documents*')) active @endif"
+               href="#"
+               id="documentsDropdown"
+               role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+                Documentos
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="documentsDropdown">
+                <li>
+                    <a class="dropdown-item @if (request()->is('document-templates*')) active @endif"
+                       href="{{ route('document-templates.index') }}">
+                        <i class="bi bi-file-earmark-text"></i> Templates
+                    </a>
+                </li>
+                @can('document-list')
+                    <li>
+                        <a class="dropdown-item @if (request()->is('generated-documents*')) active @endif"
+                           href="{{ route('generated-documents.index') }}">
+                            <i class="bi bi-file-pdf"></i> Documentos Gerados
+                        </a>
+                    </li>
+                @endcan
+                @can('document-generate')
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item"
+                           href="{{ route('generated-documents.create') }}">
+                            <i class="bi bi-plus-lg"></i> Gerar Documento
+                        </a>
+                    </li>
+                @endcan
+            </ul>
+        </li>
+    @endcan
+
     <!-- Tutorial - Disponível para todos os usuários -->
     <li class="nav-item">
         <a class="nav-link @if (request()->is('tutorial*')) active @endif"
