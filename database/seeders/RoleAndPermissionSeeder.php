@@ -99,6 +99,27 @@ class RoleAndPermissionSeeder extends Seeder
             'competence-list-all',
             'competence-edit-all',
 
+            // Templates de Documentos
+            'template-list',
+            'template-show',
+            'template-create',
+            'template-edit',
+            'template-delete',
+            'template-list-all',
+            'template-show-all',
+            'template-edit-all',
+            'template-delete-all',
+
+            // Documentos Gerados
+            'document-generate',
+            'document-list',
+            'document-show',
+            'document-download',
+            'document-delete',
+            'document-list-all',
+            'document-show-all',
+            'document-delete-all',
+
             // Permissões adicionais / administrativas
             'dashboard-manage',
         ];
@@ -147,6 +168,14 @@ class RoleAndPermissionSeeder extends Seeder
             'professional-edit',
             'professional-activate',
             'professional-deactivate',
+
+            // Documentos (apenas visualizar templates e gerar documentos)
+            'template-list',
+            'template-show',
+            'document-generate',
+            'document-list',
+            'document-show',
+            'document-download',
         ];
         $profissional->syncPermissions($permissionsProfissional);
 
@@ -154,6 +183,11 @@ class RoleAndPermissionSeeder extends Seeder
             'kid-list',
             'kid-show',
             'kid-edit',
+
+            // Documentos (apenas visualizar e baixar documentos gerados)
+            'document-list',
+            'document-show',
+            'document-download',
         ]);
     }
 }

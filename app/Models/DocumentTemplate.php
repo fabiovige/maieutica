@@ -56,31 +56,53 @@ class DocumentTemplate extends Model
     {
         return [
             'crianca' => [
+                'nome_completo' => 'Nome completo da pessoa atendida',
                 'nome_crianca' => 'Nome da criança',
-                'idade' => 'Idade da criança',
+                'cpf' => 'CPF',
+                'idade' => 'Idade',
+                'sexo' => 'Sexo/Gênero',
                 'data_nascimento' => 'Data de nascimento',
-                'responsavel' => 'Nome do responsável',
-                'genero' => 'Gênero',
-                'etnia' => 'Etnia',
+            ],
+            'responsavel' => [
+                'nome_responsavel' => 'Nome do responsável',
+                'nome_acompanhante' => 'Nome do acompanhante',
+                'nome_informante' => 'Nome de quem forneceu informações',
             ],
             'profissional' => [
-                'profissional_nome' => 'Nome do profissional',
-                'profissional_crp' => 'CRP do profissional',
+                'profissional_nome' => 'Nome completo do profissional',
+                'profissional_crp' => 'Número de inscrição no CRP',
                 'profissional_especialidade' => 'Especialidade do profissional',
+                'profissionais_multiplos' => 'Lista de profissionais (relatório multiprofissional)',
             ],
             'atendimento' => [
-                'data_inicio' => 'Data de início do atendimento',
+                'data_inicio' => 'Data/mês/ano de início do atendimento',
+                'dias_semana' => 'Dias da semana das sessões',
+                'horarios' => 'Horários das sessões',
+                'data_termino' => 'Data de término (se houver)',
+                'numero_encontros' => 'Número de encontros realizados',
+                'duracao_encontros' => 'Duração dos encontros (em horas)',
                 'total_sessoes' => 'Total de sessões realizadas',
             ],
             'avaliacao' => [
-                'data_avaliacao' => 'Data da avaliação',
-                'percentual_desenvolvimento' => 'Percentual de desenvolvimento',
-                'competencias_desenvolvidas' => 'Competências desenvolvidas',
+                'solicitante' => 'Quem solicitou o documento',
+                'finalidade' => 'Finalidade do documento',
+                'sintomas_relatados' => 'Descrição dos sintomas relatados',
+                'consequencias' => 'Consequências relatadas',
+                'hipotese_diagnostico' => 'Hipótese ou diagnóstico',
+                'recursos_tecnicos' => 'Recursos técnicos utilizados',
+                'referencial_teorico' => 'Referencial teórico metodológico',
+                'pessoas_ouvidas' => 'Pessoas ouvidas no processo',
+                'analise_caracteristicas' => 'Análise de características e evolução',
+                'diagnostico' => 'Diagnóstico formal',
+                'cid' => 'Código CID',
+                'prognostico' => 'Prognóstico',
+                'encaminhamentos' => 'Encaminhamentos e orientações',
+                'referencias' => 'Referências bibliográficas',
             ],
             'sistema' => [
                 'data_emissao' => 'Data de emissão do documento',
-                'hora_emissao' => 'Hora de emissão do documento',
-                'numero_documento' => 'Número do documento',
+                'cidade' => 'Cidade',
+                'numero_documento' => 'Número sequencial do documento',
             ],
         ];
     }
@@ -100,5 +122,19 @@ class DocumentTemplate extends Model
         }
 
         return $placeholders;
+    }
+
+    /**
+     * Get available document types
+     */
+    public static function getDocumentTypes()
+    {
+        return [
+            'declaracao' => 'Declaração',
+            'laudo' => 'Laudo Psicológico',
+            'parecer' => 'Parecer Psicológico',
+            'relatorio' => 'Relatório Psicológico',
+            'relatorio_multi' => 'Relatório Multiprofissional',
+        ];
     }
 }
