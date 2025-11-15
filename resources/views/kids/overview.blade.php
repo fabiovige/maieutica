@@ -16,6 +16,14 @@
     </li>
 @endsection
 
+@section('actions')
+    @can('document-generate')
+        <a href="{{ route('generated-documents.create', ['kid_id' => $kid->id]) }}" class="btn btn-success">
+            <i class="bi bi-file-earmark-pdf"></i> Gerar Documento
+        </a>
+    @endcan
+@endsection
+
 @section('content')
     <div class="row">
         <div class="col-md-12 mb-4">
