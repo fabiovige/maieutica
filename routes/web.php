@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\CompetencesController;
+use App\Http\Controllers\DocumentTemplateController;
+use App\Http\Controllers\GeneratedDocumentController;
 use App\Http\Controllers\KidsController;
 use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\ProfileController;
@@ -104,6 +106,18 @@ Route::middleware(['auth'])->group(function () {
     Route::put('professionals/{professional}', [ProfessionalController::class, 'update'])
         ->name('professionals.update')
         ->middleware('auth');
+
+    // document templates
+    Route::get('document-templates/trash', [DocumentTemplateController::class, 'trash'])->name('document-templates.trash');
+    Route::post('document-templates/{id}/restore', [DocumentTemplateController::class, 'restore'])->name('document-templates.restore');
+    Route::post('document-templates/{documentTemplate}/toggle-active', [DocumentTemplateController::class, 'toggleActive'])->name('document-templates.toggle-active');
+    Route::resource('document-templates', DocumentTemplateController::class);
+
+    // generated documents
+    Route::post('generated-documents/generate', [GeneratedDocumentController::class, 'generate'])->name('generated-documents.generate');
+    Route::get('generated-documents/{generatedDocument}/download', [GeneratedDocumentController::class, 'download'])->name('generated-documents.download');
+    Route::get('generated-documents/kid/{kid}', [GeneratedDocumentController::class, 'byKid'])->name('generated-documents.by-kid');
+    Route::resource('generated-documents', GeneratedDocumentController::class)->only(['index', 'show', 'create', 'destroy']);
 
     // TUTORIAL
     Route::get('/tutorial',  [TutorialController::class, 'index'])->name('tutorial.index');
