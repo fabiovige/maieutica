@@ -7,10 +7,10 @@ use App\Models\GeneratedDocument;
 use App\Models\Kid;
 use App\Models\User;
 use App\Models\Checklist;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use TCPDF;
 
 class DocumentGeneratorService
 {
@@ -31,18 +31,17 @@ class DocumentGeneratorService
         array $customData = [],
         ?Checklist $checklist = null
     ): GeneratedDocument {
-        // 1. Coletar todos os dados necess�rios
+        // 1. Coletar todos os dados necessários
         $data = $this->collectData($kid, $user, $checklist, $customData);
 
         // 2. Substituir placeholders no HTML
         $htmlContent = $this->replacePlaceholders($template->html_content, $data);
 
-        // 3. Gerar PDF
-        $pdf = Pdf::loadHTML($htmlContent);
-        $pdf->setPaper('A4', 'portrait');
+        // 3. Gerar PDF com TCPDF
+        $pdf = $this->generateTCPDF($htmlContent);
 
         // 4. Salvar PDF no storage
-        $filePath = $this->savePDF($pdf, $template, $kid);
+        $filePath = $this->saveTCPDF($pdf, $template, $kid);
 
         // 5. Criar registro no banco
         $generatedDocument = $this->createRecord(
@@ -207,6 +206,88 @@ class DocumentGeneratorService
         $html = preg_replace('/\{\{[a-z_]+\}\}/', '', $html);
 
         return $html;
+    }
+
+    /**
+     * Gera PDF usando TCPDF com marca d'água
+     *
+     * @param string $htmlContent
+     * @return TCPDF
+     */
+    protected function generateTCPDF(string $htmlContent): TCPDF
+    {
+        // Criar instância TCPDF
+        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+
+        // Configurações do documento
+        $pdf->SetCreator('Clínica Maiêutica');
+        $pdf->SetAuthor('Clínica Maiêutica');
+        $pdf->SetTitle('Declaração');
+
+        // Remover header/footer padrão
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+
+        // Margens
+        $pdf->SetMargins(20, 20, 20);
+        $pdf->SetAutoPageBreak(true, 20);
+
+        // Adicionar página
+        $pdf->AddPage();
+
+        // Renderizar HTML primeiro (logo já está embutido)
+        $pdf->writeHTML($htmlContent, true, false, true, false, '');
+
+        // MARCA D'ÁGUA DEPOIS - Sobrepor no conteúdo
+        $bgDocPath = public_path('images/bg-doc.png');
+        if (file_exists($bgDocPath)) {
+            // Voltar para o topo da página para sobrepor
+            $pdf->SetY(80);
+
+            // Usar SetAlpha para deixar transparente
+            $pdf->SetAlpha(0.15);
+
+            // Colocar imagem no centro (sem flag que cria nova linha)
+            $pdf->Image($bgDocPath, 30, 80, 150, 0, 'PNG', '', '', false, 300, '', false, false, 0, false, false, false);
+
+            // Restaurar opacidade
+            $pdf->SetAlpha(1);
+        }
+
+        // Footer
+        $pdf->SetY(-30);
+        $pdf->SetFont('dejavusans', '', 8);
+        $pdf->SetTextColor(85, 85, 85);
+        $pdf->Line(20, $pdf->GetY(), 190, $pdf->GetY());
+        $pdf->Ln(2);
+        $pdf->MultiCell(0, 0, 'Site: www.clinicamaieutica.com.br | Tel: 11 4554.4023 | WhatsApp: 55 11 9 7543.9667', 0, 'C', false, 1);
+        $pdf->MultiCell(0, 0, 'Endereço: R. Prof. Edgar de Moraes, 168, Jardim Frediani - Santana de Parnaíba/SP - CEP: 06502-203', 0, 'C', false, 1);
+
+        return $pdf;
+    }
+
+    /**
+     * Salva o PDF gerado pelo TCPDF no storage
+     *
+     * @param TCPDF $pdf
+     * @param DocumentTemplate $template
+     * @param Kid $kid
+     * @return string
+     */
+    protected function saveTCPDF(TCPDF $pdf, DocumentTemplate $template, Kid $kid): string
+    {
+        // Criar diretório se não existir
+        $directory = 'documents/' . $kid->id;
+        Storage::makeDirectory($directory);
+
+        // Nome do arquivo
+        $fileName = Str::slug($template->name) . '_' . $kid->id . '_' . time() . '.pdf';
+        $filePath = $directory . '/' . $fileName;
+
+        // Salvar PDF
+        Storage::put($filePath, $pdf->Output('', 'S'));
+
+        return $filePath;
     }
 
     /**

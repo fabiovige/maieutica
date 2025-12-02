@@ -11,7 +11,13 @@
       "Bash(npm run dev:*)",
       "WebSearch",
       "WebFetch(domain:docs.google.com)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(php fix_pdf_dompdf_compatible.php:*)",
+      "Bash(php test_simple_pdf.php:*)",
+      "Bash(php test_pdf_generation.php:*)",
+      "Bash(php fix_declaration_final.php:*)",
+      "Bash(php fix_declaration_working.php:*)",
+      "Bash(php fix_all_templates_final.php:*)"
     ],
     "deny": [],
     "ask": []
