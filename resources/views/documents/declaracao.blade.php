@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 14px;
+            font-size: 16px;
             line-height: 1.6;
             margin: 80px 40px 60px 40px;
         }
@@ -23,7 +23,7 @@
         }
 
         header img {
-            width: 140px;
+            width: 240px;
         }
 
         /** FOOTER FIXO **/
@@ -81,22 +81,22 @@
             padding-top: 5px;
         }
 
-footer {
-    position: fixed;
-    bottom: -10px;
-    left: 0;
-    right: 0;
-    height: 90px;
-    text-align: left;     /* <-- AQUI MUDA TUDO */
-    font-size: 11px;
-    color: #444;
-    line-height: 1.4;
-    padding-left: 40px;   /* mesma margem do conteúdo */
-}
+        footer {
+            position: fixed;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 90px;
+            text-align: left;     /* <-- AQUI MUDA TUDO */
+            font-size: 11px;
+            color: #444;
+            line-height: 1.4;
+            padding-left: 40px;   /* mesma margem do conteúdo */
+        }
 
-.footer-line {
-    margin-bottom: 4px;
-}
+        .footer-line {
+            margin-bottom: 4px;
+        }
 
 
     </style>

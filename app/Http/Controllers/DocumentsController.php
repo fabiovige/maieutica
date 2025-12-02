@@ -10,7 +10,7 @@ class DocumentsController extends Controller
     public function index(Request $request)
     {
         $watermark = base64_encode(file_get_contents(public_path('images/bg-doc.png')));
-        $logo = base64_encode(file_get_contents(public_path('images/logo_login.png'))); // se for adicionar
+        $logo = base64_encode(file_get_contents(public_path('images/logo-doc.jpg'))); // se for adicionar
 
         $data = [
             'nome_paciente'   => 'NOME COMPLETO DA PESSOA ATENDIDA',
