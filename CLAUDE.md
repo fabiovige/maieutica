@@ -133,6 +133,7 @@ Plane (Development Plan)
   - `KidsController.php`: Most complex controller (patient management, PDF generation, overview charts)
   - `ChecklistController.php`: Evaluation management, chart visualization
   - `CompetencesController.php`: Competence/skill management with domain filtering
+  - `DocumentsController.php`: Professional document generation (declarations, reports) using standardized PDF templates
 
 - **Models** (`app/Models/`): Eloquent ORM models with relationships
   - Uses `BaseModel` for common functionality
@@ -203,6 +204,55 @@ Plane (Development Plan)
 - Overview dashboard with progress tracking
 - Comparative analysis between evaluation sessions
 - Automatic development plan generation based on weakest competences
+
+**PDF Document Generation (Standard Pattern):**
+- **Controller:** `DocumentsController` (`app/Http/Controllers/DocumentsController.php`)
+- **Standard Template:** `declaracao.blade.php` (`resources/views/documents/declaracao.blade.php`)
+- **Key Implementation Details:**
+  - Uses `Barryvdh\DomPDF\Facade\Pdf` for PDF generation
+  - Images (logos, watermarks) are base64-encoded and embedded directly in HTML using `data:image/png;base64,{encoded_data}`
+  - Template uses **inline CSS** (required by DomPDF - external stylesheets don't work reliably)
+  - **Fixed header/footer** using `position: fixed` with negative top/bottom positioning
+  - **Watermark** using `position: fixed` with low opacity (0.60) and z-index: -1
+  - **Layout structure:**
+    - Header: Logo centered at top
+    - Title: Centered, uppercase, bold
+    - Content: Justified text with dynamic data interpolation
+    - Signature: Centered with line, professional name and CRP
+    - Footer: Contact information with SVG icons (aligned left)
+    - Date/location: Right-aligned at bottom
+  - **Font:** DejaVu Sans (default, supports UTF-8/special characters)
+  - **Paper format:** A4 portrait via `->setPaper('A4', 'portrait')`
+  - **Output method:** `->stream('filename.pdf')` for browser preview, or `->download()` for direct download
+- **Asset Requirements:**
+  - Watermark: `public/images/bg-doc.png`
+  - Logo: `public/images/logo-doc.jpg`
+  - SVG Icons (footer): `public/images/{globe, telephone-fill, whatsapp, geo-alt-fill}.svg`
+- **Data Structure Pattern:**
+  ```php
+  $data = [
+      'nome_paciente' => 'Patient Name',
+      'dias_horarios' => 'Schedule description',
+      'previsao_termino' => 'End date (optional)',
+      'nome_psicologo' => 'Psychologist Name',
+      'crp' => 'CRP Number',
+      'cidade' => 'City',
+      'data_formatada' => 'Formatted date',
+      'watermark' => base64_encode(file_get_contents(...)),
+      'logo' => base64_encode(file_get_contents(...)),
+  ];
+  ```
+- **CSS Positioning Strategy:**
+  - Content sections use `position: relative` with `top` offset to control vertical spacing
+  - Margins: `body` has 80px top, 40px sides, 60px bottom to accommodate fixed header/footer
+  - Header fixed at `top: -40px`, footer at `bottom: -10px`
+- **When creating new document types:**
+  - Copy `declaracao.blade.php` as template base
+  - Modify content structure as needed
+  - Keep header/footer/watermark pattern consistent
+  - Ensure all images are base64-encoded
+  - Use inline CSS only
+  - Test with different content lengths to ensure proper page breaks
 
 **File Uploads:**
 - **Kid Photo/Avatar Upload:**
