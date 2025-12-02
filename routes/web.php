@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TutorialController;
+use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -109,6 +110,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tutorial',  [TutorialController::class, 'index'])->name('tutorial.index');
     Route::get('/tutorial/users',  [TutorialController::class, 'users'])->name('tutorial.users');
     Route::get('/tutorial/checklists',  [TutorialController::class, 'checklists'])->name('tutorial.checklists');
+
+    // documentos
+    Route::get('/documents',  [DocumentsController::class, 'index'])->name('documentos.index');
 });
 
 // Data Table Ajax
