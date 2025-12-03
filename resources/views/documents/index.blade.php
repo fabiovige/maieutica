@@ -91,6 +91,31 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Modelo 4 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100 border-info">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-info bg-opacity-10 rounded p-3 me-3">
+                                    <i class="bi bi-file-earmark-ruled text-info" style="font-size: 2rem;"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-0">Parecer Psicológico - Modelo 4</h5>
+                                    <small class="text-muted">Parecer técnico</small>
+                                </div>
+                            </div>
+                            <p class="card-text text-muted flex-grow-1">
+                                Parecer psicológico com identificação, descrição da demanda, análise técnica, conclusão e referências bibliográficas.
+                            </p>
+                            <div class="d-grid">
+                                <a href="{{ route('documentos.modelo4.form') }}" class="btn btn-info">
+                                    <i class="bi bi-plus-circle me-2"></i>Gerar Parecer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Informações Adicionais -->
