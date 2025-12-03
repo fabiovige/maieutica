@@ -366,4 +366,105 @@ class DocumentsController extends Controller
 
         return $pdf->stream('parecer_psicologico_modelo_4.pdf');
     }
+
+    /**
+     * Exibe formulário do modelo 5 (Relatório Multiprofissional)
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showFormModelo5()
+    {
+        $kids = Kid::getKids();
+        $professionals = \App\Models\Professional::with('user')
+            ->whereHas('user')
+            ->get()
+            ->map(function ($professional) {
+                $user = $professional->user->first();
+                return [
+                    'id' => $professional->id,
+                    'name' => $user ? $user->name : 'N/A',
+                    'crp' => $professional->registration_number ?? 'N/A',
+                ];
+            });
+
+        return view('documents.form-modelo5', compact('kids', 'professionals'));
+    }
+
+    /**
+     * Gera Relatório Multiprofissional Modelo 5 para uma criança específica
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function modelo5(Request $request)
+    {
+        // Validação
+        $request->validate([
+            'kid_id' => 'required|exists:kids,id',
+            'descricao_demanda' => 'required|string',
+            'procedimentos_texto' => 'required|string',
+            'analise' => 'required|string',
+            'conclusao' => 'required|string',
+            'professionals' => 'required|array|min:1',
+            'professionals.*' => 'exists:professionals,id',
+        ]);
+
+        // Busca dados
+        $kid = $this->getKidWithRelations($request->kid_id);
+
+        // Busca profissionais selecionados (obrigatório para este modelo)
+        $professionalsData = [];
+        $selectedProfessionals = \App\Models\Professional::with('user')
+            ->whereIn('id', $request->professionals)
+            ->get();
+
+        foreach ($selectedProfessionals as $prof) {
+            $user = $prof->user->first();
+            $professionalsData[] = [
+                'name' => $user ? strtoupper($user->name) : 'N/A',
+                'crp' => $prof->registration_number ?? 'N/A',
+                'city' => $user->city ?? 'Santana de Parnaíba',
+            ];
+        }
+
+        // Prepara os assets
+        $watermark = base64_encode(file_get_contents(public_path('images/bg-doc.png')));
+        $logo = base64_encode(file_get_contents(public_path('images/logotipo.png')));
+
+        // Monta dados do documento
+        $data = [
+            // Dados básicos
+            'nome_paciente' => strtoupper($kid->name),
+            'idade' => $kid->age ?? 'Não informada',
+            'sexo' => isset($kid->gender) ? ($kid->gender == 'M' ? 'Masculino' : 'Feminino') : 'Não informado',
+            'solicitante' => $request->input('solicitante'),
+            'finalidade' => $request->input('finalidade', 'Avaliação multiprofissional'),
+
+            // Profissionais
+            'professionals' => $professionalsData,
+
+            // Profissional principal (para assinatura)
+            'nome_psicologo' => $professionalsData[0]['name'],
+            'crp' => $professionalsData[0]['crp'],
+            'cidade' => $professionalsData[0]['city'],
+            'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
+
+            // Assets
+            'watermark' => $watermark,
+            'logo' => $logo,
+
+            // Dados específicos do relatório
+            'descricao_demanda' => $request->input('descricao_demanda'),
+            'numero_encontros' => $request->input('numero_encontros'),
+            'duracao_horas' => $request->input('duracao_horas'),
+            'procedimentos_texto' => $request->input('procedimentos_texto'),
+            'analise' => $request->input('analise'),
+            'conclusao' => $request->input('conclusao'),
+        ];
+
+        // Gera o PDF
+        $pdf = Pdf::loadView('documents.modelo5', $data)
+            ->setPaper('A4', 'portrait');
+
+        return $pdf->stream('relatorio_multiprofissional_modelo_5.pdf');
+    }
 }

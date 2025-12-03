@@ -116,6 +116,31 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Modelo 5 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100 border-danger">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-danger bg-opacity-10 rounded p-3 me-3">
+                                    <i class="bi bi-file-earmark-person text-danger" style="font-size: 2rem;"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-0">Relatório Multiprofissional - Modelo 5</h5>
+                                    <small class="text-muted">Equipe multiprofissional</small>
+                                </div>
+                            </div>
+                            <p class="card-text text-muted flex-grow-1">
+                                Relatório multiprofissional com análise separada por profissional, procedimentos, conclusão conjunta e declaração de sigilo.
+                            </p>
+                            <div class="d-grid">
+                                <a href="{{ route('documentos.modelo5.form') }}" class="btn btn-danger">
+                                    <i class="bi bi-plus-circle me-2"></i>Gerar Relatório
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Informações Adicionais -->
