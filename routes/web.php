@@ -111,9 +111,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tutorial/users',  [TutorialController::class, 'users'])->name('tutorial.users');
     Route::get('/tutorial/checklists',  [TutorialController::class, 'checklists'])->name('tutorial.checklists');
 
-    // documentos
-    Route::get('/documents/modelo1',  [DocumentsController::class, 'modelo1'])->name('documentos.modelo1');
-    Route::get('/documents/modelo2',  [DocumentsController::class, 'modelo2'])->name('documentos.modelo2');
+    // Documentos
+    Route::get('/documents', [DocumentsController::class, 'index'])->name('documentos.index');
+
+    // Formulários
+    Route::get('/documents/modelo1/form', [DocumentsController::class, 'showFormModelo1'])->name('documentos.modelo1.form');
+    Route::get('/documents/modelo2/form', [DocumentsController::class, 'showFormModelo2'])->name('documentos.modelo2.form');
+    Route::get('/documents/modelo3/form', [DocumentsController::class, 'showFormModelo3'])->name('documentos.modelo3.form');
+
+    // Geração de PDFs
+    Route::post('/documents/modelo1', [DocumentsController::class, 'modelo1'])->name('documentos.modelo1');
+    Route::post('/documents/modelo2', [DocumentsController::class, 'modelo2'])->name('documentos.modelo2');
+    Route::post('/documents/modelo3', [DocumentsController::class, 'modelo3'])->name('documentos.modelo3');
 });
 
 // Data Table Ajax
