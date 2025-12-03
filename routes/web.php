@@ -112,7 +112,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tutorial/checklists',  [TutorialController::class, 'checklists'])->name('tutorial.checklists');
 
     // documentos
-    Route::get('/documents',  [DocumentsController::class, 'index'])->name('documentos.index');
+    Route::get('/documents/modelo1',  [DocumentsController::class, 'modelo1'])->name('documentos.modelo1');
+    Route::get('/documents/modelo2',  [DocumentsController::class, 'modelo2'])->name('documentos.modelo2');
 });
 
 // Data Table Ajax
