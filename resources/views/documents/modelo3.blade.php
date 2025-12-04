@@ -83,12 +83,5 @@
     <p style="font-size: 12px; text-align: justify;">
         {!! nl2br(e($referencias)) !!}
     </p>
-    <p style="font-size: 11px; font-style: italic; margin-top: 10px;">
-        [É obrigatória a informação das fontes científicas ou referências bibliográficas, em notas de rodapé preferencialmente].
-    </p>
     @endif
-
-    <p style="margin-top: 30px; font-size: 11px; font-style: italic;">
-        [Rubrica-se da primeira até a penúltima lauda, assinando a última]
-    </p>
 @endsection

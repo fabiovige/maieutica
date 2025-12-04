@@ -59,24 +59,18 @@
             text-align: center;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 40px;
-            position: relative;
-            top: 30px;
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
         .content {
-            margin-top: 40px;
             text-align: justify;
             margin-bottom: 40px;
-            position: relative;
-            top: 60px;
         }
 
         .signature {
             text-align: center;
-            margin-top: 80px;
-            position: relative;
-            top: 80px;
+            margin-top: 40px;
         }
 
         .signature-line {
@@ -85,6 +79,11 @@
             margin-left: auto;
             margin-right: auto;
             padding-top: 5px;
+        }
+
+        .date-location {
+            text-align: right;
+            margin-top: 40px;
         }
     </style>
 
@@ -153,7 +152,7 @@
     @hasSection('date-location')
         @yield('date-location')
     @else
-        <div style="text-align: right; margin-top: 400px;">
+        <div class="date-location">
             {{ $cidade }}, {{ $data_formatada }}.
         </div>
     @endif

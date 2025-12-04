@@ -467,4 +467,60 @@ class DocumentsController extends Controller
 
         return $pdf->stream('relatorio_multiprofissional_modelo_5.pdf');
     }
+
+    /**
+     * Exibe formulário do modelo 6 (Relatório Psicológico)
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showFormModelo6()
+    {
+        $kids = Kid::getKids();
+
+        return view('documents.form-modelo6', compact('kids'));
+    }
+
+    /**
+     * Gera Relatório Psicológico Modelo 6 para uma criança específica
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function modelo6(Request $request)
+    {
+        // Validação
+        $request->validate([
+            'kid_id' => 'required|exists:kids,id',
+            'descricao_demanda' => 'required|string',
+            'procedimentos_texto' => 'required|string',
+            'analise' => 'required|string',
+            'conclusao' => 'required|string',
+        ]);
+
+        // Busca dados
+        $kid = $this->getKidWithRelations($request->kid_id);
+
+        // Monta dados do documento
+        $data = array_merge(
+            $this->getCommonDocumentData($kid),
+            $this->prepareAssets(),
+            [
+                'idade' => $kid->age ?? 'Não informada',
+                'sexo' => isset($kid->gender) ? ($kid->gender == 'M' ? 'Masculino' : 'Feminino') : 'Não informado',
+                'solicitante' => $request->input('solicitante'),
+                'finalidade' => $request->input('finalidade'),
+                'descricao_demanda' => $request->input('descricao_demanda'),
+                'numero_encontros' => $request->input('numero_encontros'),
+                'duracao_horas' => $request->input('duracao_horas'),
+                'procedimentos_texto' => $request->input('procedimentos_texto'),
+                'analise' => $request->input('analise'),
+                'conclusao' => $request->input('conclusao'),
+            ]
+        );
+
+        // Gera o PDF
+        $pdf = Pdf::loadView('documents.modelo6', $data)
+            ->setPaper('A4', 'portrait');
+
+        return $pdf->stream('relatorio_psicologico_modelo_6.pdf');
+    }
 }
