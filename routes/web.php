@@ -120,6 +120,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/documents/modelo3/form', [DocumentsController::class, 'showFormModelo3'])->name('documentos.modelo3.form');
     Route::get('/documents/modelo4/form', [DocumentsController::class, 'showFormModelo4'])->name('documentos.modelo4.form');
     Route::get('/documents/modelo5/form', [DocumentsController::class, 'showFormModelo5'])->name('documentos.modelo5.form');
+    Route::get('/documents/modelo6/form', [DocumentsController::class, 'showFormModelo6'])->name('documentos.modelo6.form');
 
     // Geração de PDFs
     Route::post('/documents/modelo1', [DocumentsController::class, 'modelo1'])->name('documentos.modelo1');
@@ -127,6 +128,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/documents/modelo3', [DocumentsController::class, 'modelo3'])->name('documentos.modelo3');
     Route::post('/documents/modelo4', [DocumentsController::class, 'modelo4'])->name('documentos.modelo4');
     Route::post('/documents/modelo5', [DocumentsController::class, 'modelo5'])->name('documentos.modelo5');
+    Route::post('/documents/modelo6', [DocumentsController::class, 'modelo6'])->name('documentos.modelo6');
 });
 
 // Data Table Ajax

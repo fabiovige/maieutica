@@ -51,8 +51,4 @@
     <p style="font-size: 12px; text-align: justify;">
         {!! nl2br(e($referencias)) !!}
     </p>
-
-    <p style="margin-top: 30px; font-size: 11px; font-style: italic;">
-        [Rubrica-se da primeira até a penúltima lauda, assinando a última]
-    </p>
 @endsection

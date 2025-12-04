@@ -55,11 +55,4 @@
     <p style="text-align: justify; margin-top: 20px;">
         <em>Declaro que este documento não poderá ser utilizado para fins diferentes da sua finalidade pois trata-se de documento sigiloso e extrajudicial.</em>
     </p>
-
-    <p style="margin-top: 30px; font-size: 11px; font-style: italic;">
-        (RUBRICA-SE DA PRIMEIRA ATÉ A PENÚLTIMA LAUDA, ASSINANDO A ÚLTIMA)
-    </p>
-    <p style="margin-top: 5px; font-size: 11px; font-style: italic;">
-        (NOME COMPLETO DOS PROFISSIONAIS - E OS Nºs DE INSCRIÇÃO NAS RESPECTIVAS CATEGORIAS E ASSINATURA DO PSICÓLOGO NA ÚLTIMA PÁGINA)
-    </p>
 @endsection

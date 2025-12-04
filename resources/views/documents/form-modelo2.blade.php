@@ -63,22 +63,6 @@
                 <i class="bi bi-info-circle me-2"></i>
                 <strong>Atenção:</strong> O PDF será aberto em uma nova aba do navegador. Certifique-se de desbloquear pop-ups se necessário.
             </div>
-
-            <!-- Preview da Declaração -->
-            <div class="card shadow-sm mt-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="bi bi-eye me-2"></i>Preview da Declaração
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">
-                        Declaro para os devidos fins que se fizerem necessários que <strong>[NOME DO PACIENTE]</strong>,
-                        faz acompanhamento psicológico nesta Clínica, desde <strong>[DATA DE INÍCIO]</strong>, sob meus
-                        cuidados profissionais.
-                    </p>
-                </div>
-            </div>
         </div>
     </div>
 </div>
