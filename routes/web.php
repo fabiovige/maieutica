@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TutorialController;
+use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -109,6 +110,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tutorial',  [TutorialController::class, 'index'])->name('tutorial.index');
     Route::get('/tutorial/users',  [TutorialController::class, 'users'])->name('tutorial.users');
     Route::get('/tutorial/checklists',  [TutorialController::class, 'checklists'])->name('tutorial.checklists');
+
+    // Documentos
+    Route::get('/documents', [DocumentsController::class, 'index'])->name('documentos.index');
+
+    // Formulários
+    Route::get('/documents/modelo1/form', [DocumentsController::class, 'showFormModelo1'])->name('documentos.modelo1.form');
+    Route::get('/documents/modelo2/form', [DocumentsController::class, 'showFormModelo2'])->name('documentos.modelo2.form');
+    Route::get('/documents/modelo3/form', [DocumentsController::class, 'showFormModelo3'])->name('documentos.modelo3.form');
+    Route::get('/documents/modelo4/form', [DocumentsController::class, 'showFormModelo4'])->name('documentos.modelo4.form');
+    Route::get('/documents/modelo5/form', [DocumentsController::class, 'showFormModelo5'])->name('documentos.modelo5.form');
+    Route::get('/documents/modelo6/form', [DocumentsController::class, 'showFormModelo6'])->name('documentos.modelo6.form');
+
+    // Geração de PDFs
+    Route::post('/documents/modelo1', [DocumentsController::class, 'modelo1'])->name('documentos.modelo1');
+    Route::post('/documents/modelo2', [DocumentsController::class, 'modelo2'])->name('documentos.modelo2');
+    Route::post('/documents/modelo3', [DocumentsController::class, 'modelo3'])->name('documentos.modelo3');
+    Route::post('/documents/modelo4', [DocumentsController::class, 'modelo4'])->name('documentos.modelo4');
+    Route::post('/documents/modelo5', [DocumentsController::class, 'modelo5'])->name('documentos.modelo5');
+    Route::post('/documents/modelo6', [DocumentsController::class, 'modelo6'])->name('documentos.modelo6');
 });
 
 // Data Table Ajax
