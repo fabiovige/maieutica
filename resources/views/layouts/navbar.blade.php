@@ -183,6 +183,25 @@
                             </a>
                         </li>
                     @endif
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('documents.*') ? 'active' : '' }}"
+                           href="#"
+                           id="documentoDropdown"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="bi bi-file-earmark-text"></i> Documento
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="documentoDropdown">
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('documents.index') ? 'active' : '' }}"
+                                   href="{{ url('documents') }}">
+                                    <i class="bi bi-file-earmark-plus"></i> Geração de documentos
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
 
                 <div class="d-flex align-items-center">
