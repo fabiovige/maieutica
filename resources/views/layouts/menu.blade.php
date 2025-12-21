@@ -127,6 +127,33 @@
         </li>
     @endcan
 
+    @can('document-list')
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle @if (request()->is('documents*')) active @endif"
+               href="#"
+               id="documentsDropdown"
+               role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+                <i class="bi bi-file-earmark-text"></i> Documentos
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="documentsDropdown">
+                <li>
+                    <a class="dropdown-item @if (request()->is('documents') && !request()->is('documents/history*')) active @endif"
+                       href="{{ route('documentos.index') }}">
+                        <i class="bi bi-plus-circle"></i> Gerar Documentos
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item @if (request()->is('documents/history*')) active @endif"
+                       href="{{ route('documentos.history') }}">
+                        <i class="bi bi-clock-history"></i> Histórico de Documentos
+                    </a>
+                </li>
+            </ul>
+        </li>
+    @endcan
+
     <!-- Tutorial - Disponível para todos os usuários -->
     <li class="nav-item">
         <a class="nav-link @if (request()->is('tutorial*')) active @endif"

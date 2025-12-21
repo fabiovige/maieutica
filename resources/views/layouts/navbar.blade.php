@@ -200,6 +200,12 @@
                                     <i class="bi bi-file-earmark-plus"></i> Geração de documentos
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('documentos.history') ? 'active' : '' }}"
+                                   href="{{ route('documentos.history') }}">
+                                    <i class="bi bi-clock-history"></i> Histórico de Documentos
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>

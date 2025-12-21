@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GeneratedDocument;
 use App\Models\Kid;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -126,9 +127,28 @@ class DocumentsController extends Controller
             ]
         );
 
-        // Gera o PDF
-        $pdf = Pdf::loadView('documents.modelo1', $data)
-            ->setPaper('A4', 'portrait');
+        // Renderiza HTML para string
+        $html = view('documents.modelo1', $data)->render();
+
+        // Salva no banco de dados
+        GeneratedDocument::create([
+            'model_type' => 1,
+            'documentable_id' => $kid->id,
+            'documentable_type' => Kid::class,
+            'professional_id' => $kid->professionals->first()?->id,
+            'generated_by' => auth()->id(),
+            'html_content' => $html,
+            'form_data' => $request->except(['_token']),
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'document_title' => 'Declaração - Modelo 1',
+            ],
+            'generated_at' => now(),
+        ]);
+
+        // Gera o PDF do HTML
+        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
         return $pdf->stream('declaracao_modelo_1.pdf');
     }
@@ -157,9 +177,28 @@ class DocumentsController extends Controller
             ]
         );
 
-        // Gera o PDF
-        $pdf = Pdf::loadView('documents.modelo2', $data)
-            ->setPaper('A4', 'portrait');
+        // Renderiza HTML para string
+        $html = view('documents.modelo2', $data)->render();
+
+        // Salva no banco de dados
+        GeneratedDocument::create([
+            'model_type' => 2,
+            'documentable_id' => $kid->id,
+            'documentable_type' => Kid::class,
+            'professional_id' => $kid->professionals->first()?->id,
+            'generated_by' => auth()->id(),
+            'html_content' => $html,
+            'form_data' => $request->except(['_token']),
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'document_title' => 'Declaração Simplificada - Modelo 2',
+            ],
+            'generated_at' => now(),
+        ]);
+
+        // Gera o PDF do HTML
+        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
         return $pdf->stream('declaracao_modelo_2.pdf');
     }
@@ -248,9 +287,28 @@ class DocumentsController extends Controller
             'referencias' => $request->input('referencias', null),
         ];
 
-        // Gera o PDF
-        $pdf = Pdf::loadView('documents.modelo3', $data)
-            ->setPaper('A4', 'portrait');
+        // Renderiza HTML para string
+        $html = view('documents.modelo3', $data)->render();
+
+        // Salva no banco de dados
+        GeneratedDocument::create([
+            'model_type' => 3,
+            'documentable_id' => $kid->id,
+            'documentable_type' => Kid::class,
+            'professional_id' => $kid->professionals->first()?->id,
+            'generated_by' => auth()->id(),
+            'html_content' => $html,
+            'form_data' => $request->except(['_token']),
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'document_title' => 'Laudo Psicológico - Modelo 3',
+            ],
+            'generated_at' => now(),
+        ]);
+
+        // Gera o PDF do HTML
+        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
         return $pdf->stream('laudo_psicologico_modelo_3.pdf');
     }
@@ -360,9 +418,28 @@ class DocumentsController extends Controller
             'referencias' => $request->input('referencias'),
         ];
 
-        // Gera o PDF
-        $pdf = Pdf::loadView('documents.modelo4', $data)
-            ->setPaper('A4', 'portrait');
+        // Renderiza HTML para string
+        $html = view('documents.modelo4', $data)->render();
+
+        // Salva no banco de dados
+        GeneratedDocument::create([
+            'model_type' => 4,
+            'documentable_id' => $kid->id,
+            'documentable_type' => Kid::class,
+            'professional_id' => $kid->professionals->first()?->id,
+            'generated_by' => auth()->id(),
+            'html_content' => $html,
+            'form_data' => $request->except(['_token']),
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'document_title' => 'Parecer Psicológico - Modelo 4',
+            ],
+            'generated_at' => now(),
+        ]);
+
+        // Gera o PDF do HTML
+        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
         return $pdf->stream('parecer_psicologico_modelo_4.pdf');
     }
@@ -461,9 +538,28 @@ class DocumentsController extends Controller
             'conclusao' => $request->input('conclusao'),
         ];
 
-        // Gera o PDF
-        $pdf = Pdf::loadView('documents.modelo5', $data)
-            ->setPaper('A4', 'portrait');
+        // Renderiza HTML para string
+        $html = view('documents.modelo5', $data)->render();
+
+        // Salva no banco de dados
+        GeneratedDocument::create([
+            'model_type' => 5,
+            'documentable_id' => $kid->id,
+            'documentable_type' => Kid::class,
+            'professional_id' => $kid->professionals->first()?->id,
+            'generated_by' => auth()->id(),
+            'html_content' => $html,
+            'form_data' => $request->except(['_token']),
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'document_title' => 'Relatório Multiprofissional - Modelo 5',
+            ],
+            'generated_at' => now(),
+        ]);
+
+        // Gera o PDF do HTML
+        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
         return $pdf->stream('relatorio_multiprofissional_modelo_5.pdf');
     }
@@ -517,10 +613,94 @@ class DocumentsController extends Controller
             ]
         );
 
-        // Gera o PDF
-        $pdf = Pdf::loadView('documents.modelo6', $data)
-            ->setPaper('A4', 'portrait');
+        // Renderiza HTML para string
+        $html = view('documents.modelo6', $data)->render();
+
+        // Salva no banco de dados
+        GeneratedDocument::create([
+            'model_type' => 6,
+            'documentable_id' => $kid->id,
+            'documentable_type' => Kid::class,
+            'professional_id' => $kid->professionals->first()?->id,
+            'generated_by' => auth()->id(),
+            'html_content' => $html,
+            'form_data' => $request->except(['_token']),
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'document_title' => 'Relatório Psicológico - Modelo 6',
+            ],
+            'generated_at' => now(),
+        ]);
+
+        // Gera o PDF do HTML
+        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
         return $pdf->stream('relatorio_psicologico_modelo_6.pdf');
+    }
+
+    /**
+     * Exibe histórico de documentos gerados
+     */
+    public function history(Request $request)
+    {
+        $this->authorize('viewAny', GeneratedDocument::class);
+
+        $query = GeneratedDocument::with(['documentable', 'professional.user', 'generatedBy'])
+            ->forAuthUser() // Aplica filtro de permissões
+            ->orderBy('generated_at', 'desc');
+
+        // Filtro de busca
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', '%'.$search.'%')
+                    ->orWhere('model_type', 'like', '%'.$search.'%')
+                    ->orWhereHas('documentable', function ($docQuery) use ($search) {
+                        $docQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('generatedBy', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', '%'.$search.'%');
+                    });
+            });
+        }
+
+        // Filtro por tipo de modelo
+        if ($request->filled('model_type')) {
+            $query->where('model_type', $request->model_type);
+        }
+
+        $documents = $query->paginate(15);
+
+        return view('documents.history', compact('documents'));
+    }
+
+    /**
+     * Download/regenera PDF a partir do HTML armazenado
+     */
+    public function download(GeneratedDocument $document)
+    {
+        $this->authorize('download', $document);
+
+        // Regenera PDF do HTML salvo
+        $pdf = Pdf::loadHTML($document->html_content)
+            ->setPaper('A4', 'portrait');
+
+        return $pdf->stream($document->filename);
+    }
+
+    /**
+     * Soft delete de documento gerado
+     */
+    public function destroy(GeneratedDocument $document)
+    {
+        $this->authorize('delete', $document);
+
+        $document->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Documento excluído com sucesso.',
+        ]);
     }
 }

@@ -99,6 +99,15 @@ class RoleAndPermissionSeeder extends Seeder
             'competence-list-all',
             'competence-edit-all',
 
+            // Documentos Gerados
+            'document-list',
+            'document-list-all',
+            'document-show',
+            'document-show-all',
+            'document-download',
+            'document-delete',
+            'document-delete-all',
+
             // Permissões adicionais / administrativas
             'dashboard-manage',
         ];
@@ -147,6 +156,11 @@ class RoleAndPermissionSeeder extends Seeder
             'professional-edit',
             'professional-activate',
             'professional-deactivate',
+
+            // Documentos Gerados
+            'document-list',
+            'document-show',
+            'document-download',
         ];
         $profissional->syncPermissions($permissionsProfissional);
 

@@ -129,6 +129,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/documents/modelo4', [DocumentsController::class, 'modelo4'])->name('documentos.modelo4');
     Route::post('/documents/modelo5', [DocumentsController::class, 'modelo5'])->name('documentos.modelo5');
     Route::post('/documents/modelo6', [DocumentsController::class, 'modelo6'])->name('documentos.modelo6');
+
+    // Histórico e gerenciamento de documentos gerados
+    Route::get('/documents/history', [DocumentsController::class, 'history'])->name('documentos.history');
+    Route::get('/documents/{document}/download', [DocumentsController::class, 'download'])->name('documentos.download');
 });
 
 // Data Table Ajax

@@ -80,4 +80,9 @@ class User extends Authenticatable
     {
         return $this->professional->first()?->specialty;
     }
+
+    public function generatedDocuments()
+    {
+        return $this->morphMany(GeneratedDocument::class, 'documentable');
+    }
 }

@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Models\Checklist;
 use App\Models\Competence;
+use App\Models\GeneratedDocument;
 use App\Models\Kid;
 use App\Models\Plane;
 use App\Models\User;
 use App\Policies\ChecklistPolicy;
 use App\Policies\CompetencePolicy;
+use App\Policies\GeneratedDocumentPolicy;
 use App\Policies\KidPolicy;
 use App\Policies\PlanePolicy;
 use App\Policies\RolePolicy;
@@ -25,6 +27,7 @@ class AuthServiceProvider extends ServiceProvider
         Competence::class => CompetencePolicy::class,
         Plane::class => PlanePolicy::class,
         Role::class => RolePolicy::class,
+        GeneratedDocument::class => GeneratedDocumentPolicy::class,
     ];
 
     public function boot()
