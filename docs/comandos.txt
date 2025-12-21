@@ -1,4 +1,4 @@
-git tag -a 2.0.0 -m "Release 2.0.0"
+git tag -a 2.1.0 -m "Release 2.1.0 - Histórico de Documentos"
 
 git push --tags
 
