@@ -571,3 +571,4 @@ For detailed documentation on specific topics, see the `docs/` folder:
 - **Database changes:** Never alter database tables without explicit authorization
 - **Authorization:** See "Authorization System" section - NEVER use `hasRole()` for authorization logic, ALWAYS use `can()` with permissions
 - **Windows development:** This project is developed on Windows (MINGW64). Most commands work cross-platform, but file paths use Windows format in local development
+- como estamo susando laravel sempr euse migration para nao danificar o banco e os dados de produçao mesmo em ambiente de desenvolvimento.

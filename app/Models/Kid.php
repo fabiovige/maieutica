@@ -97,6 +97,11 @@ class Kid extends BaseModel
         return $this->hasOne(Checklist::class)->latest();
     }
 
+    public function generatedDocuments()
+    {
+        return $this->morphMany(GeneratedDocument::class, 'documentable');
+    }
+
     public function getAgeAttribute()
     {
         if (! $this->birth_date) {
