@@ -146,8 +146,10 @@ class MedicalRecord extends BaseModel
             // Medical records of Kids assigned to professional
             $q->where(function ($subQ) use ($professional) {
                 $subQ->where('patient_type', 'App\\Models\\Kid')
-                    ->whereHas('patient.professionals', function ($kidQ) use ($professional) {
-                        $kidQ->where('professional_id', $professional->id);
+                    ->whereIn('patient_id', function ($kidQuery) use ($professional) {
+                        $kidQuery->select('kid_id')
+                                 ->from('kid_professional')
+                                 ->where('professional_id', $professional->id);
                     });
             })
             // OR medical records of Users (adult patients) assigned
@@ -155,7 +157,7 @@ class MedicalRecord extends BaseModel
             ->orWhere(function ($subQ) use ($professional) {
                 $subQ->where('patient_type', 'App\\Models\\User');
                 // Temporarily allow viewing for any professional
-                // Add whereHas when User->Professional relationship is implemented
+                // Add whereIn with join when User->Professional relationship is implemented
             });
         });
     }
