@@ -20,7 +20,8 @@ class MedicalRecordPolicy
 
     /**
      * Visualizar um prontuário específico.
-     * Profissionais podem ver prontuários de TODOS os pacientes atribuídos a eles.
+     * Profissionais podem ver apenas prontuários que criaram.
+     * Quando admin cria para um profissional, created_by é setado para o user_id do profissional.
      */
     public function view(User $user, MedicalRecord $medicalRecord): bool
     {
@@ -29,30 +30,9 @@ class MedicalRecordPolicy
             return true;
         }
 
-        // Professional can view if they created it
+        // Professional can view ONLY if they created it
         if ($user->can('medical-record-show')) {
-            if ($medicalRecord->created_by === $user->id) {
-                return true;
-            }
-
-            // OR if patient is assigned to them
-            $professional = $user->professional->first();
-            if ($professional && $medicalRecord->patient) {
-                // If Kid, check professionals pivot
-                if ($medicalRecord->patient_type === 'App\\Models\\Kid') {
-                    if ($medicalRecord->patient->professionals->contains($professional->id)) {
-                        return true;
-                    }
-                }
-
-                // If User (adult patient), check assignment
-                // TODO: implement when User->Professional relationship is defined
-                if ($medicalRecord->patient_type === 'App\\Models\\User') {
-                    // Temporarily allow viewing for any professional
-                    // Adjust when User->Professional assignment system is implemented
-                    return true;
-                }
-            }
+            return $medicalRecord->created_by === $user->id;
         }
 
         return false;

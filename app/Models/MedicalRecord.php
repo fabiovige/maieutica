@@ -131,35 +131,12 @@ class MedicalRecord extends BaseModel
 
     /**
      * Scope para filtrar medical records do profissional autenticado
-     * Professional can view records of ALL assigned patients (Kids or Users)
+     * Professional can only view records they created (or that admin created for them)
+     * When admin creates a record for a professional, created_by is set to that professional's user_id
      */
     public function scopeForAuthProfessional(Builder $query)
     {
-        $user = auth()->user();
-        $professional = $user->professional->first();
-
-        if (!$professional) {
-            return $query->whereRaw('1 = 0'); // Return empty
-        }
-
-        return $query->where(function ($q) use ($professional) {
-            // Medical records of Kids assigned to professional
-            $q->where(function ($subQ) use ($professional) {
-                $subQ->where('patient_type', 'App\\Models\\Kid')
-                    ->whereIn('patient_id', function ($kidQuery) use ($professional) {
-                        $kidQuery->select('kid_id')
-                                 ->from('kid_professional')
-                                 ->where('professional_id', $professional->id);
-                    });
-            })
-            // OR medical records of Users (adult patients) assigned
-            // TODO: implement User->Professional assignment logic when defined
-            ->orWhere(function ($subQ) use ($professional) {
-                $subQ->where('patient_type', 'App\\Models\\User');
-                // Temporarily allow viewing for any professional
-                // Add whereIn with join when User->Professional relationship is implemented
-            });
-        });
+        return $query->where('created_by', auth()->id());
     }
 
     /**
