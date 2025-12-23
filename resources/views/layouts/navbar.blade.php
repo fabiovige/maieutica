@@ -51,6 +51,27 @@
                         </li>
                     @endif
 
+                    @can('medical-record-list')
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('medical-records.*') ? 'active' : '' }}"
+                               href="#"
+                               id="prontuarioDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="bi bi-file-medical"></i> Prontuário
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="prontuarioDropdown">
+                                <li>
+                                    <a class="dropdown-item {{ request()->routeIs('medical-records.index') ? 'active' : '' }}"
+                                       href="{{ route('medical-records.index') }}">
+                                        <i class="bi bi-graph-up"></i> Evolução dos Casos
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endcan
+
                     @if(auth()->user()->can('user-list') || auth()->user()->can('role-list') || auth()->user()->can('professional-list') || auth()->user()->can('checklist-list-all') || auth()->user()->can('kid-list-all') || auth()->user()->can('user-list-all') || auth()->user()->can('role-list-all') || auth()->user()->can('professional-list-all'))
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('professionals.*') || request()->routeIs('*.trash') ? 'active' : '' }}"
