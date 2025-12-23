@@ -108,6 +108,18 @@ class RoleAndPermissionSeeder extends Seeder
             'document-delete',
             'document-delete-all',
 
+            // Prontuários Médicos
+            'medical-record-list',
+            'medical-record-show',
+            'medical-record-create',
+            'medical-record-create-all',
+            'medical-record-edit',
+            'medical-record-delete',
+            'medical-record-list-all',
+            'medical-record-show-all',
+            'medical-record-edit-all',
+            'medical-record-delete-all',
+
             // Permissões adicionais / administrativas
             'dashboard-manage',
         ];
@@ -161,6 +173,13 @@ class RoleAndPermissionSeeder extends Seeder
             'document-list',
             'document-show',
             'document-download',
+
+            // Prontuários Médicos
+            'medical-record-list',
+            'medical-record-show',
+            'medical-record-create',
+            'medical-record-edit',
+            'medical-record-delete',
         ];
         $profissional->syncPermissions($permissionsProfissional);
 

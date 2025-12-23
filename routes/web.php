@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TutorialController;
 use App\Http\Controllers\DocumentsController;
+use App\Http\Controllers\MedicalRecordsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -133,6 +134,12 @@ Route::middleware(['auth'])->group(function () {
     // Histórico e gerenciamento de documentos gerados
     Route::get('/documents/history', [DocumentsController::class, 'history'])->name('documentos.history');
     Route::get('/documents/{document}/download', [DocumentsController::class, 'download'])->name('documentos.download');
+
+    // Medical Records (Prontuários Médicos)
+    Route::get('medical-records/trash', [MedicalRecordsController::class, 'trash'])->name('medical-records.trash');
+    Route::post('medical-records/{id}/restore', [MedicalRecordsController::class, 'restore'])->name('medical-records.restore');
+    Route::get('medical-records/{medicalRecord}/pdf', [MedicalRecordsController::class, 'downloadPdf'])->name('medical-records.pdf');
+    Route::resource('medical-records', MedicalRecordsController::class);
 });
 
 // Data Table Ajax
