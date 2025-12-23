@@ -179,6 +179,13 @@
                                                 </a>
                                             @endcan
 
+                                            @can('view', $record)
+                                                <a href="{{ route('medical-records.pdf', $record) }}"
+                                                   class="btn btn-success btn-sm" title="Download PDF">
+                                                    <i class="bi bi-file-pdf"></i>
+                                                </a>
+                                            @endcan
+
                                             @can('update', $record)
                                                 <a href="{{ route('medical-records.edit', $record) }}"
                                                    class="btn btn-warning btn-sm" title="Editar">
