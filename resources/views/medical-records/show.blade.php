@@ -16,13 +16,13 @@
 @section('actions')
     <div class="d-flex gap-2">
         @can('view', $medicalRecord)
-            <a href="{{ route('medical-records.pdf', $medicalRecord) }}" class="btn btn-outline-primary">
+            <a href="{{ route('medical-records.pdf', $medicalRecord) }}" class="btn btn-primary">
                 <i class="bi bi-file-pdf"></i> Download PDF
             </a>
         @endcan
 
         @can('update', $medicalRecord)
-            <a href="{{ route('medical-records.edit', $medicalRecord) }}" class="btn btn-outline-secondary">
+            <a href="{{ route('medical-records.edit', $medicalRecord) }}" class="btn btn-secondary">
                 <i class="bi bi-pencil"></i> Editar
             </a>
         @endcan
@@ -34,7 +34,7 @@
                 onsubmit="return confirm('Tem certeza que deseja mover este prontuário para a lixeira?');">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-outline-danger">
+                <button type="submit" class="btn btn-danger">
                     <i class="bi bi-trash"></i> Excluir
                 </button>
             </form>

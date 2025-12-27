@@ -171,7 +171,7 @@
 
                                     {{-- Ações --}}
                                     <td class="text-end">
-                                        <div class="btn-group btn-group-sm" role="group">
+                                        <div class="btn-group btn-group-sm gap-1" role="group">
                                             @can('view', $record)
                                                 <a href="{{ route('medical-records.show', $record) }}"
                                                    class="btn btn-primary btn-sm" title="Visualizar">

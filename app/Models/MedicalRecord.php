@@ -122,11 +122,15 @@ class MedicalRecord extends BaseModel
 
     public function getPatientTypeNameAttribute()
     {
-        return match($this->patient_type) {
-            'App\\Models\\Kid' => 'Criança',
-            'App\\Models\\User' => 'Adulto',
-            default => 'Desconhecido',
-        };
+        if (str_contains($this->patient_type, 'Kid')) {
+            return 'Criança';
+        }
+
+        if (str_contains($this->patient_type, 'User')) {
+            return 'Adulto';
+        }
+
+        return 'Desconhecido';
     }
 
     /**

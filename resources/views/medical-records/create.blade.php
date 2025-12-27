@@ -23,36 +23,54 @@
             <form action="{{ route('medical-records.store') }}" method="POST">
                 @csrf
 
-                {{-- Profissional (somente admin) --}}
-                @can('medical-record-create-all')
-                    <div class="mb-3">
-                        <label for="professional_id" class="form-label">Profissional <span class="text-danger">*</span></label>
-                        <select name="professional_id" id="professional_id" class="form-select @error('professional_id') is-invalid @enderror" required>
-                            <option value="">Selecione o profissional</option>
-                            @foreach($professionals as $professional)
-                                <option value="{{ $professional->id }}" {{ old('professional_id') == $professional->id ? 'selected' : '' }}>
-                                    {{ $professional->user->first()->name ?? 'N/D' }}
-                                </option>
-                            @endforeach
+                {{-- Linha 1: Profissional, Tipo de Paciente, Data da Sessão --}}
+                <div class="row">
+                    {{-- Profissional (somente admin) --}}
+                    @can('medical-record-create-all')
+                        <div class="col-md-4 mb-3">
+                            <label for="professional_id" class="form-label">Profissional <span class="text-danger">*</span></label>
+                            <select name="professional_id" id="professional_id" class="form-select @error('professional_id') is-invalid @enderror" required>
+                                <option value="">Selecione o profissional</option>
+                                @foreach($professionals as $professional)
+                                    <option value="{{ $professional->id }}" {{ old('professional_id') == $professional->id ? 'selected' : '' }}>
+                                        {{ $professional->user->first()->name ?? 'N/D' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('professional_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endcan
+
+                    {{-- Tipo de Paciente --}}
+                    <div class="col-md-{{ auth()->user()->can('medical-record-create-all') ? '4' : '6' }} mb-3">
+                        <label for="patient_type" class="form-label">Tipo de Paciente <span class="text-danger">*</span></label>
+                        <select name="patient_type" id="patient_type" class="form-select @error('patient_type') is-invalid @enderror" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="App\Models\Kid" {{ old('patient_type') === 'App\Models\Kid' ? 'selected' : '' }}>Criança</option>
+                            <option value="App\Models\User" {{ old('patient_type') === 'App\Models\User' ? 'selected' : '' }}>Adulto</option>
                         </select>
-                        @error('professional_id')
+                        @error('patient_type')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="form-text text-muted">Selecione o profissional que está criando este prontuário</small>
                     </div>
-                @endcan
 
-                {{-- Tipo de Paciente --}}
-                <div class="mb-3">
-                    <label for="patient_type" class="form-label">Tipo de Paciente <span class="text-danger">*</span></label>
-                    <select name="patient_type" id="patient_type" class="form-select @error('patient_type') is-invalid @enderror" required>
-                        <option value="">Selecione o tipo de paciente</option>
-                        <option value="App\Models\Kid" {{ old('patient_type') === 'App\Models\Kid' ? 'selected' : '' }}>Criança</option>
-                        <option value="App\Models\User" {{ old('patient_type') === 'App\Models\User' ? 'selected' : '' }}>Adulto</option>
-                    </select>
-                    @error('patient_type')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    {{-- Data da Sessão --}}
+                    <div class="col-md-{{ auth()->user()->can('medical-record-create-all') ? '4' : '6' }} mb-3">
+                        <label for="session_date" class="form-label">Data da Sessão <span class="text-danger">*</span></label>
+                        <input type="text"
+                               class="form-control datepicker @error('session_date') is-invalid @enderror"
+                               id="session_date"
+                               name="session_date"
+                               placeholder="dd/mm/aaaa"
+                               value="{{ old('session_date') }}"
+                               required
+                               autocomplete="off">
+                        @error('session_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
                 {{-- Paciente (Criança) --}}
@@ -89,76 +107,59 @@
 
                 <input type="hidden" name="patient_id" id="patient_id" value="{{ old('patient_id') }}">
 
-                {{-- Data da Sessão --}}
-                <div class="mb-3">
-                    <label for="session_date" class="form-label">Data da Sessão <span class="text-danger">*</span></label>
-                    <input type="text"
-                           class="form-control datepicker @error('session_date') is-invalid @enderror"
-                           id="session_date"
-                           name="session_date"
-                           placeholder="dd/mm/aaaa"
-                           value="{{ old('session_date') }}"
-                           required
-                           autocomplete="off">
-                    @error('session_date')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="form-text text-muted">Selecione a data ou digite no formato dd/mm/aaaa</small>
-                </div>
+                {{-- Divisor --}}
+                <hr class="my-4">
 
-                {{-- Demanda --}}
+                {{-- Demanda / Queixa --}}
                 <div class="mb-3">
-                    <label for="complaint" class="form-label">Demanda <span class="text-danger">*</span></label>
-                    <textarea class="form-control @error('complaint') is-invalid @enderror" 
-                              id="complaint" 
-                              name="complaint" 
-                              rows="4" 
-                              placeholder="Descreva a demanda apresentada pelo paciente..."
+                    <label for="complaint" class="form-label fw-bold">Demanda / Queixa <span class="text-danger">*</span></label>
+                    <textarea class="form-control @error('complaint') is-invalid @enderror"
+                              id="complaint"
+                              name="complaint"
+                              rows="4"
+                              placeholder="Descreva a demanda ou queixa apresentada pelo paciente..."
                               required>{{ old('complaint') }}</textarea>
                     @error('complaint')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                    <small class="form-text text-muted">Mínimo 10 caracteres</small>
                 </div>
 
-                {{-- Objetivo/Técnica --}}
+                {{-- Objetivo / Técnica Utilizada --}}
                 <div class="mb-3">
-                    <label for="objective_technique" class="form-label">Objetivo e Técnica Utilizada <span class="text-danger">*</span></label>
-                    <textarea class="form-control @error('objective_technique') is-invalid @enderror" 
-                              id="objective_technique" 
-                              name="objective_technique" 
-                              rows="4" 
+                    <label for="objective_technique" class="form-label fw-bold">Objetivo / Técnica Utilizada <span class="text-danger">*</span></label>
+                    <textarea class="form-control @error('objective_technique') is-invalid @enderror"
+                              id="objective_technique"
+                              name="objective_technique"
+                              rows="4"
                               placeholder="Descreva o objetivo da sessão e as técnicas utilizadas..."
                               required>{{ old('objective_technique') }}</textarea>
                     @error('objective_technique')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                    <small class="form-text text-muted">Mínimo 10 caracteres</small>
                 </div>
 
                 {{-- Registro de Evolução --}}
                 <div class="mb-3">
-                    <label for="evolution_notes" class="form-label">Registro de Evolução <span class="text-danger">*</span></label>
-                    <textarea class="form-control @error('evolution_notes') is-invalid @enderror" 
-                              id="evolution_notes" 
-                              name="evolution_notes" 
-                              rows="6" 
+                    <label for="evolution_notes" class="form-label fw-bold">Registro de Evolução <span class="text-danger">*</span></label>
+                    <textarea class="form-control @error('evolution_notes') is-invalid @enderror"
+                              id="evolution_notes"
+                              name="evolution_notes"
+                              rows="6"
                               placeholder="Descreva a evolução do paciente durante a sessão..."
                               required>{{ old('evolution_notes') }}</textarea>
                     @error('evolution_notes')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                    <small class="form-text text-muted">Mínimo 10 caracteres</small>
                 </div>
 
-                {{-- Encaminhamento ou Encerramento --}}
+                {{-- Encaminhamento / Encerramento --}}
                 <div class="mb-3">
-                    <label for="referral_closure" class="form-label">Encaminhamento ou Encerramento</label>
-                    <textarea class="form-control @error('referral_closure') is-invalid @enderror" 
-                              id="referral_closure" 
-                              name="referral_closure" 
-                              rows="4" 
-                              placeholder="Se houver encaminhamento ou encerramento, descreva aqui... (opcional)">{{ old('referral_closure') }}</textarea>
+                    <label for="referral_closure" class="form-label fw-bold">Encaminhamento / Encerramento <small class="text-muted">(opcional)</small></label>
+                    <textarea class="form-control @error('referral_closure') is-invalid @enderror"
+                              id="referral_closure"
+                              name="referral_closure"
+                              rows="4"
+                              placeholder="Se houver encaminhamento ou encerramento, descreva aqui...">{{ old('referral_closure') }}</textarea>
                     @error('referral_closure')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

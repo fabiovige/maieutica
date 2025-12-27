@@ -180,8 +180,6 @@
                                     <th class="text-center" style="width: 80px;">Foto</th>
                                     <th>Nome</th>
                                     <th>Idade</th>
-                                    <th>Nascimento</th>
-                                    <th>Cadastro</th>
                                     <th>Responsável</th>
                                     <th>Profissionais</th>
                                     <th style="width: 150px;">Progresso</th>
@@ -218,19 +216,13 @@
                                             <span class="badge bg-info">{{ $kid->age ?? 'N/D' }}</span>
                                         </td>
 
-                                        <!-- Nascimento -->
-                                        <td>{{ $kid->birth_date ?? 'N/D' }}</td>
-
-                                        <!-- Cadastro -->
-                                        <td>{{ $kid->created_at ? $kid->created_at->format('d/m/Y') : 'N/D' }}</td>
-
                                         <!-- Responsável -->
                                         <td>{{ $kid->responsible->name ?? 'N/D' }}</td>
 
                                         <!-- Profissionais -->
                                         <td>
                                             @if($kid->professionals && $kid->professionals->count() > 0)
-                                                <div class="d-flex flex-wrap gap-1">
+                                                <div class="d-flex flex-wrap gap-2">
                                                     @foreach($kid->professionals as $professional)
                                                         <span class="badge bg-info text-dark"
                                                               title="{{ $professional->specialty->name ?? 'Sem especialidade' }} - {{ $professional->user->first()->name ?? 'N/D' }}">
@@ -248,7 +240,7 @@
 
                                         <!-- Progresso -->
                                         <td>
-                                            <div class="d-flex align-items-center gap-2">
+                                            <div class="d-flex align-items-center">
                                                 <div class="progress flex-grow-1" style="height: 8px;">
                                                     <div class="progress-bar"
                                                          role="progressbar"
@@ -264,7 +256,7 @@
 
                                         <!-- Ações -->
                                         <td class="text-end">
-                                            <div class="btn-group btn-group-sm" role="group">
+                                            <div class="btn-group btn-group-sm gap-1" role="group">
                                                 @if(auth()->user()->can('kid-show') || auth()->user()->id === $kid->responsible_id)
                                                     <a href="{{ route('kids.show', $kid->id) }}"
                                                        class="btn btn-primary btn-sm"
