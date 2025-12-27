@@ -60,22 +60,29 @@
                 {{-- Paciente --}}
                 <div class="col-md-3">
                     <label for="patient_id" class="form-label">Paciente</label>
-                    <select name="patient_id" id="patient_id" class="form-select">
-                        <option value="">Todos</option>
-                        @if(request('patient_type') === 'App\Models\Kid')
-                            @foreach($kids as $kid)
-                                <option value="{{ $kid->id }}" {{ request('patient_id') == $kid->id ? 'selected' : '' }}>
-                                    {{ $kid->name }}
-                                </option>
-                            @endforeach
-                        @elseif(request('patient_type') === 'App\Models\User')
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ request('patient_id') == $user->id ? 'selected' : '' }}>
-                                    {{ $user->name }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
+                    <div class="position-relative">
+                        <select name="patient_id" id="patient_id" class="form-select">
+                            <option value="">Todos</option>
+                            @if(request('patient_type') === 'App\Models\Kid')
+                                @foreach($kids as $kid)
+                                    <option value="{{ $kid->id }}" {{ request('patient_id') == $kid->id ? 'selected' : '' }}>
+                                        {{ $kid->name }}
+                                    </option>
+                                @endforeach
+                            @elseif(request('patient_type') === 'App\Models\User')
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ request('patient_id') == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <div id="patient-loading" class="position-absolute top-50 end-0 translate-middle-y pe-3" style="display: none;">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Data Início --}}
@@ -233,25 +240,39 @@
         $('#patient_type').on('change', function() {
             const patientType = $(this).val();
             const $patientSelect = $('#patient_id');
+            const $loading = $('#patient-loading');
 
-            // Limpar opções atuais (exceto "Todos")
-            $patientSelect.find('option:not(:first)').remove();
+            // Mostrar loading
+            $loading.show();
 
-            if (patientType === 'App\\Models\\Kid') {
-                // Adicionar Kids
-                kids.forEach(function(kid) {
-                    $patientSelect.append(
-                        $('<option></option>').val(kid.id).text(kid.name)
-                    );
-                });
-            } else if (patientType === 'App\\Models\\User') {
-                // Adicionar Users
-                users.forEach(function(user) {
-                    $patientSelect.append(
-                        $('<option></option>').val(user.id).text(user.name)
-                    );
-                });
-            }
+            // Desabilitar select durante carregamento
+            $patientSelect.prop('disabled', true);
+
+            // Simular pequeno delay para UX (usuário ver o loading)
+            setTimeout(function() {
+                // Limpar opções atuais (exceto "Todos")
+                $patientSelect.find('option:not(:first)').remove();
+
+                if (patientType === 'App\\Models\\Kid') {
+                    // Adicionar Kids
+                    kids.forEach(function(kid) {
+                        $patientSelect.append(
+                            $('<option></option>').val(kid.id).text(kid.name)
+                        );
+                    });
+                } else if (patientType === 'App\\Models\\User') {
+                    // Adicionar Users
+                    users.forEach(function(user) {
+                        $patientSelect.append(
+                            $('<option></option>').val(user.id).text(user.name)
+                        );
+                    });
+                }
+
+                // Ocultar loading e reabilitar select
+                $loading.hide();
+                $patientSelect.prop('disabled', false);
+            }, 300); // 300ms delay para melhor UX
         });
     });
 </script>
