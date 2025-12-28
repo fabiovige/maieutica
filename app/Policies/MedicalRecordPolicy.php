@@ -12,22 +12,32 @@ class MedicalRecordPolicy
 
     /**
      * Listar prontuários médicos.
+     * Pacientes podem listar (mas scope limitará aos seus próprios).
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('medical-record-list') || $user->can('medical-record-list-all');
+        return $user->can('medical-record-list')
+            || $user->can('medical-record-list-all')
+            || $user->can('medical-record-view-own');
     }
 
     /**
      * Visualizar um prontuário específico.
-     * Profissionais podem ver apenas prontuários que criaram.
-     * Quando admin cria para um profissional, created_by é setado para o user_id do profissional.
+     * Admin: pode ver tudo
+     * Profissional: pode ver apenas prontuários que criou
+     * Paciente: pode ver apenas seus próprios prontuários
      */
     public function view(User $user, MedicalRecord $medicalRecord): bool
     {
         // Admin sees everything
         if ($user->can('medical-record-show-all')) {
             return true;
+        }
+
+        // Patient can ONLY view their own records
+        if ($user->can('medical-record-view-own')) {
+            return $medicalRecord->patient_type === User::class
+                && $medicalRecord->patient_id === $user->id;
         }
 
         // Professional can view ONLY if they created it

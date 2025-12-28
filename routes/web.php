@@ -103,6 +103,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('professionals', ProfessionalController::class);
     Route::patch('professionals/{professional}/deactivate', [ProfessionalController::class, 'deactivate'])->name('professionals.deactivate');
     Route::patch('professionals/{professional}/activate', [ProfessionalController::class, 'activate'])->name('professionals.activate');
+    Route::get('professionals/{professional}/assign-patients', [ProfessionalController::class, 'assignPatientsForm'])->name('professionals.assign-patients');
+    Route::post('professionals/{professional}/sync-patients', [ProfessionalController::class, 'syncPatients'])->name('professionals.sync-patients');
     Route::put('professionals/{professional}', [ProfessionalController::class, 'update'])
         ->name('professionals.update')
         ->middleware('auth');

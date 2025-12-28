@@ -77,15 +77,16 @@ class MedicalRecord extends BaseModel
 
     /**
      * Date handling - Brazilian format (d/m/Y)
+     * This accessor provides formatted date for display
      */
-    public function getSessionDateAttribute($value)
+    public function getSessionDateFormattedAttribute()
     {
-        if (!$value) {
+        if (!$this->attributes['session_date']) {
             return null;
         }
 
         try {
-            return Carbon::parse($value)->format('d/m/Y');
+            return Carbon::parse($this->attributes['session_date'])->format('d/m/Y');
         } catch (\Exception $e) {
             return null;
         }
@@ -135,12 +136,40 @@ class MedicalRecord extends BaseModel
 
     /**
      * Scope para filtrar medical records do profissional autenticado
-     * Professional can only view records they created (or that admin created for them)
-     * When admin creates a record for a professional, created_by is set to that professional's user_id
+     * Professional can view records for their assigned patients (Kids and Users)
      */
     public function scopeForAuthProfessional(Builder $query)
     {
-        return $query->where('created_by', auth()->id());
+        $professional = auth()->user()->professional->first();
+
+        if (!$professional) {
+            return $query->whereRaw('1 = 0'); // Return no results
+        }
+
+        return $query->where(function ($q) use ($professional) {
+            // Records for assigned Kids
+            $q->where(function ($subQ) use ($professional) {
+                $subQ->where('patient_type', Kid::class)
+                     ->whereIn('patient_id', $professional->kids()->pluck('kids.id'));
+            })
+            // Records for assigned User patients
+            ->orWhere(function ($subQ) use ($professional) {
+                $subQ->where('patient_type', User::class)
+                     ->whereIn('patient_id', $professional->patients()->pluck('users.id'));
+            });
+        });
+    }
+
+    /**
+     * Scope para filtrar medical records do paciente autenticado
+     * Patient can only view their own medical records
+     */
+    public function scopeForAuthPatient(Builder $query)
+    {
+        $userId = auth()->id();
+
+        return $query->where('patient_type', User::class)
+                     ->where('patient_id', $userId);
     }
 
     /**

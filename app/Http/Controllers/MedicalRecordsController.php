@@ -77,8 +77,18 @@ class MedicalRecordsController extends Controller
             });
         }
 
-        // Professional scope: only see records of assigned patients
-        if (!auth()->user()->can('medical-record-list-all')) {
+        // Apply scope based on user role
+        // Order matters: check admin first, then professional, then patient
+        $user = auth()->user();
+
+        if ($user->can('medical-record-list-all')) {
+            // Admin: sees all records (no scope applied)
+            // Do nothing - query shows all
+        } elseif ($user->can('medical-record-view-own')) {
+            // Patient: only see their own records
+            $query->forAuthPatient();
+        } else {
+            // Professional: only see records of assigned patients
             $query->forAuthProfessional();
         }
 
@@ -597,7 +607,6 @@ class MedicalRecordsController extends Controller
 
     /**
      * Get User patients for current user based on permissions.
-     * TODO: Implement when User->Professional relationship is defined
      */
     private function getUserPatientsForUser()
     {
@@ -607,8 +616,13 @@ class MedicalRecordsController extends Controller
         }
 
         // Professional sees only their assigned user patients
-        // Temporarily returns empty until assignment system is implemented
-        return collect([]);
+        $professional = auth()->user()->professional->first();
+
+        if (!$professional) {
+            return collect([]);
+        }
+
+        return $professional->patients()->orderBy('name')->get();
     }
 
     /**

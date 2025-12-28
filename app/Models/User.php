@@ -90,4 +90,14 @@ class User extends Authenticatable
     {
         return $this->morphMany(MedicalRecord::class, 'patient')->orderBy('session_date', 'desc');
     }
+
+    /**
+     * Professionals that attend this user as a patient
+     * (Different from professional() which returns this user AS a professional)
+     */
+    public function assignedProfessionals()
+    {
+        return $this->belongsToMany(Professional::class, 'professional_user_patient')
+            ->whereNull('professionals.deleted_at');
+    }
 }

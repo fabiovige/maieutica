@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Checklist;
 use App\Models\Kid;
+use App\Models\MedicalRecord;
 use App\Models\Professional;
 use Illuminate\Support\Facades\DB;
 use App\Services\OverviewService;
@@ -22,6 +23,26 @@ class HomeController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+        // Verifica se é paciente (usuário adulto com permissão view-own)
+        $isPatient = $user->can('medical-record-view-own') && !$user->can('medical-record-list-all');
+
+        // Se for paciente, retorna dashboard simplificado
+        if ($isPatient) {
+            $totalMedicalRecords = MedicalRecord::forAuthPatient()->count();
+            $latestMedicalRecords = MedicalRecord::forAuthPatient()
+                ->with(['creator'])
+                ->whereNotNull('session_date')
+                ->orderBy('session_date', 'desc')
+                ->limit(5)
+                ->get();
+
+            return view('home', compact(
+                'isPatient',
+                'totalMedicalRecords',
+                'latestMedicalRecords'
+            ));
+        }
 
         // Verifica se é profissional
         $isProfessional = $user->professional->count() > 0;

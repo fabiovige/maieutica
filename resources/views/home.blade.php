@@ -59,8 +59,110 @@
 
 @section('content')
 
-    @can('dashboard-manage')
-    <div class="row g-4 mb-4">
+    {{-- Dashboard para Pacientes --}}
+    @if(isset($isPatient) && $isPatient)
+        <div class="row g-4 mb-4">
+            <!-- Card Principal - Total de Prontuários -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card border-0 h-100 bg-secondary shadow">
+                    <div class="card-body text-white p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-file-medical-fill fs-1 me-3"></i>
+                            <div>
+                                <h6 class="mb-0 opacity-75">Meus Prontuários</h6>
+                                <h2 class="mb-0 fw-bold">{{ $totalMedicalRecords }}</h2>
+                            </div>
+                        </div>
+                        <small class="opacity-75">Total de registros</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de Boas-vindas -->
+            <div class="col-12 col-md-6 col-lg-8">
+                <div class="card border-0 h-100 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="bi bi-person-circle text-primary"></i>
+                            Bem-vindo(a), {{ auth()->user()->name }}!
+                        </h5>
+                        <p class="card-text text-muted mb-3">
+                            Este é seu espaço para acompanhar suas consultas e evolução do tratamento.
+                        </p>
+                        <a href="{{ route('medical-records.index') }}" class="btn btn-primary">
+                            <i class="bi bi-eye"></i> Ver Todos os Prontuários
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos Prontuários -->
+        @if($latestMedicalRecords->isNotEmpty())
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i> Últimos Registros
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Data da Consulta</th>
+                                    <th>Profissional</th>
+                                    <th>Tipo</th>
+                                    <th class="text-center">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($latestMedicalRecords as $record)
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-calendar3 text-muted"></i>
+                                            {{ $record->session_date_formatted ?? 'N/D' }}
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-person-badge text-primary"></i>
+                                            {{ $record->creator->name ?? 'N/D' }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                {{ $record->record_type === 'initial' ? 'Inicial' : 'Evolução' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ route('medical-records.pdf', $record) }}"
+                                               class="btn btn-sm btn-outline-primary"
+                                               target="_blank">
+                                                <i class="bi bi-file-pdf"></i> Ver PDF
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a href="{{ route('medical-records.index') }}" class="text-primary text-decoration-none">
+                        Ver todos os prontuários <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        @else
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                Você ainda não possui prontuários registrados. Aguarde sua primeira consulta.
+            </div>
+        @endif
+
+    @else
+        {{-- Dashboard original para Admin/Profissionais/Responsáveis --}}
+
+        @can('dashboard-manage')
+        <div class="row g-4 mb-4">
         <!-- Total de Crianças -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 h-100 bg-secondary">
@@ -124,25 +226,24 @@
                 </div>
             </div>
         </div>
-    </div>
-    @endcan
+        @endcan
 
-    <!-- Paginação Superior -->
-    @if($kids->hasPages())
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Minhas Crianças</h5>
-            <div>
-                {{ $kids->links() }}
+        <!-- Paginação Superior -->
+        @if($kids->hasPages())
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Minhas Crianças</h5>
+                <div>
+                    {{ $kids->links() }}
+                </div>
             </div>
-        </div>
-    @else
-        <h5 class="mb-3">Minhas Crianças</h5>
-    @endif
+        @else
+            <h5 class="mb-3">Minhas Crianças</h5>
+        @endif
 
-    <!-- Grid de Cards de Crianças -->
-    <div class="row g-4 mb-4">
-        @forelse($kids as $kid)
-            <div class="col-12 col-md-6 col-lg-4">
+        <!-- Grid de Cards de Crianças -->
+        <div class="row g-4 mb-4">
+            @forelse($kids as $kid)
+                <div class="col-12 col-md-6 col-lg-4">
                 <div class="card h-100 kid-card shadow-sm">
                     <!-- Cabeçalho do Card -->
                     <div class="card-body text-center pb-2">
@@ -249,21 +350,23 @@
                         @endif
                     </div>
                 </div>
-            </div>
-        @empty
-            <div class="col-12">
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> Nenhuma criança cadastrada
                 </div>
-            </div>
-        @endforelse
-    </div>
-
-    <!-- Paginação -->
-    @if($kids->hasPages())
-        <div class="d-flex justify-content-end mb-4">
-            {{ $kids->links() }}
+            @empty
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> Nenhuma criança cadastrada
+                    </div>
+                </div>
+            @endforelse
         </div>
-    @endif
+
+        <!-- Paginação -->
+        @if($kids->hasPages())
+            <div class="d-flex justify-content-end mb-4">
+                {{ $kids->links() }}
+            </div>
+        @endif
+
+    @endif {{-- Fim do @else para pacientes --}}
 
 @endsection

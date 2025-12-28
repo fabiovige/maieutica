@@ -28,10 +28,11 @@
 
 @section('content')
 
-    {{-- Filtros --}}
-    <div class="card mb-3">
-        <div class="card-body">
-            <form method="GET" action="{{ route('medical-records.index') }}" class="row g-3" id="filter-form">
+    {{-- Filtros (não exibir para pacientes) --}}
+    @if(!auth()->user()->can('medical-record-view-own') || auth()->user()->can('medical-record-list-all'))
+        <div class="card mb-3">
+            <div class="card-body">
+                <form method="GET" action="{{ route('medical-records.index') }}" class="row g-3" id="filter-form">
                 {{-- Profissional --}}
                 @can('medical-record-list-all')
                     <div class="col-md-3">
@@ -122,11 +123,17 @@
             </form>
         </div>
     </div>
+    @endif
 
     {{-- Lista de Prontuários --}}
     @if ($medicalRecords->isEmpty())
         <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> Nenhum prontuário encontrado.
+            <i class="bi bi-info-circle"></i>
+            @if(auth()->user()->can('medical-record-view-own') && !auth()->user()->can('medical-record-list-all'))
+                Você ainda não possui prontuários registrados.
+            @else
+                Nenhum prontuário encontrado.
+            @endif
         </div>
     @else
         <div class="card">
