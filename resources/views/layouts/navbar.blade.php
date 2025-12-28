@@ -51,6 +51,27 @@
                         </li>
                     @endif
 
+                    @if(auth()->user()->can('medical-record-list') || auth()->user()->can('medical-record-view-own'))
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('medical-records.*') ? 'active' : '' }}"
+                               href="#"
+                               id="prontuarioDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="bi bi-file-medical"></i> Prontuário
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="prontuarioDropdown">
+                                <li>
+                                    <a class="dropdown-item {{ request()->routeIs('medical-records.index') ? 'active' : '' }}"
+                                       href="{{ route('medical-records.index') }}">
+                                        <i class="bi bi-graph-up"></i> Evolução dos Casos
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
+
                     @if(auth()->user()->can('user-list') || auth()->user()->can('role-list') || auth()->user()->can('professional-list') || auth()->user()->can('checklist-list-all') || auth()->user()->can('kid-list-all') || auth()->user()->can('user-list-all') || auth()->user()->can('role-list-all') || auth()->user()->can('professional-list-all'))
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('professionals.*') || request()->routeIs('*.trash') ? 'active' : '' }}"
@@ -184,30 +205,32 @@
                         </li>
                     @endif
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->routeIs('documents.*') ? 'active' : '' }}"
-                           href="#"
-                           id="documentoDropdown"
-                           role="button"
-                           data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                            <i class="bi bi-file-earmark-text"></i> Documento
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="documentoDropdown">
-                            <li>
-                                <a class="dropdown-item {{ request()->routeIs('documents.index') ? 'active' : '' }}"
-                                   href="{{ url('documents') }}">
-                                    <i class="bi bi-file-earmark-plus"></i> Geração de documentos
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request()->routeIs('documentos.history') ? 'active' : '' }}"
-                                   href="{{ route('documentos.history') }}">
-                                    <i class="bi bi-clock-history"></i> Histórico de Documentos
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if(auth()->user()->can('document-list') || auth()->user()->can('document-list-all'))
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('documents.*') ? 'active' : '' }}"
+                               href="#"
+                               id="documentoDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="bi bi-file-earmark-text"></i> Documento
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="documentoDropdown">
+                                <li>
+                                    <a class="dropdown-item {{ request()->routeIs('documents.index') ? 'active' : '' }}"
+                                       href="{{ url('documents') }}">
+                                        <i class="bi bi-file-earmark-plus"></i> Geração de documentos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item {{ request()->routeIs('documentos.history') ? 'active' : '' }}"
+                                       href="{{ route('documentos.history') }}">
+                                        <i class="bi bi-clock-history"></i> Histórico de Documentos
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
                 </ul>
 
                 <div class="d-flex align-items-center">
