@@ -461,4 +461,91 @@ class ProfessionalController extends Controller
             return redirect()->back();
         }
     }
+
+    /**
+     * Show form to assign user patients to a professional
+     */
+    public function assignPatientsForm(Professional $professional)
+    {
+        $this->authorize('update', $professional);
+
+        // Get all active users (excluding the professional's own user)
+        $professionalUserId = $professional->user->first()?->id;
+
+        $availablePatients = User::where('allow', 1)
+            ->where('id', '!=', $professionalUserId)
+            ->orderBy('name')
+            ->get();
+
+        // Get currently assigned patients
+        $assignedPatientIds = $professional->patients()->pluck('users.id')->toArray();
+
+        $this->professionalLogger->viewed($professional, 'assign_patients_form');
+
+        return view('professionals.assign-patients', compact('professional', 'availablePatients', 'assignedPatientIds'));
+    }
+
+    /**
+     * Sync assigned user patients for a professional
+     */
+    public function syncPatients(Request $request, Professional $professional)
+    {
+        $this->authorize('update', $professional);
+
+        try {
+            DB::beginTransaction();
+
+            $patients = $request->input('patients', []);
+
+            // Get original assignments for logging
+            $originalPatients = $professional->patients()->pluck('users.id')->toArray();
+
+            // Sync patients with timestamps
+            $syncData = [];
+            foreach ($patients as $patientId) {
+                $syncData[$patientId] = [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            $professional->patients()->sync($syncData);
+
+            // Log changes
+            $attached = array_diff($patients, $originalPatients);
+            $detached = array_diff($originalPatients, $patients);
+
+            foreach ($attached as $patientId) {
+                $this->professionalLogger->created($professional, [
+                    'action' => 'patient_attached',
+                    'patient_id' => $patientId,
+                    'patient_type' => 'User',
+                ]);
+            }
+
+            foreach ($detached as $patientId) {
+                $this->professionalLogger->deleted($professional, [
+                    'action' => 'patient_detached',
+                    'patient_id' => $patientId,
+                    'patient_type' => 'User',
+                ]);
+            }
+
+            DB::commit();
+
+            flash('Pacientes atribuídos com sucesso!')->success();
+
+            return redirect()->route('professionals.show', $professional);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            $this->professionalLogger->operationFailed('sync_patients', $e, [
+                'professional_id' => $professional->id,
+            ]);
+
+            flash('Erro ao atribuir pacientes.')->error();
+
+            return redirect()->back();
+        }
+    }
 }

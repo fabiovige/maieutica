@@ -33,4 +33,14 @@ class Professional extends Model
         return $this->belongsToMany(Kid::class, 'kid_professional')
             ->whereNull('kids.deleted_at');
     }
+
+    /**
+     * Users that this professional attends (as patients)
+     */
+    public function patients()
+    {
+        return $this->belongsToMany(User::class, 'professional_user_patient')
+            ->whereNull('users.deleted_at')
+            ->where('users.allow', 1);
+    }
 }

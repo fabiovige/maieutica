@@ -154,6 +154,44 @@
         </li>
     @endcan
 
+    @can('medical-record-list')
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle @if (request()->is('medical-records*')) active @endif"
+               href="#"
+               id="medicalRecordsDropdown"
+               role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+                <i class="bi bi-file-medical"></i> Prontuários
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="medicalRecordsDropdown">
+                <li>
+                    <a class="dropdown-item @if (request()->is('medical-records') && !request()->is('medical-records/trash')) active @endif"
+                       href="{{ route('medical-records.index') }}">
+                        <i class="bi bi-list"></i> Listar Prontuários
+                    </a>
+                </li>
+                @can('medical-record-create')
+                    <li>
+                        <a class="dropdown-item @if (request()->is('medical-records/create')) active @endif"
+                           href="{{ route('medical-records.create') }}">
+                            <i class="bi bi-plus-circle"></i> Novo Prontuário
+                        </a>
+                    </li>
+                @endcan
+                @can('medical-record-list-all')
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item @if (request()->is('medical-records/trash')) active @endif"
+                           href="{{ route('medical-records.trash') }}">
+                            <i class="bi bi-trash"></i> Lixeira
+                        </a>
+                    </li>
+                @endcan
+            </ul>
+        </li>
+    @endcan
+
     <!-- Tutorial - Disponível para todos os usuários -->
     <li class="nav-item">
         <a class="nav-link @if (request()->is('tutorial*')) active @endif"

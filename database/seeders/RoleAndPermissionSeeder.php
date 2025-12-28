@@ -17,6 +17,7 @@ class RoleAndPermissionSeeder extends Seeder
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $responsavel = Role::firstOrCreate(['name' => 'responsavel']);
         $profissional = Role::firstOrCreate(['name' => 'profissional']);
+        $paciente = Role::firstOrCreate(['name' => 'paciente']);
 
         // Criação de Permissões
         $permissions = [
@@ -108,6 +109,19 @@ class RoleAndPermissionSeeder extends Seeder
             'document-delete',
             'document-delete-all',
 
+            // Prontuários Médicos
+            'medical-record-list',
+            'medical-record-show',
+            'medical-record-create',
+            'medical-record-create-all',
+            'medical-record-edit',
+            'medical-record-delete',
+            'medical-record-list-all',
+            'medical-record-show-all',
+            'medical-record-edit-all',
+            'medical-record-delete-all',
+            'medical-record-view-own', // Created but NOT assigned to admin (patient only)
+
             // Permissões adicionais / administrativas
             'dashboard-manage',
         ];
@@ -117,7 +131,9 @@ class RoleAndPermissionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        $admin->syncPermissions($permissions);
+        // Admin permissions (all EXCEPT medical-record-view-own which is patient-only)
+        $adminPermissions = array_diff($permissions, ['medical-record-view-own']);
+        $admin->syncPermissions($adminPermissions);
 
         $permissionsProfissional = [
             // Usuários
@@ -161,6 +177,13 @@ class RoleAndPermissionSeeder extends Seeder
             'document-list',
             'document-show',
             'document-download',
+
+            // Prontuários Médicos
+            'medical-record-list',
+            'medical-record-show',
+            'medical-record-create',
+            'medical-record-edit',
+            'medical-record-delete',
         ];
         $profissional->syncPermissions($permissionsProfissional);
 
@@ -168,6 +191,11 @@ class RoleAndPermissionSeeder extends Seeder
             'kid-list',
             'kid-show',
             'kid-edit',
+        ]);
+
+        // Paciente - Pode apenas visualizar seus próprios prontuários
+        $paciente->syncPermissions([
+            'medical-record-view-own',
         ]);
     }
 }

@@ -102,6 +102,11 @@ class Kid extends BaseModel
         return $this->morphMany(GeneratedDocument::class, 'documentable');
     }
 
+    public function medicalRecords()
+    {
+        return $this->morphMany(MedicalRecord::class, 'patient')->orderBy('session_date', 'desc');
+    }
+
     public function getAgeAttribute()
     {
         if (! $this->birth_date) {

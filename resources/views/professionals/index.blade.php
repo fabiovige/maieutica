@@ -127,6 +127,13 @@
                                 </a>
                             @endcan
 
+                            @can('professional-edit')
+                                <a href="{{ route('professionals.assign-patients', $professional->id) }}"
+                                    class="btn btn-sm btn-info me-2" title="Atribuir Pacientes Adultos">
+                                    <i class="bi bi-people"></i> Pacientes
+                                </a>
+                            @endcan
+
                             @can('professional-deactivate')
                                 @if ($professional->user->first()?->allow)
                                     <form action="{{ route('professionals.deactivate', $professional->id) }}" method="POST"
