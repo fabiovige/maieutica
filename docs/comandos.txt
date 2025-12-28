@@ -1,4 +1,4 @@
-git tag -a 2.1.0 -m "Release 2.1.0 - Histórico de Documentos"
+git tag -a 2.2.0 -m "Release 2.1.0 - Prontuário para Crianças e Adultos"
 
 git push --tags
 
