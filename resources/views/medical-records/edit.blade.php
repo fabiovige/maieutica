@@ -49,18 +49,13 @@
 
                     {{-- Data da Sessão --}}
                     <div class="col-md-4 mb-3">
-                        <label for="session_date" class="form-label">Data da Sessão <span class="text-danger">*</span></label>
+                        <label for="session_date" class="form-label">Data da Sessão</label>
                         <input type="text"
-                               class="form-control datepicker @error('session_date') is-invalid @enderror"
+                               class="form-control bg-light"
                                id="session_date"
                                name="session_date"
-                               placeholder="dd/mm/aaaa"
-                               value="{{ old('session_date', $medicalRecord->session_date) }}"
-                               required
-                               autocomplete="off">
-                        @error('session_date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                               value="{{ old('session_date', $medicalRecord->session_date_formatted) }}"
+                               readonly>
                     </div>
                 </div>
 
@@ -170,9 +165,6 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        // Configurar datepicker para data da sessão (máximo hoje)
-        $('#session_date').datepicker('option', 'maxDate', 0);
-
         // Função para mostrar/ocultar selects de paciente
         function togglePatientSelect() {
             const patientType = $('#patient_type').val();

@@ -91,22 +91,43 @@ php artisan ide-helper:meta
 
 ### Core Domain Structure
 
-The system centers around **cognitive assessment checklists** for children/patients (Kids):
+The system centers around **cognitive assessment checklists** for children/patients (Kids) and **medical records** for both children and adults:
 
-- **Kids (Crianças)**: Central entity representing patients
+- **Kids (Crianças)**: Central entity representing child patients
+- **Users (Adultos)**: Can also function as adult patients (when not assigned professional roles)
 - **Checklists**: Cognitive evaluation forms filled by professionals
 - **Competences**: Individual cognitive skills/abilities evaluated
 - **Domains**: Groups of related competences (cognitive areas)
 - **Levels**: Difficulty/complexity levels for competences
 - **Planes**: Intervention/development plans generated from assessments
+- **Medical Records (Prontuários)**: Clinical evolution records for both Kids and Users (polymorphic)
 
 ### Key Relationships
 
 ```
 Kid (Criança)
  ├── has many Checklists (evaluations over time)
- ├── belongs to Professionals (assigned therapists)
- └── has Planes (development plans)
+ ├── belongs to Professionals (assigned therapists via kid_professional pivot)
+ ├── has Planes (development plans)
+ ├── has many MedicalRecords (morphMany - polymorphic)
+ └── has many GeneratedDocuments (morphMany - polymorphic)
+
+User (Paciente Adulto quando allow=true e sem role de profissional)
+ ├── has many MedicalRecords (morphMany - polymorphic)
+ ├── has many GeneratedDocuments (morphMany - polymorphic)
+ └── belongs to Professionals (via professional_user_patient pivot - TO BE IMPLEMENTED)
+
+MedicalRecord (Prontuário)
+ ├── belongs to Patient (morphTo - Kid OR User)
+ ├── belongs to Professional (who signed)
+ ├── belongs to User (who generated it - created_by)
+ └── supports versioning and session tracking
+
+GeneratedDocument (Histórico de Documentos)
+ ├── belongs to Documentable (morphTo - Kid OR User)
+ ├── belongs to Professional (who signed)
+ ├── stores HTML content for PDF regeneration
+ └── tracks metadata (IP, user_agent, title, etc.)
 
 Checklist
  ├── belongs to Kid
@@ -133,7 +154,9 @@ Plane (Development Plan)
   - `KidsController.php`: Most complex controller (patient management, PDF generation, overview charts)
   - `ChecklistController.php`: Evaluation management, chart visualization
   - `CompetencesController.php`: Competence/skill management with domain filtering
-  - `DocumentsController.php`: Professional document generation (declarations, reports) using standardized PDF templates
+  - `DocumentsController.php`: Professional document generation (declarations, reports) using standardized PDF templates, includes document history
+  - `MedicalRecordsController.php`: Medical records (prontuários) management for Kids and Users (polymorphic), with versioning support
+  - `ProfessionalController.php`: Professional management including patient assignment (Kids and Users)
 
 - **Models** (`app/Models/`): Eloquent ORM models with relationships
   - Uses `BaseModel` for common functionality
@@ -174,14 +197,19 @@ Plane (Development Plan)
 ### Database Layer
 
 **Key Tables:**
-- `kids`: Patient records
-- `checklists`: Evaluation sessions
+- `kids`: Child patient records
+- `users`: User accounts (can also function as adult patients when allow=true and no professional role)
+- `checklists`: Evaluation sessions (for Kids)
 - `competences`: Cognitive skills library
 - `domains`: Competence groupings
 - `levels`: Difficulty levels
 - `checklist_competence`: Pivot with evaluation notes (0-3 scale)
 - `planes`: Development plans
 - `competence_planes`: Skills targeted in plans
+- `medical_records`: Clinical evolution records (polymorphic: Kids OR Users)
+- `generated_documents`: Document generation history (stores HTML for PDF regeneration)
+- `professional_user_patient`: Pivot for Professional-User (adult patient) assignment (TO BE FULLY IMPLEMENTED)
+- `kid_professional`: Pivot for Professional-Kid assignment
 - `users`, `roles`, `permissions`: Spatie permission system
 
 **Note Scale:**
@@ -204,6 +232,58 @@ Plane (Development Plan)
 - Overview dashboard with progress tracking
 - Comparative analysis between evaluation sessions
 - Automatic development plan generation based on weakest competences
+
+**Medical Records (Prontuários) System:**
+- Clinical evolution tracking for both Kids (children) and Users (adults)
+- **Polymorphic relationship**: `patient_type` field stores `App\Models\Kid` or `App\Models\User`
+- **Versioning support**: Tracks session history and evolution over time
+- **PDF generation**: Medical records can be exported to PDF
+- **Authorization**:
+  - Admin can view/edit all medical records
+  - Professionals can view/edit only records of their assigned patients or records they created
+  - Scope `forAuthProfessional()` filters records based on professional assignment
+- **Features**:
+  - Session tracking with dates
+  - Development notes and observations
+  - Professional signatures
+  - Trash/restore functionality
+- **Note**: Professional→User (adult patient) assignment is partially implemented. Currently:
+  - ✅ Admin can create medical records for any User
+  - ✅ Professionals can view records they created
+  - ❌ Professionals cannot create new records for adult patients (dropdown filter empty)
+  - 🚧 Requires full implementation of `professional_user_patient` pivot table relationship
+
+**Adult Patients System:**
+- **User as Patient**: Users can function as adult patients when `allow = true` and user has no professional role
+- **Differentiation**:
+  - User is **professional** when linked in `user_professional` pivot (has professional relationship)
+  - User is **adult patient** when `allow = true` AND not linked to any professional role
+- **Registration Flow** (by Admin):
+  1. Create User via Cadastro > Usuários > Novo Usuário
+  2. Leave "Perfil (Roles)" blank
+  3. Check "Liberado para acessar o sistema" (`allow=true`)
+  4. User becomes adult patient (can receive medical records and documents)
+- **Limitations** (Current Implementation):
+  - Professional-to-User patient assignment system not fully implemented
+  - Workaround: Admin creates records on behalf of professionals
+  - See `docs/adulto.md` and `docs/analise_adulto.md` for detailed analysis
+
+**Document Generation History:**
+- All generated documents (6 models: Declaração, Laudo, Parecer, Relatório) are now **stored in database**
+- **Storage method**: HTML content stored (not PDF file), allows unlimited regeneration
+- **Table**: `generated_documents` with polymorphic relationship to Kids/Users
+- **Features**:
+  - Historical tracking with audit trail (who generated, when, from where)
+  - PDF regeneration on-demand from stored HTML
+  - Metadata tracking (IP, user agent, document title)
+  - Form data preservation (JSON)
+  - Download history accessible at `/documents/history`
+- **Authorization**: Same pattern as medical records (professionals see own + assigned patients)
+- **Benefits**:
+  - Compliance and audit requirements
+  - No disk storage needed (HTML stored in DB, PDF generated in memory)
+  - Can update template and regenerate old documents
+- See `docs/documentos.md` for complete implementation details
 
 **PDF Document Generation (Standard Pattern):**
 - **Controller:** `DocumentsController` (`app/Http/Controllers/DocumentsController.php`)
@@ -542,6 +622,19 @@ if (auth()->user()->can('user-list-all')) {
 - `kid-create`, `kid-edit`, `kid-delete`
 - Similar pattern for other entities
 
+**Medical Records:**
+- `medical-record-list`, `medical-record-list-all`
+- `medical-record-show`, `medical-record-show-all`
+- `medical-record-create`
+- `medical-record-edit`, `medical-record-edit-all`
+- `medical-record-delete`, `medical-record-delete-all`
+
+**Documents:**
+- `document-list`, `document-list-all`
+- `document-show`, `document-show-all`
+- `document-download`
+- `document-delete`, `document-delete-all`
+
 ### Important Notes on Policies
 
 All policies (RolePolicy, UserPolicy, ProfessionalPolicy) are **standardized** to follow the same pattern:
@@ -557,9 +650,13 @@ See `docs/PROFESSIONAL_USER_RELATIONSHIP.md` for detailed documentation on Profe
 For detailed documentation on specific topics, see the `docs/` folder:
 
 - `PROFESSIONAL_USER_RELATIONSHIP.md` - Comprehensive guide on Professional-User relationships, authorization patterns, and lifecycle management (creation, deletion, activation/deactivation)
+- `implementacao-prontuarios.md` - Complete implementation plan for Medical Records system
+- `adulto.md` / `analise_adulto.md` - Analysis of adult patients system and Professional-User patient assignment (partially implemented)
+- `documentos.md` - Complete documentation on Document Generation History system (HTML storage, PDF regeneration, audit trail)
 - `checklistLogger.md`, `professionalLogger.md`, `roleLogger.md`, `userLogger.md` - Logging documentation for specific entities
 - `cep-autocomplete.md`, `implementacao-cep.md` - Brazilian postal code (CEP) integration documentation
 - `routes_checklist.md` - Route structure documentation
+- `MANUAL_ATUALIZACAO_PRODUCAO.md` - Production deployment and update manual
 
 ## Important Notes
 
@@ -571,4 +668,9 @@ For detailed documentation on specific topics, see the `docs/` folder:
 - **Database changes:** Never alter database tables without explicit authorization
 - **Authorization:** See "Authorization System" section - NEVER use `hasRole()` for authorization logic, ALWAYS use `can()` with permissions
 - **Windows development:** This project is developed on Windows (MINGW64). Most commands work cross-platform, but file paths use Windows format in local development
-- como estamo susando laravel sempr euse migration para nao danificar o banco e os dados de produçao mesmo em ambiente de desenvolvimento.
+- **Always use migrations:** Como estamos usando Laravel, sempre use migrations para não danificar o banco e os dados de produção, mesmo em ambiente de desenvolvimento
+- **Recent Features (v2.2.0):**
+  - ✅ **Medical Records System**: Fully implemented - manages clinical records for Kids and Users (adults)
+  - ✅ **Document Generation History**: Fully implemented - stores HTML, enables PDF regeneration and audit trail
+  - 🚧 **Adult Patients**: Partially implemented - Users can be adult patients, but Professional→User assignment needs completion (see `docs/analise_adulto.md`)
+  - ⚠️ **Known Limitation**: Professionals cannot currently create medical records for adult patients via UI (dropdown empty). Workaround: Admin creates on behalf of professionals. Full implementation requires `professional_user_patient` pivot table relationship completion.
