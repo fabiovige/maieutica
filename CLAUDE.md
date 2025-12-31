@@ -649,14 +649,17 @@ See `docs/PROFESSIONAL_USER_RELATIONSHIP.md` for detailed documentation on Profe
 
 For detailed documentation on specific topics, see the `docs/` folder:
 
+- `jira.md` - **Jira-friendly summary of feat/prontuario branch** - Complete feature documentation for project management
 - `PROFESSIONAL_USER_RELATIONSHIP.md` - Comprehensive guide on Professional-User relationships, authorization patterns, and lifecycle management (creation, deletion, activation/deactivation)
 - `implementacao-prontuarios.md` - Complete implementation plan for Medical Records system
+- `medical-records.md` - Technical documentation for Medical Records system (961 lines)
 - `adulto.md` / `analise_adulto.md` - Analysis of adult patients system and Professional-User patient assignment (partially implemented)
 - `documentos.md` - Complete documentation on Document Generation History system (HTML storage, PDF regeneration, audit trail)
 - `checklistLogger.md`, `professionalLogger.md`, `roleLogger.md`, `userLogger.md` - Logging documentation for specific entities
 - `cep-autocomplete.md`, `implementacao-cep.md` - Brazilian postal code (CEP) integration documentation
 - `routes_checklist.md` - Route structure documentation
 - `MANUAL_ATUALIZACAO_PRODUCAO.md` - Production deployment and update manual
+- `PRD.md`, `VISÃO GERAL.md` - Product requirements and overview documentation
 
 ## Important Notes
 
