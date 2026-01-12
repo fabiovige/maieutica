@@ -35,7 +35,8 @@
                 if (!Chart.registry.plugins.get('datalabels')) {
                     Chart.register(ChartDataLabels);
                 }
-                createRadarChart('{{ $canvasId }}', radarLabels_{{ $canvasId }}, radarDatasets_{{ $canvasId }}, showPercentage_{{ $canvasId }}, usePercentageScale_{{ $canvasId }});
+                // Expõe a instância do gráfico globalmente usando o canvasId como nome da variável
+                window['{{ $canvasId }}'] = createRadarChart('{{ $canvasId }}', radarLabels_{{ $canvasId }}, radarDatasets_{{ $canvasId }}, showPercentage_{{ $canvasId }}, usePercentageScale_{{ $canvasId }});
             }
         }
 
