@@ -25,47 +25,32 @@
                         <div class="row">
                             <input type="hidden" name="kid_id" value="{{ $checklist->kid_id }}" />
                             <div class="col">
-                                <label for="kid_name">Criança <span class="text-danger">*</span></label> <br />
+                                <label for="kid_name">Criança</label> <br />
                                 <input
-                                    class="form-control @error('kid_name') is-invalid @enderror"
+                                    class="form-control bg-light"
                                     type="text"
                                     id="kid_name"
-                                    name="kid_name"
-                                    value="{{ old('kid_name', $checklist->kid->name) }}"
-                                    required
+                                    value="{{ $checklist->kid->name }}"
+                                    readonly
                                 />
-                                @error('kid_name')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                                @enderror
                             </div>
                             <div class="col">
-                                <label for="kid_birth_date"
-                                    >Data de nascimento <span class="text-danger">*</span></label
-                                >
+                                <label for="kid_birth_date">Data de nascimento</label>
                                 <br />
                                 <input
-                                    class="form-control @error('kid_birth_date') is-invalid @enderror"
+                                    class="form-control bg-light"
                                     type="text"
                                     id="kid_birth_date"
-                                    name="kid_birth_date"
-                                    value="{{ old('kid_birth_date', $checklist->kid->birth_date) }}"
-                                    placeholder="dd/mm/aaaa"
-                                    required
+                                    value="{{ $checklist->kid->birth_date }}"
+                                    readonly
                                 />
-                                @error('kid_birth_date')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                                @enderror
                             </div>
                             <div class="col">
                                 <label for="created_at">Data de criação</label>
                                 <br />
                                 <input
                                     disabled
-                                    class="form-control bg-ligth"
+                                    class="form-control bg-light"
                                     type="text"
                                     name="created_at"
                                     value="{{ $checklist->created_at->format('d/m/Y') }}"
@@ -147,11 +132,7 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script>
-        // Máscara para data de nascimento
-        $('#kid_birth_date').mask('00/00/0000', {placeholder: "dd/mm/aaaa"});
-
         // Script para mover para lixeira
         document.getElementById('btn-delete-checklist')?.addEventListener('click', function(e) {
             e.preventDefault();
