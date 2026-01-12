@@ -529,7 +529,7 @@
 
                     // Força o update dos gráficos para garantir que estejam renderizados
                     if (typeof barChart !== 'undefined') barChart.update();
-                    if (typeof radarChart !== 'undefined') radarChart.update();
+                    if (typeof window.radarChart !== 'undefined' && window.radarChart && typeof window.radarChart.update === 'function') window.radarChart.update();
                     if (typeof barChartItems2 !== 'undefined') barChartItems2.update();
 
                     // Aguarda mais tempo para garantir a renderização completa
