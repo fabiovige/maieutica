@@ -287,6 +287,38 @@ class ChecklistController extends Controller
             // Get original data for change tracking
             $originalData = $checklist->only(['situation', 'level', 'kid_id']);
 
+            // Atualizar dados da criança se fornecidos
+            $kidChanges = [];
+            if ($request->has('kid_name') || $request->has('kid_birth_date')) {
+                $kid = $checklist->kid;
+                $kidOriginalData = $kid->only(['name', 'birth_date']);
+
+                if ($request->filled('kid_name')) {
+                    $kid->name = $request->kid_name;
+                }
+
+                if ($request->filled('kid_birth_date')) {
+                    $kid->birth_date = $request->kid_birth_date;
+                }
+
+                $kid->updated_by = Auth::id();
+                $kid->save();
+
+                // Track kid changes
+                $kidNewData = $kid->only(['name', 'birth_date']);
+                foreach ($kidNewData as $key => $value) {
+                    if ($kidOriginalData[$key] != $value) {
+                        $kidChanges[$key] = ['old' => $kidOriginalData[$key], 'new' => $value];
+                    }
+                }
+
+                if (!empty($kidChanges)) {
+                    $this->checklistLogger->kidDataUpdatedViaChecklist($checklist, $kidChanges, [
+                        'source' => 'controller',
+                    ]);
+                }
+            }
+
             $data = $request->all();
             $data['updated_by'] = Auth::id();
             // Permitir atualização manual da situação (aberto/fechado)
@@ -308,6 +340,7 @@ class ChecklistController extends Controller
             if (!empty($changes)) {
                 $this->checklistLogger->updated($checklist, $changes, [
                     'source' => 'controller',
+                    'kid_data_updated' => !empty($kidChanges),
                 ]);
             }
 
