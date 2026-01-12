@@ -27,22 +27,6 @@ class AclMiddleware
             return $next($request);
         }
 
-        $roles = $user->getRoleNames();
-        $firstRole = $roles->first();
-
-        dd($request->path());
-        $permissions = $user->getPermissionsViaRoles();
-        dd($firstRole, $request->is('list users'));
-
-        foreach ($permissions as $permission) {
-            if ($request->is($permission->name)) {
-                // return $next($request);
-                return $this->authorize($permission->name);
-            }
-        }
-
-        dd($permissions);
-
         return $next($request);
     }
 }
