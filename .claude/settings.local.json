@@ -14,7 +14,8 @@
       "Bash(php -i:*)",
       "Bash(php -d memory_limit=256M vendor/bin/phpunit:*)",
       "Bash(php -d memory_limit=256M artisan test:*)",
-      "Bash(php -d memory_limit=512M vendor/bin/phpunit:*)"
+      "Bash(php -d memory_limit=512M vendor/bin/phpunit:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
