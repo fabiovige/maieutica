@@ -21,6 +21,7 @@ class ProfessionalRequest extends FormRequest
             'registration_number' => 'required|string|max:50',
             'bio' => 'nullable|string',
             'allow' => 'boolean',
+            'is_intern' => 'boolean',
         ];
     }
 

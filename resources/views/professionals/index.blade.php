@@ -23,7 +23,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <form method="GET" action="{{ route('professionals.index') }}" class="row g-3">
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <label for="search" class="form-label">
                         <i class="bi bi-search"></i> Buscar Profissional
                     </label>
@@ -35,12 +35,23 @@
                            value="{{ request('search') }}">
                 </div>
 
+                <div class="col-md-2">
+                    <label for="is_intern" class="form-label">
+                        <i class="bi bi-mortarboard"></i> Tipo
+                    </label>
+                    <select class="form-select" id="is_intern" name="is_intern">
+                        <option value="">Todos</option>
+                        <option value="1" {{ request('is_intern') === '1' ? 'selected' : '' }}>Estagiário</option>
+                        <option value="0" {{ request('is_intern') === '0' ? 'selected' : '' }}>Profissional</option>
+                    </select>
+                </div>
+
                 <div class="col-md-2 d-flex align-items-end">
                     <div class="d-flex gap-2 w-100">
                         <button type="submit" class="btn btn-primary flex-fill">
                             <i class="bi bi-search"></i> Buscar
                         </button>
-                        @if(request('search'))
+                        @if(request('search') || request('is_intern') !== null && request('is_intern') !== '')
                             <a href="{{ route('professionals.index') }}" class="btn btn-secondary" title="Limpar filtro">
                                 <i class="bi bi-x-lg"></i>
                             </a>
@@ -51,10 +62,17 @@
         </div>
     </div>
 
-    @if(request('search'))
+    @if(request('search') || request('is_intern') !== null && request('is_intern') !== '')
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i>
-            Exibindo resultados da busca por "<strong>{{ request('search') }}</strong>".
+            Exibindo resultados
+            @if(request('search'))
+                da busca por "<strong>{{ request('search') }}</strong>"
+            @endif
+            @if(request('is_intern') !== null && request('is_intern') !== '')
+                @if(request('search')) e @endif
+                filtrado por <strong>{{ request('is_intern') === '1' ? 'Estagiários' : 'Profissionais' }}</strong>
+            @endif.
             <strong>{{ $professionals->total() }}</strong> profissional(is) encontrado(s).
         </div>
     @endif
@@ -73,8 +91,9 @@
                 <th>Registro</th>
                 <th>Contato</th>
                 <th>Crianças</th>
+                <th>Tipo</th>
                 <th>Status</th>
-                <th width="200">Ações</th>
+                <th width="300">Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -110,6 +129,17 @@
                         <span class="badge bg-info">
                             {{ $professional->kids_count }} crianças
                         </span>
+                    </td>
+                    <td>
+                        @if ($professional->is_intern)
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-mortarboard"></i> Estagiário
+                            </span>
+                        @else
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-person-vcard"></i> Profissional
+                            </span>
+                        @endif
                     </td>
                     <td>
                         @if ($professional->user->first()?->allow)
@@ -169,7 +199,7 @@
     </table>
 
     <div class="d-flex justify-content-end">
-        {{ $professionals->links() }}
+        {{ $professionals->appends(request()->query())->links() }}
     </div>
     @endif
 @endsection
