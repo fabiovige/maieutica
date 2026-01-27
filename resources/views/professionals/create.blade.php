@@ -123,6 +123,19 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input @error('is_intern') is-invalid @enderror"
+                                        id="is_intern" name="is_intern" value="1" {{ old('is_intern') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_intern">
+                                        Estagiário
+                                    </label>
+                                    @error('is_intern')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
 

@@ -60,10 +60,16 @@ class ProfessionalController extends Controller
             });
         }
 
+        // Filtro por estagiário
+        if ($request->has('is_intern') && $request->is_intern !== null && $request->is_intern !== '') {
+            $query->where('is_intern', $request->is_intern);
+        }
+
         $professionals = $query->orderBy('created_at', 'desc')->paginate(self::PAGINATION_DEFAULT);
 
         $this->professionalLogger->listed([
             'search' => $request->input('search'),
+            'is_intern' => $request->input('is_intern'),
             'total_results' => $professionals->total(),
         ]);
 
@@ -155,6 +161,7 @@ class ProfessionalController extends Controller
                 'specialty_id' => $validated['specialty_id'],
                 'registration_number' => $validated['registration_number'],
                 'bio' => $validated['bio'] ?? null,
+                'is_intern' => $request->has('is_intern'),
                 'created_by' => auth()->id(),
             ]);
 
@@ -216,7 +223,7 @@ class ProfessionalController extends Controller
             DB::beginTransaction();
 
             // Get original data for change tracking
-            $originalProfessionalData = $professional->only(['specialty_id', 'registration_number', 'bio']);
+            $originalProfessionalData = $professional->only(['specialty_id', 'registration_number', 'bio', 'is_intern']);
             $originalUserData = $user->only(['name', 'email', 'phone', 'allow']);
 
             // Atualizar dados do usuário
@@ -233,6 +240,7 @@ class ProfessionalController extends Controller
                 'specialty_id' => $request->specialty_id,
                 'registration_number' => $request->registration_number,
                 'bio' => $request->bio,
+                'is_intern' => $request->has('is_intern'),
                 'updated_by' => auth()->id()
             ]);
 

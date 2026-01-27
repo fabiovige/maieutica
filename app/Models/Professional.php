@@ -12,10 +12,15 @@ class Professional extends Model
     protected $fillable = [
         'registration_number',
         'bio',
+        'is_intern',
         'specialty_id',
         'created_by',
         'updated_by',
         'deleted_by',
+    ];
+
+    protected $casts = [
+        'is_intern' => 'boolean',
     ];
 
     public function user()
