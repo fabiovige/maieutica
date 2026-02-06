@@ -15,9 +15,193 @@
       "Bash(php -d memory_limit=256M vendor/bin/phpunit:*)",
       "Bash(php -d memory_limit=256M artisan test:*)",
       "Bash(php -d memory_limit=512M vendor/bin/phpunit:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "mcp__mysql-server-maieutica__describe_table",
+      "mcp__mysql-server-maieutica__execute_query"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "projects": {
+      "C:\\wamp64\\www\\maieutica.test": {
+        "allowedTools": [],
+        "mcpContextUris": [],
+        "mcpServers": {
+          "mysql-server-maieutica": {
+            "command": "node",
+            "args": [
+              "C:\\mcp\\mcp-mysql-simple\\dist\\index.js"
+            ],
+            "env": {
+              "MYSQL_HOST": "127.0.0.1",
+              "MYSQL_PORT": "3309",
+              "MYSQL_USER": "root",
+              "MYSQL_PASS": "",
+              "MYSQL_DB": "maieutica"
+            }
+          }
+        },
+        "enabledMcpjsonServers": [],
+        "disabledMcpjsonServers": [],
+        "hasTrustDialogAccepted": true,
+        "projectOnboardingSeenCount": 4,
+        "hasClaudeMdExternalIncludesApproved": false,
+        "hasClaudeMdExternalIncludesWarningShown": false,
+        "lastTotalWebSearchRequests": 0,
+        "hasCompletedProjectOnboarding": true
+      },
+      "C:\\Windows\\system32": {
+        "allowedTools": [],
+        "mcpContextUris": [],
+        "mcpServers": {},
+        "enabledMcpjsonServers": [],
+        "disabledMcpjsonServers": [],
+        "hasTrustDialogAccepted": false,
+        "projectOnboardingSeenCount": 0,
+        "hasClaudeMdExternalIncludesApproved": false,
+        "hasClaudeMdExternalIncludesWarningShown": false
+      },
+      "C:\\wamp64\\www\\maieutica-novo.test": {
+        "allowedTools": [],
+        "mcpContextUris": [],
+        "mcpServers": {},
+        "enabledMcpjsonServers": [],
+        "disabledMcpjsonServers": [],
+        "hasTrustDialogAccepted": true,
+        "ignorePatterns": [],
+        "projectOnboardingSeenCount": 1,
+        "hasClaudeMdExternalIncludesApproved": false,
+        "hasClaudeMdExternalIncludesWarningShown": false,
+        "exampleFiles": [],
+        "lastTotalWebSearchRequests": 0,
+        "hasCompletedProjectOnboarding": true
+      },
+      "C:\\mcp\\mcp-mysql-simple": {
+        "allowedTools": [],
+        "mcpContextUris": [],
+        "mcpServers": {},
+        "enabledMcpjsonServers": [],
+        "disabledMcpjsonServers": [],
+        "hasTrustDialogAccepted": true,
+        "ignorePatterns": [],
+        "projectOnboardingSeenCount": 0,
+        "hasClaudeMdExternalIncludesApproved": false,
+        "hasClaudeMdExternalIncludesWarningShown": false,
+        "exampleFiles": [],
+        "hasCompletedProjectOnboarding": true,
+        "lastTotalWebSearchRequests": 0,
+        "lastCost": 0.16466244999999996,
+        "lastAPIDuration": 89807,
+        "lastToolDuration": 3075,
+        "lastDuration": 193388,
+        "lastLinesAdded": 0,
+        "lastLinesRemoved": 0,
+        "lastTotalInputTokens": 2180,
+        "lastTotalOutputTokens": 4156,
+        "lastTotalCacheCreationInputTokens": 10641,
+        "lastTotalCacheReadInputTokens": 208129,
+        "lastSessionId": "649d4c94-e619-4ae1-8464-4e4b890fbbff"
+      },
+      "C:/wamp64/www/maieutica.test": {
+        "allowedTools": [],
+        "mcpContextUris": [],
+        "mcpServers": {
+          "mysql-server-maieutica": {
+            "command": "node",
+            "args": [
+              "C:/mcp/mcp-mysql-simple/dist/index.js"
+            ],
+            "env": {
+              "MYSQL_HOST": "127.0.0.1",
+              "MYSQL_PORT": "3309",
+              "MYSQL_USER": "root",
+              "MYSQL_PASS": "",
+              "MYSQL_DB": "maieutica"
+            }
+          }
+        },
+        "enabledMcpjsonServers": [],
+        "disabledMcpjsonServers": [],
+        "hasTrustDialogAccepted": true,
+        "projectOnboardingSeenCount": 0,
+        "hasClaudeMdExternalIncludesApproved": false,
+        "hasClaudeMdExternalIncludesWarningShown": false,
+        "reactVulnerabilityCache": {
+          "detected": false,
+          "package": null,
+          "packageName": null,
+          "version": null,
+          "packageManager": null
+        },
+        "hasCompletedProjectOnboarding": true,
+        "lastCost": 0,
+        "lastAPIDuration": 0,
+        "lastAPIDurationWithoutRetries": 0,
+        "lastToolDuration": 0,
+        "lastDuration": 653165,
+        "lastLinesAdded": 0,
+        "lastLinesRemoved": 0,
+        "lastTotalInputTokens": 0,
+        "lastTotalOutputTokens": 0,
+        "lastTotalCacheCreationInputTokens": 0,
+        "lastTotalCacheReadInputTokens": 0,
+        "lastTotalWebSearchRequests": 0,
+        "lastModelUsage": {},
+        "lastSessionId": "03dbbfc1-b95f-4924-b576-37763fa98df7",
+        "lastFpsAverage": 0.03,
+        "lastFpsLow1Pct": 51.88
+      },
+      "C:/wamp64/www/erp": {
+        "allowedTools": [],
+        "mcpContextUris": [],
+        "mcpServers": {},
+        "enabledMcpjsonServers": [],
+        "disabledMcpjsonServers": [],
+        "hasTrustDialogAccepted": true,
+        "projectOnboardingSeenCount": 2,
+        "hasClaudeMdExternalIncludesApproved": false,
+        "hasClaudeMdExternalIncludesWarningShown": false,
+        "reactVulnerabilityCache": {
+          "detected": false,
+          "package": null,
+          "packageName": null,
+          "version": null,
+          "packageManager": null
+        },
+        "lastCost": 0.307513,
+        "lastAPIDuration": 58823,
+        "lastAPIDurationWithoutRetries": 58816,
+        "lastToolDuration": 2422,
+        "lastDuration": 156863,
+        "lastLinesAdded": 56,
+        "lastLinesRemoved": 62,
+        "lastTotalInputTokens": 117,
+        "lastTotalOutputTokens": 2997,
+        "lastTotalCacheCreationInputTokens": 22500,
+        "lastTotalCacheReadInputTokens": 182756,
+        "lastTotalWebSearchRequests": 0,
+        "lastModelUsage": {
+          "claude-opus-4-5-20251101": {
+            "inputTokens": 117,
+            "outputTokens": 2997,
+            "cacheReadInputTokens": 182756,
+            "cacheCreationInputTokens": 22500,
+            "webSearchRequests": 0,
+            "costUSD": 0.307513
+          }
+        },
+        "lastSessionId": "d46e375d-7184-49dc-bda3-bd138267b104",
+        "hasCompletedProjectOnboarding": true
+      },
+      "C:\\wamp64\\www\\erp": {
+        "allowedTools": [],
+        "mcpContextUris": [],
+        "enabledMcpjsonServers": [],
+        "disabledMcpjsonServers": [],
+        "hasTrustDialogAccepted": true,
+        "projectOnboardingSeenCount": 0,
+        "hasClaudeMdExternalIncludesApproved": false,
+        "hasClaudeMdExternalIncludesWarningShown": false
+      }
+    }
   }
 }
