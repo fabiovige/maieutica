@@ -1,0 +1,165 @@
+/* ============================================
+   TIPOGRAFIA GLOBAL - Nunito
+   Forçar em todo o sistema, sobrescrevendo Bootstrap
+   ============================================ */
+
+/* Fonte base com !important para garantir aplicação */
+html, body {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Herança para todos os elementos */
+*, *::before, *::after {
+    font-family: inherit;
+}
+
+/* Headings - Escala sóbria */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.75rem !important;
+}
+
+h1, .h1 { font-size: 1.5rem !important; }   /* 24px */
+h2, .h2 { font-size: 1.25rem !important; }  /* 20px */
+h3, .h3 { font-size: 1.125rem !important; } /* 18px */
+h4, .h4 { font-size: 1rem !important; }     /* 16px */
+h5, .h5 { font-size: 0.9375rem !important; } /* 15px */
+h6, .h6 { font-size: 0.875rem !important; }  /* 14px */
+
+/* Parágrafos */
+p {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+    font-size: 0.875rem !important;
+    line-height: 1.6 !important;
+    margin-bottom: 0.75rem !important;
+}
+
+/* Elementos de texto inline */
+span, a, button, label, li, td, th {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+}
+
+/* Formulários */
+.form-control, .form-select, .form-label, 
+input, textarea, select {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+}
+
+.form-control, .form-select, 
+input, textarea, select {
+    font-size: 0.875rem !important;
+}
+
+.form-label, label {
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+}
+
+/* Botões */
+.btn, button {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+}
+
+.btn-sm {
+    font-size: 0.8125rem !important;
+}
+
+.btn-lg {
+    font-size: 0.9375rem !important;
+}
+
+/* Tabelas */
+.table {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+    font-size: 0.8125rem !important;
+}
+
+.table th {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.03em !important;
+}
+
+.table td {
+    font-size: 0.8125rem !important;
+}
+
+/* Cards */
+.card, .card-body, .card-text {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+}
+
+.card-title {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+}
+
+.card-subtitle {
+    font-size: 0.8125rem !important;
+}
+
+/* Badges */
+.badge {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+    font-size: 0.6875rem !important;
+    font-weight: 600 !important;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+    font-size: 0.8125rem !important;
+}
+
+/* Dropdowns */
+.dropdown-menu, .dropdown-item {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+    font-size: 0.875rem !important;
+}
+
+/* Modais */
+.modal-title {
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+}
+
+.modal-body {
+    font-size: 0.875rem !important;
+}
+
+/* Alertas */
+.alert {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+    font-size: 0.875rem !important;
+}
+
+/* Navbar (caso exista em alguma página) */
+.navbar, .navbar-brand, .nav-link {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+}
+
+/* Utilitários específicos */
+.fs-xs { font-size: 0.75rem !important; }
+.fs-sm { font-size: 0.8125rem !important; }
+.fs-base { font-size: 0.875rem !important; }
+.fs-md { font-size: 0.9375rem !important; }
+.fs-lg { font-size: 1rem !important; }
+.fs-xl { font-size: 1.125rem !important; }
+.fs-2xl { font-size: 1.25rem !important; }
+.fs-3xl { font-size: 1.5rem !important; }
+
+/* Garantir em Vue components */
+#app, .vue-component, [v-cloak] {
+    font-family: 'Nunito', system-ui, sans-serif !important;
+}

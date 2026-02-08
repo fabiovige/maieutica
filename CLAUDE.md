@@ -128,6 +128,70 @@ Checklist → checklist_competence (pivot with note 0-3) → Competence → Doma
 - `ChecklistService` - Evaluation logic, calculations
 - `OverviewService` - Progress summary and overview
 
+### Layout System
+
+**Novo Layout com Sidebar (v2.0)** - Implementado em 2026-02-08
+
+O sistema utiliza um layout moderno com sidebar vertical, seguindo padrões de sistemas médicos/clínicos:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  [LOGO]          Breadcrumb > Item          [Perfil] [Sair] │  ← Header
+├──────────┬──────────────────────────────────────────────────┤
+│          │                                                  │
+│  MENU    │              CONTEÚDO FLUIDO                    │
+│  LATERAL │              (container-fluid)                   │
+│          │                                                  │
+│  • Item  │                                                  │
+│  • Item  │                                                  │
+│  • Item  │                                                  │
+│          │                                                  │
+└──────────┴──────────────────────────────────────────────────┘
+```
+
+**Arquivos do Layout:**
+- `resources/views/layouts/app.blade.php` - Layout principal
+- `resources/views/layouts/sidebar.blade.php` - Menu lateral
+- `resources/views/layouts/header.blade.php` - Cabeçalho com breadcrumb
+- `resources/sass/_sidebar-layout.scss` - Estilos do layout
+
+**Features:**
+- ✅ Sidebar fixo à esquerda (280px)
+- ✅ Container fluid (largura total)
+- ✅ Header com breadcrumb à esquerda, perfil à direita
+- ✅ Responsivo: sidebar recolhe em tablets (< 992px)
+- ✅ Mobile: sidebar vira drawer com overlay
+- ✅ Toggle para colapsar sidebar em desktop
+- ✅ Estados salvos no localStorage
+
+**Responsividade:**
+| Breakpoint | Sidebar | Comportamento |
+|------------|---------|---------------|
+| ≥992px | Fixo visível | Pode colapsar para 70px |
+| <992px | Drawer | Escondido, botão hamburger |
+| <576px | Full width | Drawer com largura total |
+
+**Para usar em views:**
+```blade
+@extends('layouts.app')
+
+@section('title', 'Título da Página')
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item"><a href="#">Pai</a></li>
+    <li class="breadcrumb-item active">Atual</li>
+@endsection
+
+@section('header-actions')
+    {{-- Botões no header (opcional) --}}
+    <a href="#" class="btn btn-primary btn-sm">Novo</a>
+@endsection
+
+@section('content')
+    {{-- Conteúdo com container-fluid automático --}}
+@endsection
+```
+
 ### Frontend (Vue 3 + Blade)
 
 **Vue Components (9)** - `resources/js/components/`
@@ -307,6 +371,100 @@ get_chart_gradient($percentage)    // Returns chart gradient
 - `axios` ^1.7.9
 - `vue-chart-3` ^3.1.8
 - `vue3-select2-component` ^0.1.7
+
+### Tipografia
+
+**Fonte:** Nunito (Google Fonts) - Visual clean e profissional
+
+**Pesos disponíveis:**
+- **300** Light - textos sutis
+- **400** Regular - corpo de texto  
+- **500** Medium - ênfase
+- **600** Semi-bold - títulos
+- **700** Bold - destaque
+- **800** Extra-bold - headings principais
+
+**Escala de Tamanhos (Sóbria):**
+
+| Elemento | Tamanho | Uso |
+|----------|---------|-----|
+| `h1` | 1.5rem (24px) | Título de página |
+| `h2` | 1.25rem (20px) | Título de seção |
+| `h3` | 1.125rem (18px) | Subtítulo |
+| `h4` | 1rem (16px) | Card header |
+| `h5` | 0.9375rem (15px) | Label |
+| `h6` | 0.875rem (14px) | Small header |
+| `body` | 0.875rem (14px) | Texto base |
+| `.fs-xs` | 0.75rem (12px) | Captions |
+| `.fs-sm` | 0.8125rem (13px) | Badges, tabelas |
+| `.table th` | 0.75rem (12px) | Headers de tabela |
+
+**Configuração CSS:**
+```css
+font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+font-size: 0.875rem; /* 14px base */
+line-height: 1.5;
+```
+
+**Características:**
+- ✅ Escala sóbria sem cara de "site"
+- ✅ Headings compactos e profissionais
+- ✅ Texto base 14px para melhor legibilidade
+- ✅ Tabelas com fonte reduzida (13px)
+- ✅ Labels em 13px com semi-bold
+
+### Design System - Botões
+
+O sistema possui um **Sistema de Botões Padronizado** em `resources/sass/_buttons.scss` com estilo clínico/institucional sóbrio.
+
+**Classes disponíveis:**
+
+| Classe | Uso | Cor |
+|--------|-----|-----|
+| `btn-primary` | Ação principal, salvar | Azul médico (#2563eb) |
+| `btn-secondary` | Cancelar, voltar, limpar | Cinza azulado (#64748b) |
+| `btn-success` | Confirmar, ativar, download | Verde saúde (#059669) |
+| `btn-danger` | Excluir, desativar, alerta | Vermelho (#dc2626) |
+| `btn-warning` | Editar, modificar, cautela | Laranja (#d97706) |
+| `btn-info` | Visualizar, informação | Ciano (#0891b2) |
+| `btn-light` | Ações secundárias | Cinza claro |
+| `btn-dark` | Ações especiais | Cinza escuro |
+
+**Variantes Outline:** `btn-outline-primary`, `btn-outline-secondary`, etc.
+
+**Tamanhos:**
+- `btn-sm` - Pequeno (tabelas, ações compactas)
+- Padrão - Formulários
+- `btn-lg` - Grande (CTAs importantes)
+
+**Botões Contextuais (especiais):**
+- `btn-action-primary` - CTA principal destacado
+- `btn-cancel` - Cancelar/voltar
+- `btn-save` - Salvar
+- `btn-delete` - Excluir (outline)
+- `btn-edit` - Editar (outline)
+- `btn-view` - Visualizar (outline)
+- `btn-download` - Download
+- `btn-restore` - Restaurar da lixeira
+
+**Exemplos de uso:**
+```blade
+<!-- Formulário -->
+<button type="submit" class="btn btn-primary">Salvar</button>
+<a href="{{ route('index') }}" class="btn btn-secondary">Cancelar</a>
+
+<!-- Ações em tabela -->
+<a href="{{ route('edit', $id) }}" class="btn btn-warning btn-sm">Editar</a>
+<button class="btn btn-danger btn-sm" onclick="delete()">Excluir</button>
+
+<!-- Com ícones -->
+<button class="btn btn-primary">
+    <i class="bi bi-save"></i> Salvar
+</button>
+
+<!-- Outline para ações secundárias -->
+<a href="{{ route('show', $id) }}" class="btn btn-outline-info btn-sm">Ver</a>
+```
 
 **Development:**
 - `laravel-pint` ^1.20

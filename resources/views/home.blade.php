@@ -29,14 +29,14 @@
 
     /* Estilo para badges de profissionais */
     .badge.bg-info {
-        font-size: 0.75rem;
+        font-size: var(--fs-xs);
         padding: 0.35em 0.5em;
     }
 
     /* Responsividade melhorada */
     @media (max-width: 767px) {
         .kid-card .card-footer .btn {
-            font-size: 0.875rem;
+            font-size: var(--fs-base);
             padding: 0.375rem 0.5rem;
         }
     }
@@ -64,16 +64,18 @@
         <div class="row g-4 mb-4">
             <!-- Card Principal - Total de Prontuários -->
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card border-0 h-100 bg-secondary shadow">
-                    <div class="card-body text-white p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="bi bi-file-medical-fill fs-1 me-3"></i>
+                <div class="card border-0 h-100 shadow-sm" style="background-color: #e8f0fe;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                 style="width: 40px; height: 40px; background-color: #4285f4;">
+                                <i class="bi bi-file-medical-fill text-white"></i>
+                            </div>
                             <div>
-                                <h6 class="mb-0 opacity-75">Meus Prontuários</h6>
-                                <h2 class="mb-0 fw-bold">{{ $totalMedicalRecords }}</h2>
+                                <div class="small" style="color: #5f6368;">Meus Prontuários</div>
+                                <div class="fs-xl fw-bold" style="color: #202124;">{{ $totalMedicalRecords }}</div>
                             </div>
                         </div>
-                        <small class="opacity-75">Total de registros</small>
                     </div>
                 </div>
             </div>
@@ -82,10 +84,10 @@
             <div class="col-12 col-md-6 col-lg-8">
                 <div class="card border-0 h-100 shadow-sm">
                     <div class="card-body p-4">
-                        <h5 class="card-title mb-3">
+                        <h3 class="card-title card-title-custom mb-3">
                             <i class="bi bi-person-circle text-primary"></i>
                             Bem-vindo(a), {{ auth()->user()->name }}!
-                        </h5>
+                        </h3>
                         <p class="card-text text-muted mb-3">
                             Este é seu espaço para acompanhar suas consultas e evolução do tratamento.
                         </p>
@@ -101,9 +103,9 @@
         @if($latestMedicalRecords->isNotEmpty())
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0">
+                    <h3 class="card-title-custom mb-0">
                         <i class="bi bi-clock-history"></i> Últimos Registros
-                    </h5>
+                    </h3>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -162,83 +164,81 @@
         {{-- Dashboard original para Admin/Profissionais/Responsáveis --}}
 
         @can('dashboard-manage')
-        <div class="row g-4 mb-4">
+        <div class="row g-3 mb-4">
         <!-- Total de Crianças -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 h-100 bg-secondary">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-people-fill fs-1 me-3"></i>
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 h-100 shadow-sm" style="background-color: #e8f0fe;">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 40px; height: 40px; background-color: #4285f4;">
+                            <i class="bi bi-people-fill text-white"></i>
+                        </div>
                         <div>
-                            <h6 class="mb-0 opacity-75">Crianças</h6>
-                            <h2 class="mb-0 fw-bold">{{ $totalKids }}</h2>
+                            <div class="small" style="color: #5f6368;">Crianças</div>
+                            <div class="fs-xl fw-bold" style="color: #202124;">{{ $totalKids }}</div>
                         </div>
                     </div>
-                    <small class="opacity-75">Total cadastrado</small>
                 </div>
             </div>
         </div>
 
         <!-- Total de Checklists -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 h-100 bg-success">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-clipboard2-check-fill fs-1 me-3"></i>
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 h-100 shadow-sm" style="background-color: #e6f4ea;">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 40px; height: 40px; background-color: #34a853;">
+                            <i class="bi bi-clipboard2-check-fill text-white"></i>
+                        </div>
                         <div>
-                            <h6 class="mb-0 opacity-75">Checklists</h6>
-                            <h2 class="mb-0 fw-bold">{{ $totalChecklists }}</h2>
+                            <div class="small" style="color: #5f6368;">Checklists</div>
+                            <div class="fs-xl fw-bold" style="color: #202124;">{{ $totalChecklists }}</div>
                         </div>
                     </div>
-                    <small class="opacity-75">Total de avaliações</small>
                 </div>
             </div>
         </div>
 
         <!-- Checklists em Andamento -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 h-100 bg-warning">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-hourglass-split fs-1 me-3"></i>
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 h-100 shadow-sm" style="background-color: #fef7e0;">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 40px; height: 40px; background-color: #f9ab00;">
+                            <i class="bi bi-hourglass-split text-white"></i>
+                        </div>
                         <div>
-                            <h6 class="mb-0 opacity-75">Em Andamento</h6>
-                            <h2 class="mb-0 fw-bold">{{ $checklistsEmAndamento }}</h2>
+                            <div class="small" style="color: #5f6368;">Em Andamento</div>
+                            <div class="fs-xl fw-bold" style="color: #202124;">{{ $checklistsEmAndamento }}</div>
                         </div>
                     </div>
-                    <small class="opacity-75">Checklists ativos</small>
                 </div>
             </div>
         </div>
 
         <!-- Total de Profissionais -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 h-100 bg-info">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-person-badge-fill fs-1 me-3"></i>
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 h-100 shadow-sm" style="background-color: #fce8e6;">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 40px; height: 40px; background-color: #ea4335;">
+                            <i class="bi bi-person-badge-fill text-white"></i>
+                        </div>
                         <div>
-                            <h6 class="mb-0 opacity-75">Profissionais</h6>
-                            <h2 class="mb-0 fw-bold">{{ $totalProfessionals }}</h2>
+                            <div class="small" style="color: #5f6368;">Profissionais</div>
+                            <div class="fs-xl fw-bold" style="color: #202124;">{{ $totalProfessionals }}</div>
                         </div>
                     </div>
-                    <small class="opacity-75">Equipe total</small>
                 </div>
             </div>
         </div>
         @endcan
 
-        <!-- Paginação Superior -->
-        @if($kids->hasPages())
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Minhas Crianças</h5>
-                <div>
-                    {{ $kids->links() }}
-                </div>
-            </div>
-        @else
-            <h5 class="mb-3">Minhas Crianças</h5>
-        @endif
+        <h2 class="section-title mb-3">Minhas Crianças</h2>
 
         <!-- Grid de Cards de Crianças -->
         <div class="row g-4 mb-4">
@@ -259,13 +259,13 @@
                             @else
                                 <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center"
                                      style="width: 100px; height: 100px;">
-                                    <i class="bi bi-person text-white" style="font-size: 3rem;"></i>
+                                    <i class="bi bi-person text-white fs-3xl"></i>
                                 </div>
                             @endif
                         </div>
 
                         <!-- Nome e Idade -->
-                        <h5 class="card-title mb-2 fw-bold">{{ $kid->name }}</h5>
+                        <h3 class="card-title card-title-custom mb-2">{{ $kid->name }}</h3>
                         <span class="badge bg-info mb-3">
                             <i class="bi bi-calendar"></i> {{ $kid->age ?? 'N/D' }}
                         </span>

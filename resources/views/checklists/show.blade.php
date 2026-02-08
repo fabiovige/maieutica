@@ -7,7 +7,7 @@
         width: 60px;
         height: 60px;
         min-width: 60px;
-        font-size: 1.75rem;
+        font-size: var(--fs-3xl);
         flex-shrink: 0;
     }
 

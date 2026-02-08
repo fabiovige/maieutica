@@ -69,14 +69,14 @@
 
     /* Estilo para badges de profissionais */
     .badge.bg-info {
-        font-size: 0.75rem;
+        font-size: var(--fs-xs);
         padding: 0.35em 0.5em;
     }
 
     /* Responsividade melhorada */
     @media (max-width: 767px) {
         .kid-card .card-footer .btn {
-            font-size: 0.875rem;
+            font-size: var(--fs-base);
             padding: 0.375rem 0.5rem;
         }
     }
@@ -201,7 +201,7 @@
                                             @else
                                                 <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center"
                                                      style="width: 50px; height: 50px;">
-                                                    <i class="bi bi-person text-white" style="font-size: 1.5rem;"></i>
+                                                    <i class="bi bi-person text-white fs-xl"></i>
                                                 </div>
                                             @endif
                                         </td>
@@ -323,13 +323,13 @@
                                     @else
                                         <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center"
                                              style="width: 100px; height: 100px;">
-                                            <i class="bi bi-person text-white" style="font-size: 3rem;"></i>
+                                            <i class="bi bi-person text-white fs-3xl"></i>
                                         </div>
                                     @endif
                                 </div>
 
                                 <!-- Nome e Idade -->
-                                <h5 class="card-title mb-2 fw-bold">{{ $kid->name }}</h5>
+                                <h3 class="card-title card-title-custom mb-2">{{ $kid->name }}</h3>
                                 <span class="badge bg-info mb-3">
                                     <i class="bi bi-calendar"></i> {{ $kid->age ?? 'N/D' }}
                                 </span>

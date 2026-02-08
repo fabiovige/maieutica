@@ -27,9 +27,9 @@
                 <div class="card">
                     <div class="card-header bg-white">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
+                            <h3 class="card-title-custom mb-0">
                                 <i class="bi bi-people"></i> Pacientes Adultos - {{ $professional->user->first()->name ?? 'Profissional' }}
-                            </h5>
+                            </h3>
                             <div class="badge bg-primary fs-6" id="selectedCountBadge">
                                 <span id="selectedCount">{{ count($assignedPatientIds) }}</span> selecionados
                             </div>

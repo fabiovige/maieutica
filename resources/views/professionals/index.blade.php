@@ -214,8 +214,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: #495057;
+            font-weight: var(--fw-bold);
+            color: var(--text-secondary);
         }
 
         .table td {

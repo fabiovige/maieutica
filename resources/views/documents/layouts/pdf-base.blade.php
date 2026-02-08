@@ -5,11 +5,52 @@
     <title>@yield('document-title', 'Documento')</title>
 
     <style>
+        /* =============================================
+           PDF Tipografia - Escala alinhada ao sistema
+           DejaVu Sans obrigatório para DomPDF
+           ============================================= */
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 16px;
-            line-height: 1.6;
+            font-size: 14px;        /* base alinhado com --fs-base (0.875rem ≈ 14px) */
+            line-height: 1.5;       /* alinhado com --lh-normal */
+            color: #212529;         /* alinhado com --text-body */
             margin: 80px 40px 60px 40px;
+        }
+
+        /* Escala tipográfica para PDF (px pois DomPDF não suporta rem) */
+        .pdf-fs-xs   { font-size: 11px; }  /* ~--fs-xs captions, rodapé */
+        .pdf-fs-sm   { font-size: 12px; }  /* ~--fs-sm referências, notas */
+        .pdf-fs-base { font-size: 14px; }  /* ~--fs-base corpo de texto */
+        .pdf-fs-md   { font-size: 16px; }  /* ~--fs-md destaque */
+
+        /* Seções de documento (h3 nos modelos) */
+        .pdf-section-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .pdf-section-title:first-of-type {
+            margin-top: 20px;
+        }
+
+        /* Texto de conteúdo */
+        .pdf-text {
+            text-align: justify;
+        }
+
+        /* Nota/instrução (texto menor em itálico) */
+        .pdf-note {
+            font-size: 11px;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        /* Referências */
+        .pdf-reference {
+            font-size: 12px;
+            text-align: justify;
         }
 
         /** HEADER FIXO **/
@@ -59,6 +100,7 @@
             text-align: center;
             font-weight: bold;
             text-transform: uppercase;
+            font-size: 16px;
             margin-top: 20px;
             margin-bottom: 20px;
         }
@@ -85,6 +127,8 @@
             text-align: right;
             margin-top: 40px;
         }
+
+        @yield('pdf-styles')
     </style>
 
 </head>

@@ -1,0 +1,720 @@
+// =====================================================
+// LAYOUT COM SIDEBAR VERTICAL - MAIÊUTICA
+// Sistema de layout com navegação lateral
+// =====================================================
+
+// Variáveis do layout
+$sidebar-width: 280px;
+$sidebar-collapsed-width: 70px;
+$header-height: 64px;
+$footer-height: 50px;
+
+$sidebar-bg: #1e293b;
+$sidebar-active-bg: rgba(255, 255, 255, 0.1);
+$sidebar-hover-bg: rgba(255, 255, 255, 0.05);
+$sidebar-text: #94a3b8;
+$sidebar-text-active: #ffffff;
+$sidebar-section: #64748b;
+
+$header-bg: #ffffff;
+$header-border: #e2e8f0;
+$content-bg: #f1f5f9;
+
+// -----------------------------------------------------
+// ESTRUTURA BASE
+// -----------------------------------------------------
+
+.app-body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    background-color: $content-bg;
+    overflow-x: hidden;
+}
+
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+// -----------------------------------------------------
+// SIDEBAR
+// -----------------------------------------------------
+
+.app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: $sidebar-width;
+    height: 100vh;
+    background-color: $sidebar-bg;
+    color: $sidebar-text;
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, width 0.3s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    // Scrollbar estilizada
+    &::-webkit-scrollbar {
+        width: 5px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+}
+
+// Brand/Logo
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: $header-height;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.125rem;
+    transition: opacity 0.2s;
+    
+    &:hover {
+        color: #ffffff;
+        opacity: 0.9;
+        text-decoration: none;
+    }
+}
+
+.brand-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.brand-text {
+    white-space: nowrap;
+}
+
+// Botão fechar (mobile)
+.sidebar-close {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    
+    &:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.1);
+    }
+}
+
+// User info (mobile only)
+.sidebar-user {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #94a3b8;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.9375rem;
+}
+
+.user-role {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+// Navegação
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0;
+    overflow-y: auto;
+}
+
+.nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-section {
+    padding: 0.75rem 1.5rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $sidebar-section;
+    margin-top: 0.5rem;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    color: $sidebar-text;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    border-left: 3px solid transparent;
+    
+    &:hover {
+        color: #ffffff;
+        background-color: $sidebar-hover-bg;
+        text-decoration: none;
+    }
+    
+    &.active {
+        color: $sidebar-text-active;
+        background-color: $sidebar-active-bg;
+        border-left-color: #3b82f6;
+    }
+}
+
+.nav-icon {
+    font-size: 1.125rem;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.nav-text {
+    white-space: nowrap;
+}
+
+// Submenu
+.has-submenu {
+    justify-content: flex-start;
+}
+
+.submenu-arrow {
+    margin-left: auto;
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+}
+
+.has-submenu[aria-expanded="true"] .submenu-arrow {
+    transform: rotate(180deg);
+}
+
+.nav-submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.2);
+    
+    &.collapse:not(.show) {
+        display: none;
+    }
+    
+    &.show {
+        display: block;
+    }
+}
+
+.submenu-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1.25rem 0.5rem 3.25rem;
+    color: $sidebar-text;
+    text-decoration: none;
+    font-size: 0.8125rem;
+    transition: all 0.15s;
+    
+    &:hover {
+        color: #ffffff;
+        background-color: $sidebar-hover-bg;
+        text-decoration: none;
+    }
+    
+    &.active {
+        color: #ffffff;
+        background-color: $sidebar-active-bg;
+    }
+    
+    .badge {
+        font-size: 0.625rem;
+        padding: 0.25em 0.5em;
+    }
+}
+
+// Footer da sidebar
+.sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+// -----------------------------------------------------
+// OVERLAY (mobile)
+// -----------------------------------------------------
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1035;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    
+    &.show {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+// -----------------------------------------------------
+// MAIN CONTENT AREA
+// -----------------------------------------------------
+
+.app-main {
+    flex: 1;
+    margin-left: $sidebar-width;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+// -----------------------------------------------------
+// HEADER
+// -----------------------------------------------------
+
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    background-color: $header-bg;
+    border-bottom: 1px solid $header-border;
+    height: $header-height;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 1.5rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+// Toggle button
+.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #64748b;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+        background: #f1f5f9;
+        color: #334155;
+    }
+}
+
+// Breadcrumb
+.header-breadcrumb {
+    .breadcrumb {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        font-size: 0.875rem;
+    }
+    
+    .breadcrumb-item {
+        color: #64748b;
+        
+        a {
+            color: #64748b;
+            text-decoration: none;
+            
+            &:hover {
+                color: #334155;
+            }
+        }
+        
+        &.active {
+            color: #334155;
+            font-weight: 500;
+        }
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: #cbd5e1;
+    }
+}
+
+// Header Right
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+// Profile
+.header-profile {
+    .profile-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        background: transparent;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        
+        &:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+    }
+    
+    .profile-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .profile-avatar-placeholder {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 1rem;
+    }
+    
+    .profile-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        line-height: 1.25;
+    }
+    
+    .profile-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .profile-role {
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+    
+    .profile-arrow {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-left: 0.25rem;
+    }
+}
+
+// Profile Menu Dropdown
+.profile-menu {
+    min-width: 280px;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    
+    .dropdown-header {
+        padding: 1rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dropdown-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .dropdown-avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 1.5rem;
+    }
+    
+    .dropdown-user-name {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.9375rem;
+    }
+    
+    .dropdown-user-email {
+        font-size: 0.8125rem;
+        color: #64748b;
+    }
+    
+    .dropdown-item {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        &:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        
+        &.text-danger {
+            color: #dc2626;
+            
+            &:hover {
+                background: #fef2f2;
+                color: #b91c1c;
+            }
+        }
+        
+        i {
+            font-size: 1rem;
+            color: #94a3b8;
+        }
+    }
+}
+
+// -----------------------------------------------------
+// CONTENT AREA
+// -----------------------------------------------------
+
+.app-content {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-x: hidden;
+}
+
+.page-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+// -----------------------------------------------------
+// FOOTER
+// -----------------------------------------------------
+
+.app-footer {
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem 1.5rem;
+    margin-top: auto;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8125rem;
+    color: #64748b;
+}
+
+.footer-version {
+    font-weight: 500;
+    color: #94a3b8;
+}
+
+// -----------------------------------------------------
+// RESPONSIVIDADE
+// -----------------------------------------------------
+
+// Tablets e Desktop
+@media (min-width: 992px) {
+    // Sidebar colapsada
+    .sidebar-collapsed {
+        .app-sidebar {
+            width: $sidebar-collapsed-width;
+        }
+        
+        .app-main {
+            margin-left: $sidebar-collapsed-width;
+        }
+        
+        .brand-text,
+        .nav-text,
+        .nav-section,
+        .sidebar-user,
+        .sidebar-footer,
+        .submenu-arrow {
+            display: none;
+        }
+        
+        .nav-link {
+            justify-content: center;
+            padding: 0.75rem;
+        }
+        
+        .nav-icon {
+            font-size: 1.25rem;
+            width: auto;
+        }
+        
+        .nav-submenu {
+            display: none !important;
+        }
+    }
+}
+
+// Mobile
+@media (max-width: 991px) {
+    .app-sidebar {
+        transform: translateX(-100%);
+        
+        &.show {
+            transform: translateX(0);
+        }
+    }
+    
+    .app-main {
+        margin-left: 0;
+    }
+    
+    .sidebar-toggle {
+        display: flex;
+    }
+    
+    .header-breadcrumb {
+        .breadcrumb-item:not(.active) {
+            display: none;
+        }
+        
+        .breadcrumb-item.active::before {
+            display: none;
+        }
+    }
+    
+    .app-content {
+        padding: 1rem;
+    }
+    
+    .page-title {
+        font-size: 1.25rem;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+
+// Mobile pequeno
+@media (max-width: 576px) {
+    .header-container {
+        padding: 0 1rem;
+    }
+    
+    .app-content {
+        padding: 0.75rem;
+    }
+    
+    .page-header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+    
+    .page-title {
+        font-size: 1.125rem;
+    }
+}
+
+// -----------------------------------------------------
+// ESTADOS ESPECIAIS
+// -----------------------------------------------------
+
+// Prevenir scroll quando sidebar está aberta em mobile
+body.sidebar-open {
+    overflow: hidden;
+}

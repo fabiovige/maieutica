@@ -47,6 +47,11 @@ Route::get('/', function () {
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->middleware(['auth'])->name('home.index');
 
+// Rota de teste para novo layout com sidebar
+Route::get('/teste-sidebar', function () {
+    return view('teste-sidebar');
+})->middleware(['auth'])->name('teste.sidebar');
+
 Route::middleware(['auth'])->group(function () {
 
     // checklists
