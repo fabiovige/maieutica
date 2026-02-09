@@ -33,17 +33,17 @@
             <i class="bi bi-trash"></i> Nenhuma criança na lixeira.
         </div>
     @else
-        <table class="table table-bordered mt-3">
-            <thead>
+        <table class="table table-bordered table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
                 <tr>
                     <th style="width: 60px;" class="text-center">ID</th>
-                    <th style="width: 60px;" class="text-center">Foto</th>
-                    <th>Nome</th>
-                    <th>Responsável</th>
-                    <th>Profissionais</th>
-                    <th>Data Nasc.</th>
-                    <th style="width: 180px;">Excluído em</th>
-                    <th class="text-center" style="width: 120px;">Ações</th>
+                    <th style="width: 60px;" class="text-center">FOTO</th>
+                    <th>NOME</th>
+                    <th>RESPONSÁVEL</th>
+                    <th>PROFISSIONAIS</th>
+                    <th>DATA NASC.</th>
+                    <th style="width: 180px;">EXCLUÍDO EM</th>
+                    <th class="text-center" style="width: 80px;">AÇÕES</th>
                 </tr>
             </thead>
             <tbody>
@@ -97,11 +97,17 @@
                         </td>
                         <td class="text-center">
                             @can('restore', $kid)
-                                <button type="button" class="btn btn-sm btn-success btn-restore"
-                                    data-kid-id="{{ $kid->id }}"
-                                    data-kid-name="{{ $kid->name }}">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Restaurar
-                                </button>
+                                @component('components.table-actions')
+                                    @slot('items')
+                                        <li>
+                                            <button type="button" class="dropdown-item btn-restore"
+                                                data-kid-id="{{ $kid->id }}"
+                                                data-kid-name="{{ $kid->name }}">
+                                                Restaurar
+                                            </button>
+                                        </li>
+                                    @endslot
+                                @endcomponent
                             @endcan
                         </td>
                     </tr>
@@ -109,7 +115,7 @@
             </tbody>
         </table>
 
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-end mt-3">
             {{ $kids->links() }}
         </div>
     @endif

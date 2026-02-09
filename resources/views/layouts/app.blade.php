@@ -567,6 +567,40 @@
                 display: none;
             }
         }
+
+        /* ===== TABELAS COM BORDAS FINAS E CANTOS ARREDONDADOS ===== */
+        .table {
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            border-radius: 6px !important;
+            overflow: hidden !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .table th,
+        .table td {
+            border: none !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            border-right: 1px solid #e2e8f0 !important;
+            padding: 0.625rem 0.875rem !important;
+        }
+
+        .table thead th {
+            background-color: #f8fafc !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            font-weight: 600;
+        }
+
+        .table tbody tr:last-child th,
+        .table tbody tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        .table th:last-child,
+        .table td:last-child {
+            border-right: none !important;
+        }
     </style>
     @stack('styles')
 </head>

@@ -82,16 +82,16 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped mb-0">
+                    <table class="table table-bordered table-hover table-striped align-middle mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th style="width: 60px;" class="text-center">ID</th>
-                                <th>Tipo</th>
-                                <th>Paciente/Usuário</th>
-                                <th>Profissional</th>
-                                <th>Gerado Por</th>
-                                <th style="width: 150px;">Data Geração</th>
-                                <th style="width: 120px;" class="text-center">Ações</th>
+                                <th>TIPO</th>
+                                <th>PACIENTE/USUÁRIO</th>
+                                <th>PROFISSIONAL</th>
+                                <th>GERADO POR</th>
+                                <th style="width: 150px;">DATA GERAÇÃO</th>
+                                <th style="width: 120px;" class="text-center">AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody>

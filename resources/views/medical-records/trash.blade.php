@@ -32,16 +32,16 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped align-middle mb-0">
+                    <table class="table table-bordered table-hover table-striped align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Data</th>
-                                <th>Tipo</th>
-                                <th>Paciente</th>
-                                <th>Demanda</th>
-                                <th>Excluído por</th>
-                                <th>Excluído em</th>
-                                <th class="text-end" style="width: 100px;">Ações</th>
+                                <th>DATA</th>
+                                <th>TIPO</th>
+                                <th>PACIENTE</th>
+                                <th>DEMANDA</th>
+                                <th>EXCLUÍDO POR</th>
+                                <th>EXCLUÍDO EM</th>
+                                <th class="text-end" style="width: 80px;">AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -83,15 +83,21 @@
                                     {{-- Ações --}}
                                     <td class="text-end">
                                         @can('restore', $record)
-                                            <form action="{{ route('medical-records.restore', $record->id) }}" 
-                                                  method="POST" 
-                                                  class="d-inline"
-                                                  onsubmit="return confirm('Tem certeza que deseja restaurar este prontuário?');">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm" title="Restaurar">
-                                                    <i class="bi bi-arrow-counterclockwise"></i> Restaurar
-                                                </button>
-                                            </form>
+                                            @component('components.table-actions')
+                                                @slot('items')
+                                                    <li>
+                                                        <form action="{{ route('medical-records.restore', $record->id) }}" 
+                                                              method="POST" 
+                                                              class="m-0"
+                                                              onsubmit="return confirm('Tem certeza que deseja restaurar este prontuário?');">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item text-success">
+                                                                Restaurar
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endslot
+                                            @endcomponent
                                         @endcan
                                     </td>
                                 </tr>

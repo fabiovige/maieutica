@@ -65,13 +65,13 @@
             Nenhum perfil encontrado.
         </div>
     @else
-        <table class="table table-bordered mt-3">
-            <thead>
+        <table class="table table-bordered table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
                 <tr>
                     <th style="width: 60px;" class="text-center">ID</th>
-                    <th>Nome</th>
-                    <th>Permissões</th>
-                    <th class="text-center" style="width: 100px;">Ações</th>
+                    <th>NOME</th>
+                    <th>PERMISSÕES</th>
+                    <th class="text-center" style="width: 100px;">AÇÕES</th>
                 </tr>
             </thead>
             <tbody>
@@ -86,10 +86,13 @@
                         </td>
                         <td class="text-center">
                             @can('role-edit')
-                                <button type="button" onclick="window.location.href='{{ route('roles.edit', $role->id) }}'"
-                                    class="btn btn-sm btn-secondary">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </button>
+                                @component('components.table-actions')
+                                    @slot('items')
+                                        <a href="{{ route('roles.edit', $role->id) }}" class="dropdown-item">
+                                            Editar
+                                        </a>
+                                    @endslot
+                                @endcomponent
                             @endcan
                         </td>
                     </tr>
@@ -97,7 +100,7 @@
             </tbody>
         </table>
 
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-end mt-3">
             {{ $roles->appends(request()->query())->links() }}
         </div>
     @endif

@@ -69,12 +69,52 @@ p {
 // Tabelas
 .table {
     font-size: 0.8125rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #dee2e6 !important;
+    
+    th, td {
+        border: none;
+        border-bottom: 1px solid #e9ecef;
+        border-right: 1px solid #e9ecef;
+        padding: 0.625rem 0.875rem;
+    }
     
     th {
         font-weight: 600;
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.03em;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    tbody tr:last-child th,
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    th:last-child,
+    td:last-child {
+        border-right: none;
+    }
+    
+    thead th:first-child {
+        border-top-left-radius: 6px;
+    }
+    
+    thead th:last-child {
+        border-top-right-radius: 6px;
+    }
+    
+    tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 6px;
+    }
+    
+    tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 6px;
     }
 }
 
