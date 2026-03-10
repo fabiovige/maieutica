@@ -249,6 +249,14 @@ O sistema utiliza um layout moderno com sidebar vertical, seguindo padrões de s
 
 **Mails:** `UserCreatedMail`, `UserUpdatedMail`, `UserDeletedMail`
 
+**E-mail Templates** (`resources/views/emails/`):
+- `layout.blade.php` - Layout base (header rosa `#AD6E9B`, corpo neutro, footer minimalista)
+- `user_created.blade.php` - Boas-vindas com dados de acesso e senha provisória
+- `user_updated.blade.php` - Notificação de dados atualizados
+- `user_deleted.blade.php` - Notificação de conta desativada
+
+**Design dos E-mails:** Visual limpo e institucional, sem emojis, tipografia em cinzas neutros, dados em tabelas alinhadas, botão CTA rosa. Todos usam fila (`ShouldQueue`). Após alterar templates, executar `php artisan view:clear`.
+
 ### Helpers & Utilities
 
 **Functions** (`app/helpers.php`):
@@ -642,8 +650,11 @@ See `docs/PROFESSIONAL_USER_RELATIONSHIP.md` for detailed authorization patterns
 
 ## Recent Changes
 
+- **2026-03-10:** Redesign dos templates de e-mail (layout limpo, sem emojis, cor rosa institucional, dados em tabelas)
+- **2026-03-10:** Fix: senha provisória no cadastro de profissional (ProfessionalController + UserCreatedMail)
+- **2026-03-10:** Aumento global de fonte: base 14px → 16px (1rem) em todos os arquivos (SCSS, CSS, inline)
 - **2026-02-09:** Padronização de botões em tabelas (ícone + label) em todas as views de listagem e lixeira
-- **2026-02-08:** Novo layout com sidebar vertical (substituiu navbar horizontal), ajuste de fonte para 15px na área de conteúdo
+- **2026-02-08:** Novo layout com sidebar vertical (substituiu navbar horizontal)
 - **2026-02-08:** Padronização tipográfica completa (5 fases): Nunito, escala sóbria, CSS vars, PDF DejaVu Sans, cor rosa unificada
 - **2026-02-08:** Sistema de botões padronizado (`_buttons.scss`) com paleta clínica/institucional
 - **2026-02-08:** Dicionário de dados completo (`docs/dicionario-dados.md`)
