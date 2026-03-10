@@ -24,6 +24,7 @@
         "laravel/ui": "^3.4",
         "laravellegends/pt-br-validator": "^9.1",
         "renatomarinho/laravel-page-speed": "^2.1",
+        "sentry/sentry-laravel": "^4.21",
         "spatie/laravel-permission": "^6.9",
         "yajra/laravel-datatables-oracle": "*"
     },
