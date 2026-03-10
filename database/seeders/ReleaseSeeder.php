@@ -1,0 +1,143 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Release;
+use Illuminate\Database\Seeder;
+
+class ReleaseSeeder extends Seeder
+{
+    public function run()
+    {
+        // Janeiro 2026 - v2.0.0
+        Release::updateOrCreate(
+            ['version' => 'v2.0.0'],
+            [
+                'title' => 'Seguranca, QA e Campo Estagiario',
+                'release_date' => '2026-01-27',
+                'description' => 'Melhorias de seguranca para producao, revisao de testes, correcoes de bugs e novo campo estagiario para profissionais.',
+                'items' => [
+                    'features' => [
+                        'Campo estagiario (is_intern) adicionado aos profissionais com checkbox em create/edit e filtro na listagem',
+                        'Checklist em modo read-only na edicao (visualizacao protegida)',
+                    ],
+                    'bugs' => [
+                        'Correcao na geracao de PDF',
+                        'Correcao de log (fix log viewer)',
+                        'Correcao de versao para producao',
+                    ],
+                    'features' => [
+                        'Campo estagiario (is_intern) adicionado aos profissionais com checkbox em create/edit e filtro na listagem',
+                        'Checklist em modo read-only na edicao (visualizacao protegida)',
+                    ],
+                    'seguranca' => [
+                        'CORS restrito ao dominio maieuticavalia.com.br',
+                        'Sessao criptografada com lifetime de 8 horas',
+                        'Security Headers: HSTS, Permissions-Policy',
+                        'SESSION_SECURE_COOKIE configurado no .env.example',
+                    ],
+                    'docs' => [
+                        'CLAUDE.md atualizado',
+                        'Documento de avaliacao versao_para_prod.md',
+                        'Revisao dos testes existentes',
+                    ],
+                ],
+                'commits' => [
+                    ['hash' => '77284e6', 'message' => 'Melhorias de seguranca para producao'],
+                    ['hash' => '2fe4991', 'message' => 'Atualizacao do CLAUDE.md'],
+                    ['hash' => 'e0d0a34', 'message' => 'Revisao dos testes'],
+                    ['hash' => 'e046f65', 'message' => 'Read only na edicao de checklists'],
+                    ['hash' => 'be06bb1', 'message' => 'Revisao de producao'],
+                    ['hash' => 'f9bed44', 'message' => 'Fix: correcao do log'],
+                    ['hash' => '6cd33ae', 'message' => 'Fix: versao prod'],
+                    ['hash' => '47c7435', 'message' => 'Fix: correcao gerar PDF'],
+                    ['hash' => 'b15c4f0', 'message' => 'Feat: adiciona campo estagiario aos profissionais'],
+                ],
+            ]
+        );
+
+        // Fevereiro 2026 - v2.1.0
+        Release::updateOrCreate(
+            ['version' => 'v2.1.0'],
+            [
+                'title' => 'Novo Layout Sidebar e Dicionario de Dados',
+                'release_date' => '2026-02-09',
+                'description' => 'Implementacao do novo layout com sidebar vertical substituindo a navbar horizontal, e criacao do dicionario de dados completo.',
+                'items' => [
+                    'layout' => [
+                        'Novo layout com sidebar vertical fixo (260px, colapsavel para 70px)',
+                        'Sidebar responsivo: drawer em mobile com overlay',
+                        'Toggle para colapsar sidebar em desktop com icones',
+                        'Submenus colapsaveis com animacao',
+                        'Estado ativo com borda esquerda destacada',
+                        'Estado salvo no localStorage',
+                        'Header com breadcrumb a esquerda e perfil a direita',
+                    ],
+                    'docs' => [
+                        'Dicionario de dados completo com 31 tabelas documentadas',
+                        'docs/dicionario-dados.md criado',
+                    ],
+                ],
+                'commits' => [
+                    ['hash' => '0ab3405', 'message' => 'Dicionario de dados'],
+                    ['hash' => '8dd31ff', 'message' => 'Novo layout'],
+                    ['hash' => '5e04f48', 'message' => 'Ajuste de fonte novo layout'],
+                ],
+            ]
+        );
+
+        // Marco 2026 - v2.2.0
+        Release::updateOrCreate(
+            ['version' => 'v2.2.0'],
+            [
+                'title' => 'Tipografia, E-mails e Ordenacao por Progresso',
+                'release_date' => '2026-03-10',
+                'description' => 'Padronizacao tipografica completa, redesign de templates de e-mail, correcoes de bugs criticos e novas funcionalidades de ordenacao.',
+                'items' => [
+                    'tipografia' => [
+                        'Fonte base unificada em 16px (1rem) - SCSS, CSS vars, typography.css',
+                        'Fonte Nunito (Google Fonts) com pesos 300-800',
+                        'Escala tipografica completa para h1-h6, tabelas, forms, botoes, badges',
+                        'Sistema de botoes padronizado (_buttons.scss) com paleta clinica/institucional',
+                        'Cor primaria rosa #AD6E9B unificada em SCSS e CSS',
+                        'CSS vars padronizadas: --fs-base, --fs-xs, --fs-sm, etc.',
+                    ],
+                    'layout' => [
+                        'Submenus dropdown no sidebar (Denver, Prontuarios, Documentos, Cadastros)',
+                        'Visualizacao padrao da lista de criancas alterada de cards para tabela',
+                    ],
+                    'emails' => [
+                        'Templates de e-mail redesenhados com visual limpo e profissional (sem emojis)',
+                        'Layout padrao institucional: header rosa, corpo neutro cinza, footer clean',
+                        'Templates atualizados: Boas-vindas, Conta atualizada, Conta desativada',
+                    ],
+                    'bugs' => [
+                        'Login com senha provisoria: corrigido bug que impedia profissionais de fazer primeiro acesso',
+                        'Menu acoes em checklists: corrigido permissao @can seguindo padrao {entity}-{action}[-all]',
+                    ],
+                    'features' => [
+                        'Ordenacao por progresso na lista de criancas (maior/menor primeiro)',
+                        'Filtro "Ordenar por" com opcoes: Nome, Progresso, Data',
+                        'Colunas Nome e Progresso clicaveis para ordenacao rapida na tabela',
+                        'Pagina de Releases para acompanhamento de versoes',
+                    ],
+                    'docs' => [
+                        'CLAUDE.md atualizado com layout sidebar, tipografia, botoes, e-mails',
+                        'README.md reescrito com stack atual e design system',
+                        'docs/tipografia.md - Auditoria completa de tipografia',
+                        'docs/novo-layout-sidebar.md - Documentacao do sidebar',
+                    ],
+                ],
+                'commits' => [
+                    ['hash' => 'a577988', 'message' => 'Refatorando layout'],
+                    ['hash' => '3344dcf', 'message' => 'Fix: corrigir envio de senha provisoria no cadastro de profissional'],
+                    ['hash' => '337dd9a', 'message' => 'Style: redesign templates de e-mail com visual limpo e profissional'],
+                    ['hash' => '437fe52', 'message' => 'Docs: atualizar CLAUDE.md e README.md + build de producao'],
+                    ['hash' => 'd58604b', 'message' => 'Feat: adicionar dropdowns no sidebar'],
+                    ['hash' => 'dd34837', 'message' => 'Fix: corrigir permissao do menu acoes em checklists'],
+                    ['hash' => 'f2994a8', 'message' => 'Feat: adicionar ordenacao por progresso na lista de criancas'],
+                ],
+            ]
+        );
+    }
+}

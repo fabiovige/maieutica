@@ -5,6 +5,7 @@ use App\Http\Controllers\CompetencesController;
 use App\Http\Controllers\KidsController;
 use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TutorialController;
 use App\Http\Controllers\DocumentsController;
@@ -147,6 +148,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('medical-records/{id}/restore', [MedicalRecordsController::class, 'restore'])->name('medical-records.restore');
     Route::get('medical-records/{medicalRecord}/pdf', [MedicalRecordsController::class, 'downloadPdf'])->name('medical-records.pdf');
     Route::resource('medical-records', MedicalRecordsController::class);
+
+    // Releases
+    Route::get('releases', [ReleaseController::class, 'index'])->name('releases.index');
+    Route::get('releases/{release}', [ReleaseController::class, 'show'])->name('releases.show');
 });
 
 // Data Table Ajax

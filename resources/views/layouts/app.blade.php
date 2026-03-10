@@ -799,6 +799,13 @@
                                 </a>
                             </div>
                         @endif
+
+                        <div class="menu-item">
+                            <a href="{{ route('releases.index') }}" class="menu-link {{ request()->routeIs('releases.*') ? 'active' : '' }}">
+                                <i class="bi bi-tag"></i>
+                                <span>Releases</span>
+                            </a>
+                        </div>
                     @endif
                 @endauth
             </nav>
