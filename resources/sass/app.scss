@@ -25,7 +25,7 @@
 body {
     font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-weight: 400;
-    font-size: 0.875rem; // 14px base
+    font-size: 1rem; // 16px base
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -39,36 +39,36 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0.75rem;
 }
 
-h1 { font-size: 1.5rem; }   // 24px - Título de página
-h2 { font-size: 1.25rem; }  // 20px - Título de seção
-h3 { font-size: 1.125rem; } // 18px - Subtítulo
-h4 { font-size: 1rem; }     // 16px - Card header
-h5 { font-size: 0.9375rem; } // 15px - Label
-h6 { font-size: 0.875rem; }  // 14px - Small header
+h1 { font-size: 1.625rem; }  // 26px - Título de página
+h2 { font-size: 1.375rem; }  // 22px - Título de seção
+h3 { font-size: 1.25rem; }   // 20px - Subtítulo
+h4 { font-size: 1.125rem; }  // 18px - Card header
+h5 { font-size: 1rem; }      // 16px - Label
+h6 { font-size: 0.9375rem; } // 15px - Small header
 
 // Parágrafos e texto
 p {
-    font-size: 0.875rem;
+    font-size: 1rem;
     line-height: 1.6;
     margin-bottom: 0.75rem;
 }
 
 // Elementos de formulário
 .form-label {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: #374151;
     margin-bottom: 0.375rem;
 }
 
 .form-control, .form-select {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     padding: 0.5rem 0.75rem;
 }
 
 // Tabelas
 .table {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 6px;
@@ -84,7 +84,7 @@ p {
     
     th {
         font-weight: 600;
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         background-color: #f8f9fa;
@@ -120,36 +120,36 @@ p {
 
 // Cards
 .card-title {
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 600;
 }
 
 .card-subtitle {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
 }
 
 // Badges
 .badge {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
 // Breadcrumb
 .breadcrumb {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
 }
 
 // Botões já estão padronizados em _buttons.scss
 
 // Utilitários de tamanho de fonte
-.fs-xs { font-size: 0.75rem !important; }      // 12px
-.fs-sm { font-size: 0.8125rem !important; }    // 13px
-.fs-base { font-size: 0.875rem !important; }   // 14px
-.fs-md { font-size: 0.9375rem !important; }    // 15px
-.fs-lg { font-size: 1rem !important; }         // 16px
-.fs-xl { font-size: 1.125rem !important; }     // 18px
-.fs-2xl { font-size: 1.25rem !important; }     // 20px
-.fs-3xl { font-size: 1.5rem !important; }      // 24px
+.fs-xs { font-size: 0.8125rem !important; }    // 13px
+.fs-sm { font-size: 0.875rem !important; }     // 14px
+.fs-base { font-size: 1rem !important; }       // 16px
+.fs-md { font-size: 1.0625rem !important; }    // 17px
+.fs-lg { font-size: 1.125rem !important; }     // 18px
+.fs-xl { font-size: 1.25rem !important; }      // 20px
+.fs-2xl { font-size: 1.375rem !important; }    // 22px
+.fs-3xl { font-size: 1.625rem !important; }    // 26px
 
 // Estilos da aplicação
 .pagewrap {

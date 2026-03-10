@@ -150,26 +150,36 @@ O sistema utiliza um layout moderno com sidebar vertical, seguindo padrões de s
 ```
 
 **Arquivos do Layout:**
-- `resources/views/layouts/app.blade.php` - Layout principal
-- `resources/views/layouts/sidebar.blade.php` - Menu lateral
-- `resources/views/layouts/header.blade.php` - Cabeçalho com breadcrumb
-- `resources/sass/_sidebar-layout.scss` - Estilos do layout
+- `resources/views/layouts/app.blade.php` - Layout principal (sidebar + header + conteúdo, estilos inline no `<style>`)
+- `resources/views/layouts/app-backup.blade.php` - Backup do layout anterior (navbar horizontal)
+- `resources/views/layouts/app-sidebar.blade.php` - Implementação alternativa do sidebar (teste)
+- `resources/sass/_sidebar-layout.scss` - Estilos SCSS do sidebar (720 linhas, criado mas **não importado** - estilos estão inline no app.blade.php)
+
+**Seções do Sidebar:**
+- Dashboard
+- Denver (Checklists, Crianças)
+- Prontuários
+- Documentos
+- Cadastros (Profissionais, Usuários, Papéis, Competências, Especialidades)
+- Administração (Lixeira com contadores via badges)
 
 **Features:**
-- ✅ Sidebar fixo à esquerda (280px)
-- ✅ Container fluid (largura total)
-- ✅ Header com breadcrumb à esquerda, perfil à direita
-- ✅ Responsivo: sidebar recolhe em tablets (< 992px)
-- ✅ Mobile: sidebar vira drawer com overlay
-- ✅ Toggle para colapsar sidebar em desktop
-- ✅ Estados salvos no localStorage
+- Sidebar fixo à esquerda (260px)
+- Container fluid (largura total)
+- Header com breadcrumb à esquerda, perfil à direita
+- Responsivo: sidebar recolhe em tablets (< 992px)
+- Mobile: sidebar vira drawer com overlay
+- Toggle para colapsar sidebar em desktop (70px com ícones)
+- Estados salvos no localStorage
+- Submenus colapsáveis com animação
+- Estado ativo com borda esquerda destacada
 
 **Responsividade:**
 | Breakpoint | Sidebar | Comportamento |
 |------------|---------|---------------|
-| ≥992px | Fixo visível | Pode colapsar para 70px |
+| ≥992px | Fixo visível (260px) | Pode colapsar para 70px |
 | <992px | Drawer | Escondido, botão hamburger |
-| <576px | Full width | Drawer com largura total |
+| <576px | Full width | Breadcrumb mostra só item ativo |
 
 **Para usar em views:**
 ```blade
@@ -191,6 +201,8 @@ O sistema utiliza um layout moderno com sidebar vertical, seguindo padrões de s
     {{-- Conteúdo com container-fluid automático --}}
 @endsection
 ```
+
+**Nota:** Os estilos do sidebar estão **inline** no `app.blade.php` (dentro de `<style>`), não no SCSS compilado. O arquivo `_sidebar-layout.scss` existe como referência mas não é importado no `app.scss`.
 
 ### Frontend (Vue 3 + Blade)
 
@@ -374,48 +386,76 @@ get_chart_gradient($percentage)    // Returns chart gradient
 
 ### Tipografia
 
+> Documentação completa: `docs/tipografia.md`
+
 **Fonte:** Nunito (Google Fonts) - Visual clean e profissional
 
-**Pesos disponíveis:**
-- **300** Light - textos sutis
-- **400** Regular - corpo de texto  
-- **500** Medium - ênfase
-- **600** Semi-bold - títulos
-- **700** Bold - destaque
-- **800** Extra-bold - headings principais
+**Pesos disponíveis:** 300 (Light), 400 (Regular), 500 (Medium), 600 (Semi-bold), 700 (Bold), 800 (Extra-bold)
 
-**Escala de Tamanhos (Sóbria):**
+**Escala de Tamanhos:**
 
 | Elemento | Tamanho | Uso |
 |----------|---------|-----|
-| `h1` | 1.5rem (24px) | Título de página |
-| `h2` | 1.25rem (20px) | Título de seção |
-| `h3` | 1.125rem (18px) | Subtítulo |
-| `h4` | 1rem (16px) | Card header |
-| `h5` | 0.9375rem (15px) | Label |
-| `h6` | 0.875rem (14px) | Small header |
-| `body` | 0.875rem (14px) | Texto base |
-| `.fs-xs` | 0.75rem (12px) | Captions |
-| `.fs-sm` | 0.8125rem (13px) | Badges, tabelas |
-| `.table th` | 0.75rem (12px) | Headers de tabela |
+| `body` | 1rem (16px) | Texto base |
+| `h1` | 1.625rem (26px) | Título de página |
+| `h2` | 1.375rem (22px) | Título de seção |
+| `h3` | 1.25rem (20px) | Subtítulo |
+| `h4` | 1.125rem (18px) | Card header |
+| `h5` | 1rem (16px) | Label |
+| `h6` | 0.9375rem (15px) | Small header |
+| `.form-control` | 0.9375rem (15px) | Inputs e selects |
+| `.form-label` | 0.875rem (14px) | Labels de formulário |
+| `.table` | 0.875rem (14px) | Corpo de tabela |
+| `.table th` | 0.8125rem (13px) | Headers de tabela |
+| `.btn` | 0.9375rem (15px) | Botões padrão |
+| `.btn-sm` | 0.875rem (14px) | Botões pequenos |
+| `.badge` | 0.75rem (12px) | Badges |
+| `.fs-xs` | 0.8125rem (13px) | Captions |
+| `.fs-sm` | 0.875rem (14px) | Texto secundário |
 
-**Configuração CSS:**
-```css
-font-family: 'Nunito', system-ui, -apple-system, sans-serif;
-font-size: 0.875rem; /* 14px base */
-line-height: 1.5;
+**Configuração:**
+- SCSS: `resources/sass/_config.scss` → `$font-size-base: 1rem`
+- CSS Vars: `public/css/custom.css` → `--fs-base`, `--fs-xs`, `--fs-sm`, etc.
+- Typography standalone: `public/css/typography.css` → Classes utilitárias adicionais
+- PDF: `DejaVu Sans` (requisito DomPDF), classes em `pdf-base.blade.php`
+
+### CSS Architecture
+
+**Arquivos CSS carregados no HTML:**
+```html
+<link href="{{ asset('css/app.css') }}" rel="stylesheet">   <!-- SCSS compilado -->
+<link href="{{ asset('css/custom.css') }}" rel="stylesheet"> <!-- CSS direto -->
+<link href="{{ asset('css/typography.css') }}" rel="stylesheet"> <!-- CSS direto -->
 ```
 
-**Características:**
-- ✅ Escala sóbria sem cara de "site"
-- ✅ Headings compactos e profissionais
-- ✅ Texto base 14px para melhor legibilidade
-- ✅ Tabelas com fonte reduzida (13px)
-- ✅ Labels em 13px com semi-bold
+**SCSS Load Order** (`resources/sass/app.scss`):
+```scss
+@use './config';        // $primary, $font-size-base
+@use './variables';     // Bootstrap variable overrides
+@use './_custom';       // Custom SCSS
+@use 'bootstrap/scss/bootstrap';
+@use './buttons';       // Sistema de botões (após Bootstrap)
+```
+
+**Arquivos SCSS:**
+| Arquivo | Função |
+|---------|--------|
+| `_config.scss` | Variáveis base (`$primary: #AD6E9B`, `$font-size-base`) |
+| `_variables.scss` | Overrides do Bootstrap |
+| `_custom.scss` | Estilos customizados |
+| `_buttons.scss` | Sistema de botões padronizado (608 linhas) |
+| `_sidebar-layout.scss` | Estilos do sidebar (referência, não importado) |
+| `_bootstrap-overrides.scss` | Overrides adicionais do Bootstrap |
+| `app.scss` | Entry point + tipografia + estilos da aplicação |
+
+**Importante:**
+- `custom.css` e `typography.css` são **standalone** (não compilados) - mudanças são imediatas
+- `app.scss` deve ser compilado com `npm run dev` → gera `public/css/app.css`
+- Cor primária rosa `#AD6E9B` unificada em SCSS (`_config.scss`) e CSS (`custom.css`)
 
 ### Design System - Botões
 
-O sistema possui um **Sistema de Botões Padronizado** em `resources/sass/_buttons.scss` com estilo clínico/institucional sóbrio.
+O sistema possui um **Sistema de Botões Padronizado** em `resources/sass/_buttons.scss` (608 linhas) com estilo clínico/institucional sóbrio.
 
 **Classes disponíveis:**
 
@@ -433,12 +473,12 @@ O sistema possui um **Sistema de Botões Padronizado** em `resources/sass/_butto
 **Variantes Outline:** `btn-outline-primary`, `btn-outline-secondary`, etc.
 
 **Tamanhos:**
-- `btn-sm` - Pequeno (tabelas, ações compactas)
-- Padrão - Formulários
-- `btn-lg` - Grande (CTAs importantes)
+- `btn-sm` - 13px (tabelas, ações compactas)
+- Padrão - 14px (formulários)
+- `btn-lg` - 15px (CTAs importantes)
 
 **Botões Contextuais (especiais):**
-- `btn-action-primary` - CTA principal destacado
+- `btn-action-primary` - CTA principal com sombra
 - `btn-cancel` - Cancelar/voltar
 - `btn-save` - Salvar
 - `btn-delete` - Excluir (outline)
@@ -446,25 +486,23 @@ O sistema possui um **Sistema de Botões Padronizado** em `resources/sass/_butto
 - `btn-view` - Visualizar (outline)
 - `btn-download` - Download
 - `btn-restore` - Restaurar da lixeira
+- `btn-filter` - Filtrar
 
-**Exemplos de uso:**
+**Estados especiais:** `btn-loading` (spinner animado), `btn-has-badge`, `btn-icon` (quadrado), `btn-block` (full width)
+
+**Padrão de botões em tabelas (ícone + texto):**
 ```blade
+<!-- Ações em tabela - SEMPRE usar ícone + label -->
+<a href="..." class="btn btn-primary btn-sm"><i class="bi bi-eye"></i> Ver</a>
+<a href="..." class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i> Editar</a>
+<button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+
 <!-- Formulário -->
-<button type="submit" class="btn btn-primary">Salvar</button>
+<button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Salvar</button>
 <a href="{{ route('index') }}" class="btn btn-secondary">Cancelar</a>
-
-<!-- Ações em tabela -->
-<a href="{{ route('edit', $id) }}" class="btn btn-warning btn-sm">Editar</a>
-<button class="btn btn-danger btn-sm" onclick="delete()">Excluir</button>
-
-<!-- Com ícones -->
-<button class="btn btn-primary">
-    <i class="bi bi-save"></i> Salvar
-</button>
-
-<!-- Outline para ações secundárias -->
-<a href="{{ route('show', $id) }}" class="btn btn-outline-info btn-sm">Ver</a>
 ```
+
+**Guia de referência:** `resources/views/examples/buttons-guide.blade.php` (showcase completo)
 
 **Development:**
 - `laravel-pint` ^1.20
@@ -577,10 +615,13 @@ See `docs/PROFESSIONAL_USER_RELATIONSHIP.md` for detailed authorization patterns
 | `RedirectIfAuthenticated` | Guest redirect |
 | `PreventRequestsDuringMaintenance` | Maintenance mode |
 
-## Documentation (`docs/` folder - 18 files)
+## Documentation (`docs/` folder - 20 files)
 
 | File | Description |
 |------|-------------|
+| `tipografia.md` | **NEW** - Auditoria completa + plano de padronização tipográfica (5 fases) |
+| `novo-layout-sidebar.md` | **NEW** - Documentação do layout sidebar |
+| `dicionario-dados.md` | **NEW** - Dicionário de dados completo (31 tabelas) |
 | `medical-records.md` | Medical Records system (polymorphic, versioning) |
 | `documentos.md` | Document Generation History (HTML storage, PDF on-demand) |
 | `analise_adulto.md` | Adult patients analysis (partially implemented) |
@@ -598,10 +639,14 @@ See `docs/PROFESSIONAL_USER_RELATIONSHIP.md` for detailed authorization patterns
 | `routes_checklist.md` | Checklist routes |
 | `adulto.md` | Adult analysis |
 | `jira.md` | Jira tracking |
-| `dicionario-dados.md` | Complete database data dictionary (all 31 tables) |
 
 ## Recent Changes
 
+- **2026-02-09:** Padronização de botões em tabelas (ícone + label) em todas as views de listagem e lixeira
+- **2026-02-08:** Novo layout com sidebar vertical (substituiu navbar horizontal), ajuste de fonte para 15px na área de conteúdo
+- **2026-02-08:** Padronização tipográfica completa (5 fases): Nunito, escala sóbria, CSS vars, PDF DejaVu Sans, cor rosa unificada
+- **2026-02-08:** Sistema de botões padronizado (`_buttons.scss`) com paleta clínica/institucional
+- **2026-02-08:** Dicionário de dados completo (`docs/dicionario-dados.md`)
 - **2026-01-27:** Added `is_intern` field to `professionals` table (for intern tracking)
 - **2025-12-28:** Created `professional_user_patient` pivot table
 - **2025-12-22:** Medical records with polymorphic support and versioning
@@ -615,13 +660,22 @@ See `docs/PROFESSIONAL_USER_RELATIONSHIP.md` for detailed authorization patterns
 | Controllers | 23 (15 web + 8 API) |
 | Vue Components | 9 |
 | Composables | 9 |
-| Blade Templates | ~146 |
+| Blade Templates | ~150 |
 | Migrations | 19 |
 | Tests | 20 |
 | Policies | 10 |
 | Observers | 6 |
-| Documentation Files | 18 |
+| Documentation Files | 20 |
 | Database Tables | 31 |
+| SCSS Files | 7 |
+| CSS Files (public) | 4 (app.css, custom.css, typography.css, cep-autocomplete.css) |
+
+## Blade Components
+
+| Component | Path | Purpose |
+|-----------|------|---------|
+| `kid-info-card` | `resources/views/components/kid-info-card.blade.php` | Card de informações da criança |
+| `table-actions` | `resources/views/components/table-actions.blade.php` | **NEW** - Componente reutilizável para botões de ação em tabelas |
 
 ## Important Notes
 
@@ -631,4 +685,6 @@ See `docs/PROFESSIONAL_USER_RELATIONSHIP.md` for detailed authorization patterns
 - **Windows dev:** Project developed on MINGW64, paths may differ
 - **OAuth:** Socialite configured for provider-based login
 - **reCAPTCHA:** Both v2 and v3 configured
+- **Sidebar styles inline:** Os estilos do sidebar estão no `<style>` do `app.blade.php`, não no SCSS compilado. O arquivo `_sidebar-layout.scss` existe como referência.
+- **Font size base:** 16px (1rem) unificado em todos os arquivos (SCSS, CSS, inline).
 - **Known limitation:** Professionals cannot create medical records for adult patients via UI. Workaround: Admin creates on behalf. Requires `professional_user_patient` pivot completion.

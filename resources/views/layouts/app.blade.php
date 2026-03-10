@@ -33,7 +33,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 400;
             line-height: 1.5;
             background: #f8fafc;
@@ -55,23 +55,23 @@
         }
 
         /* Tamanhos sóbrios para headings */
-        h1 { font-size: 1.5rem !important; font-weight: 600 !important; }
-        h2 { font-size: 1.25rem !important; font-weight: 600 !important; }
-        h3 { font-size: 1.125rem !important; font-weight: 600 !important; }
-        h4 { font-size: 1rem !important; font-weight: 600 !important; }
-        h5 { font-size: 0.9375rem !important; font-weight: 600 !important; }
-        h6 { font-size: 0.875rem !important; font-weight: 600 !important; }
+        h1 { font-size: 1.625rem !important; font-weight: 600 !important; }
+        h2 { font-size: 1.375rem !important; font-weight: 600 !important; }
+        h3 { font-size: 1.25rem !important; font-weight: 600 !important; }
+        h4 { font-size: 1.125rem !important; font-weight: 600 !important; }
+        h5 { font-size: 1rem !important; font-weight: 600 !important; }
+        h6 { font-size: 0.9375rem !important; font-weight: 600 !important; }
 
         /* Conteúdo principal */
         .page-content {
             font-family: 'Nunito', system-ui, sans-serif;
-            font-size: 0.875rem;
+            font-size: 1rem;
         }
 
-        .page-content h1 { font-size: 1.5rem !important; }
-        .page-content h2 { font-size: 1.25rem !important; }
-        .page-content h3 { font-size: 1.125rem !important; }
-        .page-content p { font-size: 0.875rem !important; line-height: 1.6 !important; }
+        .page-content h1 { font-size: 1.625rem !important; }
+        .page-content h2 { font-size: 1.375rem !important; }
+        .page-content h3 { font-size: 1.25rem !important; }
+        .page-content p { font-size: 1rem !important; line-height: 1.6 !important; }
 
         .layout-wrapper {
             display: flex;

@@ -415,7 +415,7 @@
                                                 <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}"
                                                    class="btn btn-success btn-sm w-100"
                                                    title="Ver checklists">
-                                                    <i class="bi bi-card-checklist"></i>
+                                                    <i class="bi bi-card-checklist"></i> Checklists
                                                 </a>
                                             </div>
                                         @endif
@@ -425,7 +425,7 @@
                                                 <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}"
                                                    class="btn btn-purple btn-sm w-100"
                                                    title="Comparativo">
-                                                    <i class="bi bi-clipboard-data"></i>
+                                                    <i class="bi bi-clipboard-data"></i> Comparativo
                                                 </a>
                                             </div>
 
@@ -433,7 +433,7 @@
                                                 <a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}"
                                                    class="btn btn-orange btn-sm w-100"
                                                    title="Desenvolvimento">
-                                                    <i class="bi bi-bar-chart"></i>
+                                                    <i class="bi bi-bar-chart"></i> Desenvolvimento
                                                 </a>
                                             </div>
                                         @endif
