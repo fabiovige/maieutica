@@ -152,6 +152,11 @@ Route::middleware(['auth'])->group(function () {
     // Releases
     Route::get('releases', [ReleaseController::class, 'index'])->name('releases.index');
     Route::get('releases/{release}', [ReleaseController::class, 'show'])->name('releases.show');
+
+    // Sentry test (remover depois de validar)
+    Route::get('/sentry-test', function () {
+        throw new \Exception('Teste Sentry em producao - ' . now()->format('d/m/Y H:i:s'));
+    });
 });
 
 // Data Table Ajax
