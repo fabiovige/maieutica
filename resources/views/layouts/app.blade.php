@@ -632,80 +632,104 @@
                 @auth
                     {{-- Denver --}}
                     @if(auth()->user()->can('checklist-list') || auth()->user()->can('kid-list'))
-                        <div class="menu-section">Denver</div>
-                        @can('checklist-list')
-                            <div class="menu-item">
-                                <a href="{{ route('checklists.index') }}" class="menu-link {{ request()->routeIs('checklists.*') ? 'active' : '' }}">
-                                    <i class="bi bi-list-check"></i>
-                                    <span>Checklists</span>
-                                </a>
-                            </div>
-                        @endcan
-                        @can('kid-list')
-                            <div class="menu-item">
-                                <a href="{{ route('kids.index') }}" class="menu-link {{ request()->routeIs('kids.*') ? 'active' : '' }}">
-                                    <i class="bi bi-people"></i>
-                                    <span>Crianças</span>
-                                </a>
-                            </div>
-                        @endcan
+                        <div class="menu-item">
+                            <a class="menu-link has-submenu {{ request()->routeIs('checklists.*') || request()->routeIs('kids.*') ? 'active open' : '' }}" data-submenu="submenu-denver">
+                                <i class="bi bi-clipboard2-pulse"></i>
+                                <span>Denver</span>
+                                <i class="bi bi-chevron-down submenu-arrow"></i>
+                            </a>
+                            <ul class="submenu {{ request()->routeIs('checklists.*') || request()->routeIs('kids.*') ? 'open' : '' }}" id="submenu-denver">
+                                @can('checklist-list')
+                                    <li>
+                                        <a href="{{ route('checklists.index') }}" class="submenu-link {{ request()->routeIs('checklists.*') && !request()->routeIs('checklists.trash') ? 'active' : '' }}">
+                                            Checklists
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('kid-list')
+                                    <li>
+                                        <a href="{{ route('kids.index') }}" class="submenu-link {{ request()->routeIs('kids.*') && !request()->routeIs('kids.trash') ? 'active' : '' }}">
+                                            Crianças
+                                        </a>
+                                    </li>
+                                @endcan
+                            </ul>
+                        </div>
                     @endif
 
                     {{-- Prontuários --}}
                     @if(auth()->user()->can('medical-record-list') || auth()->user()->can('medical-record-view-own'))
-                        <div class="menu-section">Prontuários</div>
                         <div class="menu-item">
-                            <a href="{{ route('medical-records.index') }}" class="menu-link {{ request()->routeIs('medical-records.*') ? 'active' : '' }}">
+                            <a class="menu-link has-submenu {{ request()->routeIs('medical-records.*') ? 'active open' : '' }}" data-submenu="submenu-prontuarios">
                                 <i class="bi bi-file-medical"></i>
-                                <span>Evolução dos Casos</span>
+                                <span>Prontuários</span>
+                                <i class="bi bi-chevron-down submenu-arrow"></i>
                             </a>
+                            <ul class="submenu {{ request()->routeIs('medical-records.*') ? 'open' : '' }}" id="submenu-prontuarios">
+                                <li>
+                                    <a href="{{ route('medical-records.index') }}" class="submenu-link {{ request()->routeIs('medical-records.index') || request()->routeIs('medical-records.create') || request()->routeIs('medical-records.edit') || request()->routeIs('medical-records.show') ? 'active' : '' }}">
+                                        Evolução dos Casos
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     @endif
 
                     {{-- Documentos --}}
                     @if(auth()->user()->can('document-list') || auth()->user()->can('document-list-all'))
-                        <div class="menu-section">Documentos</div>
                         <div class="menu-item">
-                            <a href="{{ url('documents') }}" class="menu-link {{ request()->routeIs('documents.index') ? 'active' : '' }}">
-                                <i class="bi bi-file-earmark-plus"></i>
-                                <span>Gerar Documentos</span>
+                            <a class="menu-link has-submenu {{ request()->routeIs('documents.*') || request()->routeIs('documentos.*') ? 'active open' : '' }}" data-submenu="submenu-documentos">
+                                <i class="bi bi-file-earmark-text"></i>
+                                <span>Documentos</span>
+                                <i class="bi bi-chevron-down submenu-arrow"></i>
                             </a>
-                        </div>
-                        <div class="menu-item">
-                            <a href="{{ route('documentos.history') }}" class="menu-link {{ request()->routeIs('documentos.history') ? 'active' : '' }}">
-                                <i class="bi bi-clock-history"></i>
-                                <span>Histórico</span>
-                            </a>
+                            <ul class="submenu {{ request()->routeIs('documents.*') || request()->routeIs('documentos.*') ? 'open' : '' }}" id="submenu-documentos">
+                                <li>
+                                    <a href="{{ url('documents') }}" class="submenu-link {{ request()->routeIs('documents.index') ? 'active' : '' }}">
+                                        Gerar Documentos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('documentos.history') }}" class="submenu-link {{ request()->routeIs('documentos.history') ? 'active' : '' }}">
+                                        Histórico
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     @endif
 
                     {{-- Cadastros --}}
                     @if(auth()->user()->can('user-list') || auth()->user()->can('role-list') || auth()->user()->can('professional-list'))
-                        <div class="menu-section">Cadastros</div>
-                        @can('user-list')
-                            <div class="menu-item">
-                                <a href="{{ route('users.index') }}" class="menu-link {{ request()->routeIs('users.*') && !request()->routeIs('users.trash') ? 'active' : '' }}">
-                                    <i class="bi bi-person"></i>
-                                    <span>Usuários</span>
-                                </a>
-                            </div>
-                        @endcan
-                        @can('role-list')
-                            <div class="menu-item">
-                                <a href="{{ route('roles.index') }}" class="menu-link {{ request()->routeIs('roles.*') && !request()->routeIs('roles.trash') ? 'active' : '' }}">
-                                    <i class="bi bi-shield-lock"></i>
-                                    <span>Perfis</span>
-                                </a>
-                            </div>
-                        @endcan
-                        @can('professional-list')
-                            <div class="menu-item">
-                                <a href="{{ route('professionals.index') }}" class="menu-link {{ request()->routeIs('professionals.*') && !request()->routeIs('professionals.trash') ? 'active' : '' }}">
-                                    <i class="bi bi-person-badge"></i>
-                                    <span>Profissionais</span>
-                                </a>
-                            </div>
-                        @endcan
+                        <div class="menu-item">
+                            <a class="menu-link has-submenu {{ (request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('professionals.*')) && !request()->routeIs('*.trash') ? 'active open' : '' }}" data-submenu="submenu-cadastros">
+                                <i class="bi bi-database"></i>
+                                <span>Cadastros</span>
+                                <i class="bi bi-chevron-down submenu-arrow"></i>
+                            </a>
+                            <ul class="submenu {{ (request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('professionals.*')) && !request()->routeIs('*.trash') ? 'open' : '' }}" id="submenu-cadastros">
+                                @can('professional-list')
+                                    <li>
+                                        <a href="{{ route('professionals.index') }}" class="submenu-link {{ request()->routeIs('professionals.*') && !request()->routeIs('professionals.trash') ? 'active' : '' }}">
+                                            Profissionais
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('user-list')
+                                    <li>
+                                        <a href="{{ route('users.index') }}" class="submenu-link {{ request()->routeIs('users.*') && !request()->routeIs('users.trash') ? 'active' : '' }}">
+                                            Usuários
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('role-list')
+                                    <li>
+                                        <a href="{{ route('roles.index') }}" class="submenu-link {{ request()->routeIs('roles.*') && !request()->routeIs('roles.trash') ? 'active' : '' }}">
+                                            Perfis
+                                        </a>
+                                    </li>
+                                @endcan
+                            </ul>
+                        </div>
                     @endif
 
                     {{-- Administração --}}
