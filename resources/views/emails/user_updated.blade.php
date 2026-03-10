@@ -3,39 +3,54 @@
 @section('title', 'Conta Atualizada - ' . $appName)
 
 @section('content')
-    <h2>Olá, {{ $user->name }}! ✅</h2>
-    <p>Suas informações foram <strong>atualizadas com sucesso</strong> em nosso sistema.</p>
+    <h2>Dados atualizados</h2>
+    <p>Ola, {{ $user->name }}. Suas informacoes foram atualizadas com sucesso.</p>
 
     <div class="info-box">
-        <p><strong>📅 Data da atualização:</strong> {{ $user->updated_at->format('d/m/Y H:i:s') }}</p>
+        <table class="data-table">
+            <tr>
+                <td>Data</td>
+                <td>{{ $user->updated_at->format('d/m/Y H:i') }}</td>
+            </tr>
+        </table>
     </div>
 
-    <h3>👤 Seus dados atuais</h3>
-    <p>
-        <strong>Nome:</strong> {{ $user->name }}<br>
-        <strong>E-mail:</strong> {{ $user->email }}<br>
-        <strong>Telefone:</strong> {{ $user->phone ?? 'Não informado' }}
-    </p>
+    <h3>Dados atuais</h3>
+    <table class="data-table">
+        <tr>
+            <td>Nome</td>
+            <td>{{ $user->name }}</td>
+        </tr>
+        <tr>
+            <td>E-mail</td>
+            <td>{{ $user->email }}</td>
+        </tr>
+        @if($user->phone)
+        <tr>
+            <td>Telefone</td>
+            <td>{{ $user->phone }}</td>
+        </tr>
+        @endif
+        @if($user->street)
+        <tr>
+            <td>Endereco</td>
+            <td>
+                {{ $user->street }}@if($user->number), {{ $user->number }}@endif
+                @if($user->complement) - {{ $user->complement }}@endif
+                @if($user->neighborhood)<br>{{ $user->neighborhood }}@endif
+                @if($user->city) - {{ $user->city }}@endif
+                @if($user->state)/{{ $user->state }}@endif
+                @if($user->postal_code) - CEP {{ $user->postal_code }}@endif
+            </td>
+        </tr>
+        @endif
+    </table>
 
-    @if($user->street || $user->city || $user->state || $user->postal_code)
-    <h3>📍 Endereço</h3>
-    <p>
-        @if($user->street)<strong>Rua:</strong> {{ $user->street }}<br>@endif
-        @if($user->number)<strong>Número:</strong> {{ $user->number }}<br>@endif
-        @if($user->complement)<strong>Complemento:</strong> {{ $user->complement }}<br>@endif
-        @if($user->neighborhood)<strong>Bairro:</strong> {{ $user->neighborhood }}<br>@endif
-        @if($user->city)<strong>Cidade:</strong> {{ $user->city }}<br>@endif
-        @if($user->state)<strong>Estado:</strong> {{ $user->state }}<br>@endif
-        @if($user->postal_code)<strong>CEP:</strong> {{ $user->postal_code }}@endif
-    </p>
-    @endif
-
-    <div class="warning">
-        <strong>🔒 Segurança:</strong> Se você não realizou esta alteração, entre em contato com nossa equipe de suporte imediatamente.
+    <div class="notice">
+        <p><strong>Seguranca:</strong> Se voce nao realizou esta alteracao, entre em contato com o suporte imediatamente.</p>
     </div>
 
-    <a href="{{ $appUrl }}" class="button">Acessar o Sistema</a>
-
-    <p>Atenciosamente,<br>
-    <strong>Equipe {{ $appName }}</strong></p>
+    <p style="text-align: center; margin: 24px 0;">
+        <a href="{{ $appUrl }}" class="button">Acessar o Sistema</a>
+    </p>
 @endsection

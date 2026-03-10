@@ -58,9 +58,9 @@
             <div
                 class="card-header d-flex justify-content-between align-items-center"
             >
-                <h5 class="card-title mb-0">
+                <h3 class="card-title card-title-custom mb-0">
                     Gráfico de Barras - Comparativo de Competências
-                </h5>
+                </h3>
                 <div>
                     @if ($currentChecklist)
                     <small class="text-muted me-3">

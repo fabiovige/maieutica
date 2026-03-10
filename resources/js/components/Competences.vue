@@ -209,8 +209,7 @@
                             </div>
                         </div>
                         <div v-if="autoFillError" class="alert alert-danger py-2">{{ autoFillError }}</div>
-                        <div v-if="isProcessingAutoFill" class="alert alert-secondary py-2 mb-3"
-                            style="font-size: 1rem;">
+                        <div v-if="isProcessingAutoFill" class="alert alert-secondary py-2 mb-3 fs-md">
                             <div v-if="!resumoCompetenciasProcessadas.length"
                                 class="d-flex justify-content-center align-items-center" style="min-height: 80px;">
                                 <loading :active="true" :is-full-page="false"></loading>

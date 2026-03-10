@@ -33,14 +33,14 @@
             <i class="bi bi-trash"></i> Nenhum perfil na lixeira.
         </div>
     @else
-        <table class="table table-bordered mt-3">
-            <thead>
+        <table class="table table-bordered table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
                 <tr>
                     <th style="width: 60px;" class="text-center">ID</th>
-                    <th>Nome</th>
-                    <th>Permissões</th>
-                    <th style="width: 180px;">Excluído em</th>
-                    <th class="text-center" style="width: 120px;">Ações</th>
+                    <th>NOME</th>
+                    <th>PERMISSÕES</th>
+                    <th style="width: 180px;">EXCLUÍDO EM</th>
+                    <th class="text-center" style="width: 80px;">AÇÕES</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,11 +62,17 @@
                         </td>
                         <td class="text-center">
                             @can('role-edit')
-                                <button type="button" class="btn btn-sm btn-success btn-restore"
-                                    data-role-id="{{ $role->id }}"
-                                    data-role-name="{{ $role->name }}">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Restaurar
-                                </button>
+                                @component('components.table-actions')
+                                    @slot('items')
+                                        <li>
+                                            <button type="button" class="dropdown-item btn-restore"
+                                                data-role-id="{{ $role->id }}"
+                                                data-role-name="{{ $role->name }}">
+                                                Restaurar
+                                            </button>
+                                        </li>
+                                    @endslot
+                                @endcomponent
                             @endcan
                         </td>
                     </tr>
@@ -74,7 +80,7 @@
             </tbody>
         </table>
 
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-end mt-3">
             {{ $roles->links() }}
         </div>
     @endif

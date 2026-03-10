@@ -17,7 +17,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Novo Prontuário Médico</h5>
+            <h3 class="card-title-custom mb-0"><i class="bi bi-plus-circle"></i> Novo Prontuário Médico</h3>
         </div>
         <div class="card-body">
             <form action="{{ route('medical-records.store') }}" method="POST">

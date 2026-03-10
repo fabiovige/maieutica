@@ -29,7 +29,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Informações Pessoais</h5>
+                    <h3 class="card-title card-title-custom mb-0">Informações Pessoais</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -100,7 +100,7 @@
             @else
                 <div class="card mt-4">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Vínculos</h5>
+                        <h3 class="card-title card-title-custom mb-0">Vínculos</h3>
                     </div>
                     <div class="card-body">
                         <div class="row">

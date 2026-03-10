@@ -139,15 +139,15 @@
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped align-middle mb-0">
+                    <table class="table table-bordered table-hover table-striped align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Data</th>
-                                <th>Tipo</th>
-                                <th>Paciente</th>
-                                <th>Profissional</th>
-                                <th>Criado em</th>
-                                <th class="text-end" style="width: 150px;">Ações</th>
+                                <th>DATA</th>
+                                <th>TIPO</th>
+                                <th>PACIENTE</th>
+                                <th>PROFISSIONAL</th>
+                                <th>CRIADO EM</th>
+                                <th class="text-center" style="width: 120px;">AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -184,41 +184,30 @@
                                     <td>{{ $record->created_at ? $record->created_at->format('d/m/Y H:i') : 'N/D' }}</td>
 
                                     {{-- Ações --}}
-                                    <td class="text-end">
-                                        <div class="btn-group btn-group-sm gap-1" role="group">
-                                            @can('view', $record)
-                                                <a href="{{ route('medical-records.show', $record) }}"
-                                                   class="btn btn-primary btn-sm" title="Visualizar">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-                                            @endcan
-
-                                            @can('view', $record)
-                                                <a href="{{ route('medical-records.pdf', $record) }}"
-                                                   class="btn btn-success btn-sm" title="Download PDF">
-                                                    <i class="bi bi-file-pdf"></i>
-                                                </a>
-                                            @endcan
-
-                                            @can('update', $record)
-                                                <a href="{{ route('medical-records.edit', $record) }}"
-                                                   class="btn btn-warning btn-sm" title="Editar">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                            @endcan
-
-                                            @can('delete', $record)
-                                                <form action="{{ route('medical-records.destroy', $record) }}"
-                                                      method="POST" class="d-inline"
-                                                      onsubmit="return confirm('Tem certeza que deseja mover este prontuário para a lixeira?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Excluir">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            @endcan
-                                        </div>
+                                    <td class="text-center">
+                                        @component('components.table-actions')
+                                            @slot('items')
+                                                @can('view', $record)
+                                                    <li><a class="dropdown-item" href="{{ route('medical-records.show', $record) }}">Visualizar</a></li>
+                                                @endcan
+                                                @can('view', $record)
+                                                    <li><a class="dropdown-item" href="{{ route('medical-records.pdf', $record) }}">Download PDF</a></li>
+                                                @endcan
+                                                @can('update', $record)
+                                                    <li><a class="dropdown-item" href="{{ route('medical-records.edit', $record) }}">Editar</a></li>
+                                                @endcan
+                                                @can('delete', $record)
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <form action="{{ route('medical-records.destroy', $record) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja mover este prontuário para a lixeira?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item text-danger">Excluir</button>
+                                                        </form>
+                                                    </li>
+                                                @endcan
+                                            @endslot
+                                        @endcomponent
                                     </td>
                                 </tr>
                             @endforeach

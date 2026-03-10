@@ -3,44 +3,59 @@
 @section('title', 'Bem-vindo ao ' . $appName)
 
 @section('content')
-    <h2>Olá, {{ $user->name }}! 👋</h2>
-    <p>Seja bem-vindo(a) ao <strong>{{ $appName }}</strong>!</p>
-    <p>Sua conta foi criada com sucesso e você já pode acessar o sistema.</p>
+    <h2>Bem-vindo(a), {{ $user->name }}</h2>
+    <p>Sua conta foi criada com sucesso. Utilize os dados abaixo para acessar o sistema.</p>
 
-    <h3>🔐 Seus dados de acesso</h3>
+    <h3>Dados de acesso</h3>
     <div class="info-box">
-        <p><strong>E-mail:</strong> {{ $user->email }}<br>
-        <strong>Senha temporária:</strong> <code style="background: #e9ecef; padding: 5px 10px; border-radius: 3px;">{{ $password ?? 'Solicite ao administrador' }}</code></p>
+        <table class="data-table">
+            <tr>
+                <td>E-mail</td>
+                <td><strong>{{ $user->email }}</strong></td>
+            </tr>
+            <tr>
+                <td>Senha</td>
+                <td><code>{{ $password ?? 'Solicite ao administrador' }}</code></td>
+            </tr>
+        </table>
     </div>
 
-    <a href="{{ $appUrl }}" class="button">Acessar o Sistema</a>
+    <p style="text-align: center; margin: 24px 0;">
+        <a href="{{ $appUrl }}" class="button">Acessar o Sistema</a>
+    </p>
 
-    <div class="warning">
-        <strong>⚠️ Importante:</strong> Por questões de segurança, recomendamos que você altere sua senha após o primeiro acesso.
+    <div class="notice">
+        <p><strong>Importante:</strong> Por seguranca, altere sua senha apos o primeiro acesso.</p>
     </div>
 
-    <h3>👤 Seus dados cadastrados</h3>
-    <p>
-        <strong>Nome:</strong> {{ $user->name }}<br>
-        <strong>E-mail:</strong> {{ $user->email }}<br>
-        <strong>Telefone:</strong> {{ $user->phone ?? 'Não informado' }}
-    </p>
-
-    @if($user->street || $user->city || $user->state || $user->postal_code)
-    <h3>📍 Endereço</h3>
-    <p>
-        @if($user->street)<strong>Rua:</strong> {{ $user->street }}<br>@endif
-        @if($user->number)<strong>Número:</strong> {{ $user->number }}<br>@endif
-        @if($user->complement)<strong>Complemento:</strong> {{ $user->complement }}<br>@endif
-        @if($user->neighborhood)<strong>Bairro:</strong> {{ $user->neighborhood }}<br>@endif
-        @if($user->city)<strong>Cidade:</strong> {{ $user->city }}<br>@endif
-        @if($user->state)<strong>Estado:</strong> {{ $user->state }}<br>@endif
-        @if($user->postal_code)<strong>CEP:</strong> {{ $user->postal_code }}@endif
-    </p>
+    @if($user->phone || $user->street || $user->city)
+    <h3>Dados cadastrados</h3>
+    <table class="data-table">
+        <tr>
+            <td>Nome</td>
+            <td>{{ $user->name }}</td>
+        </tr>
+        @if($user->phone)
+        <tr>
+            <td>Telefone</td>
+            <td>{{ $user->phone }}</td>
+        </tr>
+        @endif
+        @if($user->street)
+        <tr>
+            <td>Endereco</td>
+            <td>
+                {{ $user->street }}@if($user->number), {{ $user->number }}@endif
+                @if($user->complement) - {{ $user->complement }}@endif
+                @if($user->neighborhood)<br>{{ $user->neighborhood }}@endif
+                @if($user->city) - {{ $user->city }}@endif
+                @if($user->state)/{{ $user->state }}@endif
+                @if($user->postal_code) - CEP {{ $user->postal_code }}@endif
+            </td>
+        </tr>
+        @endif
+    </table>
     @endif
 
-    <p>Se você tiver qualquer dúvida, entre em contato com nossa equipe de suporte.</p>
-
-    <p>Atenciosamente,<br>
-    <strong>Equipe {{ $appName }}</strong></p>
+    <p>Em caso de duvida, entre em contato com a equipe de suporte.</p>
 @endsection

@@ -33,16 +33,16 @@
             <i class="bi bi-trash"></i> Nenhum checklist na lixeira.
         </div>
     @else
-        <table class="table table-bordered mt-3">
-            <thead>
+        <table class="table table-bordered table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
                 <tr>
                     <th style="width: 60px;" class="text-center">ID</th>
-                    <th>Criança</th>
-                    <th>Status</th>
-                    <th>Data de Criação</th>
-                    <th>Desenvolvimento</th>
-                    <th style="width: 180px;">Excluído em</th>
-                    <th class="text-center" style="width: 120px;">Ações</th>
+                    <th>CRIANÇA</th>
+                    <th>STATUS</th>
+                    <th>DATA DE CRIAÇÃO</th>
+                    <th>DESENVOLVIMENTO</th>
+                    <th style="width: 180px;">EXCLUÍDO EM</th>
+                    <th class="text-center" style="width: 80px;">AÇÕES</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,11 +80,17 @@
                         </td>
                         <td class="text-center">
                             @can('restore', $checklist)
-                                <button type="button" class="btn btn-sm btn-success btn-restore"
-                                    data-checklist-id="{{ $checklist->id }}"
-                                    data-kid-name="{{ $checklist->kid->name }}">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Restaurar
-                                </button>
+                                @component('components.table-actions')
+                                    @slot('items')
+                                        <li>
+                                            <button type="button" class="dropdown-item btn-restore"
+                                                data-checklist-id="{{ $checklist->id }}"
+                                                data-kid-name="{{ $checklist->kid->name }}">
+                                                Restaurar
+                                            </button>
+                                        </li>
+                                    @endslot
+                                @endcomponent
                             @endcan
                         </td>
                     </tr>

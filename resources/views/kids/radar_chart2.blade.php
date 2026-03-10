@@ -189,9 +189,9 @@ Comparativo
         <div class="col-md-3">
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
-                    <h5 class="card-title mb-0">
+                    <h3 class="card-title card-title-custom mb-0">
                         <i class="bi bi-grid-3x3-gap-fill me-2"></i>Domínios
-                    </h5>
+                    </h3>
                 </div>
                 <div class="card-body p-0">
                     @foreach($domains as $domain)

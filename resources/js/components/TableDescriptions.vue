@@ -100,10 +100,10 @@ export default {
 
     .customLink {
         text-decoration: none;
-        color: #0c0c0c;
+        color: var(--text-body);
     }
 
     .customLink:hover {
-        color: #0a53be;
+        color: var(--color-primary-darker);
     }
 </style>
