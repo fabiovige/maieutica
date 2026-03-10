@@ -98,15 +98,15 @@
 @section('actions')
     <!-- Botões de Alternância de Visualização -->
     <div class="btn-group me-2" role="group" aria-label="Tipo de visualização">
-        <a href="{{ route('kids.index', array_merge(request()->query(), ['view' => 'cards'])) }}"
-           class="btn btn-sm {{ request('view', 'cards') === 'cards' ? 'btn-primary' : 'btn-outline-primary' }}"
-           title="Visualizar em cards">
-            <i class="bi bi-grid-3x3-gap-fill"></i>
-        </a>
         <a href="{{ route('kids.index', array_merge(request()->query(), ['view' => 'table'])) }}"
-           class="btn btn-sm {{ request('view') === 'table' ? 'btn-primary' : 'btn-outline-primary' }}"
+           class="btn btn-sm {{ request('view', 'table') === 'table' ? 'btn-primary' : 'btn-outline-primary' }}"
            title="Visualizar em tabela">
             <i class="bi bi-table"></i>
+        </a>
+        <a href="{{ route('kids.index', array_merge(request()->query(), ['view' => 'cards'])) }}"
+           class="btn btn-sm {{ request('view') === 'cards' ? 'btn-primary' : 'btn-outline-primary' }}"
+           title="Visualizar em cards">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
         </a>
     </div>
 
@@ -124,11 +124,9 @@
         <div class="card-body">
             <form method="GET" action="{{ route('kids.index') }}" class="row g-3">
                 <!-- Preservar visualização atual -->
-                @if(request('view'))
-                    <input type="hidden" name="view" value="{{ request('view') }}">
-                @endif
+                <input type="hidden" name="view" value="{{ request('view', 'table') }}">
 
-                <div class="col-md-10">
+                <div class="col-md-6">
                     <label for="search" class="form-label">
                         <i class="bi bi-search"></i> Buscar Criança
                     </label>
@@ -140,12 +138,26 @@
                            value="{{ request('search') }}">
                 </div>
 
-                <div class="col-md-2 d-flex align-items-end">
+                <div class="col-md-3">
+                    <label for="sort" class="form-label">
+                        <i class="bi bi-sort-down"></i> Ordenar por
+                    </label>
+                    <select class="form-select" id="sort" name="sort">
+                        <option value="name_asc" {{ request('sort') === 'name_asc' ? 'selected' : '' }}>Nome (A-Z)</option>
+                        <option value="name_desc" {{ request('sort') === 'name_desc' ? 'selected' : '' }}>Nome (Z-A)</option>
+                        <option value="progress_desc" {{ request('sort') === 'progress_desc' ? 'selected' : '' }}>Progresso (maior primeiro)</option>
+                        <option value="progress_asc" {{ request('sort') === 'progress_asc' ? 'selected' : '' }}>Progresso (menor primeiro)</option>
+                        <option value="created_desc" {{ !request('sort') || request('sort') === 'created_desc' ? 'selected' : '' }}>Mais recente</option>
+                        <option value="created_asc" {{ request('sort') === 'created_asc' ? 'selected' : '' }}>Mais antigo</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end">
                     <div class="d-flex gap-2 w-100">
                         <button type="submit" class="btn btn-primary flex-fill">
                             <i class="bi bi-search"></i> Buscar
                         </button>
-                        @if(request('search'))
+                        @if(request('search') || request('sort'))
                             <a href="{{ route('kids.index', request('view') ? ['view' => request('view')] : []) }}" class="btn btn-secondary" title="Limpar filtro">
                                 <i class="bi bi-x-lg"></i>
                             </a>
@@ -169,7 +181,7 @@
             Nenhuma criança cadastrada.
         </div>
     @else
-        @if(request('view') === 'table')
+        @if(request('view', 'table') === 'table')
             <!-- Visualização em Tabela -->
             <div class="card">
                 <div class="card-body p-0">
@@ -178,11 +190,25 @@
                             <thead class="table-light">
                                 <tr>
                                     <th class="text-center" style="width: 80px;">FOTO</th>
-                                    <th>NOME</th>
+                                    <th>
+                                        <a href="{{ route('kids.index', array_merge(request()->query(), ['sort' => request('sort') === 'name_asc' ? 'name_desc' : 'name_asc'])) }}" class="text-decoration-none text-dark">
+                                            NOME
+                                            @if(request('sort') === 'name_asc') <i class="bi bi-sort-alpha-down"></i>
+                                            @elseif(request('sort') === 'name_desc') <i class="bi bi-sort-alpha-up"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th>IDADE</th>
                                     <th>RESPONSÁVEL</th>
                                     <th>PROFISSIONAIS</th>
-                                    <th style="width: 150px;">PROGRESSO</th>
+                                    <th style="width: 150px;">
+                                        <a href="{{ route('kids.index', array_merge(request()->query(), ['sort' => request('sort') === 'progress_desc' ? 'progress_asc' : 'progress_desc'])) }}" class="text-decoration-none text-dark">
+                                            PROGRESSO
+                                            @if(request('sort') === 'progress_desc') <i class="bi bi-sort-numeric-down"></i>
+                                            @elseif(request('sort') === 'progress_asc') <i class="bi bi-sort-numeric-up"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="text-center" style="width: 120px;">AÇÕES</th>
                                 </tr>
                             </thead>
