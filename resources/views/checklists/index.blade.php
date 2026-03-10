@@ -206,9 +206,9 @@
                         <th>STATUS</th>
                         <th>DATA DE CRIAÇÃO</th>
                         <th>MÉDIA GERAL DO DESENVOLVIMENTO</th>
-                        @can('edit checklists')
+                        @canany(['checklist-edit', 'checklist-edit-all'])
                             <th width="100">AÇÕES</th>
-                        @endcan
+                        @endcanany
                     </tr>
                 </thead>
                 <tbody>
@@ -241,7 +241,7 @@
                                     {{ $checklist->developmentPercentage }}%
                                 </td>
 
-                                @can('edit checklists')
+                                @canany(['checklist-edit', 'checklist-edit-all'])
                                     <td>
                                         @php
                                             $isAdmin = auth()->check() && auth()->user()->can('checklist-edit-all');
@@ -283,7 +283,7 @@
                                             @endslot
                                         @endcomponent
                                     </td>
-                                @endcan
+                                @endcanany
                             </tr>
                         @endforeach
                     @endif
