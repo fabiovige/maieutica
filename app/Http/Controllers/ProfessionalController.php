@@ -136,8 +136,9 @@ class ProfessionalController extends Controller
             // Gerar senha temporária
             $temporaryPassword = Str::random(10);
 
-            // Criar o usuário
-            $user = User::create([
+            // Criar o usuário (usar new + save para que temporaryPassword
+            // esteja disponível quando o UserObserver disparar)
+            $user = new User([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
@@ -145,6 +146,8 @@ class ProfessionalController extends Controller
                 'allow' => $request->has('allow'),
                 'created_by' => auth()->id(),
             ]);
+            $user->temporaryPassword = $temporaryPassword;
+            $user->save();
 
             // Atribuir role 'profissional' (para agrupar permissions automaticamente)
             // IMPORTANTE: O código usa APENAS can() para verificações, nunca hasRole()
