@@ -29,7 +29,7 @@
                     @can('medical-record-create-all')
                         <div class="col-md-4 mb-3">
                             <label for="professional_id" class="form-label">Profissional <span class="text-danger">*</span></label>
-                            <select name="professional_id" id="professional_id" class="form-select @error('professional_id') is-invalid @enderror" required>
+                            <select name="professional_id" id="professional_id" class="form-select select2 @error('professional_id') is-invalid @enderror" data-placeholder="Selecione o profissional" required>
                                 <option value="">Selecione o profissional</option>
                                 @foreach($professionals as $professional)
                                     <option value="{{ $professional->id }}" {{ old('professional_id') == $professional->id ? 'selected' : '' }}>
@@ -76,7 +76,7 @@
                 {{-- Paciente (Criança) --}}
                 <div class="mb-3 patient-select" id="kid-select" style="display: none;">
                     <label for="patient_id_kid" class="form-label">Criança <span class="text-danger">*</span></label>
-                    <select name="patient_id_kid" id="patient_id_kid" class="form-select @error('patient_id') is-invalid @enderror">
+                    <select name="patient_id_kid" id="patient_id_kid" class="form-select select2 @error('patient_id') is-invalid @enderror" data-placeholder="Selecione a criança">
                         <option value="">Selecione a criança</option>
                         @foreach($kids as $kid)
                             <option value="{{ $kid->id }}" {{ old('patient_id') == $kid->id ? 'selected' : '' }}>
@@ -92,7 +92,7 @@
                 {{-- Paciente (Adulto) --}}
                 <div class="mb-3 patient-select" id="user-select" style="display: none;">
                     <label for="patient_id_user" class="form-label">Paciente Adulto <span class="text-danger">*</span></label>
-                    <select name="patient_id_user" id="patient_id_user" class="form-select @error('patient_id') is-invalid @enderror">
+                    <select name="patient_id_user" id="patient_id_user" class="form-select select2 @error('patient_id') is-invalid @enderror" data-placeholder="Selecione o paciente">
                         <option value="">Selecione o paciente</option>
                         @foreach($users as $user)
                             <option value="{{ $user->id }}" {{ old('patient_id') == $user->id ? 'selected' : '' }}>
@@ -212,8 +212,8 @@
         $('#patient_type').change(function() {
             togglePatientSelect();
             // Limpar seleção anterior
-            $('#patient_id_kid').val('');
-            $('#patient_id_user').val('');
+            $('#patient_id_kid').val('').trigger('change');
+            $('#patient_id_user').val('').trigger('change');
             $('#patient_id').val('');
         });
 
