@@ -37,7 +37,7 @@
                 @can('medical-record-list-all')
                     <div class="col-md-3">
                         <label for="professional_id" class="form-label">Profissional</label>
-                        <select name="professional_id" id="professional_id" class="form-select">
+                        <select name="professional_id" id="professional_id" class="form-select select2" data-placeholder="Todos os profissionais">
                             <option value="">Todos</option>
                             @foreach($professionals as $professional)
                                 <option value="{{ $professional->id }}" {{ request('professional_id') == $professional->id ? 'selected' : '' }}>
@@ -51,7 +51,7 @@
                 {{-- Tipo de Paciente --}}
                 <div class="col-md-2">
                     <label for="patient_type" class="form-label">Tipo Paciente</label>
-                    <select name="patient_type" id="patient_type" class="form-select">
+                    <select name="patient_type" id="patient_type" class="form-select select2" data-placeholder="Todos os tipos">
                         <option value="">Todos</option>
                         <option value="App\Models\Kid" {{ request('patient_type') === 'App\Models\Kid' ? 'selected' : '' }}>Criança</option>
                         <option value="App\Models\User" {{ request('patient_type') === 'App\Models\User' ? 'selected' : '' }}>Adulto</option>
@@ -62,7 +62,7 @@
                 <div class="col-md-3">
                     <label for="patient_id" class="form-label">Paciente</label>
                     <div class="position-relative">
-                        <select name="patient_id" id="patient_id" class="form-select">
+                        <select name="patient_id" id="patient_id" class="form-select select2" data-placeholder="Todos os pacientes">
                             <option value="">Todos</option>
                             @if(request('patient_type') === 'App\Models\Kid')
                                 @foreach($kids as $kid)
@@ -250,14 +250,12 @@
                 $patientSelect.find('option:not(:first)').remove();
 
                 if (patientType === 'App\\Models\\Kid') {
-                    // Adicionar Kids
                     kids.forEach(function(kid) {
                         $patientSelect.append(
                             $('<option></option>').val(kid.id).text(kid.name)
                         );
                     });
                 } else if (patientType === 'App\\Models\\User') {
-                    // Adicionar Users
                     users.forEach(function(user) {
                         $patientSelect.append(
                             $('<option></option>').val(user.id).text(user.name)
@@ -268,7 +266,10 @@
                 // Ocultar loading e reabilitar select
                 $loading.hide();
                 $patientSelect.prop('disabled', false);
-            }, 300); // 300ms delay para melhor UX
+
+                // Reinicializar Select2 após mudar opções
+                $patientSelect.trigger('change.select2');
+            }, 300);
         });
     });
 </script>

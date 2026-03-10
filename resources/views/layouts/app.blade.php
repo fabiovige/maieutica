@@ -8,6 +8,8 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
     <link href="{{ asset('css/typography.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/select2-bootstrap5.css') }}?v={{ time() }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <!-- Fonte Nunito -->
@@ -905,6 +907,18 @@
     </div>
 
     <script src="{{ mix('js/app.js') }}"></script>
+    <script src="{{ asset('js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('js/select2-pt-BR.js') }}"></script>
+    <script>
+        // Inicializar Select2 em todos os selects com classe .select2
+        $(document).ready(function() {
+            $('.select2').select2({
+                language: 'pt-BR',
+                allowClear: true,
+                placeholder: function() { return $(this).data('placeholder') || 'Selecione...'; }
+            });
+        });
+    </script>
     <script>
         (function() {
             'use strict';
