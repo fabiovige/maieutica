@@ -23,10 +23,10 @@
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="bg-primary bg-opacity-10 rounded p-3 me-3">
-                                    <i class="bi bi-file-earmark-text text-primary" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-file-earmark-text text-primary fs-2xl"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title mb-0">Declaração - Modelo 1</h5>
+                                    <h3 class="card-title card-title-custom mb-0">Declaração - Modelo 1</h3>
                                     <small class="text-muted">Declaração completa</small>
                                 </div>
                             </div>
@@ -48,10 +48,10 @@
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="bg-success bg-opacity-10 rounded p-3 me-3">
-                                    <i class="bi bi-file-earmark-check text-success" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-file-earmark-check text-success fs-2xl"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title mb-0">Declaração - Modelo 2</h5>
+                                    <h3 class="card-title card-title-custom mb-0">Declaração - Modelo 2</h3>
                                     <small class="text-muted">Declaração simplificada</small>
                                 </div>
                             </div>
@@ -73,10 +73,10 @@
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="bg-warning bg-opacity-10 rounded p-3 me-3">
-                                    <i class="bi bi-file-earmark-medical text-warning" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-file-earmark-medical text-warning fs-2xl"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title mb-0">Laudo Psicológico - Modelo 3</h5>
+                                    <h3 class="card-title card-title-custom mb-0">Laudo Psicológico - Modelo 3</h3>
                                     <small class="text-muted">Laudo completo</small>
                                 </div>
                             </div>
@@ -98,10 +98,10 @@
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="bg-info bg-opacity-10 rounded p-3 me-3">
-                                    <i class="bi bi-file-earmark-ruled text-info" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-file-earmark-ruled text-info fs-2xl"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title mb-0">Parecer Psicológico - Modelo 4</h5>
+                                    <h3 class="card-title card-title-custom mb-0">Parecer Psicológico - Modelo 4</h3>
                                     <small class="text-muted">Parecer técnico</small>
                                 </div>
                             </div>
@@ -123,10 +123,10 @@
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="bg-danger bg-opacity-10 rounded p-3 me-3">
-                                    <i class="bi bi-file-earmark-person text-danger" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-file-earmark-person text-danger fs-2xl"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title mb-0">Relatório Multiprofissional - Modelo 5</h5>
+                                    <h3 class="card-title card-title-custom mb-0">Relatório Multiprofissional - Modelo 5</h3>
                                     <small class="text-muted">Equipe multiprofissional</small>
                                 </div>
                             </div>
@@ -148,10 +148,10 @@
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="bg-dark bg-opacity-10 rounded p-3 me-3">
-                                    <i class="bi bi-file-earmark-text text-dark" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-file-earmark-text text-dark fs-2xl"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title mb-0">Relatório Psicológico - Modelo 6</h5>
+                                    <h3 class="card-title card-title-custom mb-0">Relatório Psicológico - Modelo 6</h3>
                                     <small class="text-muted">Relatório individual</small>
                                 </div>
                             </div>

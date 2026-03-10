@@ -28,7 +28,7 @@
         <div class="card shadow-sm">
             <div class="card-body text-center">
                 <div class="py-5">
-                    <i class="bi bi-clipboard-x text-muted" style="font-size: 4rem;"></i>
+                    <i class="bi bi-clipboard-x text-muted fs-4xl"></i>
                     <h3 class="mt-3 text-muted">Nenhum Checklist Encontrado</h3>
                     <p class="text-muted mb-4">
                         Esta criança ainda não possui um checklist avaliado.<br>

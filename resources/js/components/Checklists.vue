@@ -68,13 +68,13 @@
                                         </div>
                                     </td>
                                     <td class="customColumn">
-                                        <h5 v-if="component.note === 0"><span
-                                                class="badge bg-secondary text-white customColumn">Não observado</span></h5>
-                                        <h5 v-if="component.note === 1"><span
-                                                class="badge bg-warning text-dark customColumn">Em desenvolvimento</span></h5>
-                                        <h5 v-if="component.note === 2"><span class="badge bg-danger customColumn">Não desenvolvido</span></h5>
-                                        <h5 v-if="component.note === 3"><span
-                                                class="badge bg-success customColumn">Desenvolvido</span></h5>
+                                        <span v-if="component.note === 0"
+                                                class="badge bg-secondary text-white customColumn">Não observado</span>
+                                        <span v-if="component.note === 1"
+                                                class="badge bg-warning text-dark customColumn">Em desenvolvimento</span>
+                                        <span v-if="component.note === 2" class="badge bg-danger customColumn">Não desenvolvido</span>
+                                        <span v-if="component.note === 3"
+                                                class="badge bg-success customColumn">Desenvolvido</span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -133,7 +133,7 @@ export default {
     word-wrap: break-word;
     display: inline-block;
     max-width: 100%;
-    line-height: 1.3;
+    line-height: var(--lh-tight);
     padding: 0.4em 0.6em;
 }
 
@@ -145,11 +145,11 @@ export default {
 
 .customLink {
     text-decoration: none;
-    color: #0c0c0c;
+    color: var(--text-body);
 }
 
 .customLink:hover {
-    color: #0a53be;
+    color: var(--color-primary-darker);
 }
 
 /* Responsividade para mobile */
@@ -160,7 +160,7 @@ export default {
     }
 
     .customColumn .badge {
-        font-size: 0.8rem;
+        font-size: var(--fs-sm);
     }
 }
 </style>

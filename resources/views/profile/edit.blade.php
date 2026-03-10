@@ -16,7 +16,7 @@
         <div class="col-12 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Foto do Perfil</h5>
+                    <h3 class="card-title card-title-custom mb-0">Foto do Perfil</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -29,7 +29,7 @@
                             @else
                                 <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mb-3 mx-auto"
                                      style="width: 150px; height: 150px;">
-                                    <i class="bi bi-person text-white" style="font-size: 4rem;"></i>
+                                    <i class="bi bi-person text-white fs-4xl"></i>
                                 </div>
                             @endif
                         </div>
@@ -61,7 +61,7 @@
         <div class="col-12 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Dados Pessoais</h5>
+                    <h3 class="card-title card-title-custom mb-0">Dados Pessoais</h3>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('profile.update') }}" method="POST">
@@ -181,7 +181,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Alterar Senha</h5>
+                    <h3 class="card-title card-title-custom mb-0">Alterar Senha</h3>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('profile.password') }}" method="POST">

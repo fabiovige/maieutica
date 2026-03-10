@@ -51,10 +51,10 @@
             <div class="col-md-5">
                 <div class="card bg-light">
                     <div class="card-body">
-                        <h5 class="card-title">
+                        <h3 class="card-title card-title-custom">
                             <i class="bi bi-people"></i>
                             Profissionais Responsáveis
-                        </h5>
+                        </h3>
                         @if ($kid->professionals->count() > 0)
                             @foreach ($kid->professionals as $professional)
                                 <div class="d-flex align-items-center mb-2">

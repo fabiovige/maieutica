@@ -77,8 +77,8 @@ Plano Automático
                                                         'bg-primary'))) }} text-{{ $status->note === 1 ? 'dark' : 'white' }}"
                             onclick="showCompetences({{ $checklist->id }}, {{ $status->note }})">
                             <div class="card-body cursor-pointer">
-                                <h5 class="card-title" id="competencesTitle2">{{ $notesDescription[$status->note] }}
-                                </h5>
+                                <h3 class="card-title card-title-custom" id="competencesTitle2">{{ $notesDescription[$status->note] }}
+                                </h3>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h3>{{ $status->total_competences }}</h3>
@@ -115,13 +115,13 @@ Plano Automático
 
                     <!-- Container para tabela -->
                     <div id="tableViewer" class="mt-3">
-                        <table class="table">
-                            <thead>
+                        <table class="table table-bordered table-hover table-striped align-middle mb-0">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>Id</th>
-                                    <th>Domínio</th>
-                                    <th>Nível</th>
-                                    <th>Competência</th>
+                                    <th>ID</th>
+                                    <th>DOMÍNIO</th>
+                                    <th>NÍVEL</th>
+                                    <th>COMPETÊNCIA</th>
                                 </tr>
                             </thead>
                             <tbody id="competencesContent">

@@ -1,63 +1,97 @@
-# Maiêutica - Plataforma de Avaliação Cognitiva para Clínicas Psicológicas
+# Maieutica - Plataforma de Avaliacao Cognitiva para Clinicas Psicologicas
 
-## Descrição
+## Descricao
 
-Maiêutica é um sistema web completo para clínicas psicológicas e terapias associadas, com foco em avaliação cognitiva de crianças, acompanhamento de progresso, gestão de profissionais, responsáveis e geração de relatórios detalhados.
+Maieutica e um sistema web completo para clinicas psicologicas e terapias associadas, com foco em avaliacao cognitiva de criancas, acompanhamento de progresso, gestao de profissionais, responsaveis e geracao de relatorios detalhados.
+
+**Versao:** 1.0.18
+**Producao:** maieuticavaliacom.br
+
+## Stack
+
+- **Backend:** Laravel 9.x (PHP ^8.0.2)
+- **Frontend:** Vue 3.5 (Options API) + Bootstrap 5.3 + Chart.js 3.9
+- **Banco de Dados:** MySQL/MariaDB
+- **Build:** Laravel Mix 6.x (Webpack)
+- **Auth:** Spatie Laravel Permission ^6.9 (permission-based)
 
 ## Funcionalidades Principais
 
--   **Gestão de Crianças/Pacientes:** Cadastro, acompanhamento, progresso e avaliações individuais.
--   **Checklists de Avaliação Cognitiva:** Criação, preenchimento, acompanhamento e análise de avaliações.
--   **Gestão de Competências:** Avaliação de habilidades/domínios cognitivos.
--   **Gestão de Profissionais:** Cadastro, associação e acompanhamento da equipe multidisciplinar.
--   **Gestão de Responsáveis:** Cadastro e vínculo de responsáveis legais.
--   **Gestão de Usuários, Papéis e Permissões:** Controle de acesso avançado para diferentes perfis.
--   **Dashboards e Relatórios:** Visualização de progresso, gráficos interativos e geração de PDFs.
--   **Interface Moderna e Responsiva:** Desenvolvida com Vue 3, Bootstrap 5, gráficos dinâmicos e alertas modernos.
--   **Segurança e Performance:** Autenticação robusta, permissões, proteção contra bots (reCAPTCHA) e otimizações automáticas.
+- **Avaliacao Cognitiva (Denver):** Checklists com competencias avaliadas de 0-3, graficos radar, analise por nivel/dominio, clonagem para acompanhamento longitudinal
+- **Prontuarios Medicos:** Registros polimorficos (criancas e adultos) com versionamento
+- **Geracao de Documentos:** 6 modelos de documentos, HTML armazenado, PDF sob demanda (DomPDF)
+- **Planos de Desenvolvimento:** Geracao automatica baseada em checklists
+- **Gestao de Profissionais:** Cadastro, vinculacao a pacientes, ativacao/desativacao, e-mail com senha provisoria
+- **Gestao de Usuarios e Permissoes:** Sistema baseado em permissoes (93 permissoes, 10 policies)
+- **Dashboard:** Metricas, graficos interativos, resumos de progresso
+- **Layout Sidebar:** Menu lateral responsivo (260px, colapsavel para 70px, drawer mobile)
 
-## Tecnologias Utilizadas
+## Instalacao
 
--   **Backend:** Laravel 9.x (PHP 8+)
--   **Frontend:** Vue 3, Bootstrap 5, Chart.js, SweetAlert2
--   **Banco de Dados:** MySQL/MariaDB (padrão Laravel)
--   **Outros:** Geração de PDFs, integração com DataTables, autenticação social, controle de permissões, logs administrativos.
+```bash
+# 1. Clonar e instalar dependencias
+composer install && npm install
+
+# 2. Configurar ambiente
+cp .env.example .env
+php artisan key:generate
+
+# 3. Banco de dados
+php artisan migrate --seed
+
+# 4. Compilar assets
+npm run dev
+
+# 5. Iniciar servidor
+php artisan serve
+```
+
+## Comandos Uteis
+
+```bash
+npm run watch              # Watch e recompilacao de assets
+npm run hot                # Hot reload
+composer clear             # Limpar caches (route, view, config)
+composer fresh             # migrate:fresh --seed (CUIDADO: apaga dados)
+php artisan test           # Rodar testes
+./vendor/bin/pint          # Formatador Laravel Pint
+```
 
 ## Estrutura do Projeto
 
--   `app/` - Lógica de negócio (Controllers, Models, Services, etc)
--   `resources/views/` - Templates Blade (HTML)
--   `resources/js/` - Componentes e lógica Vue 3
--   `public/` - Assets públicos (CSS, JS, imagens)
--   `routes/` - Rotas do sistema
--   `database/` - Migrations, seeders, factories
+```
+app/
+  Controllers/         # 15 web + 8 API controllers
+  Models/              # 23 models
+  Policies/            # 10 policies
+  Observers/           # 6 observers
+  Mail/                # UserCreatedMail, UserUpdatedMail, UserDeletedMail
+  Services/            # ChecklistService, OverviewService
+resources/
+  views/
+    layouts/           # app.blade.php (sidebar layout)
+    emails/            # Templates de e-mail (layout limpo institucional)
+    components/        # Blade components reutilizaveis
+  js/components/       # 9 Vue components
+  js/composables/      # 9 composables
+  sass/                # SCSS (config, variables, buttons, custom)
+public/css/            # app.css (compilado), custom.css, typography.css
+docs/                  # 20 arquivos de documentacao
+tests/                 # 20 testes (Feature + Unit)
+```
 
-## Instalação e Uso
+## Design System
 
-1. Clone o repositório
-2. Instale as dependências PHP e JS:
-    ```
-    composer install
-    npm install
-    ```
-3. Configure o `.env` e gere a chave:
-    ```
-    cp .env.example .env
-    php artisan key:generate
-    ```
-4. Execute as migrations e seeders:
-    ```
-    php artisan migrate --seed
-    ```
-5. Compile os assets:
-    ```
-    npm run dev
-    ```
-6. Inicie o servidor:
-    ```
-    php artisan serve
-    ```
+- **Fonte:** Nunito (Google Fonts), base 16px (1rem)
+- **Cor primaria:** Rosa `#AD6E9B`
+- **Botoes:** Sistema padronizado em `_buttons.scss` (paleta clinica/institucional)
+- **E-mails:** Templates limpos com header rosa, corpo neutro, sem emojis
+- **PDF:** DejaVu Sans (requisito DomPDF)
 
-## Licença
+## Documentacao
+
+Documentacao detalhada em `docs/` e `CLAUDE.md`.
+
+## Licenca
 
 MIT

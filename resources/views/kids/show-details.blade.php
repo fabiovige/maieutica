@@ -30,7 +30,7 @@
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-clipboard-check"></i> Últimos Checklists</h5>
+                        <h3 class="card-title-custom mb-0"><i class="bi bi-clipboard-check"></i> Últimos Checklists</h3>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">

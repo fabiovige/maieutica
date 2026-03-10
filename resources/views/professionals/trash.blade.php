@@ -33,16 +33,16 @@
             <i class="bi bi-trash"></i> Nenhum profissional na lixeira.
         </div>
     @else
-        <table class="table table-bordered mt-3">
-            <thead>
+        <table class="table table-bordered table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
                 <tr>
                     <th style="width: 60px;" class="text-center">ID</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Especialidade</th>
-                    <th>Registro</th>
-                    <th style="width: 180px;">Excluído em</th>
-                    <th class="text-center" style="width: 120px;">Ações</th>
+                    <th>NOME</th>
+                    <th>EMAIL</th>
+                    <th>ESPECIALIDADE</th>
+                    <th>REGISTRO</th>
+                    <th style="width: 180px;">EXCLUÍDO EM</th>
+                    <th class="text-center" style="width: 80px;">AÇÕES</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,11 +62,17 @@
                         </td>
                         <td class="text-center">
                             @can('professional-edit')
-                                <button type="button" class="btn btn-sm btn-success btn-restore"
-                                    data-professional-id="{{ $professional->id }}"
-                                    data-professional-name="{{ $professional->user->first()->name ?? 'Profissional' }}">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Restaurar
-                                </button>
+                                @component('components.table-actions')
+                                    @slot('items')
+                                        <li>
+                                            <button type="button" class="dropdown-item text-success btn-restore"
+                                                data-professional-id="{{ $professional->id }}"
+                                                data-professional-name="{{ $professional->user->first()->name ?? 'Profissional' }}">
+                                                Restaurar
+                                            </button>
+                                        </li>
+                                    @endslot
+                                @endcomponent
                             @endcan
                         </td>
                     </tr>
@@ -74,7 +80,7 @@
             </tbody>
         </table>
 
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-end mt-3">
             {{ $professionals->links() }}
         </div>
     @endif

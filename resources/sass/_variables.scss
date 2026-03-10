@@ -2,10 +2,8 @@
 @use 'config' as *;
 @use "bootstrap/scss/bootstrap" as bootstrap;
 
-// Typography
-$font-family-sans-serif: 'Nunito', sans-serif !default;
-$font-size-base: 0.9rem !default;
-$line-height-base: 1.6 !default;
+// Typography (font-family e font-size-base definidos em _config.scss)
+$line-height-base: 1.5 !default;
 
 // Colors
 $body-bg: #fff !default;

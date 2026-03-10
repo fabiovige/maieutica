@@ -33,16 +33,16 @@
             <i class="bi bi-trash"></i> Nenhum usuário na lixeira.
         </div>
     @else
-        <table class="table table-bordered mt-3">
-            <thead>
+        <table class="table table-bordered table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
                 <tr>
                     <th style="width: 60px;" class="text-center">ID</th>
-                    <th style="width: 80px;" class="text-center">Avatar</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Perfil</th>
-                    <th style="width: 180px;">Excluído em</th>
-                    <th class="text-center" style="width: 120px;">Ações</th>
+                    <th style="width: 80px;" class="text-center">AVATAR</th>
+                    <th>NOME</th>
+                    <th>EMAIL</th>
+                    <th>PERFIL</th>
+                    <th style="width: 180px;">EXCLUÍDO EM</th>
+                    <th class="text-center" style="width: 80px;">AÇÕES</th>
                 </tr>
             </thead>
             <tbody>
@@ -82,11 +82,17 @@
                         </td>
                         <td class="text-center">
                             @can('restore', $user)
-                                <button type="button" class="btn btn-sm btn-success btn-restore"
-                                    data-user-id="{{ $user->id }}"
-                                    data-user-name="{{ $user->name }}">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Restaurar
-                                </button>
+                                @component('components.table-actions')
+                                    @slot('items')
+                                        <li>
+                                            <button type="button" class="dropdown-item btn-restore"
+                                                data-user-id="{{ $user->id }}"
+                                                data-user-name="{{ $user->name }}">
+                                                Restaurar
+                                            </button>
+                                        </li>
+                                    @endslot
+                                @endcomponent
                             @endcan
                         </td>
                     </tr>
@@ -94,7 +100,7 @@
             </tbody>
         </table>
 
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-end mt-3">
             {{ $users->links() }}
         </div>
     @endif

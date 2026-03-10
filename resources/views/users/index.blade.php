@@ -65,16 +65,16 @@
             Nenhum usuário encontrado.
         </div>
     @else
-        <table class="table table-bordered mt-3">
-            <thead>
+        <table class="table table-bordered table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
                 <tr>
                     <th style="width: 60px;" class="text-center">ID</th>
-                    <th style="width: 80px;" class="text-center">Avatar</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Perfil</th>
-                    <th style="width: 150px;" class="text-center">Status</th>
-                    <th class="text-center" style="width: 100px;">Ações</th>
+                    <th style="width: 80px;" class="text-center">AVATAR</th>
+                    <th>NOME</th>
+                    <th>EMAIL</th>
+                    <th>PERFIL</th>
+                    <th style="width: 150px;" class="text-center">STATUS</th>
+                    <th class="text-center" style="width: 100px;">AÇÕES</th>
                 </tr>
             </thead>
             <tbody>
@@ -119,41 +119,23 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <div class="dropdown">
-                                <button
-                                    class="btn btn-sm btn-secondary dropdown-toggle"
-                                    type="button"
-                                    id="dropdownMenuButton{{ $user->id }}"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    Ações
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $user->id }}">
+                            @component('components.table-actions')
+                                @slot('items')
                                     @can('user-show')
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('users.show', $user->id) }}">
-                                            <i class="bi bi-eye"></i> Visualizar
-                                        </a>
-                                    </li>
+                                        <li><a class="dropdown-item" href="{{ route('users.show', $user->id) }}">Visualizar</a></li>
                                     @endcan
-
                                     @can('user-edit')
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
-                                            <i class="bi bi-pencil"></i> Editar
-                                        </a>
-                                    </li>
+                                        <li><a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">Editar</a></li>
                                     @endcan
-                                </ul>
-                            </div>
+                                @endslot
+                            @endcomponent
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-end mt-3">
             {{ $users->appends(request()->query())->links() }}
         </div>
     @endif

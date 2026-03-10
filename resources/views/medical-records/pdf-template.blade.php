@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-    <h3 style="margin-top: 20px; margin-bottom: 15px; font-size: 14px;">1. IDENTIFICAÇÃO</h3>
+    <h3 class="pdf-section-title">1. IDENTIFICAÇÃO</h3>
     <p style="margin-bottom: 5px;"><strong>Nome do Paciente:</strong> {{ $record->patient_name ?? 'N/D' }}</p>
     <p style="margin-bottom: 5px;"><strong>Tipo de Paciente:</strong>
         @if(isset($record->patient_type) && $record->patient_type === 'App\Models\Kid')
@@ -18,18 +18,18 @@
     </p>
     <p style="margin-bottom: 15px;"><strong>Data da Sessão:</strong> {{ $record->session_date ?? 'N/D' }}</p>
 
-    <h3 style="margin-top: 25px; margin-bottom: 15px; font-size: 14px;">2. DEMANDA / QUEIXA</h3>
-    <p style="text-align: justify;">
+    <h3 class="pdf-section-title">2. DEMANDA / QUEIXA</h3>
+    <p class="pdf-text">
         {!! nl2br(e($record->complaint ?? '')) !!}
     </p>
 
-    <h3 style="margin-top: 25px; margin-bottom: 15px; font-size: 14px;">3. OBJETIVO / TÉCNICA UTILIZADA</h3>
-    <p style="text-align: justify;">
+    <h3 class="pdf-section-title">3. OBJETIVO / TÉCNICA UTILIZADA</h3>
+    <p class="pdf-text">
         {!! nl2br(e($record->objective_technique ?? '')) !!}
     </p>
 
-    <h3 style="margin-top: 25px; margin-bottom: 15px; font-size: 14px;">4. REGISTRO DE EVOLUÇÃO</h3>
-    <p style="text-align: justify;">
+    <h3 class="pdf-section-title">4. REGISTRO DE EVOLUÇÃO</h3>
+    <p class="pdf-text">
         {!! nl2br(e($record->evolution_notes ?? '')) !!}
     </p>
 
@@ -38,8 +38,8 @@
     @endphp
 
     @if($referralClosure)
-        <h3 style="margin-top: 25px; margin-bottom: 15px; font-size: 14px;">5. ENCAMINHAMENTO / ENCERRAMENTO</h3>
-        <p style="text-align: justify;">
+        <h3 class="pdf-section-title">5. ENCAMINHAMENTO / ENCERRAMENTO</h3>
+        <p class="pdf-text">
             {!! nl2br(e($referralClosure)) !!}
         </p>
     @endif

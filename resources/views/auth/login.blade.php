@@ -163,8 +163,8 @@
         .form-control:focus {
             outline: none;
             background: #ffffff;
-            border-color: #4aa4ee;
-            box-shadow: 0 0 0 4px rgba(74, 164, 238, 0.08);
+            border-color: #AD6E9B;
+            box-shadow: 0 0 0 4px rgba(173, 110, 155, 0.08);
         }
 
         .form-control::placeholder {
@@ -198,12 +198,12 @@
         }
 
         .form-check-input:checked {
-            background-color: #4aa4ee;
-            border-color: #4aa4ee;
+            background-color: #AD6E9B;
+            border-color: #AD6E9B;
         }
 
         .form-check-input:focus {
-            box-shadow: 0 0 0 4px rgba(74, 164, 238, 0.08);
+            box-shadow: 0 0 0 4px rgba(173, 110, 155, 0.08);
         }
 
         .form-check-label {
@@ -216,20 +216,20 @@
 
         .forgot-link {
             font-size: 14px;
-            color: #4aa4ee;
+            color: #AD6E9B;
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s ease;
         }
 
         .forgot-link:hover {
-            color: #3286ca;
+            color: #844773;
         }
 
         .btn-login {
             width: 100%;
             height: 48px;
-            background: linear-gradient(135deg, #4aa4ee 0%, #3d9ce0 100%);
+            background: linear-gradient(135deg, #AD6E9B 0%, #9A5D88 100%);
             color: #ffffff;
             font-size: 15px;
             font-weight: 600;
@@ -241,9 +241,9 @@
         }
 
         .btn-login:hover {
-            background: linear-gradient(135deg, #3d9ce0 0%, #3286ca 100%);
+            background: linear-gradient(135deg, #9A5D88 0%, #844773 100%);
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(74, 164, 238, 0.25);
+            box-shadow: 0 6px 16px rgba(173, 110, 155, 0.25);
         }
 
         .btn-login:active {

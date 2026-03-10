@@ -69,14 +69,14 @@
 
     /* Estilo para badges de profissionais */
     .badge.bg-info {
-        font-size: 0.75rem;
+        font-size: var(--fs-xs);
         padding: 0.35em 0.5em;
     }
 
     /* Responsividade melhorada */
     @media (max-width: 767px) {
         .kid-card .card-footer .btn {
-            font-size: 0.875rem;
+            font-size: var(--fs-base);
             padding: 0.375rem 0.5rem;
         }
     }
@@ -174,16 +174,16 @@
             <div class="card">
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-striped align-middle mb-0">
+                        <table class="table table-bordered table-hover table-striped align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="text-center" style="width: 80px;">Foto</th>
-                                    <th>Nome</th>
-                                    <th>Idade</th>
-                                    <th>Responsável</th>
-                                    <th>Profissionais</th>
-                                    <th style="width: 150px;">Progresso</th>
-                                    <th class="text-end" style="width: 280px;">Ações</th>
+                                    <th class="text-center" style="width: 80px;">FOTO</th>
+                                    <th>NOME</th>
+                                    <th>IDADE</th>
+                                    <th>RESPONSÁVEL</th>
+                                    <th>PROFISSIONAIS</th>
+                                    <th style="width: 150px;">PROGRESSO</th>
+                                    <th class="text-center" style="width: 120px;">AÇÕES</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -201,7 +201,7 @@
                                             @else
                                                 <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center"
                                                      style="width: 50px; height: 50px;">
-                                                    <i class="bi bi-person text-white" style="font-size: 1.5rem;"></i>
+                                                    <i class="bi bi-person text-white fs-xl"></i>
                                                 </div>
                                             @endif
                                         </td>
@@ -255,46 +255,24 @@
                                         </td>
 
                                         <!-- Ações -->
-                                        <td class="text-end">
-                                            <div class="btn-group btn-group-sm gap-1" role="group">
-                                                @if(auth()->user()->can('kid-show') || auth()->user()->id === $kid->responsible_id)
-                                                    <a href="{{ route('kids.show', $kid->id) }}"
-                                                       class="btn btn-primary btn-sm"
-                                                       title="Visualizar">
-                                                        <i class="bi bi-eye"></i>
-                                                    </a>
-                                                @endif
-
-                                                @can('kid-edit')
-                                                    <a href="{{ route('kids.edit', $kid->id) }}"
-                                                       class="btn btn-warning btn-sm"
-                                                       title="Editar">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                @endcan
-
-                                                @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
-                                                    <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}"
-                                                       class="btn btn-success btn-sm"
-                                                       title="Checklists">
-                                                        <i class="bi bi-card-checklist"></i>
-                                                    </a>
-                                                @endif
-
-                                                @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
-                                                    <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}"
-                                                       class="btn btn-purple btn-sm"
-                                                       title="Comparativo">
-                                                        <i class="bi bi-clipboard-data"></i>
-                                                    </a>
-
-                                                    <a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}"
-                                                       class="btn btn-orange btn-sm"
-                                                       title="Desenvolvimento">
-                                                        <i class="bi bi-bar-chart"></i>
-                                                    </a>
-                                                @endif
-                                            </div>
+                                        <td class="text-center">
+                                            @component('components.table-actions')
+                                                @slot('items')
+                                                    @if(auth()->user()->can('kid-show') || auth()->user()->id === $kid->responsible_id)
+                                                        <li><a href="{{ route('kids.show', $kid->id) }}" class="dropdown-item">Visualizar</a></li>
+                                                    @endif
+                                                    @can('kid-edit')
+                                                        <li><a href="{{ route('kids.edit', $kid->id) }}" class="dropdown-item">Editar</a></li>
+                                                    @endcan
+                                                    @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
+                                                        <li><a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}" class="dropdown-item">Checklists</a></li>
+                                                    @endif
+                                                    @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
+                                                        <li><a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}" class="dropdown-item">Comparativo</a></li>
+                                                        <li><a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}" class="dropdown-item">Desenvolvimento</a></li>
+                                                    @endif
+                                                @endslot
+                                            @endcomponent
                                         </td>
                                     </tr>
                                 @endforeach
@@ -323,13 +301,13 @@
                                     @else
                                         <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center"
                                              style="width: 100px; height: 100px;">
-                                            <i class="bi bi-person text-white" style="font-size: 3rem;"></i>
+                                            <i class="bi bi-person text-white fs-3xl"></i>
                                         </div>
                                     @endif
                                 </div>
 
                                 <!-- Nome e Idade -->
-                                <h5 class="card-title mb-2 fw-bold">{{ $kid->name }}</h5>
+                                <h3 class="card-title card-title-custom mb-2">{{ $kid->name }}</h3>
                                 <span class="badge bg-info mb-3">
                                     <i class="bi bi-calendar"></i> {{ $kid->age ?? 'N/D' }}
                                 </span>
@@ -437,7 +415,7 @@
                                                 <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}"
                                                    class="btn btn-success btn-sm w-100"
                                                    title="Ver checklists">
-                                                    <i class="bi bi-card-checklist"></i>
+                                                    <i class="bi bi-card-checklist"></i> Checklists
                                                 </a>
                                             </div>
                                         @endif
@@ -447,7 +425,7 @@
                                                 <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}"
                                                    class="btn btn-purple btn-sm w-100"
                                                    title="Comparativo">
-                                                    <i class="bi bi-clipboard-data"></i>
+                                                    <i class="bi bi-clipboard-data"></i> Comparativo
                                                 </a>
                                             </div>
 
@@ -455,7 +433,7 @@
                                                 <a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}"
                                                    class="btn btn-orange btn-sm w-100"
                                                    title="Desenvolvimento">
-                                                    <i class="bi bi-bar-chart"></i>
+                                                    <i class="bi bi-bar-chart"></i> Desenvolvimento
                                                 </a>
                                             </div>
                                         @endif

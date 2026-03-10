@@ -55,6 +55,7 @@ class UserCreatedMail extends Mailable implements ShouldQueue
             view: 'emails.user_created',
             with: [
                 'user' => $this->user,
+                'password' => $this->password,
             ]
         );
     }

@@ -45,10 +45,10 @@
                             {{ competence.description }}
                         </td>
                         <td class="customColumn">
-                            <h5 v-if="competence.note === 0"><span class="badge bg-light text-dark customColumn">Não desenvolvido</span></h5>
-                            <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Em desenvolvimento</span></h5>
-                            <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Parcialmente desenvolvido</span></h5>
-                            <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Desenvolvido</span></h5>
+                            <span v-if="competence.note === 0" class="badge bg-light text-dark customColumn">Não desenvolvido</span>
+                            <span v-if="competence.note === 1" class="badge bg-warning text-dark customColumn">Em desenvolvimento</span>
+                            <span v-if="competence.note === 2" class="badge bg-danger customColumn">Parcialmente desenvolvido</span>
+                            <span v-if="competence.note === 3" class="badge bg-primary customColumn">Desenvolvido</span>
                         </td>
                     </tr>
                     </tbody>
@@ -114,15 +114,15 @@
                                     <td style="width:300px !important;">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h5 :style="{ color: getStatusColor(competence) }">
+                                                <span class="fw-semibold" :style="{ color: getStatusColor(competence) }">
                                                     {{ getStatus(competence) }}
-                                                </h5>
+                                                </span>
                                             </div>
                                             <div>
-                                                <h5 v-if="competence.note === 0"><span class="badge bg-light text-dark customColumn">Não observado</span></h5>
-                                                <h5 v-if="competence.note === 1"><span class="badge bg-warning text-dark customColumn">Em desenvolvimento</span></h5>
-                                                <h5 v-if="competence.note === 2"><span class="badge bg-danger customColumn">Não desenvolvido</span></h5>
-                                                <h5 v-if="competence.note === 3"><span class="badge bg-primary customColumn">Desenvolvido</span></h5>
+                                                <span v-if="competence.note === 0" class="badge bg-light text-dark customColumn">Não observado</span>
+                                                <span v-if="competence.note === 1" class="badge bg-warning text-dark customColumn">Em desenvolvimento</span>
+                                                <span v-if="competence.note === 2" class="badge bg-danger customColumn">Não desenvolvido</span>
+                                                <span v-if="competence.note === 3" class="badge bg-primary customColumn">Desenvolvido</span>
                                             </div>
                                         </div>
                                     </td>
@@ -275,11 +275,11 @@ export default {
 
 .customLink {
     text-decoration: none;
-    color: #0c0c0c;
+    color: var(--text-body);
 }
 
 .customLink:hover {
-    color: #0a53be;
+    color: var(--color-primary-darker);
 }
 
 .mousePointer {
