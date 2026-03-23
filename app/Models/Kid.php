@@ -226,12 +226,32 @@ class Kid extends BaseModel
     }
 
     /**
+     * Scope para filtrar crianças elegíveis ao Denver (até 6 anos).
+     */
+    public function scopeDenverEligible(Builder $query)
+    {
+        return $query->whereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) <= 6');
+    }
+
+    /**
+     * Retorna kids elegíveis ao Denver com base nas permissions do usuário autenticado.
+     */
+    public static function getDenverEligibleKids()
+    {
+        return self::getKids(denverOnly: true);
+    }
+
+    /**
      * Retorna kids com base nas permissions do usuário autenticado.
      * Usa permissions ao invés de roles.
      */
-    public static function getKids()
+    public static function getKids(bool $denverOnly = false)
     {
         $query = Kid::query();
+
+        if ($denverOnly) {
+            $query->denverEligible();
+        }
 
         // Usuários com permissão *-all veem todos os kids
         if (auth()->user()->can('kid-list-all')) {

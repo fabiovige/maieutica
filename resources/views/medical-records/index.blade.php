@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('title')
-    Prontuários Médicos
+    Prontuários
 @endsection
 
 @section('breadcrumb-items')
     <li class="breadcrumb-item active" aria-current="page">
-        <i class="bi bi-file-medical"></i> Prontuários Médicos
+        <i class="bi bi-file-medical"></i> Prontuários
     </li>
 @endsection
 
@@ -48,42 +48,17 @@
                     </div>
                 @endcan
 
-                {{-- Tipo de Paciente --}}
-                <div class="col-md-2">
-                    <label for="patient_type" class="form-label">Tipo Paciente</label>
-                    <select name="patient_type" id="patient_type" class="form-select select2" data-placeholder="Todos os tipos">
-                        <option value="">Todos</option>
-                        <option value="App\Models\Kid" {{ request('patient_type') === 'App\Models\Kid' ? 'selected' : '' }}>Criança</option>
-                        <option value="App\Models\User" {{ request('patient_type') === 'App\Models\User' ? 'selected' : '' }}>Adulto</option>
-                    </select>
-                </div>
-
                 {{-- Paciente --}}
                 <div class="col-md-3">
                     <label for="patient_id" class="form-label">Paciente</label>
-                    <div class="position-relative">
-                        <select name="patient_id" id="patient_id" class="form-select select2" data-placeholder="Todos os pacientes">
-                            <option value="">Todos</option>
-                            @if(request('patient_type') === 'App\Models\Kid')
-                                @foreach($kids as $kid)
-                                    <option value="{{ $kid->id }}" {{ request('patient_id') == $kid->id ? 'selected' : '' }}>
-                                        {{ $kid->name }}
-                                    </option>
-                                @endforeach
-                            @elseif(request('patient_type') === 'App\Models\User')
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ request('patient_id') == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }}
-                                    </option>
-                                @endforeach
-                            @endif
-                        </select>
-                        <div id="patient-loading" class="position-absolute top-50 end-0 translate-middle-y pe-3" style="display: none;">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                <span class="visually-hidden">Carregando...</span>
-                            </div>
-                        </div>
-                    </div>
+                    <select name="patient_id" id="patient_id" class="form-select select2" data-placeholder="Todos os pacientes">
+                        <option value="">Todos</option>
+                        @foreach($kids as $kid)
+                            <option value="{{ $kid->id }}" {{ request('patient_id') == $kid->id ? 'selected' : '' }}>
+                                {{ $kid->name }} ({{ $kid->age ?? 'N/D' }})
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 {{-- Data Início --}}
@@ -113,7 +88,7 @@
                         <button type="submit" class="btn btn-primary flex-fill">
                             <i class="bi bi-search"></i> Buscar
                         </button>
-                        @if(request()->hasAny(['professional_id', 'patient_type', 'patient_id', 'date_start', 'date_end', 'search']))
+                        @if(request()->hasAny(['professional_id', 'patient_id', 'date_start', 'date_end', 'search']))
                             <a href="{{ route('medical-records.index') }}" class="btn btn-secondary" title="Limpar filtros">
                                 <i class="bi bi-x-lg"></i>
                             </a>
@@ -143,7 +118,6 @@
                         <thead class="table-light">
                             <tr>
                                 <th>DATA</th>
-                                <th>TIPO</th>
                                 <th>PACIENTE</th>
                                 <th>PROFISSIONAL</th>
                                 <th>CRIADO EM</th>
@@ -155,21 +129,15 @@
                                 <tr>
                                     {{-- Data da Sessão --}}
                                     <td>
-                                        <span class="badge bg-info">{{ $record->session_date }}</span>
+                                        <span class="badge bg-info">{{ $record->session_date ? $record->session_date->format('d/m/Y') : 'N/D' }}</span>
                                     </td>
 
-                                    {{-- Tipo de Paciente --}}
-                                    <td>
-                                        @if($record->patient_type === 'App\Models\Kid')
-                                            <span class="badge bg-info">Criança</span>
-                                        @else
-                                            <span class="badge bg-secondary">Adulto</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Nome do Paciente --}}
+                                    {{-- Nome do Paciente com idade --}}
                                     <td>
                                         <strong>{{ $record->patient_name }}</strong>
+                                        @if($record->patient && $record->patient_type === 'App\Models\Kid')
+                                            <br><small class="text-muted">{{ $record->patient->age ?? '' }}</small>
+                                        @endif
                                     </td>
 
                                     {{-- Profissional --}}
@@ -224,53 +192,3 @@
     @endif
 
 @endsection
-
-@push('scripts')
-<script>
-    $(document).ready(function() {
-        // Dados dos pacientes (Kids e Users)
-        const kids = @json($kids);
-        const users = @json($users);
-
-        // Atualizar dropdown de pacientes quando tipo mudar
-        $('#patient_type').on('change', function() {
-            const patientType = $(this).val();
-            const $patientSelect = $('#patient_id');
-            const $loading = $('#patient-loading');
-
-            // Mostrar loading
-            $loading.show();
-
-            // Desabilitar select durante carregamento
-            $patientSelect.prop('disabled', true);
-
-            // Simular pequeno delay para UX (usuário ver o loading)
-            setTimeout(function() {
-                // Limpar opções atuais (exceto "Todos")
-                $patientSelect.find('option:not(:first)').remove();
-
-                if (patientType === 'App\\Models\\Kid') {
-                    kids.forEach(function(kid) {
-                        $patientSelect.append(
-                            $('<option></option>').val(kid.id).text(kid.name)
-                        );
-                    });
-                } else if (patientType === 'App\\Models\\User') {
-                    users.forEach(function(user) {
-                        $patientSelect.append(
-                            $('<option></option>').val(user.id).text(user.name)
-                        );
-                    });
-                }
-
-                // Ocultar loading e reabilitar select
-                $loading.hide();
-                $patientSelect.prop('disabled', false);
-
-                // Reinicializar Select2 após mudar opções
-                $patientSelect.trigger('change.select2');
-            }, 300);
-        });
-    });
-</script>
-@endpush

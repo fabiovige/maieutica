@@ -46,15 +46,10 @@ class MedicalRecordsController extends Controller
             });
         }
 
-        // Filter by patient type
-        if ($request->filled('patient_type')) {
-            $query->where('patient_type', $request->patient_type);
-        }
-
-        // Filter by specific patient
-        if ($request->filled('patient_id') && $request->filled('patient_type')) {
+        // Filter by specific patient (always Kid type since all patients are in kids table)
+        if ($request->filled('patient_id')) {
             $query->where('patient_id', $request->patient_id)
-                  ->where('patient_type', $request->patient_type);
+                  ->where('patient_type', Kid::class);
         }
 
         // Filter by date range
@@ -107,9 +102,8 @@ class MedicalRecordsController extends Controller
         // Get data for filters
         $professionals = $this->getProfessionalsForFilter();
         $kids = $this->getKidsForUser();
-        $users = $this->getUserPatientsForUser();
 
-        return view('medical-records.index', compact('medicalRecords', 'professionals', 'kids', 'users'));
+        return view('medical-records.index', compact('medicalRecords', 'professionals', 'kids'));
     }
 
     /**
@@ -120,10 +114,9 @@ class MedicalRecordsController extends Controller
         $this->authorize('create', MedicalRecord::class);
 
         $kids = $this->getKidsForUser();
-        $users = $this->getUserPatientsForUser();
         $professionals = $this->getProfessionalsForFilter();
 
-        return view('medical-records.create', compact('kids', 'users', 'professionals'));
+        return view('medical-records.create', compact('kids', 'professionals'));
     }
 
     /**
@@ -199,11 +192,19 @@ class MedicalRecordsController extends Controller
             $medicalRecord->patient->load(['responsible', 'professionals.user']);
         }
 
+        // Load other medical records for this patient (continuity)
+        $patientRecords = MedicalRecord::where('patient_type', $medicalRecord->patient_type)
+            ->where('patient_id', $medicalRecord->patient_id)
+            ->where('id', '!=', $medicalRecord->id)
+            ->currentVersion()
+            ->orderBy('session_date', 'desc')
+            ->get();
+
         $this->medicalRecordLogger->viewed($medicalRecord, [
             'source' => 'controller',
         ]);
 
-        return view('medical-records.show', compact('medicalRecord'));
+        return view('medical-records.show', compact('medicalRecord', 'patientRecords'));
     }
 
     /**
@@ -214,9 +215,8 @@ class MedicalRecordsController extends Controller
         $this->authorize('update', $medicalRecord);
 
         $kids = $this->getKidsForUser();
-        $users = $this->getUserPatientsForUser();
 
-        return view('medical-records.edit', compact('medicalRecord', 'kids', 'users'));
+        return view('medical-records.edit', compact('medicalRecord', 'kids'));
     }
 
     /**
@@ -286,9 +286,8 @@ class MedicalRecordsController extends Controller
         }
 
         $kids = $this->getKidsForUser();
-        $users = $this->getUserPatientsForUser();
 
-        return view('medical-records.new-version', compact('medicalRecord', 'kids', 'users'));
+        return view('medical-records.new-version', compact('medicalRecord', 'kids'));
     }
 
     /**
@@ -584,6 +583,38 @@ class MedicalRecordsController extends Controller
         $filename = "prontuario_{$patientName}_{$date}.pdf";
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Get patient history via AJAX (for create form).
+     */
+    public function patientHistory(Request $request)
+    {
+        $this->authorize('create', MedicalRecord::class);
+
+        $patientId = $request->input('patient_id');
+        if (!$patientId) {
+            return response()->json([]);
+        }
+
+        $records = MedicalRecord::where('patient_type', Kid::class)
+            ->where('patient_id', $patientId)
+            ->currentVersion()
+            ->with('creator')
+            ->orderBy('session_date', 'desc')
+            ->limit(20)
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'id' => $record->id,
+                    'session_date' => $record->session_date ? $record->session_date->format('d/m/Y') : 'N/D',
+                    'complaint' => \Illuminate\Support\Str::limit($record->complaint, 100),
+                    'creator_name' => $record->creator->name ?? 'N/D',
+                    'url' => route('medical-records.show', $record->id),
+                ];
+            });
+
+        return response()->json($records);
     }
 
     /**

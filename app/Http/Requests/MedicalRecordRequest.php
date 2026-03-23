@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Kid;
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class MedicalRecordRequest extends FormRequest
@@ -17,26 +16,29 @@ class MedicalRecordRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Always set patient_type to Kid since all patients are in kids table
+        $this->merge([
+            'patient_type' => 'App\\Models\\Kid',
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
     {
         $rules = [
-            'patient_type' => 'required|in:App\\Models\\Kid,App\\Models\\User',
+            'patient_type' => 'required|in:App\\Models\\Kid',
             'patient_id' => [
                 'required',
                 'integer',
-                // Conditional validation: checks if ID exists in corresponding table
                 function ($attribute, $value, $fail) {
-                    $type = $this->input('patient_type');
-                    if ($type === 'App\\Models\\Kid') {
-                        if (!Kid::find($value)) {
-                            $fail('O paciente (criança) selecionado não existe.');
-                        }
-                    } elseif ($type === 'App\\Models\\User') {
-                        if (!User::find($value)) {
-                            $fail('O paciente (adulto) selecionado não existe.');
-                        }
+                    if (!Kid::find($value)) {
+                        $fail('O paciente selecionado não existe.');
                     }
                 },
             ],
@@ -80,8 +82,6 @@ class MedicalRecordRequest extends FormRequest
         return [
             'professional_id.required' => 'O profissional é obrigatório.',
             'professional_id.exists' => 'O profissional selecionado não existe.',
-            'patient_type.required' => 'O tipo de paciente é obrigatório.',
-            'patient_type.in' => 'Tipo de paciente inválido.',
             'patient_id.required' => 'O paciente é obrigatório.',
             'patient_id.integer' => 'ID do paciente deve ser um número.',
             'session_date.required' => 'A data da sessão é obrigatória.',
@@ -96,4 +96,3 @@ class MedicalRecordRequest extends FormRequest
         ];
     }
 }
-

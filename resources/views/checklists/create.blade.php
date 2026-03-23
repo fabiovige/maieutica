@@ -24,11 +24,11 @@
                         <div class="form-group">
                             <div class="row">
                                 <div class="col">
-                                        <label for="kid_id">Criança</label> <br>
-                                        <select class="form-select @error('level') is-invalid @enderror" aria-label="level" name="kid_id">
+                                        <label for="kid_id">Criança <small class="text-muted">(até 6 anos - Denver)</small></label> <br>
+                                        <select class="form-select @error('kid_id') is-invalid @enderror" aria-label="kid_id" name="kid_id">
                                             <option value="">-- selecione --</option>
                                             @foreach($kids as $kid)
-                                                <option value="{{ $kid->id }}" @if(old('kid_id') == $kid->id ) selected @endif> {{  $kid->name }} </option>
+                                                <option value="{{ $kid->id }}" @if(old('kid_id') == $kid->id ) selected @endif> {{ $kid->name }} ({{ $kid->age ?? 'N/D' }}) </option>
                                             @endforeach
                                         </select>
                                         @error('kid_id')

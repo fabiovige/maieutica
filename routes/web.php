@@ -147,6 +147,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('medical-records/trash', [MedicalRecordsController::class, 'trash'])->name('medical-records.trash');
     Route::post('medical-records/{id}/restore', [MedicalRecordsController::class, 'restore'])->name('medical-records.restore');
     Route::get('medical-records/{medicalRecord}/pdf', [MedicalRecordsController::class, 'downloadPdf'])->name('medical-records.pdf');
+    Route::get('medical-records/patient-history', [MedicalRecordsController::class, 'patientHistory'])->name('medical-records.patient-history');
+    Route::get('medical-records/{medicalRecord}/history', [MedicalRecordsController::class, 'history'])->name('medical-records.history');
     Route::resource('medical-records', MedicalRecordsController::class);
 
     // Releases

@@ -104,7 +104,7 @@ class ChecklistController extends Controller
     {
         $this->authorize('create', Checklist::class);
 
-        $kids = Kid::getKids();
+        $kids = Kid::getDenverEligibleKids();
 
         return view('checklists.create', compact('kids'));
     }

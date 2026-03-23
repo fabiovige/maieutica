@@ -2,11 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\Kid;
+use App\Models\Checklist;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ChecklistFactory extends Factory
 {
+    protected $model = Checklist::class;
+
     /**
      * Define the model's default state.
      *
@@ -14,10 +16,9 @@ class ChecklistFactory extends Factory
      */
     public function definition()
     {
-        $user = Kid::pluck('id');
-
         return [
-            'kid_id' => $user->random(),
+            'level' => $this->faker->randomElement([1, 2, 3, 4]),
+            'situation' => 'a',
         ];
     }
 }
