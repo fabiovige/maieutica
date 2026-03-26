@@ -217,5 +217,37 @@ class ReleaseSeeder extends Seeder
                 ],
             ]
         );
+        // Marco 2026 - v2.5.0
+        Release::updateOrCreate(
+            ['version' => 'v2.5.0'],
+            [
+                'title' => 'Conselho Profissional Dinamico',
+                'release_date' => '2026-03-26',
+                'description' => 'Substituicao do CRP hardcoded pelo conselho correto de cada profissional em todo o sistema: prontuarios, CRUD de profissionais e PDFs gerados.',
+                'items' => [
+                    'features' => [
+                        'Coluna council na tabela professionals (migration) para armazenar o conselho escolhido',
+                        'Constante Professional::COUNCILS com todos os conselhos (CRP, CREFITO, CRFa, CRM, COREN, CREF, CRN, CRESS, ABPp, UBM)',
+                        'Accessor councilLabel: usa valor salvo, com fallback automatico pela especialidade',
+                        'Accessor fullRegistration: concatena conselho + numero (ex: CREFITO: 3/313080-F)',
+                        'Dropdown de Conselho separado do campo Numero de Registro nos formularios de criar e editar profissional',
+                    ],
+                    'bugs' => [
+                        'CRP hardcoded removido dos PDFs: pdf-base (assinatura), modelo3, modelo4, modelo5, modelo6',
+                        'CRP hardcoded removido dos formularios de documentos: form-modelo3, form-modelo4, form-modelo5',
+                        'CRM hardcoded removido das views kids/create e kids/edit',
+                        'Prontuarios (index, show, edit): exibem conselho correto de acordo com a especialidade do profissional',
+                        'Listagem e lixeira de profissionais: coluna Registro exibe conselho + numero',
+                    ],
+                ],
+                'commits' => [
+                    ['hash' => '1bc2307', 'message' => 'feat: exibir conselho profissional correto nos prontuarios por especialidade'],
+                    ['hash' => 'daa77f2', 'message' => 'feat: exibir conselho profissional correto no CRUD de profissionais'],
+                    ['hash' => '29c189e', 'message' => 'feat: dropdown de conselho profissional no CRUD de profissionais'],
+                    ['hash' => '65554b1', 'message' => 'feat: accessor full_registration no Professional'],
+                    ['hash' => 'b9c339a', 'message' => 'fix: remover CRP hardcoded dos PDFs e formularios de documentos'],
+                ],
+            ]
+        );
     }
 }
