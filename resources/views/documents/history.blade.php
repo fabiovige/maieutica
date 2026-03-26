@@ -83,7 +83,7 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover table-striped align-middle mb-0">
-                        <thead class="table-dark">
+                        <thead class="table-light">
                             <tr>
                                 <th style="width: 60px;" class="text-center">ID</th>
                                 <th>TIPO</th>
