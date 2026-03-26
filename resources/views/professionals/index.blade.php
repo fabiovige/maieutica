@@ -119,7 +119,10 @@
                                 {{ $professional->specialty->name }}
                             </span>
                         </td>
-                        <td>{{ $professional->registration_number }}</td>
+                        <td>
+                            <span class="text-muted fs-xs">{{ $professional->council_label }}</span>
+                            {{ $professional->registration_number }}
+                        </td>
                         <td>
                             <div>{{ $professional->user->first() ? $professional->user->first()->email : 'N/D' }}</div>
                             <small

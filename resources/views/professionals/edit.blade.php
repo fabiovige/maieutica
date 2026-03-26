@@ -97,11 +97,12 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label for="registration_number" class="form-label">Número de Registro</label>
+                                <label for="registration_number" class="form-label" id="registration_number_label">{{ $professional->council_label }} (Número de Registro)</label>
                                 <input type="text"
                                     class="form-control @error('registration_number') is-invalid @enderror"
                                     id="registration_number" name="registration_number"
-                                    value="{{ old('registration_number', $professional->registration_number) }}">
+                                    value="{{ old('registration_number', $professional->registration_number) }}"
+                                    placeholder="Ex: 123456">
                                 @error('registration_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -180,20 +181,36 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            $(document).ready(function() {
+            const councilMap = {
+                'Psicologia': 'CRP', 'Psicopedagogia': 'CRP',
+                'Fisioterapia': 'CREFITO', 'Terapia Ocupacional': 'CREFITO',
+                'Fonoaudiologia': 'CRFa',
+                'Pediatria': 'CRM', 'Neurologia Infantil': 'CRM', 'Psiquiatria Infantil': 'CRM',
+                'Enfermagem Pediátrica': 'COREN',
+                'Educação Física Infantil': 'CREF',
+                'Nutrição Infantil': 'CRN',
+                'Assistência Social': 'CRESS',
+                'Psicomotricidade': 'ABPp',
+                'Musicoterapia': 'UBM',
+            };
+            const specialtyNames = @json($specialties->pluck('name', 'id'));
+
+            function updateCouncilLabel(selectedId) {
+                const name = specialtyNames[selectedId] || '';
+                const council = councilMap[name] || null;
+                const label = document.getElementById('registration_number_label');
+                label.textContent = council ? council + ' (Número de Registro)' : 'Número de Registro';
+            }
+
+        $(document).ready(function() {
                 $('#phone').mask('(00) 00000-0000');
 
-                // Adicionar log para debug
-                $('#professionalForm').on('submit', function(e) {
-                    console.log('Form submitted');
-                });
-
-                // Atualizar descrição da especialidade quando mudar
+                // Atualizar descrição e label do conselho quando mudar especialidade
                 $('#specialty_id').change(function() {
                     const descriptions = @json($specialties->pluck('description', 'id'));
                     const selectedId = $(this).val();
-                    const description = descriptions[selectedId] || '';
-                    $(this).siblings('.form-text').text(description);
+                    $(this).siblings('.form-text').text(descriptions[selectedId] || '');
+                    updateCouncilLabel(selectedId);
                 });
 
                 // Confirmação para mover para lixeira
