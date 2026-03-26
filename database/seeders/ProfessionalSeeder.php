@@ -22,7 +22,7 @@ class ProfessionalSeeder extends Seeder
             [
                 'specialty_id' => $specialty->id,
                 'bio' => 'Uma breve descrição',
-                'created_by' => 1,
+                'created_by' => User::first()->id,
             ]
         );
 

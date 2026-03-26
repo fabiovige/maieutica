@@ -70,6 +70,59 @@
         </div>
     @endif
 
+    <!-- Prontuários -->
+    @if(isset($medicalRecords))
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title-custom mb-0"><i class="bi bi-file-medical"></i> Prontuários</h3>
+                        @can('medical-record-create')
+                            <a href="{{ route('medical-records.create', ['patient_id' => $kid->id]) }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-lg"></i> Novo Prontuário
+                            </a>
+                        @endcan
+                    </div>
+                    <div class="card-body">
+                        @if($medicalRecords->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Data da Sessão</th>
+                                            <th>Demanda</th>
+                                            <th>Profissional</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($medicalRecords as $record)
+                                            <tr>
+                                                <td>
+                                                    <span class="badge bg-info">{{ $record->session_date ? $record->session_date->format('d/m/Y') : 'N/D' }}</span>
+                                                </td>
+                                                <td>{{ \Illuminate\Support\Str::limit($record->complaint, 60) }}</td>
+                                                <td>{{ $record->creator->name ?? 'N/D' }}</td>
+                                                <td>
+                                                    <a href="{{ route('medical-records.show', $record) }}"
+                                                       class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-eye"></i> Ver
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Nenhum prontuário registrado para este paciente.</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Botões de Ação -->
     <div class="row mt-3">
         <div class="col-12">

@@ -237,9 +237,17 @@ class KidsController extends Controller
                 $query->orderBy('created_at', 'desc')->limit(5);
             }]);
 
+            // Load medical records for this patient
+            $medicalRecords = $kid->medicalRecords()
+                ->where('is_current_version', true)
+                ->with('creator')
+                ->orderBy('session_date', 'desc')
+                ->limit(10)
+                ->get();
+
             $this->kidLogger->viewed($kid, 'details');
 
-            return view('kids.show-details', compact('kid'));
+            return view('kids.show-details', compact('kid', 'medicalRecords'));
         } catch (\Exception $e) {
             $this->kidLogger->operationFailed('show', $e, ['kid_id' => $kid->id]);
             flash('Erro ao visualizar dados da criança.')->error();

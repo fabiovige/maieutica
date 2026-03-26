@@ -139,5 +139,41 @@ class ReleaseSeeder extends Seeder
                 ],
             ]
         );
+
+        // Marco 2026 - v2.3.0
+        Release::updateOrCreate(
+            ['version' => 'v2.3.0'],
+            [
+                'title' => 'Prontuarios Unificados, Filtro Denver e Continuidade Clinica',
+                'release_date' => '2026-03-23',
+                'description' => 'Unificacao do cadastro de pacientes nos prontuarios, filtro de idade no Denver, historico de prontuarios com continuidade clinica e correcao dos testes.',
+                'items' => [
+                    'features' => [
+                        'Dropdown unico de pacientes nos prontuarios com idade visivel (sem separacao Crianca/Adulto)',
+                        'Painel lateral com historico de prontuarios ao selecionar paciente no formulario de criacao',
+                        'Secao "Outros Registros deste Paciente" na visualizacao do prontuario (continuidade clinica)',
+                        'Secao de prontuarios na pagina de detalhes do paciente (kids/show) com botao "Novo Prontuario"',
+                        'Filtro Denver: apenas criancas ate 6 anos aparecem no dropdown de criacao de checklist',
+                        'Idade visivel ao lado do nome em todos os dropdowns de pacientes',
+                        'Rota patient-history para busca de historico via AJAX',
+                        'Rota history mapeada para historico de versoes de prontuarios',
+                    ],
+                    'bugs' => [
+                        'Correcao: adultos cadastrados na tabela kids agora aparecem nos prontuarios sem precisar selecionar "Crianca"',
+                        'Correcao: UserFactory com role_id inexistente na tabela users',
+                        'Correcao: KidFactory com profession_id inexistente na tabela kids',
+                        'Correcao: ChecklistFactory com dependencia de dados existentes no banco',
+                        'Correcao: memory_limit insuficiente no phpunit.xml (aumentado para 512M)',
+                    ],
+                    'docs' => [
+                        'docs/fix-001.md - Investigacao detalhada dos problemas de pacientes, Denver e continuidade',
+                        'docs/jira-001.md - Plano de implementacao em 3 fases com decisoes tecnicas',
+                    ],
+                ],
+                'commits' => [
+                    ['hash' => '9841c69', 'message' => 'Fix: unificar pacientes nos prontuarios, filtrar Denver por idade e adicionar continuidade'],
+                ],
+            ]
+        );
     }
 }

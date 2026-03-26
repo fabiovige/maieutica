@@ -44,7 +44,7 @@
 
 @section('content')
 
-    {{-- Informações do Paciente --}}
+    {{-- Informações do Paciente e Sessão --}}
     <div class="row mb-3">
         <div class="col-md-6">
             <div class="card">
@@ -53,51 +53,43 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-2">
-                        <strong>Tipo:</strong>
-                        @if($medicalRecord->patient_type === 'App\Models\Kid')
-                            <span class="badge bg-info">Criança</span>
-                        @else
-                            <span class="badge bg-secondary">Adulto</span>
-                        @endif
-                    </div>
-                    <div class="mb-2">
                         <strong>Nome:</strong> {{ $medicalRecord->patient_name }}
                     </div>
 
-                    @if($medicalRecord->patient_type === 'App\Models\Kid' && $medicalRecord->patient)
-                        <div class="mb-2">
-                            <strong>Idade:</strong> {{ $medicalRecord->patient->age ?? 'N/D' }}
-                        </div>
-                        <div class="mb-2">
-                            <strong>Nascimento:</strong> {{ $medicalRecord->patient->birth_date ?? 'N/D' }}
-                        </div>
-                        @if($medicalRecord->patient->responsible)
+                    @if($medicalRecord->patient)
+                        @if($medicalRecord->patient_type === 'App\Models\Kid')
                             <div class="mb-2">
-                                <strong>Responsável:</strong> {{ $medicalRecord->patient->responsible->name }}
+                                <strong>Idade:</strong> {{ $medicalRecord->patient->age ?? 'N/D' }}
                             </div>
-                        @endif
-                        @if($medicalRecord->patient->professionals && $medicalRecord->patient->professionals->count() > 0)
                             <div class="mb-2">
-                                <strong>Profissionais:</strong>
-                                <div class="d-flex flex-wrap gap-1 mt-1">
-                                    @foreach($medicalRecord->patient->professionals as $professional)
-                                        <span class="badge bg-info text-dark">
-                                            {{ $professional->user->first()->name ?? 'N/D' }}
-                                        </span>
-                                    @endforeach
+                                <strong>Nascimento:</strong> {{ $medicalRecord->patient->birth_date ?? 'N/D' }}
+                            </div>
+                            @if($medicalRecord->patient->responsible)
+                                <div class="mb-2">
+                                    <strong>Responsável:</strong> {{ $medicalRecord->patient->responsible->name }}
                                 </div>
-                            </div>
-                        @endif
-                    @endif
-
-                    @if($medicalRecord->patient_type === 'App\Models\User' && $medicalRecord->patient)
-                        <div class="mb-2">
-                            <strong>Email:</strong> {{ $medicalRecord->patient->email ?? 'N/D' }}
-                        </div>
-                        @if($medicalRecord->patient->phone)
+                            @endif
+                            @if($medicalRecord->patient->professionals && $medicalRecord->patient->professionals->count() > 0)
+                                <div class="mb-2">
+                                    <strong>Profissionais:</strong>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        @foreach($medicalRecord->patient->professionals as $professional)
+                                            <span class="badge bg-info text-dark">
+                                                {{ $professional->user->first()->name ?? 'N/D' }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        @else
                             <div class="mb-2">
-                                <strong>Telefone:</strong> {{ $medicalRecord->patient->phone }}
+                                <strong>Email:</strong> {{ $medicalRecord->patient->email ?? 'N/D' }}
                             </div>
+                            @if($medicalRecord->patient->phone)
+                                <div class="mb-2">
+                                    <strong>Telefone:</strong> {{ $medicalRecord->patient->phone }}
+                                </div>
+                            @endif
                         @endif
                     @endif
                 </div>
@@ -112,7 +104,7 @@
                 <div class="card-body">
                     <div class="mb-2">
                         <strong>Data da Sessão:</strong>
-                        <span class="badge bg-info">{{ $medicalRecord->session_date }}</span>
+                        <span class="badge bg-info">{{ $medicalRecord->session_date ? $medicalRecord->session_date->format('d/m/Y') : 'N/D' }}</span>
                     </div>
                     <div class="mb-2">
                         <strong>Profissional:</strong> {{ $medicalRecord->creator->name ?? 'N/D' }}
@@ -169,6 +161,47 @@
             </div>
             <div class="card-body">
                 <p class="mb-0" style="white-space: pre-wrap;">{{ $medicalRecord->referral_closure }}</p>
+            </div>
+        </div>
+    @endif
+
+    {{-- Outros registros do mesmo paciente (continuidade) --}}
+    @if(isset($patientRecords) && $patientRecords->count() > 0)
+        <div class="card mb-3">
+            <div class="card-header bg-secondary text-white">
+                <h6 class="mb-0"><i class="bi bi-clock-history"></i> Outros Registros deste Paciente ({{ $patientRecords->count() }})</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>DATA</th>
+                                <th>DEMANDA</th>
+                                <th>PROFISSIONAL</th>
+                                <th class="text-center" style="width: 100px;">AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($patientRecords as $record)
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-info">{{ $record->session_date ? $record->session_date->format('d/m/Y') : 'N/D' }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-truncate d-inline-block" style="max-width: 400px;">{{ \Illuminate\Support\Str::limit($record->complaint, 80) }}</span>
+                                    </td>
+                                    <td>{{ $record->creator->name ?? 'N/D' }}</td>
+                                    <td class="text-center">
+                                        <a href="{{ route('medical-records.show', $record) }}" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-eye"></i> Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     @endif

@@ -70,7 +70,7 @@ class ChecklistController extends Controller
                 }
             }
 
-            $checklists = $queryChecklists->with('competences')
+            $checklists = $queryChecklists->with(['competences', 'kid' => fn($q) => $q->withTrashed()])
                 ->orderBy('created_at', 'desc')
                 ->orderBy('id', 'desc')
                 ->paginate(self::PAGINATION_DEFAULT);
@@ -104,7 +104,7 @@ class ChecklistController extends Controller
     {
         $this->authorize('create', Checklist::class);
 
-        $kids = Kid::getKids();
+        $kids = Kid::getDenverEligibleKids();
 
         return view('checklists.create', compact('kids'));
     }
@@ -114,7 +114,7 @@ class ChecklistController extends Controller
         $this->authorize('create', Checklist::class);
 
         try {
-            $data = $request->json()->all() ?? $request->all();
+            $data = $request->isJson() ? $request->json()->all() : $request->all();
             $data['created_by'] = Auth::id();
 
             // Validação da data retroativa
@@ -216,7 +216,7 @@ class ChecklistController extends Controller
 
             flash(self::MSG_UPDATE_SUCCESS)->success();
 
-            return redirect()->route('checklists.index');
+            return redirect()->route('checklists.index', ['kidId' => $data['kid_id']]);
         } catch (\Exception $e) {
             $this->checklistLogger->operationFailed('store', $e, [
                 'kid_id' => $request->kid_id ?? null,

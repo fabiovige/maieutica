@@ -14,13 +14,15 @@ class ResponsibleSeeder extends Seeder
      */
     public function run()
     {
+        $adminId = User::first()->id;
+
         // Criar primeiro usuário responsável
         $responsibleUser1 = User::firstOrCreate(
             ['email' => 'user05@gmail.com'],
             [
                 'name' => 'Maria da Silva User 05',
                 'password' => bcrypt('password'),
-                'created_by' => 1,
+                'created_by' => $adminId,
             ]
         );
         $responsibleUser1->assignRole('responsavel');
@@ -31,7 +33,7 @@ class ResponsibleSeeder extends Seeder
             [
                 'name' => 'João Santos User 06',
                 'password' => bcrypt('password'),
-                'created_by' => 1,
+                'created_by' => $adminId,
             ]
         );
         $responsibleUser2->assignRole('responsavel');

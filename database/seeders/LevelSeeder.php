@@ -24,7 +24,10 @@ class LevelSeeder extends Seeder
         ];
 
         foreach ($levels as $level) {
-            $l = Level::create($level);
+            $l = Level::firstOrCreate(
+                ['level' => $level['level']],
+                array_merge(['id' => $level['level']], $level)
+            );
             $l->domains()->sync($domains[$level['level']]);
         }
     }

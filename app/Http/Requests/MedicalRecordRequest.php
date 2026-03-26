@@ -21,34 +21,36 @@ class MedicalRecordRequest extends FormRequest
      */
     public function rules(): array
     {
+        $patientType = $this->input('patient_type');
+
         $rules = [
             'patient_type' => 'required|in:App\\Models\\Kid,App\\Models\\User',
             'patient_id' => [
                 'required',
                 'integer',
-                // Conditional validation: checks if ID exists in corresponding table
-                function ($attribute, $value, $fail) {
-                    $type = $this->input('patient_type');
-                    if ($type === 'App\\Models\\Kid') {
-                        if (!Kid::find($value)) {
-                            $fail('O paciente (criança) selecionado não existe.');
-                        }
-                    } elseif ($type === 'App\\Models\\User') {
+                function ($attribute, $value, $fail) use ($patientType) {
+                    if ($patientType === 'App\\Models\\User') {
                         if (!User::find($value)) {
-                            $fail('O paciente (adulto) selecionado não existe.');
+                            $fail('O paciente selecionado não existe.');
+                        }
+                    } else {
+                        if (!Kid::find($value)) {
+                            $fail('O paciente selecionado não existe.');
                         }
                     }
                 },
             ],
-            'session_date' => 'required|date_format:d/m/Y|before_or_equal:today',
+            'session_date' => $this->isMethod('POST')
+                ? 'required|date_format:d/m/Y|before_or_equal:today'
+                : 'nullable|date_format:d/m/Y|before_or_equal:today',
             'complaint' => 'required|string|min:10|max:5000',
             'objective_technique' => 'required|string|min:10|max:5000',
             'evolution_notes' => 'required|string|min:10|max:10000',
             'referral_closure' => 'nullable|string|max:5000',
         ];
 
-        // Professional selection (admin only)
-        if (auth()->user()->can('medical-record-create-all')) {
+        // Professional selection (admin only, create only)
+        if ($this->isMethod('POST') && auth()->user()->can('medical-record-create-all')) {
             $rules['professional_id'] = 'required|integer|exists:professionals,id';
         }
 
@@ -80,8 +82,6 @@ class MedicalRecordRequest extends FormRequest
         return [
             'professional_id.required' => 'O profissional é obrigatório.',
             'professional_id.exists' => 'O profissional selecionado não existe.',
-            'patient_type.required' => 'O tipo de paciente é obrigatório.',
-            'patient_type.in' => 'Tipo de paciente inválido.',
             'patient_id.required' => 'O paciente é obrigatório.',
             'patient_id.integer' => 'ID do paciente deve ser um número.',
             'session_date.required' => 'A data da sessão é obrigatória.',
@@ -96,4 +96,3 @@ class MedicalRecordRequest extends FormRequest
         ];
     }
 }
-

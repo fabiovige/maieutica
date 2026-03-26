@@ -11,6 +11,8 @@ class KidSeeder extends Seeder
 {
     public function run()
     {
+        $adminId = User::first()->id;
+
         // Buscar responsáveis
         $responsible1 = User::where('email', 'user05@gmail.com')->first();
         $responsible2 = User::where('email', 'user06@gmail.com')->first();
@@ -22,7 +24,7 @@ class KidSeeder extends Seeder
             'gender' => 'F',
             'ethnicity' => 'branco',
             'responsible_id' => $responsible1->id,
-            'created_by' => 1,
+            'created_by' => $adminId,
         ]);
 
         // Criar segunda criança
@@ -32,7 +34,7 @@ class KidSeeder extends Seeder
             'gender' => 'M',
             'ethnicity' => 'pardo',
             'responsible_id' => $responsible2->id,
-            'created_by' => 1,
+            'created_by' => $adminId,
         ]);
 
         // Associar profissionais às crianças

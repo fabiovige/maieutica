@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Editar Prontuário Médico
+    Editar Prontuário
 @endsection
 
 @section('breadcrumb-items')
@@ -17,26 +17,26 @@
 
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title-custom mb-0"><i class="bi bi-pencil"></i> Editar Prontuário Médico</h3>
+            <h3 class="card-title-custom mb-0"><i class="bi bi-pencil"></i> Editar Prontuário</h3>
         </div>
         <div class="card-body">
             <form action="{{ route('medical-records.update', $medicalRecord) }}" method="POST">
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="patient_type" value="{{ $medicalRecord->patient_type }}">
+                <input type="hidden" name="patient_id" value="{{ $medicalRecord->patient_id }}">
 
-                {{-- Linha 1: Tipo de Paciente, Profissional, Data da Sessão --}}
+                {{-- Linha 1: Paciente, Profissional, Data da Sessão --}}
                 <div class="row">
-                    {{-- Tipo de Paciente --}}
+                    {{-- Paciente (readonly no edit) --}}
                     <div class="col-md-4 mb-3">
-                        <label for="patient_type" class="form-label">Tipo de Paciente <span class="text-danger">*</span></label>
-                        <select name="patient_type" id="patient_type" class="form-select @error('patient_type') is-invalid @enderror" required>
-                            <option value="">Selecione o tipo</option>
-                            <option value="App\Models\Kid" {{ old('patient_type', $medicalRecord->patient_type) === 'App\Models\Kid' ? 'selected' : '' }}>Criança</option>
-                            <option value="App\Models\User" {{ old('patient_type', $medicalRecord->patient_type) === 'App\Models\User' ? 'selected' : '' }}>Adulto</option>
-                        </select>
-                        @error('patient_type')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <label class="form-label">Paciente</label>
+                        <input type="text" class="form-control bg-light"
+                               value="{{ $medicalRecord->patient_name }}"
+                               readonly>
+                        <small class="text-muted">
+                            {{ $medicalRecord->patient_type === 'App\Models\Kid' ? 'Criança' : 'Adulto' }}
+                        </small>
                     </div>
 
                     {{-- Profissional (readonly) --}}
@@ -58,40 +58,6 @@
                                readonly>
                     </div>
                 </div>
-
-                {{-- Paciente (Criança) --}}
-                <div class="mb-3 patient-select" id="kid-select" style="display: none;">
-                    <label for="patient_id_kid" class="form-label">Criança <span class="text-danger">*</span></label>
-                    <select name="patient_id_kid" id="patient_id_kid" class="form-select @error('patient_id') is-invalid @enderror">
-                        <option value="">Selecione a criança</option>
-                        @foreach($kids as $kid)
-                            <option value="{{ $kid->id }}" {{ old('patient_id', $medicalRecord->patient_id) == $kid->id ? 'selected' : '' }}>
-                                {{ $kid->name }} - {{ $kid->age }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('patient_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                {{-- Paciente (Adulto) --}}
-                <div class="mb-3 patient-select" id="user-select" style="display: none;">
-                    <label for="patient_id_user" class="form-label">Paciente Adulto <span class="text-danger">*</span></label>
-                    <select name="patient_id_user" id="patient_id_user" class="form-select @error('patient_id') is-invalid @enderror">
-                        <option value="">Selecione o paciente</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ old('patient_id', $medicalRecord->patient_id) == $user->id ? 'selected' : '' }}>
-                                {{ $user->name }} - {{ $user->email }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('patient_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <input type="hidden" name="patient_id" id="patient_id" value="{{ old('patient_id', $medicalRecord->patient_id) }}">
 
                 {{-- Divisor --}}
                 <hr class="my-4">
@@ -161,46 +127,3 @@
     </div>
 
 @endsection
-
-@push('scripts')
-<script>
-    $(document).ready(function() {
-        // Função para mostrar/ocultar selects de paciente
-        function togglePatientSelect() {
-            const patientType = $('#patient_type').val();
-
-            // Esconder todos os selects
-            $('.patient-select').hide();
-            $('#patient_id_kid').prop('required', false);
-            $('#patient_id_user').prop('required', false);
-
-            // Mostrar o select apropriado
-            if (patientType === 'App\\Models\\Kid') {
-                $('#kid-select').show();
-                $('#patient_id_kid').prop('required', true);
-            } else if (patientType === 'App\\Models\\User') {
-                $('#user-select').show();
-                $('#patient_id_user').prop('required', true);
-            }
-        }
-
-        // Executar ao carregar a página
-        togglePatientSelect();
-
-        // Executar ao mudar o tipo de paciente
-        $('#patient_type').change(function() {
-            togglePatientSelect();
-        });
-
-        // Atualizar campo hidden quando selecionar criança
-        $('#patient_id_kid').change(function() {
-            $('#patient_id').val($(this).val());
-        });
-
-        // Atualizar campo hidden quando selecionar adulto
-        $('#patient_id_user').change(function() {
-            $('#patient_id').val($(this).val());
-        });
-    });
-</script>
-@endpush

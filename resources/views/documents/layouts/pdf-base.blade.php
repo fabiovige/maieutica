@@ -107,12 +107,26 @@
 
         .content {
             text-align: justify;
-            margin-bottom: 40px;
+            margin-bottom: 10px;
+        }
+
+        /* Página exclusiva de assinatura */
+        .signature-page {
+            page-break-before: always;
+            position: relative;
+            height: 580px;
+        }
+
+        .signature-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
         }
 
         .signature {
             text-align: center;
-            margin-top: 40px;
+            margin-bottom: 30px;
         }
 
         .signature-line {
@@ -125,7 +139,6 @@
 
         .date-location {
             text-align: right;
-            margin-top: 40px;
         }
 
         @yield('pdf-styles')
@@ -180,26 +193,29 @@
         @yield('content')
     </div>
 
-    {{-- ASSINATURA --}}
-    <div class="signature">
-        @hasSection('signature')
-            @yield('signature')
-        @else
-            <div class="signature-line">
-                {{ $nome_psicologo }}<br>
-                CRP: {{ $crp }}
+    {{-- PÁGINA EXCLUSIVA DE ASSINATURA — sempre a última página --}}
+    <div class="signature-page">
+        <div class="signature-content">
+            <div class="signature">
+                @hasSection('signature')
+                    @yield('signature')
+                @else
+                    <div class="signature-line">
+                        {{ $nome_psicologo }}<br>
+                        CRP: {{ $crp }}
+                    </div>
+                @endif
             </div>
-        @endif
-    </div>
 
-    {{-- DATA E LOCALIZAÇÃO --}}
-    @hasSection('date-location')
-        @yield('date-location')
-    @else
-        <div class="date-location">
-            {{ $cidade }}, {{ $data_formatada }}.
+            @hasSection('date-location')
+                @yield('date-location')
+            @else
+                <div class="date-location">
+                    {{ $cidade }}, {{ $data_formatada }}.
+                </div>
+            @endif
         </div>
-    @endif
+    </div>
 
 </body>
 </html>

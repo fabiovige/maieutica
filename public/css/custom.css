@@ -65,10 +65,13 @@ p { font-size: 1rem; line-height: 1.6; }
     --color-primary-darker: #844773;    /* Rosa escuro */
     --color-primary-darkest: #5B214C;   /* Roxo mais escuro */
 
+    /* Azul institucional (badges, bg-primary utilitário) */
+    --color-blue-primary: #1d4ed8;
+
     /* Cores de fundo com opacidade */
     --bg-primary-lightest: rgba(255, 186, 234, 0.1);
     --bg-primary-lighter: rgba(214, 148, 194, 0.1);
-    --bg-primary: rgba(173, 110, 155, 0.1);
+    --bg-primary-tint: rgba(173, 110, 155, 0.1);
     --bg-primary-darker: rgba(132, 71, 115, 0.1);
     --bg-primary-darkest: rgba(91, 33, 76, 0.1);
 
@@ -155,7 +158,7 @@ p { font-size: 1rem; line-height: 1.6; }
 /* Classes de cores de fundo */
 .bg-primary-lightest { background-color: var(--bg-primary-lightest) !important; }
 .bg-primary-lighter { background-color: var(--bg-primary-lighter) !important; }
-.bg-primary { background-color: var(--bg-primary) !important; }
+.bg-primary { background-color: var(--color-blue-primary) !important; }
 .bg-primary-darker { background-color: var(--bg-primary-darker) !important; }
 .bg-primary-darkest { background-color: var(--bg-primary-darkest) !important; }
 
@@ -183,7 +186,7 @@ p { font-size: 1rem; line-height: 1.6; }
 
 /* Classes de cards */
 .card-primary {
-    background-color: var(--bg-primary) !important;
+    background-color: var(--bg-primary-tint) !important;
     border-color: var(--color-primary) !important;
 }
 
