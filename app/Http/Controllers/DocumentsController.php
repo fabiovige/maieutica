@@ -687,17 +687,109 @@ class DocumentsController extends Controller
     }
 
     /**
-     * Download/regenera PDF a partir do HTML armazenado
+     * Download/regenera PDF re-renderizando o template Blade original.
+     * Garante que sempre use o layout mais atual (signature, CSS, etc).
      */
     public function download(GeneratedDocument $document)
     {
         $this->authorize('download', $document);
 
-        // Regenera PDF do HTML salvo
-        $pdf = Pdf::loadHTML($document->html_content)
-            ->setPaper('A4', 'portrait');
+        $html = $this->reRenderDocument($document);
+
+        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
         return $pdf->stream($document->filename);
+    }
+
+    /**
+     * Re-renderiza o HTML do documento a partir do template Blade,
+     * usando os dados originais armazenados em form_data e documentable.
+     */
+    private function reRenderDocument(GeneratedDocument $document): string
+    {
+        $kid = $this->getKidWithRelations($document->documentable_id);
+        $formData = $document->form_data ?? [];
+        $assets = $this->prepareAssets();
+        $common = $this->getCommonDocumentData($kid);
+
+        switch ($document->model_type) {
+            case 1:
+                return view('documents.modelo1', array_merge($common, $assets, [
+                    'dias_horarios'    => $formData['dias_horarios'] ?? 'em horários estabelecidos',
+                    'previsao_termino' => $formData['previsao_termino'] ?? null,
+                ]))->render();
+
+            case 2:
+                return view('documents.modelo2', array_merge($common, $assets, [
+                    'mes_inicio' => $kid->created_at->format('d/m/Y'),
+                ]))->render();
+
+            case 3:
+            case 4:
+            case 5:
+                $professionalsData = $this->buildProfessionalsData($kid, $formData['professionals'] ?? []);
+                $logo = base64_encode(file_get_contents(public_path('images/logo-doc.jpg')));
+                $data = array_merge([
+                    'nome_paciente'  => strtoupper($kid->name),
+                    'idade'          => $kid->age ?? 'Não informada',
+                    'sexo'           => ($kid->gender ?? null) === 'M' ? 'Masculino' : (($kid->gender ?? null) === 'F' ? 'Feminino' : 'Não informado'),
+                    'professionals'  => $professionalsData,
+                    'nome_psicologo' => $professionalsData[0]['name'],
+                    'council'        => $professionalsData[0]['council'],
+                    'crp'            => $professionalsData[0]['crp'],
+                    'cidade'         => $professionalsData[0]['city'],
+                    'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
+                    'watermark'      => $assets['watermark'],
+                    'logo'           => $logo,
+                ], array_intersect_key($formData, array_flip([
+                    'solicitante', 'finalidade', 'nome_informante', 'sintomas', 'consequencias',
+                    'hipotese_diagnostico', 'numero_encontros', 'duracao_horas', 'procedimentos_texto',
+                    'analise_texto', 'analise', 'diagnostico', 'sintoma_principal', 'cid',
+                    'referencias', 'conclusao', 'descricao_demanda',
+                ])));
+                return view('documents.modelo' . $document->model_type, $data)->render();
+
+            case 6:
+                return view('documents.modelo6', array_merge($common, $assets, array_intersect_key($formData, array_flip([
+                    'idade', 'sexo', 'solicitante', 'finalidade', 'descricao_demanda',
+                    'numero_encontros', 'duracao_horas', 'procedimentos_texto', 'analise', 'conclusao',
+                ]))))->render();
+
+            default:
+                return $document->html_content;
+        }
+    }
+
+    /**
+     * Monta array de profissionais para modelos 3/4/5.
+     */
+    private function buildProfessionalsData(Kid $kid, array $professionalIds): array
+    {
+        if (!empty($professionalIds)) {
+            $professionals = \App\Models\Professional::with('user')
+                ->whereIn('id', $professionalIds)
+                ->get();
+
+            return $professionals->map(function ($prof) {
+                $user = $prof->user->first();
+                return [
+                    'name'    => $user ? strtoupper($user->name) : 'N/A',
+                    'council' => $prof->council_label,
+                    'crp'     => $prof->registration_number ?? 'N/A',
+                    'city'    => $user->city ?? 'Santana de Parnaíba',
+                ];
+            })->toArray();
+        }
+
+        $professional = $kid->professionals->first();
+        $user = $professional ? $professional->user->first() : null;
+
+        return [[
+            'name'    => $user ? strtoupper($user->name) : 'N/A',
+            'council' => $professional?->council_label ?? 'Reg.',
+            'crp'     => $professional->registration_number ?? 'N/A',
+            'city'    => $user->city ?? 'Santana de Parnaíba',
+        ]];
     }
 
     /**
