@@ -155,10 +155,51 @@ Route::middleware(['auth'])->group(function () {
     Route::get('releases', [ReleaseController::class, 'index'])->name('releases.index');
     Route::get('releases/{release}', [ReleaseController::class, 'show'])->name('releases.show');
 
-    // Sentry test (remover depois de validar)
-    Route::get('/sentry-test', function () {
-        throw new \Exception('Teste Sentry em producao - ' . now()->format('d/m/Y H:i:s'));
-    });
+});
+
+// Health Check (sem autenticacao - para monitoramento externo)
+Route::get('/health', function () {
+    $checks = [];
+
+    // Database
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+        $checks['database'] = 'ok';
+    } catch (\Exception $e) {
+        $checks['database'] = 'fail';
+    }
+
+    // Cache
+    try {
+        \Illuminate\Support\Facades\Cache::put('health_check', true, 10);
+        $checks['cache'] = \Illuminate\Support\Facades\Cache::get('health_check') ? 'ok' : 'fail';
+    } catch (\Exception $e) {
+        $checks['cache'] = 'fail';
+    }
+
+    // Disk
+    $freeSpace = disk_free_space(storage_path());
+    $checks['disk'] = $freeSpace > 100 * 1024 * 1024 ? 'ok' : 'warning';
+    $checks['disk_free_mb'] = round($freeSpace / 1024 / 1024);
+
+    // Queue (failed jobs)
+    try {
+        $failedJobs = \Illuminate\Support\Facades\DB::table('failed_jobs')->count();
+        $checks['queue'] = $failedJobs > 10 ? 'warning' : 'ok';
+        $checks['failed_jobs'] = $failedJobs;
+    } catch (\Exception $e) {
+        $checks['queue'] = 'unknown';
+    }
+
+    $allOk = !in_array('fail', $checks);
+
+    return response()->json([
+        'status' => $allOk ? 'healthy' : 'unhealthy',
+        'version' => config('app.version', '1.0.18'),
+        'environment' => app()->environment(),
+        'timestamp' => now()->toIso8601String(),
+        'checks' => $checks,
+    ], $allOk ? 200 : 503);
 });
 
 // Data Table Ajax

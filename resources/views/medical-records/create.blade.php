@@ -25,7 +25,24 @@
                 <div class="card-body">
                     <form action="{{ route('medical-records.store') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="patient_type" value="App\Models\Kid">
+                        <input type="hidden" name="patient_type" id="patient_type" value="{{ old('patient_type', 'App\Models\Kid') }}">
+
+                        {{-- Tipo de Paciente --}}
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Paciente <span class="text-danger">*</span></label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="patient_type_toggle" id="type_kid" value="App\Models\Kid" autocomplete="off"
+                                    {{ old('patient_type', 'App\Models\Kid') === 'App\Models\Kid' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-primary" for="type_kid">
+                                    <i class="bi bi-person-hearts"></i> Criança
+                                </label>
+                                <input type="radio" class="btn-check" name="patient_type_toggle" id="type_adult" value="App\Models\User" autocomplete="off"
+                                    {{ old('patient_type') === 'App\Models\User' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-primary" for="type_adult">
+                                    <i class="bi bi-person"></i> Adulto
+                                </label>
+                            </div>
+                        </div>
 
                         {{-- Linha 1: Profissional (admin), Paciente, Data --}}
                         <div class="row">
@@ -47,13 +64,13 @@
                                 </div>
                             @endcan
 
-                            {{-- Paciente --}}
-                            <div class="col-md-{{ auth()->user()->can('medical-record-create-all') ? '4' : '6' }} mb-3">
-                                <label for="patient_id" class="form-label">Paciente <span class="text-danger">*</span></label>
-                                <select name="patient_id" id="patient_id" class="form-select select2 @error('patient_id') is-invalid @enderror" data-placeholder="Selecione o paciente" required>
-                                    <option value="">Selecione o paciente</option>
+                            {{-- Paciente Criança --}}
+                            <div class="col-md-{{ auth()->user()->can('medical-record-create-all') ? '4' : '6' }} mb-3" id="patient_kid_wrapper" style="{{ old('patient_type') === 'App\Models\User' ? 'display:none' : '' }}">
+                                <label for="patient_id_kid" class="form-label">Paciente (Criança) <span class="text-danger">*</span></label>
+                                <select name="patient_id" id="patient_id_kid" class="form-select select2 @error('patient_id') is-invalid @enderror" data-placeholder="Selecione a criança">
+                                    <option value="">Selecione a criança</option>
                                     @foreach($kids as $kid)
-                                        <option value="{{ $kid->id }}" {{ old('patient_id') == $kid->id ? 'selected' : '' }}>
+                                        <option value="{{ $kid->id }}" {{ old('patient_id') == $kid->id && old('patient_type', 'App\Models\Kid') === 'App\Models\Kid' ? 'selected' : '' }}>
                                             {{ $kid->name }} ({{ $kid->age ?? 'Idade N/D' }})
                                         </option>
                                     @endforeach
@@ -61,6 +78,19 @@
                                 @error('patient_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                            </div>
+
+                            {{-- Paciente Adulto --}}
+                            <div class="col-md-{{ auth()->user()->can('medical-record-create-all') ? '4' : '6' }} mb-3" id="patient_adult_wrapper" style="{{ old('patient_type') !== 'App\Models\User' ? 'display:none' : '' }}">
+                                <label for="patient_id_adult" class="form-label">Paciente (Adulto) <span class="text-danger">*</span></label>
+                                <select name="patient_id" id="patient_id_adult" class="form-select select2 @error('patient_id') is-invalid @enderror" data-placeholder="Selecione o adulto" disabled>
+                                    <option value="">Selecione o adulto</option>
+                                    @foreach($userPatients as $user)
+                                        <option value="{{ $user->id }}" {{ old('patient_id') == $user->id && old('patient_type') === 'App\Models\User' ? 'selected' : '' }}>
+                                            {{ $user->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             {{-- Data da Sessão --}}
@@ -175,9 +205,29 @@
         // Configurar datepicker para data da sessão (máximo hoje)
         $('#session_date').datepicker('option', 'maxDate', 0);
 
-        // Carregar histórico ao selecionar paciente
-        $('#patient_id').on('change', function() {
-            const patientId = $(this).val();
+        // Alternar tipo de paciente (Criança / Adulto)
+        $('input[name="patient_type_toggle"]').on('change', function() {
+            const type = $(this).val();
+            $('#patient_type').val(type);
+
+            if (type === 'App\\Models\\Kid') {
+                $('#patient_kid_wrapper').show();
+                $('#patient_id_kid').prop('disabled', false);
+                $('#patient_adult_wrapper').hide();
+                $('#patient_id_adult').prop('disabled', true).val('').trigger('change.select2');
+            } else {
+                $('#patient_adult_wrapper').show();
+                $('#patient_id_adult').prop('disabled', false);
+                $('#patient_kid_wrapper').hide();
+                $('#patient_id_kid').prop('disabled', true).val('').trigger('change.select2');
+            }
+
+            // Limpar histórico ao trocar tipo
+            $('#history-content').html('<p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Selecione um paciente para ver o histórico de prontuários.</p>');
+        });
+
+        // Função para carregar histórico
+        function loadPatientHistory(patientId, patientType) {
             const $content = $('#history-content');
 
             if (!patientId) {
@@ -187,7 +237,7 @@
 
             $content.html('<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Carregando...</div>');
 
-            $.get('{{ route("medical-records.patient-history") }}', { patient_id: patientId })
+            $.get('{{ route("medical-records.patient-history") }}', { patient_id: patientId, patient_type: patientType })
                 .done(function(records) {
                     if (records.length === 0) {
                         $content.html('<p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Nenhum prontuário anterior para este paciente.</p>');
@@ -214,11 +264,24 @@
                 .fail(function() {
                     $content.html('<p class="text-danger mb-0"><i class="bi bi-exclamation-triangle"></i> Erro ao carregar histórico.</p>');
                 });
+        }
+
+        // Carregar histórico ao selecionar criança
+        $('#patient_id_kid').on('change', function() {
+            loadPatientHistory($(this).val(), 'App\\Models\\Kid');
+        });
+
+        // Carregar histórico ao selecionar adulto
+        $('#patient_id_adult').on('change', function() {
+            loadPatientHistory($(this).val(), 'App\\Models\\User');
         });
 
         // Disparar se já houver paciente selecionado (old value)
-        if ($('#patient_id').val()) {
-            $('#patient_id').trigger('change');
+        const currentType = $('#patient_type').val();
+        if (currentType === 'App\\Models\\User' && $('#patient_id_adult').val()) {
+            loadPatientHistory($('#patient_id_adult').val(), 'App\\Models\\User');
+        } else if ($('#patient_id_kid').val()) {
+            loadPatientHistory($('#patient_id_kid').val(), 'App\\Models\\Kid');
         }
     });
 </script>

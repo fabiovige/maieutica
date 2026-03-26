@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Checklist;
 use App\Models\Competence;
 use App\Models\Kid;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ChecklistSeeder extends Seeder
@@ -16,6 +17,7 @@ class ChecklistSeeder extends Seeder
      */
     public function run()
     {
+        $adminId = User::first()->id;
         $kid = Kid::pluck('id');
 
         // checklists
@@ -32,7 +34,7 @@ class ChecklistSeeder extends Seeder
                 $checklist = Checklist::create([
                     'kid_id' => $kidId,
                     'level' => $indice,
-                    'created_by' => 1,
+                    'created_by' => $adminId,
                 ]);
 
                 foreach ($arrLevel as $c => $level) {

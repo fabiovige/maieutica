@@ -46,10 +46,11 @@ class MedicalRecordsController extends Controller
             });
         }
 
-        // Filter by specific patient (always Kid type since all patients are in kids table)
+        // Filter by specific patient
         if ($request->filled('patient_id')) {
+            $patientType = $request->filled('filter_patient_type') ? $request->filter_patient_type : Kid::class;
             $query->where('patient_id', $request->patient_id)
-                  ->where('patient_type', Kid::class);
+                  ->where('patient_type', $patientType);
         }
 
         // Filter by date range
@@ -102,8 +103,9 @@ class MedicalRecordsController extends Controller
         // Get data for filters
         $professionals = $this->getProfessionalsForFilter();
         $kids = $this->getKidsForUser();
+        $userPatients = $this->getUserPatientsForUser();
 
-        return view('medical-records.index', compact('medicalRecords', 'professionals', 'kids'));
+        return view('medical-records.index', compact('medicalRecords', 'professionals', 'kids', 'userPatients'));
     }
 
     /**
@@ -114,9 +116,10 @@ class MedicalRecordsController extends Controller
         $this->authorize('create', MedicalRecord::class);
 
         $kids = $this->getKidsForUser();
+        $userPatients = $this->getUserPatientsForUser();
         $professionals = $this->getProfessionalsForFilter();
 
-        return view('medical-records.create', compact('kids', 'professionals'));
+        return view('medical-records.create', compact('kids', 'userPatients', 'professionals'));
     }
 
     /**
@@ -214,9 +217,9 @@ class MedicalRecordsController extends Controller
     {
         $this->authorize('update', $medicalRecord);
 
-        $kids = $this->getKidsForUser();
+        $medicalRecord->load('patient');
 
-        return view('medical-records.edit', compact('medicalRecord', 'kids'));
+        return view('medical-records.edit', compact('medicalRecord'));
     }
 
     /**
@@ -593,11 +596,18 @@ class MedicalRecordsController extends Controller
         $this->authorize('create', MedicalRecord::class);
 
         $patientId = $request->input('patient_id');
+        $patientType = $request->input('patient_type', 'App\\Models\\Kid');
+
         if (!$patientId) {
             return response()->json([]);
         }
 
-        $records = MedicalRecord::where('patient_type', Kid::class)
+        // Validate patient_type
+        if (!in_array($patientType, ['App\\Models\\Kid', 'App\\Models\\User'])) {
+            $patientType = 'App\\Models\\Kid';
+        }
+
+        $records = MedicalRecord::where('patient_type', $patientType)
             ->where('patient_id', $patientId)
             ->currentVersion()
             ->with('creator')

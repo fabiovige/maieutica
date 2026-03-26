@@ -23,24 +23,20 @@
             <form action="{{ route('medical-records.update', $medicalRecord) }}" method="POST">
                 @csrf
                 @method('PUT')
-                <input type="hidden" name="patient_type" value="App\Models\Kid">
+                <input type="hidden" name="patient_type" value="{{ $medicalRecord->patient_type }}">
+                <input type="hidden" name="patient_id" value="{{ $medicalRecord->patient_id }}">
 
                 {{-- Linha 1: Paciente, Profissional, Data da Sessão --}}
                 <div class="row">
-                    {{-- Paciente --}}
+                    {{-- Paciente (readonly no edit) --}}
                     <div class="col-md-4 mb-3">
-                        <label for="patient_id" class="form-label">Paciente <span class="text-danger">*</span></label>
-                        <select name="patient_id" id="patient_id" class="form-select select2 @error('patient_id') is-invalid @enderror" required>
-                            <option value="">Selecione o paciente</option>
-                            @foreach($kids as $kid)
-                                <option value="{{ $kid->id }}" {{ old('patient_id', $medicalRecord->patient_id) == $kid->id ? 'selected' : '' }}>
-                                    {{ $kid->name }} ({{ $kid->age ?? 'N/D' }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('patient_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <label class="form-label">Paciente</label>
+                        <input type="text" class="form-control bg-light"
+                               value="{{ $medicalRecord->patient_name }}"
+                               readonly>
+                        <small class="text-muted">
+                            {{ $medicalRecord->patient_type === 'App\Models\Kid' ? 'Criança' : 'Adulto' }}
+                        </small>
                     </div>
 
                     {{-- Profissional (readonly) --}}

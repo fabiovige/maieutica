@@ -25,8 +25,8 @@
                             <div class="row">
                                 <div class="col">
                                         <label for="kid_id">Criança <small class="text-muted">(até 6 anos - Denver)</small></label> <br>
-                                        <select class="form-select @error('kid_id') is-invalid @enderror" aria-label="kid_id" name="kid_id">
-                                            <option value="">-- selecione --</option>
+                                        <select class="form-select select2 @error('kid_id') is-invalid @enderror" aria-label="kid_id" name="kid_id" data-placeholder="Selecione a criança">
+                                            <option value="">Selecione a criança</option>
                                             @foreach($kids as $kid)
                                                 <option value="{{ $kid->id }}" @if(old('kid_id') == $kid->id ) selected @endif> {{ $kid->name }} ({{ $kid->age ?? 'N/D' }}) </option>
                                             @endforeach
@@ -38,20 +38,7 @@
                                         @enderror
                                 </div>
 
-                                <div class="col">
-                                        <label for="level">Nível</label> <br>
-                                        <select class="form-select @error('level') is-invalid @enderror" aria-label="level" name="level">
-                                            <option value="">-- selecione --</option>
-                                            @foreach(\App\Models\Checklist::LEVEL as $key => $value)
-                                                <option value="{{ $key }}" @if(4 == $key ) selected @endif> {{ \App\Models\Checklist::LEVEL[$key] }} </option>
-                                            @endforeach
-                                        </select>
-                                        @error('level')
-                                        <div class="invalid-feedback">
-                                            {{ $message }}
-                                        </div>
-                                        @enderror
-                                </div>
+                                <input type="hidden" name="level" value="4">
                             </div>
                         </div>
 

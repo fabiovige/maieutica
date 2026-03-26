@@ -575,7 +575,6 @@
             border-collapse: separate !important;
             border-spacing: 0 !important;
             border-radius: 6px !important;
-            overflow: hidden !important;
             border: 1px solid #e2e8f0 !important;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
@@ -602,6 +601,18 @@
         .table th:last-child,
         .table td:last-child {
             border-right: none !important;
+        }
+
+        /* Cantos arredondados nas células extremas */
+        .table thead tr:first-child th:first-child { border-top-left-radius: 6px !important; }
+        .table thead tr:first-child th:last-child { border-top-right-radius: 6px !important; }
+        .table tbody tr:last-child td:first-child { border-bottom-left-radius: 6px !important; }
+        .table tbody tr:last-child td:last-child { border-bottom-right-radius: 6px !important; }
+
+        /* Dropdown em tabelas - evitar corte pelo overflow */
+        .table .dropdown-menu.show {
+            position: fixed !important;
+            z-index: 1060 !important;
         }
     </style>
     @stack('styles')
@@ -792,15 +803,6 @@
                                 @endcan
                             </ul>
                         </div>
-
-                        @if(auth()->user()->can('view logs'))
-                            <div class="menu-item">
-                                <a href="{{ route('log-viewer::dashboard') }}" class="menu-link {{ request()->routeIs('logs.*') ? 'active' : '' }}">
-                                    <i class="bi bi-journal-text"></i>
-                                    <span>Logs</span>
-                                </a>
-                            </div>
-                        @endif
 
                         <div class="menu-item">
                             <a href="{{ route('releases.index') }}" class="menu-link {{ request()->routeIs('releases.*') ? 'active' : '' }}">
@@ -1013,5 +1015,38 @@
         })();
     </script>
     @stack('scripts')
+
+    <script>
+        // Fix dropdown em tabelas: reposiciona com position fixed para evitar corte por overflow
+        document.addEventListener('shown.bs.dropdown', function (e) {
+            var dropdown = e.target.closest('.table .dropdown');
+            if (!dropdown) return;
+
+            var menu = dropdown.querySelector('.dropdown-menu');
+            var button = dropdown.querySelector('.dropdown-toggle');
+            if (!menu || !button) return;
+
+            var rect = button.getBoundingClientRect();
+            menu.style.position = 'fixed';
+            menu.style.top = (rect.bottom + 2) + 'px';
+            menu.style.left = 'auto';
+            menu.style.right = (window.innerWidth - rect.right) + 'px';
+            menu.style.transform = 'none';
+        });
+
+        document.addEventListener('hidden.bs.dropdown', function (e) {
+            var dropdown = e.target.closest('.table .dropdown');
+            if (!dropdown) return;
+
+            var menu = dropdown.querySelector('.dropdown-menu');
+            if (menu) {
+                menu.style.position = '';
+                menu.style.top = '';
+                menu.style.left = '';
+                menu.style.right = '';
+                menu.style.transform = '';
+            }
+        });
+    </script>
 </body>
 </html>

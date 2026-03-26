@@ -44,6 +44,8 @@ class UserSeeder extends Seeder
         ];
 
         User::flushEventListeners();
+
+        $firstUserId = null;
         foreach ($users as $userData) {
             $roleName = $userData['role'];
             unset($userData['role']);
@@ -52,8 +54,15 @@ class UserSeeder extends Seeder
                 'name' => $userData['name'],
                 'email' => $userData['email'],
                 'password' => Hash::make($userData['password']),
-                'created_by' => $userData['created_by'],
+                'created_by' => $firstUserId ?? null,
             ]);
+
+            // Guardar o ID do primeiro user para usar como created_by nos seguintes
+            if ($firstUserId === null) {
+                $firstUserId = $user->id;
+                // Atualizar o primeiro user com seu próprio ID
+                $user->update(['created_by' => $firstUserId]);
+            }
 
             $user->assignRole($roleName);
         }

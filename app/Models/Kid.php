@@ -230,7 +230,7 @@ class Kid extends BaseModel
      */
     public function scopeDenverEligible(Builder $query)
     {
-        return $query->whereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) <= 6');
+        return $query->whereRaw('TIMESTAMPDIFF(MONTH, birth_date, CURDATE()) <= 60');
     }
 
     /**

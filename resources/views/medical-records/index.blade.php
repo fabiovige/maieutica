@@ -53,12 +53,30 @@
                     <label for="patient_id" class="form-label">Paciente</label>
                     <select name="patient_id" id="patient_id" class="form-select select2" data-placeholder="Todos os pacientes">
                         <option value="">Todos</option>
-                        @foreach($kids as $kid)
-                            <option value="{{ $kid->id }}" {{ request('patient_id') == $kid->id ? 'selected' : '' }}>
-                                {{ $kid->name }} ({{ $kid->age ?? 'N/D' }})
-                            </option>
-                        @endforeach
+                        @if($kids->isNotEmpty())
+                            <optgroup label="Crianças">
+                                @foreach($kids as $kid)
+                                    <option value="{{ $kid->id }}"
+                                        data-type="App\Models\Kid"
+                                        {{ request('patient_id') == $kid->id && request('filter_patient_type', 'App\Models\Kid') === 'App\Models\Kid' ? 'selected' : '' }}>
+                                        {{ $kid->name }} ({{ $kid->age ?? 'N/D' }})
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                        @if($userPatients->isNotEmpty())
+                            <optgroup label="Adultos">
+                                @foreach($userPatients as $user)
+                                    <option value="{{ $user->id }}"
+                                        data-type="App\Models\User"
+                                        {{ request('patient_id') == $user->id && request('filter_patient_type') === 'App\Models\User' ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        @endif
                     </select>
+                    <input type="hidden" name="filter_patient_type" id="filter_patient_type" value="{{ request('filter_patient_type', 'App\Models\Kid') }}">
                 </div>
 
                 {{-- Data Início --}}
@@ -119,6 +137,7 @@
                             <tr>
                                 <th>DATA</th>
                                 <th>PACIENTE</th>
+                                <th>TIPO</th>
                                 <th>PROFISSIONAL</th>
                                 <th>CRIADO EM</th>
                                 <th class="text-center" style="width: 120px;">AÇÕES</th>
@@ -137,6 +156,15 @@
                                         <strong>{{ $record->patient_name }}</strong>
                                         @if($record->patient && $record->patient_type === 'App\Models\Kid')
                                             <br><small class="text-muted">{{ $record->patient->age ?? '' }}</small>
+                                        @endif
+                                    </td>
+
+                                    {{-- Tipo de Paciente --}}
+                                    <td class="text-center">
+                                        @if($record->patient_type === 'App\Models\Kid')
+                                            <span class="badge bg-primary"><i class="bi bi-person-hearts"></i> Criança</span>
+                                        @else
+                                            <span class="badge bg-secondary"><i class="bi bi-person"></i> Adulto</span>
                                         @endif
                                     </td>
 
@@ -192,3 +220,16 @@
     @endif
 
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        // Atualizar filter_patient_type quando o paciente for selecionado no filtro
+        $('#patient_id').on('change', function() {
+            const selected = $(this).find('option:selected');
+            const type = selected.data('type') || 'App\\Models\\Kid';
+            $('#filter_patient_type').val(type);
+        });
+    });
+</script>
+@endpush

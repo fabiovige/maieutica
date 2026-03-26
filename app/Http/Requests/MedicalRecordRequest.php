@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Kid;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class MedicalRecordRequest extends FormRequest
@@ -16,41 +17,40 @@ class MedicalRecordRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        // Always set patient_type to Kid since all patients are in kids table
-        $this->merge([
-            'patient_type' => 'App\\Models\\Kid',
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
     {
+        $patientType = $this->input('patient_type');
+
         $rules = [
-            'patient_type' => 'required|in:App\\Models\\Kid',
+            'patient_type' => 'required|in:App\\Models\\Kid,App\\Models\\User',
             'patient_id' => [
                 'required',
                 'integer',
-                function ($attribute, $value, $fail) {
-                    if (!Kid::find($value)) {
-                        $fail('O paciente selecionado não existe.');
+                function ($attribute, $value, $fail) use ($patientType) {
+                    if ($patientType === 'App\\Models\\User') {
+                        if (!User::find($value)) {
+                            $fail('O paciente selecionado não existe.');
+                        }
+                    } else {
+                        if (!Kid::find($value)) {
+                            $fail('O paciente selecionado não existe.');
+                        }
                     }
                 },
             ],
-            'session_date' => 'required|date_format:d/m/Y|before_or_equal:today',
+            'session_date' => $this->isMethod('POST')
+                ? 'required|date_format:d/m/Y|before_or_equal:today'
+                : 'nullable|date_format:d/m/Y|before_or_equal:today',
             'complaint' => 'required|string|min:10|max:5000',
             'objective_technique' => 'required|string|min:10|max:5000',
             'evolution_notes' => 'required|string|min:10|max:10000',
             'referral_closure' => 'nullable|string|max:5000',
         ];
 
-        // Professional selection (admin only)
-        if (auth()->user()->can('medical-record-create-all')) {
+        // Professional selection (admin only, create only)
+        if ($this->isMethod('POST') && auth()->user()->can('medical-record-create-all')) {
             $rules['professional_id'] = 'required|integer|exists:professionals,id';
         }
 
