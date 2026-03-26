@@ -129,8 +129,7 @@
                                                                         @if ($profession->professional->first())
                                                                             <small class="text-muted">
                                                                                 ({{ $profession->professional->first()->specialty->name }}
-                                                                                - CRM:
-                                                                                {{ $profession->professional->first()->registration_number }})
+                                                                                - {{ $profession->professional->first()->full_registration }})
                                                                             </small>
                                                                         @else
                                                                             <small class="text-danger">

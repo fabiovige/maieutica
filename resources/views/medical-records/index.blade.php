@@ -172,7 +172,7 @@
                                     <td>
                                         <div>{{ $record->creator->name ?? 'N/D' }}</div>
                                         @if($record->creator && $record->creator->professional && $record->creator->professional->first())
-                                            <small class="text-muted">{{ $record->creator->professional->first()->council_label }}: {{ $record->creator->professional->first()->registration_number }}</small>
+                                            <small class="text-muted">{{ $record->creator->professional->first()->full_registration }}</small>
                                         @endif
                                     </td>
 

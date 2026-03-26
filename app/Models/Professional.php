@@ -55,6 +55,18 @@ class Professional extends Model
     }
 
     /**
+     * Retorna conselho + número de registro concatenados. Ex: "CREFITO: 3/313080-F"
+     */
+    public function getFullRegistrationAttribute(): string
+    {
+        if (!$this->registration_number) {
+            return '';
+        }
+
+        return $this->council_label . ': ' . $this->registration_number;
+    }
+
+    /**
      * Retorna o label do conselho profissional (valor salvo ou fallback por especialidade).
      */
     public function getCouncilLabelAttribute(): string
