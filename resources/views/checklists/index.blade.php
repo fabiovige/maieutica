@@ -33,7 +33,7 @@
 @section('content')
     <div class="row">
         @if (isset($kid))
-            <div class="col-md-12">
+            <div class="col-md-12 mb-3">
                 <x-kid-info-card :kid="$kid" />
             </div>
         @endif
@@ -114,7 +114,7 @@
                                     <td>{{ $checklist->kid->name ?? 'N/D' }}</td>
                                 @endif
                                 <td><span
-                                        class="badge {{ $checklist->situation_label === 'Aberto' ? 'bg-success' : 'bg-secondary' }}">{{ $checklist->situation_label }}</span>
+                                        class="badge {{ $checklist->situation_label === 'Aberto' ? 'bg-success' : 'bg-secondary text-muted opacity-75' }}">{{ $checklist->situation_label }}</span>
                                 </td>
                                 <td>{{ $checklist->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
