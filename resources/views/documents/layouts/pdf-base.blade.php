@@ -202,7 +202,7 @@
                 @else
                     <div class="signature-line">
                         {{ $nome_psicologo }}<br>
-                        CRP: {{ $crp }}
+                        {{ $council ?? 'Reg.' }}: {{ $crp }}
                     </div>
                 @endif
             </div>

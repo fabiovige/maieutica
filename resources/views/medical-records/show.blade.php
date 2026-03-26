@@ -110,7 +110,7 @@
                         <strong>Profissional:</strong> {{ $medicalRecord->creator->name ?? 'N/D' }}
                         @if($medicalRecord->creator && $medicalRecord->creator->professional && $medicalRecord->creator->professional->first())
                             <br>
-                            <small class="text-muted">CRP: {{ $medicalRecord->creator->professional->first()->registration_number }}</small>
+                            <small class="text-muted">{{ $medicalRecord->creator->professional->first()->full_registration }}</small>
                         @endif
                     </div>
                     <div class="mb-2">

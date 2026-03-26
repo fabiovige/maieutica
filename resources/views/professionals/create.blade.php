@@ -92,12 +92,28 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-3">
+                                <label for="council" class="form-label">Conselho</label>
+                                <select class="form-select @error('council') is-invalid @enderror" id="council" name="council">
+                                    <option value="">Selecione...</option>
+                                    @foreach(\App\Models\Professional::COUNCILS as $key => $label)
+                                        <option value="{{ $key }}" {{ old('council') == $key ? 'selected' : '' }}>
+                                            {{ $key }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('council')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3">
                                 <label for="registration_number" class="form-label">Número de Registro</label>
                                 <input type="text"
                                     class="form-control @error('registration_number') is-invalid @enderror"
                                     id="registration_number" name="registration_number"
-                                    value="{{ old('registration_number') }}">
+                                    value="{{ old('registration_number') }}"
+                                    placeholder="Ex: 123456">
                                 @error('registration_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -160,12 +176,10 @@
         $(document).ready(function() {
             $('#phone').mask('(00) 00000-0000');
 
-            // Atualizar descrição da especialidade quando mudar
             $('#specialty_id').change(function() {
                 const descriptions = @json($specialties->pluck('description', 'id'));
                 const selectedId = $(this).val();
-                const description = descriptions[selectedId] || '';
-                $(this).siblings('.form-text').text(description);
+                $(this).siblings('.form-text').text(descriptions[selectedId] || '');
             });
         });
     </script>

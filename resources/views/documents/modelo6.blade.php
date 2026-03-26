@@ -14,7 +14,7 @@
         <span style="margin-left: 40px;"><strong>Sexo:</strong> {{ $sexo ?? 'Não informado' }}</span>
     </p>
     <p style="margin-bottom: 5px;"><strong>Solicitante:</strong> {{ $solicitante ?? 'Não informado' }}</p>
-    <p style="margin-bottom: 5px;"><strong>Autor(a):</strong> {{ $nome_psicologo }} <strong>Nº de Inscrição no CRP:</strong> {{ $crp }}</p>
+    <p style="margin-bottom: 5px;"><strong>Autor(a):</strong> {{ $nome_psicologo }} <strong>Nº de Inscrição no {{ $council ?? 'Reg.' }}:</strong> {{ $crp }}</p>
     <p style="margin-bottom: 15px;"><strong>Finalidade:</strong> {{ $finalidade ?? 'Não informada' }}</p>
 
     <h3 class="pdf-section-title">2. DESCRIÇÃO DA DEMANDA</h3>

@@ -43,7 +43,7 @@
                     <div class="col-md-4 mb-3">
                         <label for="professional_name" class="form-label">Profissional</label>
                         <input type="text" class="form-control"
-                               value="{{ $medicalRecord->creator->name ?? 'N/D' }}@if($medicalRecord->creator && $medicalRecord->creator->professional && $medicalRecord->creator->professional->first()) - CRP: {{ $medicalRecord->creator->professional->first()->registration_number }}@endif"
+                               value="{{ $medicalRecord->creator->name ?? 'N/D' }}@if($medicalRecord->creator && $medicalRecord->creator->professional && $medicalRecord->creator->professional->first()) - {{ $medicalRecord->creator->professional->first()->full_registration }}@endif"
                                readonly>
                     </div>
 

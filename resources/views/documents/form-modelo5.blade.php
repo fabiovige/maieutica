@@ -56,7 +56,7 @@
                                 <label for="professionals" class="form-label">Profissionais Envolvidos <span class="text-danger">*</span></label>
                                 <select name="professionals[]" id="professionals" class="form-select" multiple size="4" required>
                                     @foreach($professionals as $professional)
-                                        <option value="{{ $professional['id'] }}">{{ $professional['name'] }} - CRP {{ $professional['crp'] }}</option>
+                                        <option value="{{ $professional['id'] }}">{{ $professional['name'] }} - {{ $professional['council'] }} {{ $professional['crp'] }}</option>
                                     @endforeach
                                 </select>
                                 <small class="text-muted">Mantenha CTRL pressionado para selecionar múltiplos profissionais</small>

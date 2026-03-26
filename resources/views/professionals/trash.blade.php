@@ -52,7 +52,7 @@
                         <td>{{ $professional->user->first()->name ?? 'N/A' }}</td>
                         <td>{{ $professional->user->first()->email ?? 'N/A' }}</td>
                         <td>{{ $professional->specialty->name ?? 'N/A' }}</td>
-                        <td>{{ $professional->registration_number }}</td>
+                        <td>{{ $professional->full_registration }}</td>
                         <td>
                             <small>
                                 {{ $professional->deleted_at->format('d/m/Y H:i:s') }}

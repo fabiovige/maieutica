@@ -11,12 +11,27 @@ class Professional extends Model
 
     protected $fillable = [
         'registration_number',
+        'council',
         'bio',
         'is_intern',
         'specialty_id',
         'created_by',
         'updated_by',
         'deleted_by',
+    ];
+
+    const COUNCILS = [
+        'CRP'     => 'CRP — Conselho Regional de Psicologia',
+        'CREFITO' => 'CREFITO — Fisioterapia e Terapia Ocupacional',
+        'CRFa'    => 'CRFa — Conselho Regional de Fonoaudiologia',
+        'CRM'     => 'CRM — Conselho Regional de Medicina',
+        'COREN'   => 'COREN — Conselho Regional de Enfermagem',
+        'CREF'    => 'CREF — Conselho Regional de Educação Física',
+        'CRN'     => 'CRN — Conselho Regional de Nutrição',
+        'CRESS'   => 'CRESS — Conselho Regional de Serviço Social',
+        'ABPp'    => 'ABPp — Associação Brasileira de Psicopedagogia',
+        'UBM'     => 'UBM — União Brasileira de Musicoterapia',
+        'Outro'   => 'Outro',
     ];
 
     protected $casts = [
@@ -37,6 +52,47 @@ class Professional extends Model
     {
         return $this->belongsToMany(Kid::class, 'kid_professional')
             ->whereNull('kids.deleted_at');
+    }
+
+    /**
+     * Retorna conselho + número de registro concatenados. Ex: "CREFITO: 3/313080-F"
+     */
+    public function getFullRegistrationAttribute(): string
+    {
+        if (!$this->registration_number) {
+            return '';
+        }
+
+        return $this->council_label . ': ' . $this->registration_number;
+    }
+
+    /**
+     * Retorna o label do conselho profissional (valor salvo ou fallback por especialidade).
+     */
+    public function getCouncilLabelAttribute(): string
+    {
+        if ($this->council) {
+            return $this->council;
+        }
+
+        $map = [
+            'Psicologia'               => 'CRP',
+            'Psicopedagogia'           => 'CRP',
+            'Fisioterapia'             => 'CREFITO',
+            'Terapia Ocupacional'      => 'CREFITO',
+            'Fonoaudiologia'           => 'CRFa',
+            'Pediatria'                => 'CRM',
+            'Neurologia Infantil'      => 'CRM',
+            'Psiquiatria Infantil'     => 'CRM',
+            'Enfermagem Pediátrica'    => 'COREN',
+            'Educação Física Infantil' => 'CREF',
+            'Nutrição Infantil'        => 'CRN',
+            'Assistência Social'       => 'CRESS',
+            'Psicomotricidade'         => 'ABPp',
+            'Musicoterapia'            => 'UBM',
+        ];
+
+        return $map[$this->specialty?->name ?? ''] ?? 'Reg.';
     }
 
     /**
