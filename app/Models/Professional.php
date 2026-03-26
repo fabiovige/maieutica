@@ -40,6 +40,33 @@ class Professional extends Model
     }
 
     /**
+     * Retorna o label do conselho profissional com base na especialidade.
+     */
+    public function getCouncilLabelAttribute(): string
+    {
+        $map = [
+            'Psicologia'             => 'CRP',
+            'Psicopedagogia'         => 'CRP',
+            'Fisioterapia'           => 'CREFITO',
+            'Terapia Ocupacional'    => 'CREFITO',
+            'Fonoaudiologia'         => 'CRFa',
+            'Pediatria'              => 'CRM',
+            'Neurologia Infantil'    => 'CRM',
+            'Psiquiatria Infantil'   => 'CRM',
+            'Enfermagem Pediátrica'  => 'COREN',
+            'Educação Física Infantil' => 'CREF',
+            'Nutrição Infantil'      => 'CRN',
+            'Assistência Social'     => 'CRESS',
+            'Psicomotricidade'       => 'ABPp',
+            'Musicoterapia'          => 'UBM',
+        ];
+
+        $specialtyName = $this->specialty?->name ?? '';
+
+        return $map[$specialtyName] ?? 'Reg.';
+    }
+
+    /**
      * Users that this professional attends (as patients)
      */
     public function patients()
