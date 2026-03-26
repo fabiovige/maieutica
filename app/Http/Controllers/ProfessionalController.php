@@ -162,6 +162,7 @@ class ProfessionalController extends Controller
             // Criar o profissional
             $professional = Professional::create([
                 'specialty_id' => $validated['specialty_id'],
+                'council' => $validated['council'] ?? null,
                 'registration_number' => $validated['registration_number'],
                 'bio' => $validated['bio'] ?? null,
                 'is_intern' => $request->has('is_intern'),
@@ -241,6 +242,7 @@ class ProfessionalController extends Controller
             // Atualizar dados do profissional
             $professional->update([
                 'specialty_id' => $request->specialty_id,
+                'council' => $request->council ?: null,
                 'registration_number' => $request->registration_number,
                 'bio' => $request->bio,
                 'is_intern' => $request->has('is_intern'),

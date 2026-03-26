@@ -92,8 +92,23 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <label for="registration_number" class="form-label" id="registration_number_label">Número de Registro</label>
+                            <div class="col-md-3">
+                                <label for="council" class="form-label">Conselho</label>
+                                <select class="form-select @error('council') is-invalid @enderror" id="council" name="council">
+                                    <option value="">Selecione...</option>
+                                    @foreach(\App\Models\Professional::COUNCILS as $key => $label)
+                                        <option value="{{ $key }}" {{ old('council') == $key ? 'selected' : '' }}>
+                                            {{ $key }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('council')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="registration_number" class="form-label">Número de Registro</label>
                                 <input type="text"
                                     class="form-control @error('registration_number') is-invalid @enderror"
                                     id="registration_number" name="registration_number"
@@ -158,41 +173,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script>
-        const councilMap = {
-            'Psicologia': 'CRP', 'Psicopedagogia': 'CRP',
-            'Fisioterapia': 'CREFITO', 'Terapia Ocupacional': 'CREFITO',
-            'Fonoaudiologia': 'CRFa',
-            'Pediatria': 'CRM', 'Neurologia Infantil': 'CRM', 'Psiquiatria Infantil': 'CRM',
-            'Enfermagem Pediátrica': 'COREN',
-            'Educação Física Infantil': 'CREF',
-            'Nutrição Infantil': 'CRN',
-            'Assistência Social': 'CRESS',
-            'Psicomotricidade': 'ABPp',
-            'Musicoterapia': 'UBM',
-        };
-        const specialtyNames = @json($specialties->pluck('name', 'id'));
-
-        function updateCouncilLabel(selectedId) {
-            const name = specialtyNames[selectedId] || '';
-            const council = councilMap[name] || null;
-            const label = document.getElementById('registration_number_label');
-            label.textContent = council ? council + ' (Número de Registro)' : 'Número de Registro';
-        }
-
         $(document).ready(function() {
             $('#phone').mask('(00) 00000-0000');
 
             $('#specialty_id').change(function() {
-                const selectedId = $(this).val();
                 const descriptions = @json($specialties->pluck('description', 'id'));
+                const selectedId = $(this).val();
                 $(this).siblings('.form-text').text(descriptions[selectedId] || '');
-                updateCouncilLabel(selectedId);
             });
-
-            // Inicializar se já houver valor selecionado (old())
-            if ($('#specialty_id').val()) {
-                updateCouncilLabel($('#specialty_id').val());
-            }
         });
     </script>
 @endpush
