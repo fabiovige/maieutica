@@ -175,5 +175,47 @@ class ReleaseSeeder extends Seeder
                 ],
             ]
         );
+        // Marco 2026 - v2.4.0
+        Release::updateOrCreate(
+            ['version' => 'v2.4.0'],
+            [
+                'title' => 'Observabilidade, Remocao do Telescope e Correcoes de UI',
+                'release_date' => '2026-03-26',
+                'description' => 'Endpoint de health check, notificacao de erros por e-mail em producao, remocao completa do Telescope, suporte polimórfico completo nos prontuarios e correcoes visuais.',
+                'items' => [
+                    'features' => [
+                        'Endpoint /health sem autenticacao para monitoramento externo (banco, cache, disco, fila)',
+                        'Notificacao de erros criticos por e-mail ao admin em producao (substitui Sentry)',
+                        'Prontuarios: suporte polimórfico completo a pacientes adultos (User) alem de criancas (Kid)',
+                        'Prontuarios: filtro de patient_type na busca da listagem',
+                        'Select2 aplicado no dropdown de crianca no formulario de criacao de checklist',
+                        'Checklist create: nivel fixo em 4 Denver (sem seletor manual)',
+                    ],
+                    'bugs' => [
+                        'Denver: escopo de elegibilidade corrigido para 60 meses (5 anos) - era YEAR impreciso',
+                        'Dropdown em tabelas: corrigido corte por overflow com position fixed via JS',
+                        'PDF: pagina exclusiva de assinatura com page-break-before (evita assinatura cortada)',
+                        'MedicalRecordRequest: session_date opcional no PUT (apenas obrigatoria no POST)',
+                    ],
+                    'chores' => [
+                        'Remocao completa do Telescope: provider, assets publicados e padrão no Debugbar',
+                        'Rota de teste do Sentry removida',
+                    ],
+                    'ui' => [
+                        'Espacamento entre card de info da crianca e lista de checklists (mb-3)',
+                        'Badge de status Fechado nos checklists com cinza opaco (opacity-75)',
+                        'Border-radius nas celulas extremas da tabela (sem overflow hidden)',
+                        'CSS: variavel --color-blue-primary, .bg-primary usa azul institucional',
+                        'Sidebar: link de Logs removido do menu lateral',
+                        'table-actions: shadow e auto-close no dropdown',
+                    ],
+                ],
+                'commits' => [
+                    ['hash' => '8b56874', 'message' => 'feat: suporte a pacientes adultos nos prontuarios, health check e correcoes de UI'],
+                    ['hash' => 'd938d6d', 'message' => 'chore: remover todos os vestigios do Telescope'],
+                    ['hash' => '5121cca', 'message' => 'style: espacamento e badge opaco para checklists fechados'],
+                ],
+            ]
+        );
     }
 }
