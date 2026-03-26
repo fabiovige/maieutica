@@ -20,11 +20,11 @@
     <p style="margin-bottom: 5px;"><strong>Profissionais Envolvidos:</strong></p>
     <ul style="margin-top: 5px; margin-bottom: 15px; padding-left: 20px;">
         @foreach($professionals as $prof)
-        <li style="margin-bottom: 3px;">{{ $prof['name'] }} - CRP {{ $prof['crp'] }}</li>
+        <li style="margin-bottom: 3px;">{{ $prof['name'] }} - {{ $prof['council'] }} {{ $prof['crp'] }}</li>
         @endforeach
     </ul>
     @else
-    <p style="margin-bottom: 15px;"><strong>Autor(a):</strong> {{ $nome_psicologo }} <strong>Nº de Inscrição no CRP:</strong> {{ $crp }}</p>
+    <p style="margin-bottom: 15px;"><strong>Autor(a):</strong> {{ $nome_psicologo }} <strong>Nº de Inscrição no {{ $council ?? 'Reg.' }}:</strong> {{ $crp }}</p>
     @endif
 
     <h3 class="pdf-section-title">2. DESCRIÇÃO DA DEMANDA</h3>

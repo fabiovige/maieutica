@@ -19,7 +19,7 @@
     <p style="margin-bottom: 5px;"><strong>Autor(a)(res):</strong></p>
     <ul style="margin-top: 5px; margin-bottom: 10px; padding-left: 20px;">
         @foreach($professionals as $prof)
-        <li style="margin-bottom: 3px;">{{ $prof['name'] }} - CRP {{ $prof['crp'] }}</li>
+        <li style="margin-bottom: 3px;">{{ $prof['name'] }} - {{ $prof['council'] }} {{ $prof['crp'] }}</li>
         @endforeach
     </ul>
     @endif

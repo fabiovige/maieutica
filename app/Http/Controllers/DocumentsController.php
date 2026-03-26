@@ -39,6 +39,7 @@ class DocumentsController extends Controller
         return [
             'nome_paciente' => strtoupper($kid->name),
             'nome_psicologo' => $user ? strtoupper($user->name) : 'N/A',
+            'council' => $professional?->council_label ?? 'Reg.',
             'crp' => $professional->registration_number ?? 'N/A',
             'cidade' => $user->city ?? 'Santana de Parnaíba',
             'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
@@ -95,6 +96,7 @@ class DocumentsController extends Controller
                 return [
                     'id' => $professional->id,
                     'name' => $user ? $user->name : 'N/A',
+                    'council' => $professional->council_label,
                     'crp' => $professional->registration_number ?? 'N/A',
                 ];
             });
@@ -231,6 +233,7 @@ class DocumentsController extends Controller
                 $user = $prof->user->first();
                 $professionalsData[] = [
                     'name' => $user ? strtoupper($user->name) : 'N/A',
+                    'council' => $prof->council_label,
                     'crp' => $prof->registration_number ?? 'N/A',
                     'city' => $user->city ?? 'Santana de Parnaíba',
                 ];
@@ -241,6 +244,7 @@ class DocumentsController extends Controller
             $user = $professional ? $professional->user->first() : null;
             $professionalsData[] = [
                 'name' => $user ? strtoupper($user->name) : 'N/A',
+                'council' => $professional?->council_label ?? 'Reg.',
                 'crp' => $professional->registration_number ?? 'N/A',
                 'city' => $user->city ?? 'Santana de Parnaíba',
             ];
@@ -264,6 +268,7 @@ class DocumentsController extends Controller
 
             // Profissional principal (para assinatura)
             'nome_psicologo' => $professionalsData[0]['name'],
+            'council' => $professionalsData[0]['council'],
             'crp' => $professionalsData[0]['crp'],
             'cidade' => $professionalsData[0]['city'],
             'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
@@ -329,6 +334,7 @@ class DocumentsController extends Controller
                 return [
                     'id' => $professional->id,
                     'name' => $user ? $user->name : 'N/A',
+                    'council' => $professional->council_label,
                     'crp' => $professional->registration_number ?? 'N/A',
                 ];
             });
@@ -370,6 +376,7 @@ class DocumentsController extends Controller
                 $user = $prof->user->first();
                 $professionalsData[] = [
                     'name' => $user ? strtoupper($user->name) : 'N/A',
+                    'council' => $prof->council_label,
                     'crp' => $prof->registration_number ?? 'N/A',
                     'city' => $user->city ?? 'Santana de Parnaíba',
                 ];
@@ -380,6 +387,7 @@ class DocumentsController extends Controller
             $user = $professional ? $professional->user->first() : null;
             $professionalsData[] = [
                 'name' => $user ? strtoupper($user->name) : 'N/A',
+                'council' => $professional?->council_label ?? 'Reg.',
                 'crp' => $professional->registration_number ?? 'N/A',
                 'city' => $user->city ?? 'Santana de Parnaíba',
             ];
@@ -403,6 +411,7 @@ class DocumentsController extends Controller
 
             // Profissional principal (para assinatura)
             'nome_psicologo' => $professionalsData[0]['name'],
+            'council' => $professionalsData[0]['council'],
             'crp' => $professionalsData[0]['crp'],
             'cidade' => $professionalsData[0]['city'],
             'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
@@ -460,6 +469,7 @@ class DocumentsController extends Controller
                 return [
                     'id' => $professional->id,
                     'name' => $user ? $user->name : 'N/A',
+                    'council' => $professional->council_label,
                     'crp' => $professional->registration_number ?? 'N/A',
                 ];
             });
@@ -521,6 +531,7 @@ class DocumentsController extends Controller
 
             // Profissional principal (para assinatura)
             'nome_psicologo' => $professionalsData[0]['name'],
+            'council' => $professionalsData[0]['council'],
             'crp' => $professionalsData[0]['crp'],
             'cidade' => $professionalsData[0]['city'],
             'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
