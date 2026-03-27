@@ -75,8 +75,8 @@
         </div>
     @else
         <div class="card">
-            <div class="card-header bg-primary" style="color: #fff;">
-                <h3 class="card-title-custom mb-0">
+            <div class="card-header bg-primary">
+                <h3 class="card-title-custom mb-0 text-white">
                     <i class="bi bi-clock-history"></i> Histórico de Documentos Gerados
                 </h3>
             </div>
