@@ -35,8 +35,8 @@
                         <div class="row mb-4">
                             <div class="col-md-12">
                                 <label for="kid_id" class="form-label">Paciente <span class="text-danger">*</span></label>
-                                <select name="kid_id" id="kid_id" class="form-select" required>
-                                    <option value="">Selecione uma criança</option>
+                                <select name="kid_id" id="kid_id" class="form-select select2" data-placeholder="Buscar criança..." required>
+                                    <option value="">Buscar criança...</option>
                                     @foreach($kids as $kid)
                                         <option value="{{ $kid->id }}">{{ $kid->name }} - {{ $kid->age }}</option>
                                     @endforeach
@@ -67,3 +67,15 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function () {
+        $('#kid_id').select2({
+            placeholder: 'Buscar criança...',
+            allowClear: true,
+            width: '100%',
+        });
+    });
+</script>
+@endpush
