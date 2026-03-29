@@ -10,7 +10,7 @@
     @endcomponent
 --}}
 <div class="dropdown">
-    <button class="btn btn-sm btn-outline-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" data-bs-boundary="viewport" aria-expanded="false">
         Ações
     </button>
     <ul class="dropdown-menu dropdown-menu-end shadow">
