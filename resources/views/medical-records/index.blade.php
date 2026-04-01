@@ -139,7 +139,6 @@
                                 <th>PACIENTE</th>
                                 <th>TIPO</th>
                                 <th>PROFISSIONAL</th>
-                                <th>CRIADO EM</th>
                                 <th class="text-center">AÇÕES</th>
                             </tr>
                         </thead>
@@ -175,9 +174,6 @@
                                             <small class="text-muted">{{ $record->creator->professional->first()->full_registration }}</small>
                                         @endif
                                     </td>
-
-                                    {{-- Criado em --}}
-                                    <td>{{ $record->created_at ? $record->created_at->format('d/m/Y H:i') : 'N/D' }}</td>
 
                                     {{-- Ações --}}
                                     <td class="text-center">
