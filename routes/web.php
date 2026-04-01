@@ -155,6 +155,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('releases', [ReleaseController::class, 'index'])->name('releases.index');
     Route::get('releases/{release}', [ReleaseController::class, 'show'])->name('releases.show');
 
+    // Análise e PDF (dados clínicos — requerem autenticação)
+    Route::get('/analysis/{kidId}/level/{levelId}/{firstChecklistId?}/{secondChecklistId?}', [KidsController::class, 'showRadarChart2'])->name('kids.radarChart2');
+    Route::get('/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
+    Route::post('/kids/{kidId}/overview/generate-pdf', [KidsController::class, 'generatePdf'])->name('kids.generatePdf');
+
 });
 
 // Health Check (sem autenticacao - para monitoramento externo)
@@ -208,24 +213,8 @@ Route::get('kids/datatable/index', [KidsController::class, 'index_data'])->name(
 Route::get('roles/datatable/index', [RoleController::class, 'index_data'])->name('roles.index_data')->middleware(['auth']);
 Route::get('users/datatable/index', [UserController::class, 'index_data'])->name('users.index_data')->middleware(['auth']);
 
-Route::get('logs', function () {
-    $message = 'This is a sample message for Test.';
-    Log::emergency($message);
-    Log::alert($message);
-    Log::critical($message);
-    Log::error($message);
-    Log::warning($message);
-    Log::notice($message);
-    Log::info($message);
-    Log::debug($message);
-});
-
 // Route::get('/teste',  [KidsController::class, 'teste'])->name('kids.teste');
 // Route::get('/teste/{kidId}/level/{levelId}', [KidsController::class, 'showRadarChart'])->name('kids.radarChart');
-Route::get('/analysis/{kidId}/level/{levelId}/{firstChecklistId?}/{secondChecklistId?}', [KidsController::class, 'showRadarChart2'])->name('kids.radarChart2');
-Route::get('/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
-// routes/web.php
-Route::post('/kids/{kidId}/overview/generate-pdf', [KidsController::class, 'generatePdf'])->name('kids.generatePdf');
 
 // Documentação
 Route::get('/documentation', [App\Http\Controllers\DocumentationController::class, 'index'])->name('documentation.index');

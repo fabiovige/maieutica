@@ -366,6 +366,8 @@ class KidsController extends Controller
 
     public function update(Request $request, Kid $kid)
     {
+        $this->authorize('update', $kid);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'birth_date' => 'required|date_format:d/m/Y|before:today|after:1900-01-01',
@@ -1060,6 +1062,7 @@ class KidsController extends Controller
     {
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
+        $this->authorize('view', $kid);
 
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
@@ -1258,6 +1261,7 @@ class KidsController extends Controller
     {
         // Obter a criança pelo ID
         $kid = Kid::findOrFail($kidId);
+        $this->authorize('view', $kid);
 
         // Calcular a idade da criança em meses
         $birthdate = Carbon::createFromFormat('d/m/Y', $kid->birth_date);
@@ -1595,6 +1599,7 @@ class KidsController extends Controller
         $barChartItems2Image = $request->input('barChartItems2Image');
 
         $kid = Kid::findOrFail($kidId);
+        $this->authorize('view', $kid);
 
         // Usar o checklist dos dados retornados pelo service (que pode ser o selecionado ou o atual)
         $currentChecklist = $data['currentChecklist'];

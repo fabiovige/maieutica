@@ -20,35 +20,30 @@ class DatabaseHandler extends AbstractProcessingHandler
     protected function write(array $record): void
     {
         try {
-            if (! empty($record['message']) && $record['level_name'] != 'ERROR') {
-                $this->createLog(
-                    null,
-                    null,
-                    $this->log::ACTION_INFO,
-                    $record['message']
-                );
+            $context = $record['context'] ?? [];
+            $model = Arr::get($context, 0);
 
+            // Caso 1: context[0] é um Model Eloquent (via Observers)
+            if ($model instanceof Model) {
+                if ($model->log == false) {
+                    return;
+                }
+                $this->isDelete = Arr::get($context, 1);
+                $action = $this->getAction($model);
+                $description = $this->getDescription($action, $model);
+                $this->createLog(get_class($model), $model->getKey(), $action, $description);
                 return;
             }
 
-            $model = Arr::get($record['context'], 0);
-
-            if (! $model instanceof Model) {
-                return;
+            // Caso 2: context é array associativo (KidLogger, UserLogger, etc.)
+            if (! empty($record['message'])) {
+                $description = $record['message'];
+                if (! empty($context)) {
+                    $description .= ' ' . json_encode($context, JSON_UNESCAPED_UNICODE);
+                }
+                $this->createLog(null, null, $this->log::ACTION_INFO, $description);
             }
-
-            if ($model->log == false) {
-                return;
-            }
-
-            $this->isDelete = Arr::get($record['context'], 1);
-
-            $action = $this->getAction($model);
-            $description = $this->getDescription($action, $model);
-
-            $this->createLog(get_class($model), $model->getKey(), $action, $description);
         } catch (\Exception $e) {
-            // Fallback para log de arquivo em caso de erro
             \Illuminate\Support\Facades\Log::error('Database logging failed: ' . $e->getMessage());
         }
     }

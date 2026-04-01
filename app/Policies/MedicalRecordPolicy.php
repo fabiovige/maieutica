@@ -37,12 +37,12 @@ class MedicalRecordPolicy
         // Patient can ONLY view their own records
         if ($user->can('medical-record-view-own')) {
             return $medicalRecord->patient_type === User::class
-                && $medicalRecord->patient_id === $user->id;
+                && (int) $medicalRecord->patient_id === (int) $user->id;
         }
 
-        // Professional can view ONLY if they created it
+        // Professional can view any record of their assigned patients
         if ($user->can('medical-record-show')) {
-            return $medicalRecord->created_by === $user->id;
+            return true;
         }
 
         return false;
@@ -70,7 +70,7 @@ class MedicalRecordPolicy
 
         // Professional ONLY if they created it
         if ($user->can('medical-record-edit')) {
-            return $medicalRecord->created_by === $user->id;
+            return (int) $medicalRecord->created_by === (int) $user->id;
         }
 
         return false;
@@ -89,7 +89,7 @@ class MedicalRecordPolicy
 
         // Professional ONLY if they created it
         if ($user->can('medical-record-delete')) {
-            return $medicalRecord->created_by === $user->id;
+            return (int) $medicalRecord->created_by === (int) $user->id;
         }
 
         return false;
@@ -116,7 +116,7 @@ class MedicalRecordPolicy
 
         // Professional ONLY if they created it
         if ($user->can('medical-record-edit')) {
-            return $medicalRecord->created_by === $user->id;
+            return (int) $medicalRecord->created_by === (int) $user->id;
         }
 
         return false;
