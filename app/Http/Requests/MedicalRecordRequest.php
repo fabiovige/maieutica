@@ -40,9 +40,7 @@ class MedicalRecordRequest extends FormRequest
                     }
                 },
             ],
-            'session_date' => $this->isMethod('POST')
-                ? 'required|date_format:d/m/Y|before_or_equal:today'
-                : 'nullable|date_format:d/m/Y|before_or_equal:today',
+            'session_date' => 'required|date_format:d/m/Y|before_or_equal:today',
             'complaint' => 'required|string|min:10|max:5000',
             'objective_technique' => 'required|string|min:10|max:5000',
             'evolution_notes' => 'required|string|min:10|max:10000',
