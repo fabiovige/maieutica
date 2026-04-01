@@ -618,8 +618,8 @@ class MedicalRecordsController extends Controller
                 return [
                     'id' => $record->id,
                     'session_date' => $record->session_date ? $record->session_date->format('d/m/Y') : 'N/D',
-                    'complaint' => \Illuminate\Support\Str::limit($record->complaint, 100),
-                    'creator_name' => $record->creator->name ?? 'N/D',
+                    'complaint' => e(\Illuminate\Support\Str::limit($record->complaint, 100)),
+                    'creator_name' => e($record->creator->name ?? 'N/D'),
                     'url' => route('medical-records.show', $record->id),
                 ];
             });
