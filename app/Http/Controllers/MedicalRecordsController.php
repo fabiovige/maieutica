@@ -219,7 +219,10 @@ class MedicalRecordsController extends Controller
 
         $medicalRecord->load('patient');
 
-        return view('medical-records.edit', compact('medicalRecord'));
+        $kids = $this->getKidsForUser();
+        $userPatients = $this->getUserPatientsForUser();
+
+        return view('medical-records.edit', compact('medicalRecord', 'kids', 'userPatients'));
     }
 
     /**
