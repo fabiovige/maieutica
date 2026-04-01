@@ -140,7 +140,7 @@
                                 <th>TIPO</th>
                                 <th>PROFISSIONAL</th>
                                 <th>CRIADO EM</th>
-                                <th class="text-center" style="width: 120px;">AÇÕES</th>
+                                <th class="text-center">AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -181,29 +181,22 @@
 
                                     {{-- Ações --}}
                                     <td class="text-center">
-                                        @component('components.table-actions')
-                                            @slot('items')
-                                                @can('view', $record)
-                                                    <li><a class="dropdown-item" href="{{ route('medical-records.show', $record) }}">Visualizar</a></li>
-                                                @endcan
-                                                @can('view', $record)
-                                                    <li><a class="dropdown-item" href="{{ route('medical-records.pdf', $record) }}">Download PDF</a></li>
-                                                @endcan
-                                                @can('update', $record)
-                                                    <li><a class="dropdown-item" href="{{ route('medical-records.edit', $record) }}">Editar</a></li>
-                                                @endcan
-                                                @can('delete', $record)
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li>
-                                                        <form action="{{ route('medical-records.destroy', $record) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja mover este prontuário para a lixeira?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="dropdown-item text-danger">Excluir</button>
-                                                        </form>
-                                                    </li>
-                                                @endcan
-                                            @endslot
-                                        @endcomponent
+                                        <div class="d-flex flex-wrap gap-1 justify-content-center">
+                                            @can('view', $record)
+                                                <a href="{{ route('medical-records.show', $record) }}" class="btn btn-secondary btn-sm">Ver</a>
+                                                <a href="{{ route('medical-records.pdf', $record) }}" class="btn btn-secondary btn-sm">PDF</a>
+                                            @endcan
+                                            @can('update', $record)
+                                                <a href="{{ route('medical-records.edit', $record) }}" class="btn btn-secondary btn-sm">Editar</a>
+                                            @endcan
+                                            @can('delete', $record)
+                                                <form action="{{ route('medical-records.destroy', $record) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja mover este prontuário para a lixeira?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-secondary btn-sm">Excluir</button>
+                                                </form>
+                                            @endcan
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
