@@ -282,21 +282,9 @@
 
                                         <!-- Ações -->
                                         <td class="text-center">
-                                            <div class="d-flex flex-wrap gap-1 justify-content-center">
-                                                @if(auth()->user()->can('kid-show') || auth()->user()->id === $kid->responsible_id)
-                                                    <a href="{{ route('kids.show', $kid->id) }}" class="btn btn-secondary btn-sm">Ver</a>
-                                                @endif
-                                                @can('kid-edit')
-                                                    <a href="{{ route('kids.edit', $kid->id) }}" class="btn btn-secondary btn-sm">Editar</a>
-                                                @endcan
-                                                @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
-                                                    <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}" class="btn btn-secondary btn-sm">Checklists</a>
-                                                @endif
-                                                @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
-                                                    <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}" class="btn btn-secondary btn-sm">Comparativo</a>
-                                                    <a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}" class="btn btn-secondary btn-sm">Desenvolvimento</a>
-                                                @endif
-                                            </div>
+                                            @if(auth()->user()->can('kid-show') || auth()->user()->id === $kid->responsible_id)
+                                                <a href="{{ route('kids.show', $kid->id) }}" class="btn btn-secondary btn-sm">Ver</a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
