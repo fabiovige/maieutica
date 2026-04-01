@@ -83,21 +83,12 @@
                                     {{-- Ações --}}
                                     <td class="text-end">
                                         @can('restore', $record)
-                                            @component('components.table-actions')
-                                                @slot('items')
-                                                    <li>
-                                                        <form action="{{ route('medical-records.restore', $record->id) }}" 
-                                                              method="POST" 
-                                                              class="m-0"
-                                                              onsubmit="return confirm('Tem certeza que deseja restaurar este prontuário?');">
-                                                            @csrf
-                                                            <button type="submit" class="dropdown-item text-success">
-                                                                Restaurar
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                @endslot
-                                            @endcomponent
+                                            <form action="{{ route('medical-records.restore', $record->id) }}"
+                                                  method="POST" class="m-0"
+                                                  onsubmit="return confirm('Tem certeza que deseja restaurar este prontuário?');">
+                                                @csrf
+                                                <button type="submit" class="btn btn-secondary btn-sm">Restaurar</button>
+                                            </form>
                                         @endcan
                                     </td>
                                 </tr>

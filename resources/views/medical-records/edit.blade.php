@@ -23,53 +23,36 @@
             <form action="{{ route('medical-records.update', $medicalRecord) }}" method="POST">
                 @csrf
                 @method('PUT')
-                <input type="hidden" name="patient_type" id="patient_type" value="{{ old('patient_type', $medicalRecord->patient_type) }}">
+                <input type="hidden" name="patient_type" value="{{ $medicalRecord->patient_type }}">
 
-                {{-- Tipo de Paciente --}}
-                <div class="mb-3">
-                    <label class="form-label">Tipo de Paciente <span class="text-danger">*</span></label>
-                    <div class="btn-group w-100" role="group">
-                        <input type="radio" class="btn-check" name="patient_type_toggle" id="type_kid" value="App\Models\Kid" autocomplete="off"
-                            {{ old('patient_type', $medicalRecord->patient_type) === 'App\Models\Kid' ? 'checked' : '' }}>
-                        <label class="btn btn-outline-warning" for="type_kid">
-                            <i class="bi bi-person-hearts"></i> Criança
-                        </label>
-                        <input type="radio" class="btn-check" name="patient_type_toggle" id="type_adult" value="App\Models\User" autocomplete="off"
-                            {{ old('patient_type', $medicalRecord->patient_type) === 'App\Models\User' ? 'checked' : '' }}>
-                        <label class="btn btn-outline-warning" for="type_adult">
-                            <i class="bi bi-person"></i> Adulto
-                        </label>
-                    </div>
-                </div>
-
-                {{-- Linha 1: Paciente (Criança), Paciente (Adulto), Data --}}
+                {{-- Linha 1: Paciente, Data --}}
                 <div class="row">
-                    {{-- Paciente Criança --}}
-                    <div class="col-md-6 mb-3" id="patient_kid_wrapper" style="{{ old('patient_type', $medicalRecord->patient_type) === 'App\Models\User' ? 'display:none' : '' }}">
-                        <label for="patient_id_kid" class="form-label">Paciente (Criança) <span class="text-danger">*</span></label>
-                        <select name="patient_id" id="patient_id_kid" class="form-select select2 @error('patient_id') is-invalid @enderror" data-placeholder="Selecione a criança">
-                            <option value="">Selecione a criança</option>
-                            @foreach($kids as $kid)
-                                <option value="{{ $kid->id }}" {{ old('patient_id', $medicalRecord->patient_type === 'App\Models\Kid' ? $medicalRecord->patient_id : '') == $kid->id ? 'selected' : '' }}>
-                                    {{ $kid->name }} ({{ $kid->age ?? 'Idade N/D' }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('patient_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    {{-- Paciente Adulto --}}
-                    <div class="col-md-6 mb-3" id="patient_adult_wrapper" style="{{ old('patient_type', $medicalRecord->patient_type) !== 'App\Models\User' ? 'display:none' : '' }}">
-                        <label for="patient_id_adult" class="form-label">Paciente (Adulto) <span class="text-danger">*</span></label>
-                        <select name="patient_id" id="patient_id_adult" class="form-select select2 @error('patient_id') is-invalid @enderror" data-placeholder="Selecione o adulto" {{ old('patient_type', $medicalRecord->patient_type) !== 'App\Models\User' ? 'disabled' : '' }}>
-                            <option value="">Selecione o adulto</option>
-                            @foreach($userPatients as $user)
-                                <option value="{{ $user->id }}" {{ old('patient_id', $medicalRecord->patient_type === 'App\Models\User' ? $medicalRecord->patient_id : '') == $user->id ? 'selected' : '' }}>
-                                    {{ $user->name }}
-                                </option>
-                            @endforeach
+                    {{-- Paciente --}}
+                    <div class="col-md-6 mb-3">
+                        <label for="patient_id" class="form-label">
+                            Paciente
+                            @if($medicalRecord->patient_type === 'App\Models\Kid')
+                                <span class="badge bg-primary ms-1"><i class="bi bi-person-hearts"></i> Criança</span>
+                            @else
+                                <span class="badge bg-secondary ms-1"><i class="bi bi-person"></i> Adulto</span>
+                            @endif
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select name="patient_id" id="patient_id" class="form-select select2 @error('patient_id') is-invalid @enderror" data-placeholder="Selecione o paciente">
+                            <option value="">Selecione o paciente</option>
+                            @if($medicalRecord->patient_type === 'App\Models\Kid')
+                                @foreach($kids as $kid)
+                                    <option value="{{ $kid->id }}" {{ old('patient_id', $medicalRecord->patient_id) == $kid->id ? 'selected' : '' }}>
+                                        {{ $kid->name }} ({{ $kid->age ?? 'Idade N/D' }})
+                                    </option>
+                                @endforeach
+                            @else
+                                @foreach($userPatients as $user)
+                                    <option value="{{ $user->id }}" {{ old('patient_id', $medicalRecord->patient_id) == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            @endif
                         </select>
                         @error('patient_id')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -173,26 +156,7 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        // Configurar datepicker
         $('#session_date').datepicker('option', 'maxDate', 0);
-
-        // Alternar tipo de paciente (Criança / Adulto)
-        $('input[name="patient_type_toggle"]').on('change', function() {
-            const type = $(this).val();
-            $('#patient_type').val(type);
-
-            if (type === 'App\\Models\\Kid') {
-                $('#patient_kid_wrapper').show();
-                $('#patient_id_kid').prop('disabled', false);
-                $('#patient_adult_wrapper').hide();
-                $('#patient_id_adult').prop('disabled', true).val('').trigger('change.select2');
-            } else {
-                $('#patient_adult_wrapper').show();
-                $('#patient_id_adult').prop('disabled', false);
-                $('#patient_kid_wrapper').hide();
-                $('#patient_id_kid').prop('disabled', true).val('').trigger('change.select2');
-            }
-        });
     });
 </script>
 @endpush

@@ -62,17 +62,11 @@
                         </td>
                         <td class="text-center">
                             @can('professional-edit')
-                                @component('components.table-actions')
-                                    @slot('items')
-                                        <li>
-                                            <button type="button" class="dropdown-item text-success btn-restore"
-                                                data-professional-id="{{ $professional->id }}"
-                                                data-professional-name="{{ $professional->user->first()->name ?? 'Profissional' }}">
-                                                Restaurar
-                                            </button>
-                                        </li>
-                                    @endslot
-                                @endcomponent
+                                <button type="button" class="btn btn-secondary btn-sm btn-restore"
+                                    data-professional-id="{{ $professional->id }}"
+                                    data-professional-name="{{ $professional->user->first()->name ?? 'Profissional' }}">
+                                    Restaurar
+                                </button>
                             @endcan
                         </td>
                     </tr>

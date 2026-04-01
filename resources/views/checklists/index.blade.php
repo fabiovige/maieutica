@@ -82,7 +82,7 @@
     @endif
 
     <div class="row">
-        <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-12' }}">
+        <div class="col-md-12">
 
             <table class="table table-bordered table-hover table-striped align-middle mb-0">
                 <thead class="table-light">
@@ -130,50 +130,36 @@
                                 </td>
 
                                 @canany(['checklist-edit', 'checklist-edit-all'])
+                                    @php
+                                        $isAdmin = auth()->check() && auth()->user()->can('checklist-edit-all');
+                                        $isOpen = $checklist->situation_label === 'Aberto';
+                                    @endphp
                                     <td>
-                                        @php
-                                            $isAdmin = auth()->check() && auth()->user()->can('checklist-edit-all');
-                                            $isDisabled = $checklist->situation_label !== 'Aberto' && !$isAdmin;
-                                        @endphp
-                                        @component('components.table-actions')
-                                            @slot('disabled', $isDisabled)
-                                            @slot('items')
-                                                @can('checklist-edit')
-                                                    <li><a class="dropdown-item"
-                                                            href="{{ isset($kid) ? route('checklists.edit', ['checklist' => $checklist->id, 'kidId' => $kid->id]) : route('checklists.edit', $checklist->id) }}">
-                                                            Editar
-                                                        </a></li>
-                                                @endcan
+                                        <div class="d-flex flex-wrap gap-1 justify-content-center">
+                                            {{-- Editar sempre aparece (permite trocar status mesmo fechado) --}}
+                                            @can('checklist-edit')
+                                                <a href="{{ isset($kid) ? route('checklists.edit', ['checklist' => $checklist->id, 'kidId' => $kid->id]) : route('checklists.edit', $checklist->id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                                            @endcan
+                                            {{-- Demais botões: apenas quando aberto --}}
+                                            @if($isOpen || $isAdmin)
                                                 @can('checklist-avaliation')
-                                                    <li><a class="dropdown-item"
-                                                            href="{{ route('checklists.fill', $checklist->id) }}">
-                                                            Avaliação
-                                                        </a></li>
+                                                    <a href="{{ route('checklists.fill', $checklist->id) }}" class="btn btn-secondary btn-sm">Avaliação</a>
                                                 @endcan
                                                 @can('checklist-plane-manual')
                                                     @if($checklist->kid)
-                                                    <li><a class="dropdown-item"
-                                                            href="{{ route('kids.showPlane', $checklist->kid->id) }}">
-                                                            Plano Manual
-                                                        </a></li>
+                                                        <a href="{{ route('kids.showPlane', $checklist->kid->id) }}" class="btn btn-secondary btn-sm">Plano Manual</a>
                                                     @endif
                                                 @endcan
                                                 @can('checklist-plane-automatic')
                                                     @if($checklist->kid)
-                                                    <li><a class="dropdown-item"
-                                                            href="{{ route('kid.plane-automatic', ['kidId' => $checklist->kid->id, 'checklistId' => $checklist->id]) }}">
-                                                            Plano Automático
-                                                        </a></li>
+                                                        <a href="{{ route('kid.plane-automatic', ['kidId' => $checklist->kid->id, 'checklistId' => $checklist->id]) }}" class="btn btn-secondary btn-sm">Plano Auto</a>
                                                     @endif
                                                 @endcan
                                                 @can('checklist-clone')
-                                                    <li><a class="dropdown-item"
-                                                            href="{{ route('checklists.clonar', ['id' => $checklist->id, 'kid_id' => $checklist->kid_id]) }}">
-                                                            Clonar
-                                                        </a></li>
+                                                    <a href="{{ route('checklists.clonar', ['id' => $checklist->id, 'kid_id' => $checklist->kid_id]) }}" class="btn btn-secondary btn-sm">Clonar</a>
                                                 @endcan
-                                            @endslot
-                                        @endcomponent
+                                            @endif
+                                        </div>
                                     </td>
                                 @endcanany
                             </tr>
@@ -188,19 +174,18 @@
             </div>
 
         </div>
-        @if (isset($kid))
-            <div class="{{ isset($kid) ? 'col-md-6' : 'col-md-6' }} mt-2">
-                <div class="row">
-                    <div class="col-md-12 mb-4">
-                        <canvas id="barChart" width="400" height="300"></canvas>
-                    </div>
-                    <div class="col-md-12">
-                        <canvas id="statusChart" width="400" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
-        @endif
     </div>
+
+    @if (isset($kid))
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <canvas id="barChart" height="300"></canvas>
+        </div>
+        <div class="col-md-6 mb-4">
+            <canvas id="statusChart" height="300"></canvas>
+        </div>
+    </div>
+    @endif
 
     @can('checklist-create')
         @if ($kid)

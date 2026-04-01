@@ -62,17 +62,11 @@
                         </td>
                         <td class="text-center">
                             @can('role-edit')
-                                @component('components.table-actions')
-                                    @slot('items')
-                                        <li>
-                                            <button type="button" class="dropdown-item btn-restore"
-                                                data-role-id="{{ $role->id }}"
-                                                data-role-name="{{ $role->name }}">
-                                                Restaurar
-                                            </button>
-                                        </li>
-                                    @endslot
-                                @endcomponent
+                                <button type="button" class="btn btn-secondary btn-sm btn-restore"
+                                    data-role-id="{{ $role->id }}"
+                                    data-role-name="{{ $role->name }}">
+                                    Restaurar
+                                </button>
                             @endcan
                         </td>
                     </tr>

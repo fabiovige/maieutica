@@ -97,17 +97,11 @@
                         </td>
                         <td class="text-center">
                             @can('restore', $kid)
-                                @component('components.table-actions')
-                                    @slot('items')
-                                        <li>
-                                            <button type="button" class="dropdown-item btn-restore"
-                                                data-kid-id="{{ $kid->id }}"
-                                                data-kid-name="{{ $kid->name }}">
-                                                Restaurar
-                                            </button>
-                                        </li>
-                                    @endslot
-                                @endcomponent
+                                <button type="button" class="btn btn-secondary btn-sm btn-restore"
+                                    data-kid-id="{{ $kid->id }}"
+                                    data-kid-name="{{ $kid->name }}">
+                                    Restaurar
+                                </button>
                             @endcan
                         </td>
                     </tr>

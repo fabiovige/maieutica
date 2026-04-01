@@ -282,23 +282,21 @@
 
                                         <!-- Ações -->
                                         <td class="text-center">
-                                            @component('components.table-actions')
-                                                @slot('items')
-                                                    @if(auth()->user()->can('kid-show') || auth()->user()->id === $kid->responsible_id)
-                                                        <li><a href="{{ route('kids.show', $kid->id) }}" class="dropdown-item">Visualizar</a></li>
-                                                    @endif
-                                                    @can('kid-edit')
-                                                        <li><a href="{{ route('kids.edit', $kid->id) }}" class="dropdown-item">Editar</a></li>
-                                                    @endcan
-                                                    @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
-                                                        <li><a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}" class="dropdown-item">Checklists</a></li>
-                                                    @endif
-                                                    @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
-                                                        <li><a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}" class="dropdown-item">Comparativo</a></li>
-                                                        <li><a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}" class="dropdown-item">Desenvolvimento</a></li>
-                                                    @endif
-                                                @endslot
-                                            @endcomponent
+                                            <div class="d-flex flex-wrap gap-1 justify-content-center">
+                                                @if(auth()->user()->can('kid-show') || auth()->user()->id === $kid->responsible_id)
+                                                    <a href="{{ route('kids.show', $kid->id) }}" class="btn btn-secondary btn-sm">Ver</a>
+                                                @endif
+                                                @can('kid-edit')
+                                                    <a href="{{ route('kids.edit', $kid->id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                                                @endcan
+                                                @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
+                                                    <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}" class="btn btn-secondary btn-sm">Checklists</a>
+                                                @endif
+                                                @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
+                                                    <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}" class="btn btn-secondary btn-sm">Comparativo</a>
+                                                    <a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}" class="btn btn-secondary btn-sm">Desenvolvimento</a>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
