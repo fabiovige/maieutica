@@ -182,16 +182,18 @@
                                                 <a href="{{ route('medical-records.show', $record) }}" class="btn btn-secondary btn-sm">Ver</a>
                                                 <a href="{{ route('medical-records.pdf', $record) }}" class="btn btn-secondary btn-sm">PDF</a>
                                             @endcan
-                                            @can('update', $record)
-                                                <a href="{{ route('medical-records.edit', $record) }}" class="btn btn-secondary btn-sm">Editar</a>
-                                            @endcan
-                                            @can('delete', $record)
-                                                <form action="{{ route('medical-records.destroy', $record) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja mover este prontuário para a lixeira?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-secondary btn-sm">Excluir</button>
-                                                </form>
-                                            @endcan
+                                            @if(auth()->user()->can('medical-record-edit-all') || (int)$record->created_by === (int)auth()->id())
+                                                @can('update', $record)
+                                                    <a href="{{ route('medical-records.edit', $record) }}" class="btn btn-secondary btn-sm">Editar</a>
+                                                @endcan
+                                                @can('delete', $record)
+                                                    <form action="{{ route('medical-records.destroy', $record) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja mover este prontuário para a lixeira?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-secondary btn-sm">Excluir</button>
+                                                    </form>
+                                                @endcan
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
