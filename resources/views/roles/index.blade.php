@@ -85,15 +85,11 @@
                             @endforeach
                         </td>
                         <td class="text-center">
-                            @can('role-edit')
-                                @component('components.table-actions')
-                                    @slot('items')
-                                        <a href="{{ route('roles.edit', $role->id) }}" class="dropdown-item">
-                                            Editar
-                                        </a>
-                                    @endslot
-                                @endcomponent
-                            @endcan
+                            <div class="d-flex gap-1 justify-content-center">
+                                @can('role-edit')
+                                    <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                                @endcan
+                            </div>
                         </td>
                     </tr>
                 @endforeach

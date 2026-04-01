@@ -149,57 +149,30 @@
                             @endif
                         </td>
                         <td>
-                            @component('components.table-actions')
-                                @slot('items')
-                                    @can('professional-edit')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('professionals.edit', $professional->id) }}">
-                                                Editar
-                                            </a>
-                                        </li>
-                                    @endcan
-
-                                    @can('professional-edit')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('professionals.assign-patients', $professional->id) }}">
-                                                Pacientes
-                                            </a>
-                                        </li>
-                                    @endcan
-
-                                    @can('professional-deactivate')
-                                        @if ($professional->user->first()?->allow)
-                                            <li>
-                                                <form action="{{ route('professionals.deactivate', $professional->id) }}" method="POST"
-                                                    class="d-inline"
-                                                    onsubmit="return confirm('Tem certeza que deseja desativar este profissional?');">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" class="dropdown-item text-danger">
-                                                        Desativar
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        @endif
-                                    @endcan
-
-                                    @can('professional-activate')
-                                        @if (!$professional->user->first()?->allow)
-                                            <li>
-                                                <form action="{{ route('professionals.activate', $professional->id) }}" method="POST"
-                                                    class="d-inline"
-                                                    onsubmit="return confirm('Tem certeza que deseja ativar este profissional?');">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" class="dropdown-item text-success">
-                                                        Ativar
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        @endif
-                                    @endcan
-                                @endslot
-                            @endcomponent
+                            <div class="d-flex flex-wrap gap-1">
+                                @can('professional-edit')
+                                    <a href="{{ route('professionals.edit', $professional->id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                                    <a href="{{ route('professionals.assign-patients', $professional->id) }}" class="btn btn-secondary btn-sm">Pacientes</a>
+                                @endcan
+                                @can('professional-deactivate')
+                                    @if ($professional->user->first()?->allow)
+                                        <form action="{{ route('professionals.deactivate', $professional->id) }}" method="POST" class="d-inline"
+                                            onsubmit="return confirm('Tem certeza que deseja desativar este profissional?');">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="btn btn-secondary btn-sm">Desativar</button>
+                                        </form>
+                                    @endif
+                                @endcan
+                                @can('professional-activate')
+                                    @if (!$professional->user->first()?->allow)
+                                        <form action="{{ route('professionals.activate', $professional->id) }}" method="POST" class="d-inline"
+                                            onsubmit="return confirm('Tem certeza que deseja ativar este profissional?');">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="btn btn-secondary btn-sm">Ativar</button>
+                                        </form>
+                                    @endif
+                                @endcan
+                            </div>
                         </td>
                     </tr>
                 @endforeach

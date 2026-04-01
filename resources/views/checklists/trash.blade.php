@@ -80,17 +80,11 @@
                         </td>
                         <td class="text-center">
                             @can('restore', $checklist)
-                                @component('components.table-actions')
-                                    @slot('items')
-                                        <li>
-                                            <button type="button" class="dropdown-item btn-restore"
-                                                data-checklist-id="{{ $checklist->id }}"
-                                                data-kid-name="{{ $checklist->kid->name }}">
-                                                Restaurar
-                                            </button>
-                                        </li>
-                                    @endslot
-                                @endcomponent
+                                <button type="button" class="btn btn-secondary btn-sm btn-restore"
+                                    data-checklist-id="{{ $checklist->id }}"
+                                    data-kid-name="{{ $checklist->kid->name }}">
+                                    Restaurar
+                                </button>
                             @endcan
                         </td>
                     </tr>
