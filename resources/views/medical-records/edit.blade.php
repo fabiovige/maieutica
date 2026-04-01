@@ -31,12 +31,12 @@
                     <div class="btn-group w-100" role="group">
                         <input type="radio" class="btn-check" name="patient_type_toggle" id="type_kid" value="App\Models\Kid" autocomplete="off"
                             {{ old('patient_type', $medicalRecord->patient_type) === 'App\Models\Kid' ? 'checked' : '' }}>
-                        <label class="btn btn-outline-primary" for="type_kid">
+                        <label class="btn btn-outline-warning" for="type_kid">
                             <i class="bi bi-person-hearts"></i> Criança
                         </label>
                         <input type="radio" class="btn-check" name="patient_type_toggle" id="type_adult" value="App\Models\User" autocomplete="off"
                             {{ old('patient_type', $medicalRecord->patient_type) === 'App\Models\User' ? 'checked' : '' }}>
-                        <label class="btn btn-outline-primary" for="type_adult">
+                        <label class="btn btn-outline-warning" for="type_adult">
                             <i class="bi bi-person"></i> Adulto
                         </label>
                     </div>
