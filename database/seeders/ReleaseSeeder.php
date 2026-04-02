@@ -217,6 +217,56 @@ class ReleaseSeeder extends Seeder
                 ],
             ]
         );
+        // Abril 2026 - v2.6.0
+        Release::updateOrCreate(
+            ['version' => 'v2.6.0'],
+            [
+                'title' => 'Redesign UX Mobile-First e Dashboard com Metricas',
+                'release_date' => '2026-04-02',
+                'description' => 'Substituicao de tabelas por cards horizontais mobile-first em Checklists, Kids e Prontuarios, dashboard com metricas e graficos, correcoes de seguranca e simplificacoes de UX.',
+                'items' => [
+                    'ux' => [
+                        'Cards horizontais full-width no lugar de tabelas em Checklists, Kids e Prontuarios',
+                        'Cards com cantos arredondados, sombra suave, layout flex e botao Ver fixo a direita',
+                        'Tela Ver de cada entidade concentra todas as acoes (Editar, Excluir, PDF, etc.)',
+                        'Checklists show: header com info do checklist, barra de acoes e botao Voltar',
+                        'Prontuarios show: header card, rodape com acoes, secoes de conteudo clean',
+                        'Outros registros do paciente convertidos de tabela para mini-cards inline',
+                        'Filtro de prontuarios simplificado: apenas dropdown por paciente (removidos data e busca)',
+                        'Lista de Kids: removido toggle tabela/cards, substituido por card unico padronizado',
+                    ],
+                    'dashboard' => [
+                        'Quatro stat cards: Criancas, Checklists, Em Andamento, Media Geral de Desenvolvimento',
+                        'Grafico de linha com evolucao media de desenvolvimento dos ultimos 6 meses',
+                        'Ranking Top 5 criancas mais evoluidas com barras de progresso coloridas',
+                        'Todos os dados filtrados por escopo (admin / profissional / responsavel)',
+                        'Removida lista de cards de criancas do dashboard',
+                    ],
+                    'seguranca' => [
+                        'Prontuarios: profissional ve apenas registros que ele mesmo criou (scope forAuthProfessional)',
+                        'Botoes Editar/Excluir restritos ao criador do prontuario em todas as views',
+                        'Correcao de dropdown de acoes vazio em mobile (Chrome Android)',
+                    ],
+                    'refatoracao' => [
+                        'Dropdowns de acoes substituidos por botoes simples em todas as listagens',
+                        'Coluna Criado Em removida da lista de prontuarios',
+                        'Lista de kids com botao unico Ver (acoes dentro da tela de detalhe)',
+                        'Checklists fechados: apenas botao Editar visivel na listagem',
+                    ],
+                ],
+                'commits' => [
+                    ['hash' => '1d0bbb5', 'message' => 'feat: redesign UX prontuarios - cards mobile-first + show com acoes'],
+                    ['hash' => '7480a8e', 'message' => 'feat: redesign UX com cards mobile-first e dashboard com metricas'],
+                    ['hash' => 'd1accb1', 'message' => 'fix: restringir listagem de prontuarios ao criador no scope forAuthProfessional'],
+                    ['hash' => 'dcf487f', 'message' => 'refactor: simplificar lista de kids para exibir apenas botao Ver'],
+                    ['hash' => '2ddf6d8', 'message' => 'refactor: substituir dropdowns de acoes por botoes simples em todas as listagens'],
+                    ['hash' => '2027767', 'message' => 'fix: restringir botoes Editar/Excluir ao criador do prontuario'],
+                    ['hash' => 'f2b8052', 'message' => 'refactor: substituir dropdown acoes por botoes simples na lista de prontuarios'],
+                    ['hash' => 'f11c6ac', 'message' => 'fix: dropdown de acoes nao abria em mobile (Chrome Android)'],
+                ],
+            ]
+        );
+
         // Marco 2026 - v2.5.0
         Release::updateOrCreate(
             ['version' => 'v2.5.0'],
