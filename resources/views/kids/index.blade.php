@@ -36,12 +36,12 @@
     .kid-progress {
         height: 6px;
         border-radius: 4px;
-        min-width: 80px;
-        max-width: 140px;
+        width: 80px;
     }
+    .min-w-0 { min-width: 0; }
     @media (max-width: 575px) {
-        .kid-item-card .card-body { padding: 0.85rem 1rem !important; }
         .kid-meta { font-size: 0.8125rem; }
+        .kid-progress { width: 60px; }
     }
 </style>
 @endpush
@@ -120,37 +120,39 @@
     <div class="d-flex flex-column gap-2">
         @forelse($kids as $kid)
             <div class="card shadow-sm border-0 kid-item-card">
-                <div class="card-body py-3 px-4">
+                <div class="card-body py-3 px-3 px-md-4">
                     <div class="d-flex align-items-center gap-3">
 
                         {{-- Avatar --}}
-                        @if($kid->photo)
-                            <img src="{{ asset($kid->photo) }}" class="kid-avatar" alt="{{ $kid->name }}">
-                        @else
-                            <div class="kid-avatar-placeholder">
-                                <i class="bi bi-person"></i>
+                        <div class="flex-shrink-0">
+                            @if($kid->photo)
+                                <img src="{{ asset($kid->photo) }}" class="kid-avatar" alt="{{ $kid->name }}">
+                            @else
+                                <div class="kid-avatar-placeholder">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Bloco de informações (2 linhas) --}}
+                        <div class="flex-grow-1 min-w-0">
+
+                            {{-- Linha 1: Nome --}}
+                            <div class="fw-semibold text-dark mb-1">{{ $kid->name }}</div>
+
+                            {{-- Linha 2: Idade + Responsável --}}
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1 kid-meta">
+                                <span class="badge bg-info-subtle text-info-emphasis">
+                                    <i class="bi bi-calendar3"></i> {{ $kid->age ?? 'N/D' }}
+                                </span>
+                                <span class="text-muted small text-truncate" style="max-width:200px;">
+                                    <i class="bi bi-person-heart me-1"></i>{{ $kid->responsible->name ?? 'N/D' }}
+                                </span>
                             </div>
-                        @endif
 
-                        {{-- Informações --}}
-                        <div class="d-flex flex-wrap align-items-center gap-3 flex-grow-1 kid-meta">
-
-                            {{-- Nome --}}
-                            <span class="fw-semibold text-dark">{{ $kid->name }}</span>
-
-                            {{-- Idade --}}
-                            <span class="badge bg-info-subtle text-info-emphasis px-2">
-                                <i class="bi bi-calendar3"></i> {{ $kid->age ?? 'N/D' }}
-                            </span>
-
-                            {{-- Responsável --}}
-                            <span class="text-muted small">
-                                <i class="bi bi-person-heart me-1"></i>{{ $kid->responsible->name ?? 'N/D' }}
-                            </span>
-
-                            {{-- Profissionais --}}
+                            {{-- Linha 3: Profissionais --}}
                             @if($kid->professionals && $kid->professionals->count() > 0)
-                                <div class="d-flex flex-wrap gap-1">
+                                <div class="d-flex flex-wrap gap-1 mb-1">
                                     @foreach($kid->professionals as $professional)
                                         <span class="badge bg-primary-subtle text-primary-emphasis"
                                               title="{{ $professional->specialty->name ?? '' }}">
@@ -163,9 +165,9 @@
                                 </div>
                             @endif
 
-                            {{-- Progresso --}}
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="progress kid-progress flex-grow-1">
+                            {{-- Linha 4: Progresso --}}
+                            <div class="d-flex align-items-center gap-2 kid-meta">
+                                <div class="progress kid-progress">
                                     <div class="progress-bar"
                                          role="progressbar"
                                          style="width: {{ $kid->progress_percentage ?? 0 }}%; background-color: {{ get_progress_color($kid->progress_percentage ?? 0) }} !important;"
@@ -173,11 +175,10 @@
                                          aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
-                                <span class="text-muted small fw-semibold" style="min-width:36px;">
+                                <span class="text-muted small fw-semibold" style="min-width:34px;">
                                     {{ $kid->progress_percentage ?? 0 }}%
                                 </span>
                             </div>
-
                         </div>
 
                         {{-- Botão Ver --}}
