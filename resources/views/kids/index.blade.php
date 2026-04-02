@@ -134,14 +134,14 @@
                             @endif
                         </div>
 
-                        {{-- Bloco de informações (2 linhas) --}}
-                        <div class="flex-grow-1 min-w-0">
+                        {{-- Bloco de informações --}}
+                        <div class="flex-grow-1 min-w-0 d-flex flex-column flex-md-row align-items-md-center gap-md-3">
 
-                            {{-- Linha 1: Nome --}}
-                            <div class="fw-semibold text-dark mb-1">{{ $kid->name }}</div>
+                            {{-- Nome --}}
+                            <div class="fw-semibold text-dark mb-1 mb-md-0">{{ $kid->name }}</div>
 
-                            {{-- Linha 2: Idade + Responsável --}}
-                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1 kid-meta">
+                            {{-- Idade + Responsável --}}
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1 mb-md-0 kid-meta">
                                 <span class="badge bg-info-subtle text-info-emphasis">
                                     <i class="bi bi-calendar3"></i> {{ $kid->age ?? 'N/D' }}
                                 </span>
@@ -150,9 +150,9 @@
                                 </span>
                             </div>
 
-                            {{-- Linha 3: Profissionais --}}
+                            {{-- Profissionais --}}
                             @if($kid->professionals && $kid->professionals->count() > 0)
-                                <div class="d-flex flex-wrap gap-1 mb-1">
+                                <div class="d-flex flex-wrap gap-1 mb-1 mb-md-0">
                                     @foreach($kid->professionals as $professional)
                                         <span class="badge bg-primary-subtle text-primary-emphasis"
                                               title="{{ $professional->specialty->name ?? '' }}">
@@ -165,7 +165,7 @@
                                 </div>
                             @endif
 
-                            {{-- Linha 4: Progresso --}}
+                            {{-- Progresso --}}
                             <div class="d-flex align-items-center gap-2 kid-meta">
                                 <div class="progress kid-progress">
                                     <div class="progress-bar"
