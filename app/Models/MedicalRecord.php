@@ -146,18 +146,19 @@ class MedicalRecord extends BaseModel
             return $query->whereRaw('1 = 0'); // Return no results
         }
 
-        return $query->where(function ($q) use ($professional) {
-            // Records for assigned Kids
-            $q->where(function ($subQ) use ($professional) {
-                $subQ->where('patient_type', Kid::class)
-                     ->whereIn('patient_id', $professional->kids()->pluck('kids.id'));
-            })
-            // Records for assigned User patients
-            ->orWhere(function ($subQ) use ($professional) {
-                $subQ->where('patient_type', User::class)
-                     ->whereIn('patient_id', $professional->patients()->pluck('users.id'));
+        return $query->where('created_by', auth()->id())
+            ->where(function ($q) use ($professional) {
+                // Records for assigned Kids
+                $q->where(function ($subQ) use ($professional) {
+                    $subQ->where('patient_type', Kid::class)
+                         ->whereIn('patient_id', $professional->kids()->pluck('kids.id'));
+                })
+                // Records for assigned User patients
+                ->orWhere(function ($subQ) use ($professional) {
+                    $subQ->where('patient_type', User::class)
+                         ->whereIn('patient_id', $professional->patients()->pluck('users.id'));
+                });
             });
-        });
     }
 
     /**
