@@ -6,45 +6,42 @@
 
 @push('styles')
 <style>
-    /* Estilos customizados para cards de crianças */
-    .kid-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-radius: 0.75rem;
-        overflow: hidden;
+    .stat-card {
+        border-radius: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-
-    .kid-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.10) !important;
     }
-
-    /* Animação suave para imagens */
-    .kid-card img.rounded-circle {
-        transition: transform 0.3s ease;
+    .stat-icon {
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
     }
-
-    .kid-card:hover img.rounded-circle {
-        transform: scale(1.05);
+    .chart-card {
+        border-radius: 12px;
     }
-
-    /* Estilo para badges de profissionais */
-    .badge.bg-info {
-        font-size: var(--fs-xs);
-        padding: 0.35em 0.5em;
+    .ranking-item {
+        border-radius: 8px;
+        transition: background 0.15s;
     }
-
-    /* Responsividade melhorada */
-    @media (max-width: 767px) {
-        .kid-card .card-footer .btn {
-            font-size: var(--fs-base);
-            padding: 0.375rem 0.5rem;
-        }
-    }
-
-    /* Melhoria visual para card footer */
-    .kid-card .card-footer {
-        border-top: 2px solid #e9ecef;
-        padding: 1rem;
+    .ranking-item:hover { background: #f8fafc; }
+    .rank-badge {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
     }
 </style>
 @endpush
@@ -62,35 +59,24 @@
     {{-- Dashboard para Pacientes --}}
     @if(isset($isPatient) && $isPatient)
         <div class="row g-4 mb-4">
-            <!-- Card Principal - Total de Prontuários -->
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card border-0 h-100 shadow-sm" style="background-color: #e8f0fe;">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                 style="width: 40px; height: 40px; background-color: #4285f4;">
-                                <i class="bi bi-file-medical-fill text-white"></i>
-                            </div>
-                            <div>
-                                <div class="small" style="color: #5f6368;">Meus Prontuários</div>
-                                <div class="fs-xl fw-bold" style="color: #202124;">{{ $totalMedicalRecords }}</div>
-                            </div>
+                <div class="card border-0 h-100 shadow-sm stat-card" style="background:#e8f0fe;">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon" style="background:#4285f4;">
+                            <i class="bi bi-file-medical-fill text-white"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted">Meus Prontuários</div>
+                            <div class="fs-4 fw-bold">{{ $totalMedicalRecords }}</div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Card de Boas-vindas -->
             <div class="col-12 col-md-6 col-lg-8">
-                <div class="card border-0 h-100 shadow-sm">
+                <div class="card border-0 h-100 shadow-sm stat-card">
                     <div class="card-body p-4">
-                        <h3 class="card-title card-title-custom mb-3">
-                            <i class="bi bi-person-circle text-primary"></i>
-                            Bem-vindo(a), {{ auth()->user()->name }}!
-                        </h3>
-                        <p class="card-text text-muted mb-3">
-                            Este é seu espaço para acompanhar suas consultas e evolução do tratamento.
-                        </p>
+                        <h3 class="mb-2"><i class="bi bi-person-circle text-primary"></i> Bem-vindo(a), {{ auth()->user()->name }}!</h3>
+                        <p class="text-muted mb-3">Este é seu espaço para acompanhar suas consultas e evolução do tratamento.</p>
                         <a href="{{ route('medical-records.index') }}" class="btn btn-primary">
                             <i class="bi bi-eye"></i> Ver Todos os Prontuários
                         </a>
@@ -99,13 +85,10 @@
             </div>
         </div>
 
-        <!-- Últimos Prontuários -->
         @if($latestMedicalRecords->isNotEmpty())
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h3 class="card-title-custom mb-0">
-                        <i class="bi bi-clock-history"></i> Últimos Registros
-                    </h3>
+            <div class="card shadow-sm border-0" style="border-radius:12px;">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Últimos Registros</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -114,30 +97,16 @@
                                 <tr>
                                     <th>Data da Consulta</th>
                                     <th>Profissional</th>
-                                    <th>Tipo</th>
                                     <th class="text-center">Ação</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($latestMedicalRecords as $record)
                                     <tr>
-                                        <td>
-                                            <i class="bi bi-calendar3 text-muted"></i>
-                                            {{ $record->session_date_formatted ?? 'N/D' }}
-                                        </td>
-                                        <td>
-                                            <i class="bi bi-person-badge text-primary"></i>
-                                            {{ $record->creator->name ?? 'N/D' }}
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info">
-                                                {{ $record->record_type === 'initial' ? 'Inicial' : 'Evolução' }}
-                                            </span>
-                                        </td>
+                                        <td><i class="bi bi-calendar3 text-muted me-1"></i>{{ $record->session_date_formatted ?? 'N/D' }}</td>
+                                        <td><i class="bi bi-person-badge text-primary me-1"></i>{{ $record->creator->name ?? 'N/D' }}</td>
                                         <td class="text-center">
-                                            <a href="{{ route('medical-records.pdf', $record) }}"
-                                               class="btn btn-sm btn-outline-primary"
-                                               target="_blank">
+                                            <a href="{{ route('medical-records.pdf', $record) }}" class="btn btn-sm btn-outline-primary" target="_blank">
                                                 <i class="bi bi-file-pdf"></i> Ver PDF
                                             </a>
                                         </td>
@@ -147,226 +116,196 @@
                         </table>
                     </div>
                 </div>
-                <div class="card-footer bg-white text-center">
-                    <a href="{{ route('medical-records.index') }}" class="text-primary text-decoration-none">
-                        Ver todos os prontuários <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
             </div>
         @else
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i>
-                Você ainda não possui prontuários registrados. Aguarde sua primeira consulta.
+            <div class="alert alert-info border-0 shadow-sm" style="border-radius:12px;">
+                <i class="bi bi-info-circle"></i> Você ainda não possui prontuários registrados.
             </div>
         @endif
 
     @else
-        {{-- Dashboard original para Admin/Profissionais/Responsáveis --}}
+    {{-- Dashboard Admin / Profissional / Responsável --}}
 
-        @can('dashboard-manage')
+        {{-- ── Stat Cards ── --}}
         <div class="row g-3 mb-4">
-        <!-- Total de Crianças -->
-        <div class="col-6 col-xl-3">
-            <div class="card border-0 h-100 shadow-sm" style="background-color: #e8f0fe;">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                             style="width: 40px; height: 40px; background-color: #4285f4;">
+            <div class="col-6 col-xl-3">
+                <div class="card border-0 shadow-sm stat-card h-100" style="background:#e8f0fe;">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon" style="background:#4285f4;">
                             <i class="bi bi-people-fill text-white"></i>
                         </div>
                         <div>
-                            <div class="small" style="color: #5f6368;">Crianças</div>
-                            <div class="fs-xl fw-bold" style="color: #202124;">{{ $totalKids }}</div>
+                            <div class="small" style="color:#5f6368;">Crianças</div>
+                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $totalKids }}</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Total de Checklists -->
-        <div class="col-6 col-xl-3">
-            <div class="card border-0 h-100 shadow-sm" style="background-color: #e6f4ea;">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                             style="width: 40px; height: 40px; background-color: #34a853;">
+            <div class="col-6 col-xl-3">
+                <div class="card border-0 shadow-sm stat-card h-100" style="background:#e6f4ea;">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon" style="background:#34a853;">
                             <i class="bi bi-clipboard2-check-fill text-white"></i>
                         </div>
                         <div>
-                            <div class="small" style="color: #5f6368;">Checklists</div>
-                            <div class="fs-xl fw-bold" style="color: #202124;">{{ $totalChecklists }}</div>
+                            <div class="small" style="color:#5f6368;">Checklists</div>
+                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $totalChecklists }}</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Checklists em Andamento -->
-        <div class="col-6 col-xl-3">
-            <div class="card border-0 h-100 shadow-sm" style="background-color: #fef7e0;">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                             style="width: 40px; height: 40px; background-color: #f9ab00;">
+            <div class="col-6 col-xl-3">
+                <div class="card border-0 shadow-sm stat-card h-100" style="background:#fef7e0;">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon" style="background:#f9ab00;">
                             <i class="bi bi-hourglass-split text-white"></i>
                         </div>
                         <div>
-                            <div class="small" style="color: #5f6368;">Em Andamento</div>
-                            <div class="fs-xl fw-bold" style="color: #202124;">{{ $checklistsEmAndamento }}</div>
+                            <div class="small" style="color:#5f6368;">Em Andamento</div>
+                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $checklistsEmAndamento }}</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Total de Profissionais -->
-        <div class="col-6 col-xl-3">
-            <div class="card border-0 h-100 shadow-sm" style="background-color: #fce8e6;">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                             style="width: 40px; height: 40px; background-color: #ea4335;">
-                            <i class="bi bi-person-badge-fill text-white"></i>
+            <div class="col-6 col-xl-3">
+                <div class="card border-0 shadow-sm stat-card h-100" style="background:#f0fdf4;">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon" style="background:#059669;">
+                            <i class="bi bi-graph-up-arrow text-white"></i>
                         </div>
                         <div>
-                            <div class="small" style="color: #5f6368;">Profissionais</div>
-                            <div class="fs-xl fw-bold" style="color: #202124;">{{ $totalProfessionals }}</div>
+                            <div class="small" style="color:#5f6368;">Média Geral</div>
+                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $avgDevelopment }}%</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        @endcan
 
-        <h2 class="section-title mb-3">Minhas Crianças</h2>
+        {{-- ── Gráficos ── --}}
+        <div class="row g-3">
 
-        <!-- Grid de Cards de Crianças -->
-        <div class="row g-4 mb-4">
-            @forelse($kids as $kid)
-                <div class="col-12 col-md-6 col-lg-4">
-                <div class="card h-100 kid-card shadow-sm">
-                    <!-- Cabeçalho do Card -->
-                    <div class="card-body text-center pb-2">
-                        <!-- Foto -->
-                        <div class="mb-3">
-                            @if ($kid->photo)
-                                <img src="{{ asset($kid->photo) }}"
-                                     class="rounded-circle"
-                                     width="100"
-                                     height="100"
-                                     style="object-fit: cover;"
-                                     alt="{{ $kid->name }}">
-                            @else
-                                <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center"
-                                     style="width: 100px; height: 100px;">
-                                    <i class="bi bi-person text-white fs-3xl"></i>
+            {{-- Gráfico de linha: evolução mensal --}}
+            <div class="col-12 col-lg-7">
+                <div class="card border-0 shadow-sm chart-card h-100">
+                    <div class="card-header bg-white border-bottom d-flex align-items-center gap-2">
+                        <i class="bi bi-graph-up text-primary"></i>
+                        <span class="fw-semibold">Evolução Média de Desenvolvimento (últimos 6 meses)</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="lineChart" height="240"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Ranking Top 5 --}}
+            <div class="col-12 col-lg-5">
+                <div class="card border-0 shadow-sm chart-card h-100">
+                    <div class="card-header bg-white border-bottom d-flex align-items-center gap-2">
+                        <i class="bi bi-trophy text-warning"></i>
+                        <span class="fw-semibold">Top 5 Crianças Mais Evoluídas</span>
+                    </div>
+                    <div class="card-body py-3">
+                        @forelse($top5Kids as $index => $kid)
+                            @php
+                                $rankColors = ['#f9ab00','#94a3b8','#cd7f32','#64748b','#64748b'];
+                                $pct = $kid->progress ?? 0;
+                            @endphp
+                            <div class="ranking-item d-flex align-items-center gap-3 px-2 py-2 mb-1">
+                                <div class="rank-badge text-white" style="background:{{ $rankColors[$index] }};">
+                                    {{ $index + 1 }}
                                 </div>
-                            @endif
-                        </div>
-
-                        <!-- Nome e Idade -->
-                        <h3 class="card-title card-title-custom mb-2">{{ $kid->name }}</h3>
-                        <span class="badge bg-info mb-3">
-                            <i class="bi bi-calendar"></i> {{ $kid->age ?? 'N/D' }}
-                        </span>
-                    </div>
-
-                    <!-- Informações -->
-                    <div class="card-body pt-0 pb-2">
-                        <!-- Data de Nascimento -->
-                        <div class="d-flex align-items-center mb-2 small">
-                            <i class="bi bi-calendar-event text-muted me-2"></i>
-                            <span class="text-muted">Nascimento:</span>
-                            <span class="ms-auto fw-semibold">{{ $kid->birth_date ?? 'N/D' }}</span>
-                        </div>
-
-                        <!-- Data de Cadastro -->
-                        <div class="d-flex align-items-center mb-2 small">
-                            <i class="bi bi-calendar-plus text-muted me-2"></i>
-                            <span class="text-muted">Cadastro:</span>
-                            <span class="ms-auto fw-semibold">{{ $kid->created_at ? $kid->created_at->format('d/m/Y') : 'N/D' }}</span>
-                        </div>
-
-                        <!-- Responsável -->
-                        <div class="d-flex align-items-center mb-2 small">
-                            <i class="bi bi-person-heart text-muted me-2"></i>
-                            <span class="text-muted">Responsável:</span>
-                            <span class="ms-auto fw-semibold text-truncate" style="max-width: 150px;" title="{{ $kid->responsible->name ?? 'N/D' }}">
-                                {{ $kid->responsible->name ?? 'N/D' }}
-                            </span>
-                        </div>
-
-                        <!-- Profissionais -->
-                        <div class="mb-2">
-                            <div class="d-flex align-items-center mb-1 small">
-                                <i class="bi bi-person-badge text-muted me-2"></i>
-                                <span class="text-muted">Profissionais:</span>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-semibold small">{{ $kid->name }}</span>
+                                        <span class="small fw-bold" style="color:{{ get_progress_color($pct) }};">{{ $pct }}%</span>
+                                    </div>
+                                    <div class="progress" style="height:6px;border-radius:4px;">
+                                        <div class="progress-bar"
+                                             style="width:{{ $pct }}%; background-color:{{ get_progress_color($pct) }} !important;"
+                                             role="progressbar"
+                                             aria-valuenow="{{ $pct }}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="d-flex flex-wrap gap-1">
-                                @if($kid->professionals && $kid->professionals->count() > 0)
-                                    @foreach($kid->professionals as $professional)
-                                        <span class="badge bg-info text-dark"
-                                              title="{{ $professional->specialty->name ?? 'Sem especialidade' }} - {{ $professional->user->first()->name ?? 'N/D' }}">
-                                            {{ $professional->user->first()->name ?? 'N/D' }}
-                                            @if($professional->specialty)
-                                                <small>({{ $professional->specialty->initial ?? substr($professional->specialty->name, 0, 3) }})</small>
-                                            @endif
-                                        </span>
-                                    @endforeach
-                                @else
-                                    <span class="text-muted small">Nenhum profissional atribuído</span>
-                                @endif
+                        @empty
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-clipboard2-x fs-3 d-block mb-2"></i>
+                                Nenhum dado de avaliação encontrado.
                             </div>
-                        </div>
-
-                        <!-- Progresso -->
-                        <div class="mt-3">
-                            <div class="d-flex align-items-center mb-1 small">
-                                <i class="bi bi-bar-chart text-muted me-2"></i>
-                                <span class="text-muted">Progresso:</span>
-                                <span class="ms-auto fw-semibold">{{ $kid->progress }}%</span>
-                            </div>
-                            <div class="progress" style="height: 8px">
-                                <div class="progress-bar" role="progressbar"
-                                    style="width: {{ $kid->progress }}%; background-color: {{ get_progress_color($kid->progress) }} !important"
-                                    aria-valuenow="{{ $kid->progress }}" aria-valuemin="0"
-                                    aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Rodapé com Botão de Ação -->
-                    <div class="card-footer bg-light">
-                        @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
-                            <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}"
-                               class="btn btn-success w-100"
-                               title="Ver checklists">
-                                <i class="bi bi-card-checklist"></i> Ver Checklists
-                            </a>
-                        @else
-                            <div class="text-center text-muted small">
-                                Sem permissão para visualizar checklists
-                            </div>
-                        @endif
+                        @endforelse
                     </div>
                 </div>
-                </div>
-            @empty
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> Nenhuma criança cadastrada
-                    </div>
-                </div>
-            @endforelse
+            </div>
+
         </div>
 
-        <!-- Paginação -->
-        @if($kids->hasPages())
-            <div class="d-flex justify-content-end mb-4">
-                {{ $kids->links() }}
-            </div>
-        @endif
-
-    @endif {{-- Fim do @else para pacientes --}}
+    @endif
 
 @endsection
+
+@push('scripts')
+@unless(isset($isPatient) && $isPatient)
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const labels  = @json($monthlyTrend->pluck('label'));
+    const data    = @json($monthlyTrend->pluck('avg_pct'));
+    const counts  = @json($monthlyTrend->pluck('checklist_count'));
+
+    new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Média de Desenvolvimento (%)',
+                data: data,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59,130,246,0.08)',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#3b82f6',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true,
+                tension: 0.4,
+                spanGaps: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` Desenvolvimento: ${ctx.raw !== null ? ctx.raw + '%' : 'sem dados'}`,
+                        afterLabel: (ctx) => {
+                            const c = counts[ctx.dataIndex];
+                            return c > 0 ? ` ${c} checklist(s) avaliado(s)` : '';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 100,
+                    ticks: { callback: v => v + '%', stepSize: 20 },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+});
+</script>
+@endunless
+@endpush

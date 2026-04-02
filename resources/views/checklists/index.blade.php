@@ -30,6 +30,33 @@
     @endcan
 @endsection
 
+@push('styles')
+<style>
+    .checklist-item-card {
+        border-radius: 12px !important;
+        transition: box-shadow 0.2s ease, transform 0.15s ease;
+    }
+    .checklist-item-card:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
+        transform: translateY(-1px);
+    }
+    .checklist-progress {
+        height: 6px;
+        border-radius: 4px;
+        min-width: 80px;
+        max-width: 160px;
+    }
+    @media (max-width: 575px) {
+        .checklist-item-card .card-body {
+            padding: 0.85rem 1rem !important;
+        }
+        .checklist-meta {
+            font-size: 0.8125rem;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
     <div class="row">
         @if (isset($kid))
@@ -39,9 +66,9 @@
         @endif
     </div>
 
-    <!-- Filtro de Busca -->
+    {{-- Filtro de Busca --}}
     @if (!isset($kid))
-        <div class="card mb-3">
+        <div class="card mb-3 border-0 shadow-sm" style="border-radius:12px;">
             <div class="card-body">
                 <form method="GET" action="{{ route('checklists.index') }}" class="row g-3">
                     <div class="col-md-10">
@@ -55,7 +82,6 @@
                                placeholder="Buscar por criança, ID do checklist..."
                                value="{{ request('search') }}">
                     </div>
-
                     <div class="col-md-2 d-flex align-items-end">
                         <div class="d-flex gap-2 w-100">
                             <button type="submit" class="btn btn-primary flex-fill">
@@ -75,107 +101,95 @@
         @if(request('search'))
             <div class="alert alert-info">
                 <i class="bi bi-info-circle"></i>
-                Exibindo resultados da busca por "<strong>{{ request('search') }}</strong>".
+                Exibindo resultados para "<strong>{{ request('search') }}</strong>".
                 <strong>{{ $checklists->count() }}</strong> checklist(s) encontrado(s).
             </div>
         @endif
     @endif
 
-    <div class="row">
-        <div class="col-md-12">
+    {{-- Lista de Checklists em Cards --}}
+    <div class="d-flex flex-column gap-2">
+        @forelse($checklists as $checklist)
+            @php $isOpen = $checklist->situation_label === 'Aberto'; @endphp
+            <div class="card shadow-sm border-0 checklist-item-card">
 
-            <table class="table table-bordered table-hover table-striped align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th style="width: 60px;" class="text-center align-middle">ID</th>
-                        @if (!isset($kid))
-                            <th>CRIANÇA</th>
-                        @endif
-                        <th>STATUS</th>
-                        <th>DATA DE CRIAÇÃO</th>
-                        <th>MÉDIA GERAL DO DESENVOLVIMENTO</th>
-                        @canany(['checklist-edit', 'checklist-edit-all'])
-                            <th width="100">AÇÕES</th>
-                        @endcanany
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($checklists->isEmpty())
-                        <tr>
-                            <td colspan="{{ isset($kid) ? '5' : '6' }}" class="text-center">
-                                Nenhum checklist encontrado.
-                            </td>
-                        </tr>
-                    @else
-                        @foreach ($checklists as $checklist)
-                            <tr>
-                                <td class="text-center">{{ $checklist->id }}</td>
-                                @if (!isset($kid))
-                                    <td>{{ $checklist->kid->name ?? 'N/D' }}</td>
-                                @endif
-                                <td><span
-                                        class="badge {{ $checklist->situation_label === 'Aberto' ? 'bg-success' : 'bg-secondary text-muted opacity-75' }}">{{ $checklist->situation_label }}</span>
-                                </td>
-                                <td>{{ $checklist->created_at->format('d/m/Y H:i') }}</td>
-                                <td>
+                {{-- Corpo: informações do checklist --}}
+                <div class="card-body py-3 px-4">
+                    <div class="d-flex align-items-center gap-3">
 
-                                    <div class="progress" role="progressbar" aria-label="checklist{{ $checklist->id }}"
-                                        aria-valuenow="{{ $checklist->developmentPercentage }}" aria-valuemin="0"
-                                        aria-valuemax="100">
-                                        <div class="progress-bar" style="width: {{ $checklist->developmentPercentage }}%; background-color: {{ get_progress_color($checklist->developmentPercentage) }} !important">
-                                        </div>
+                        {{-- Lado esquerdo: informações --}}
+                        <div class="d-flex flex-wrap align-items-center gap-3 flex-grow-1 checklist-meta">
+
+                            {{-- Status --}}
+                            <span class="badge {{ $isOpen ? 'bg-success' : 'bg-secondary opacity-75' }} px-2 py-1">
+                                <i class="bi {{ $isOpen ? 'bi-unlock' : 'bi-lock' }}"></i>
+                                {{ $checklist->situation_label }}
+                            </span>
+
+                            {{-- Nome da criança --}}
+                            @if(!isset($kid))
+                                <span class="fw-semibold text-dark">
+                                    {{ $checklist->kid->name ?? 'N/D' }}
+                                </span>
+                            @endif
+
+                            {{-- Nível --}}
+                            <span class="badge bg-primary-subtle text-primary-emphasis px-2">
+                                <i class="bi bi-layers"></i> Nível {{ $checklist->level }}
+                            </span>
+
+                            {{-- Idade da criança --}}
+                            @if($checklist->kid)
+                                <span class="text-muted small">
+                                    <i class="bi bi-person-fill me-1"></i>{{ $checklist->kid->FullNameMonths ?? 'N/D' }}
+                                </span>
+                            @endif
+
+                            {{-- Barra de progresso --}}
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress checklist-progress flex-grow-1">
+                                    <div class="progress-bar"
+                                         role="progressbar"
+                                         style="width: {{ $checklist->developmentPercentage }}%; background-color: {{ get_progress_color($checklist->developmentPercentage) }} !important;"
+                                         aria-valuenow="{{ $checklist->developmentPercentage }}"
+                                         aria-valuemin="0" aria-valuemax="100">
                                     </div>
-
+                                </div>
+                                <span class="text-muted small fw-semibold" style="min-width:36px;">
                                     {{ $checklist->developmentPercentage }}%
-                                </td>
+                                </span>
+                            </div>
 
-                                @canany(['checklist-edit', 'checklist-edit-all'])
-                                    @php
-                                        $isAdmin = auth()->check() && auth()->user()->can('checklist-edit-all');
-                                        $isOpen = $checklist->situation_label === 'Aberto';
-                                    @endphp
-                                    <td>
-                                        <div class="d-flex flex-wrap gap-1 justify-content-center">
-                                            {{-- Editar sempre aparece (permite trocar status mesmo fechado) --}}
-                                            @can('checklist-edit')
-                                                <a href="{{ isset($kid) ? route('checklists.edit', ['checklist' => $checklist->id, 'kidId' => $kid->id]) : route('checklists.edit', $checklist->id) }}" class="btn btn-secondary btn-sm">Editar</a>
-                                            @endcan
-                                            {{-- Demais botões: apenas quando aberto --}}
-                                            @if($isOpen || $isAdmin)
-                                                @can('checklist-avaliation')
-                                                    <a href="{{ route('checklists.fill', $checklist->id) }}" class="btn btn-secondary btn-sm">Avaliação</a>
-                                                @endcan
-                                                @can('checklist-plane-manual')
-                                                    @if($checklist->kid)
-                                                        <a href="{{ route('kids.showPlane', $checklist->kid->id) }}" class="btn btn-secondary btn-sm">Plano Manual</a>
-                                                    @endif
-                                                @endcan
-                                                @can('checklist-plane-automatic')
-                                                    @if($checklist->kid)
-                                                        <a href="{{ route('kid.plane-automatic', ['kidId' => $checklist->kid->id, 'checklistId' => $checklist->id]) }}" class="btn btn-secondary btn-sm">Plano Auto</a>
-                                                    @endif
-                                                @endcan
-                                                @can('checklist-clone')
-                                                    <a href="{{ route('checklists.clonar', ['id' => $checklist->id, 'kid_id' => $checklist->kid_id]) }}" class="btn btn-secondary btn-sm">Clonar</a>
-                                                @endcan
-                                            @endif
-                                        </div>
-                                    </td>
-                                @endcanany
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
+                            {{-- Data de criação --}}
+                            <span class="text-muted small">
+                                <i class="bi bi-calendar3 me-1"></i>{{ $checklist->created_at->format('d/m/Y') }}
+                            </span>
+                        </div>
 
-            <!-- Pagination Links -->
-            <div class="d-flex justify-content-center mt-3">
-                {{ $checklists->links() }}
+                        {{-- Lado direito: botão Ver --}}
+                        <div class="flex-shrink-0">
+                            <a href="{{ route('checklists.show', $checklist->id) }}" class="btn btn-secondary btn-sm">
+                                <i class="bi bi-eye"></i> Ver
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
-
-        </div>
+        @empty
+            <div class="alert alert-info border-0 shadow-sm" style="border-radius:12px;">
+                <i class="bi bi-info-circle"></i> Nenhum checklist encontrado.
+            </div>
+        @endforelse
     </div>
 
+    {{-- Paginação --}}
+    <div class="d-flex justify-content-center mt-3">
+        {{ $checklists->links() }}
+    </div>
+
+    {{-- Gráficos (apenas no contexto de kid) --}}
     @if (isset($kid))
     <div class="row mt-4">
         <div class="col-md-6 mb-4">
@@ -239,7 +253,6 @@
 
                 document.addEventListener('DOMContentLoaded', function () {
                     window.kidId = "{{ $kid->id }}";
-                    // Alternar exibição do campo de data
                     document.getElementById('checklistTypeAtual').addEventListener('change', function () {
                         document.getElementById('retroactiveDateGroup').style.display = 'none';
                     });
@@ -273,37 +286,33 @@
                     `;
 
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    let bodyData = {
-                        kid_id: window.kidId,
-                        level: 4
-                    };
-                    if (date) {
-                        bodyData.created_at = date;
-                    }
+                    let bodyData = { kid_id: window.kidId, level: 4 };
+                    if (date) { bodyData.created_at = date; }
+
                     fetch("{{ route('checklists.store', ['kidId' => $kid->id]) }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': token,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(bodyData)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                window.location.reload();
-                            } else {
-                                button.disabled = false;
-                                button.innerHTML = buttonContent;
-                                alert('Erro ao criar checklist: ' + (data.error || 'Erro desconhecido'));
-                            }
-                        })
-                        .catch(error => {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(bodyData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
                             button.disabled = false;
                             button.innerHTML = buttonContent;
-                            alert('Erro ao criar checklist: ' + error.message);
-                        });
+                            alert('Erro ao criar checklist: ' + (data.error || 'Erro desconhecido'));
+                        }
+                    })
+                    .catch(error => {
+                        button.disabled = false;
+                        button.innerHTML = buttonContent;
+                        alert('Erro ao criar checklist: ' + error.message);
+                    });
                 }
             </script>
         @endif
@@ -311,45 +320,41 @@
 @endsection
 
 @push('scripts')
+    @if(isset($kid))
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript">
         var ctxBar = document.getElementById('barChart').getContext('2d');
 
-        // Formatar as datas dos checklists para labels
         var labels = @json(
             $checklists->map(function ($checklist) {
                 return ['Checklist #' . $checklist->id, $checklist->created_at->format('d/m/Y')];
             }));
 
-        var data = @json($checklists->pluck('developmentPercentage')); // Percentuais de desenvolvimento
+        var data = @json($checklists->pluck('developmentPercentage'));
 
         var barChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
-                labels: labels.map(l => l[0] + '\n' + l[1]), // Mostra ID e data em duas linhas
+                labels: labels.map(l => l[0] + '\n' + l[1]),
                 datasets: [{
-                        label: 'Média Geral do Desenvolvimento (%)',
-                        data: data,
-                        backgroundColor: data.map(value => {
-                            if (value < 30)
-                                return 'rgba(220, 53, 69, 0.6)'; // Vermelho para baixo desenvolvimento
-                            if (value < 70)
-                                return 'rgba(255, 193, 7, 0.6)'; // Amarelo para médio desenvolvimento
-                            return 'rgba(40, 167, 69, 0.6)'; // Verde para alto desenvolvimento
-                        }),
-                        borderWidth: 1,
-                        type: 'bar'
-                    },
-                    {
-                        label: 'Linha de Desenvolvimento',
-                        data: data,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                        type: 'line',
-                        tension: 0.3
-                    }
-                ]
+                    label: 'Média Geral do Desenvolvimento (%)',
+                    data: data,
+                    backgroundColor: data.map(value => {
+                        if (value < 30) return 'rgba(220, 53, 69, 0.6)';
+                        if (value < 70) return 'rgba(255, 193, 7, 0.6)';
+                        return 'rgba(40, 167, 69, 0.6)';
+                    }),
+                    borderWidth: 1,
+                    type: 'bar'
+                }, {
+                    label: 'Linha de Desenvolvimento',
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false,
+                    type: 'line',
+                    tension: 0.3
+                }]
             },
             options: {
                 scales: {
@@ -357,36 +362,20 @@
                         beginAtZero: true,
                         suggestedMin: 0,
                         suggestedMax: 100,
-                        title: {
-                            display: true,
-                            text: 'Percentual de Desenvolvimento (%)'
-                        },
-                        ticks: {
-                            stepSize: 10
-                        }
+                        title: { display: true, text: 'Percentual de Desenvolvimento (%)' },
+                        ticks: { stepSize: 10 }
                     },
                     x: {
-                        title: {
-                            display: true,
-                            text: 'Avaliações por Data'
-                        },
-                        ticks: {
-                            maxRotation: 45,
-                            minRotation: 45
-                        }
+                        title: { display: true, text: 'Avaliações por Data' },
+                        ticks: { maxRotation: 45, minRotation: 45 }
                     }
                 },
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
+                    legend: { display: true, position: 'top' },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                if (context.dataset.type === 'bar') {
-                                    return `Desenvolvimento: ${context.raw.toFixed(1)}%`;
-                                }
+                                if (context.dataset.type === 'bar') return `Desenvolvimento: ${context.raw.toFixed(1)}%`;
                                 return context.dataset.label + ': ' + context.raw.toFixed(1) + '%';
                             }
                         }
@@ -397,83 +386,52 @@
             }
         });
 
-        // Preparar dados dos status
         @php
-            $statusData = [0, 0, 0, 0]; // Valores padrão caso não haja checklist
-
+            $statusData = [0, 0, 0, 0];
             if ($checklists->isNotEmpty()) {
-                // Pegar apenas o último checklist
-                $lastChecklist = $checklists->first(); // Já está ordenado por created_at desc
-
-                // Contar as competências por nota
+                $lastChecklist = $checklists->first();
                 $statusData = [
-                    $lastChecklist->competences->where('pivot.note', 0)->count(), // Não observado
-                    $lastChecklist->competences->where('pivot.note', 1)->count(), // Mais ou menos
-                    $lastChecklist->competences->where('pivot.note', 2)->count(), // Difícil
-                    $lastChecklist->competences->where('pivot.note', 3)->count(), // Consistente
+                    $lastChecklist->competences->where('pivot.note', 0)->count(),
+                    $lastChecklist->competences->where('pivot.note', 1)->count(),
+                    $lastChecklist->competences->where('pivot.note', 2)->count(),
+                    $lastChecklist->competences->where('pivot.note', 3)->count(),
                 ];
             }
         @endphp
 
         var statusData = @json($statusData);
-
-        // Configuração do gráfico de status
         var ctxStatus = document.getElementById('statusChart').getContext('2d');
-        var statusLabels = ['Não observado', 'Em desenvolvimento', 'Não desenvolvido', 'Desenvolvido'];
-
-        var statusColors = [
-            'rgba(108, 117, 125, 0.2)', // Cinza para Não observado
-            'rgba(255, 193, 7, 0.6)', // Amarelo para Em desenvolvimento
-            'rgba(220, 53, 69, 0.6)', // Vermelho para Não desenvolvido
-            'rgba(40, 167, 69, 0.6)' // Verde para Desenvolvido
-        ];
-
-        var statusBorders = [
-            'rgba(108, 117, 125, 1)', // Cinza para Não observado
-            'rgba(255, 193, 7, 1)', // Amarelo para Em desenvolvimento
-            'rgba(220, 53, 69, 1)', // Vermelho para Não desenvolvido
-            'rgba(40, 167, 69, 1)' // Verde para Desenvolvido
-        ];
 
         var statusChart = new Chart(ctxStatus, {
             type: 'bar',
             data: {
-                labels: statusLabels,
+                labels: ['Não observado', 'Em desenvolvimento', 'Não desenvolvido', 'Desenvolvido'],
                 datasets: [{
                     label: 'Distribuição de Competências por Status',
                     data: statusData,
-                    backgroundColor: statusColors,
-                    borderColor: statusBorders,
+                    backgroundColor: [
+                        'rgba(108, 117, 125, 0.2)',
+                        'rgba(255, 193, 7, 0.6)',
+                        'rgba(220, 53, 69, 0.6)',
+                        'rgba(40, 167, 69, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(108, 117, 125, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(40, 167, 69, 1)'
+                    ],
                     borderWidth: 1
                 }]
             },
             options: {
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Quantidade de Competências'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Status de Avaliação'
-                        }
-                    }
+                    y: { beginAtZero: true, title: { display: true, text: 'Quantidade de Competências' } },
+                    x: { title: { display: true, text: 'Status de Avaliação' } }
                 },
                 plugins: {
-                    legend: {
-                        display: false
-                    },
-                    title: {
-                        display: true,
-                        text: 'Status de Desenvolvimento - Última Avaliação',
-                        font: {
-                            size: 16
-                        }
-                    },
+                    legend: { display: false },
+                    title: { display: true, text: 'Status de Desenvolvimento - Última Avaliação', font: { size: 16 } },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -489,4 +447,5 @@
             }
         });
     </script>
+    @endif
 @endpush
