@@ -36,12 +36,12 @@
     .kid-progress {
         height: 6px;
         border-radius: 4px;
-        width: 80px;
+        width: 140px;
     }
     .min-w-0 { min-width: 0; }
     @media (max-width: 575px) {
         .kid-meta { font-size: 0.8125rem; }
-        .kid-progress { width: 60px; }
+        .kid-progress { width: 90px; }
     }
 </style>
 @endpush
@@ -140,32 +140,14 @@
                             {{-- Nome --}}
                             <div class="fw-semibold text-dark mb-1 mb-md-0">{{ $kid->name }}</div>
 
-                            {{-- Idade + Responsável --}}
+                            {{-- Idade --}}
                             <div class="d-flex align-items-center gap-2 flex-wrap mb-1 mb-md-0 kid-meta">
                                 <span class="badge bg-info-subtle text-info-emphasis">
                                     <i class="bi bi-calendar3"></i> {{ $kid->age ?? 'N/D' }}
                                 </span>
-                                <span class="text-muted small text-truncate" style="max-width:200px;">
-                                    <i class="bi bi-person-heart me-1"></i>{{ $kid->responsible->name ?? 'N/D' }}
-                                </span>
                             </div>
 
-                            {{-- Profissionais --}}
-                            @if($kid->professionals && $kid->professionals->count() > 0)
-                                <div class="d-flex flex-wrap gap-1 mb-1 mb-md-0">
-                                    @foreach($kid->professionals as $professional)
-                                        <span class="badge bg-primary-subtle text-primary-emphasis"
-                                              title="{{ $professional->specialty->name ?? '' }}">
-                                            {{ $professional->user->first()->name ?? 'N/D' }}
-                                            @if($professional->specialty)
-                                                ({{ $professional->specialty->initial ?? substr($professional->specialty->name, 0, 3) }})
-                                            @endif
-                                        </span>
-                                    @endforeach
-                                </div>
-                            @endif
-
-                            {{-- Progresso --}}
+{{-- Progresso --}}
                             <div class="d-flex align-items-center gap-2 kid-meta">
                                 <div class="progress kid-progress">
                                     <div class="progress-bar"
