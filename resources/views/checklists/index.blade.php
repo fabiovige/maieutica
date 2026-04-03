@@ -43,8 +43,10 @@
     .checklist-progress {
         height: 6px;
         border-radius: 4px;
-        min-width: 80px;
-        max-width: 160px;
+        width: 140px;
+    }
+    @media (max-width: 575px) {
+        .checklist-progress { width: 90px; }
     }
     @media (max-width: 575px) {
         .checklist-item-card .card-body {
@@ -133,15 +135,10 @@
                                 </span>
                             @endif
 
-                            {{-- Nível --}}
-                            <span class="badge bg-primary-subtle text-primary-emphasis px-2">
-                                <i class="bi bi-layers"></i> Nível {{ $checklist->level }}
-                            </span>
-
                             {{-- Idade da criança --}}
                             @if($checklist->kid)
-                                <span class="text-muted small">
-                                    <i class="bi bi-person-fill me-1"></i>{{ $checklist->kid->FullNameMonths ?? 'N/D' }}
+                                <span class="badge bg-info-subtle text-info-emphasis">
+                                    <i class="bi bi-calendar3"></i> {{ $checklist->kid->age ?? 'N/D' }}
                                 </span>
                             @endif
 
@@ -160,10 +157,6 @@
                                 </span>
                             </div>
 
-                            {{-- Data de criação --}}
-                            <span class="text-muted small">
-                                <i class="bi bi-calendar3 me-1"></i>{{ $checklist->created_at->format('d/m/Y') }}
-                            </span>
                         </div>
 
                         {{-- Lado direito: botão Ver --}}
