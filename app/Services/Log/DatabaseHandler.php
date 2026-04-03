@@ -44,7 +44,7 @@ class DatabaseHandler extends AbstractProcessingHandler
                 $this->createLog(null, null, $this->log::ACTION_INFO, $description);
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Database logging failed: ' . $e->getMessage());
+            error_log('Database logging failed: ' . $e->getMessage());
         }
     }
 
@@ -57,11 +57,13 @@ class DatabaseHandler extends AbstractProcessingHandler
                     'object_id' => $objectId,
                     'action' => $action,
                     'description' => $description,
+                    'creation_date' => now(),
+                    'created_by' => auth()->id(),
                 ]
             );
         } catch (\Exception $e) {
-            // Fallback para log de arquivo em caso de erro
-            \Illuminate\Support\Facades\Log::error('Failed to create log entry: ' . $e->getMessage());
+            // Fallback direto para evitar loop de logging
+            error_log('Failed to create log entry: ' . $e->getMessage());
         }
     }
 

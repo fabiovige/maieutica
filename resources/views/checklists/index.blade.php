@@ -186,7 +186,7 @@
 
     {{-- Paginação --}}
     <div class="d-flex justify-content-center mt-3">
-        {{ $checklists->links() }}
+        {{ $checklists->onEachSide(1)->links() }}
     </div>
 
     {{-- Gráficos (apenas no contexto de kid) --}}

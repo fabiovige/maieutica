@@ -75,7 +75,7 @@
         </table>
 
         <div class="d-flex justify-content-end mt-3">
-            {{ $roles->links() }}
+            {{ $roles->onEachSide(1)->links() }}
         </div>
     @endif
 @endsection

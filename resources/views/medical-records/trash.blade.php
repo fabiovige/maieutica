@@ -101,7 +101,7 @@
 
         {{-- Paginação --}}
         <div class="d-flex justify-content-end mt-3">
-            {{ $medicalRecords->links() }}
+            {{ $medicalRecords->onEachSide(1)->links() }}
         </div>
     @endif
 

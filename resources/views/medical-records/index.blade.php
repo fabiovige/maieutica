@@ -182,7 +182,7 @@
     {{-- Paginação --}}
     @if($medicalRecords->isNotEmpty())
         <div class="d-flex justify-content-end mt-3">
-            {{ $medicalRecords->appends(request()->query())->links() }}
+            {{ $medicalRecords->onEachSide(1)->appends(request()->query())->links() }}
         </div>
     @endif
 

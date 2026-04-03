@@ -149,7 +149,7 @@
         </div>
 
         <div class="d-flex justify-content-end mt-3">
-            {{ $documents->appends(request()->query())->links() }}
+            {{ $documents->onEachSide(1)->appends(request()->query())->links() }}
         </div>
     @endif
 @endsection
