@@ -114,9 +114,13 @@ class Kid extends BaseModel
         }
 
         try {
-            $birthDate = Carbon::parse($this->getRawOriginal('birth_date'));
-            $now = Carbon::now();
+            // birth_date accessor retorna "d/m/Y"; getRawOriginal retorna "Y-m-d"
+            $raw = $this->getRawOriginal('birth_date');
+            $birthDate = $raw
+                ? Carbon::parse($raw)
+                : Carbon::createFromFormat('d/m/Y', $this->birth_date);
 
+            $now = Carbon::now();
             $years = $birthDate->diffInYears($now);
             $months = $birthDate->diffInMonths($now) % 12;
 
@@ -124,7 +128,7 @@ class Kid extends BaseModel
                 return $years.'a '.$months.'m';
             }
 
-            return $months.' meses';
+            return $birthDate->diffInMonths($now).' meses';
         } catch (\Exception $e) {
             return null;
         }
