@@ -97,7 +97,7 @@
         </table>
 
         <div class="d-flex justify-content-end mt-3">
-            {{ $roles->appends(request()->query())->links() }}
+            {{ $roles->onEachSide(1)->appends(request()->query())->links() }}
         </div>
     @endif
 @endsection

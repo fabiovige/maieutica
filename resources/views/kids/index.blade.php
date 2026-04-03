@@ -202,7 +202,7 @@
 
     {{-- Paginação --}}
     <div class="d-flex justify-content-end mt-3">
-        {{ $kids->appends(request()->query())->links() }}
+        {{ $kids->onEachSide(1)->appends(request()->query())->links() }}
     </div>
 
 @endsection

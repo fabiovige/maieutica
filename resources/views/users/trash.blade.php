@@ -95,7 +95,7 @@
         </table>
 
         <div class="d-flex justify-content-end mt-3">
-            {{ $users->links() }}
+            {{ $users->onEachSide(1)->links() }}
         </div>
     @endif
 @endsection

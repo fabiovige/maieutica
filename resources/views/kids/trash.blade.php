@@ -110,7 +110,7 @@
         </table>
 
         <div class="d-flex justify-content-end mt-3">
-            {{ $kids->links() }}
+            {{ $kids->onEachSide(1)->links() }}
         </div>
     @endif
 @endsection
