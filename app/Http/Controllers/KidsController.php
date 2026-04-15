@@ -67,19 +67,19 @@ class KidsController extends Controller
         }
 
         // Criancas com progresso
-        $children = (clone $baseQuery)->children()->orderBy('name')->get();
+        $children = (clone $baseQuery)->children()->orderBy('name')->paginate(15, ['*'], 'children_page');
         foreach ($children as $kid) {
             $overviewData = $this->overviewService->getOverviewData($kid->id);
             $kid->progress_percentage = round($overviewData['totalPercentage'], 2);
         }
 
         // Adultos
-        $adults = (clone $baseQuery)->adults()->orderBy('name')->get();
+        $adults = (clone $baseQuery)->adults()->orderBy('name')->paginate(15, ['*'], 'adults_page');
 
         // Log
         $this->kidLogger->listed([
             'search' => $request->input('search'),
-            'total_results' => $children->count() + $adults->count(),
+            'total_results' => $children->total() + $adults->total(),
         ]);
 
         return view('kids.index', compact('children', 'adults'));

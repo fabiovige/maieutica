@@ -30,34 +30,6 @@
     @endcan
 @endsection
 
-@push('styles')
-<style>
-    .checklist-item-card {
-        border-radius: 12px !important;
-        transition: box-shadow 0.2s ease, transform 0.15s ease;
-    }
-    .checklist-item-card:hover {
-        box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
-        transform: translateY(-1px);
-    }
-    .checklist-progress {
-        height: 6px;
-        border-radius: 4px;
-        width: 140px;
-    }
-    @media (max-width: 575px) {
-        .checklist-progress { width: 90px; }
-    }
-    @media (max-width: 575px) {
-        .checklist-item-card .card-body {
-            padding: 0.85rem 1rem !important;
-        }
-        .checklist-meta {
-            font-size: 0.8125rem;
-        }
-    }
-</style>
-@endpush
 
 @section('content')
     <div class="row">
@@ -70,7 +42,7 @@
 
     {{-- Filtro de Busca --}}
     @if (!isset($kid))
-        <div class="card mb-3 border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card mb-3">
             <div class="card-body">
                 <form method="GET" action="{{ route('checklists.index') }}" class="row g-3">
                     <div class="col-md-10">
@@ -109,73 +81,61 @@
         @endif
     @endif
 
-    {{-- Lista de Checklists em Cards --}}
-    <div class="d-flex flex-column gap-2">
-        @forelse($checklists as $checklist)
-            @php $isOpen = $checklist->situation_label === 'Aberto'; @endphp
-            <div class="card shadow-sm border-0 checklist-item-card">
-
-                {{-- Corpo: informações do checklist --}}
-                <div class="card-body py-3 px-4">
-                    <div class="d-flex align-items-center gap-3">
-
-                        {{-- Lado esquerdo: informações --}}
-                        <div class="d-flex flex-wrap align-items-center gap-3 flex-grow-1 checklist-meta">
-
-                            {{-- Status --}}
-                            <span class="badge {{ $isOpen ? 'bg-success' : 'bg-secondary opacity-75' }} px-2 py-1">
+    {{-- Lista de Checklists --}}
+    @if($checklists->isNotEmpty())
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Status</th>
+                    @if(!isset($kid))
+                        <th>Criança</th>
+                    @endif
+                    <th style="width:120px;">Idade</th>
+                    <th style="width:180px;">Progresso</th>
+                    <th style="width:80px;" class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($checklists as $checklist)
+                    @php $isOpen = $checklist->situation_label === 'Aberto'; @endphp
+                    <tr>
+                        <td>
+                            <span class="badge {{ $isOpen ? 'bg-success' : 'bg-secondary opacity-75' }}">
                                 <i class="bi {{ $isOpen ? 'bi-unlock' : 'bi-lock' }}"></i>
                                 {{ $checklist->situation_label }}
                             </span>
-
-                            {{-- Nome da criança --}}
-                            @if(!isset($kid))
-                                <span class="fw-semibold text-dark">
-                                    {{ $checklist->kid->name ?? 'N/D' }}
-                                </span>
-                            @endif
-
-                            {{-- Idade da criança --}}
-                            @if($checklist->kid)
-                                <span class="badge bg-info-subtle text-info-emphasis">
-                                    <i class="bi bi-calendar3"></i> {{ $checklist->kid->age ?? 'N/D' }}
-                                </span>
-                            @endif
-
-                            {{-- Barra de progresso --}}
+                        </td>
+                        @if(!isset($kid))
+                            <td>{{ $checklist->kid->name ?? 'N/D' }}</td>
+                        @endif
+                        <td><small class="text-muted">{{ $checklist->kid->age ?? 'N/D' }}</small></td>
+                        <td>
                             <div class="d-flex align-items-center gap-2">
-                                <div class="progress checklist-progress flex-grow-1">
+                                <div class="progress flex-grow-1" style="height:6px;border-radius:4px;">
                                     <div class="progress-bar"
                                          role="progressbar"
-                                         style="width: {{ $checklist->developmentPercentage }}%; background-color: {{ get_progress_color($checklist->developmentPercentage) }} !important;"
+                                         style="width:{{ $checklist->developmentPercentage }}%; background-color:{{ get_progress_color($checklist->developmentPercentage) }} !important;"
                                          aria-valuenow="{{ $checklist->developmentPercentage }}"
                                          aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
-                                <span class="text-muted small fw-semibold" style="min-width:36px;">
-                                    {{ $checklist->developmentPercentage }}%
-                                </span>
+                                <span class="small fw-semibold" style="min-width:36px;">{{ $checklist->developmentPercentage }}%</span>
                             </div>
-
-                        </div>
-
-                        {{-- Lado direito: botão Ver --}}
-                        <div class="flex-shrink-0">
+                        </td>
+                        <td class="text-center">
                             <a href="{{ route('checklists.show', $checklist->id) }}" class="btn btn-secondary btn-sm">
-                                <i class="bi bi-eye"></i> Ver
+                                <i class="bi bi-eye"></i>
                             </a>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-        @empty
-            <div class="alert alert-info border-0 shadow-sm" style="border-radius:12px;">
-                <i class="bi bi-info-circle"></i> Nenhum checklist encontrado.
-            </div>
-        @endforelse
-    </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <div class="alert alert-light mt-3 mb-0">
+            <i class="bi bi-info-circle"></i> Nenhum checklist encontrado.
+        </div>
+    @endif
 
     {{-- Paginação --}}
     <div class="d-flex justify-content-center mt-3">
