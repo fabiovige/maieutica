@@ -1,8 +1,10 @@
-# CLAUDE.md — Constituição do Maiêutica
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **Maiêutica** — Plataforma clínica de avaliação cognitiva infantil. Em produção em maieuticavaliacom.br.
 
-**Versão:** 1.0.18 | **Stack:** Laravel 9.x · Vue 3.5 (Options API) · Bootstrap 5.3 · MySQL/MariaDB · Laravel Mix 6.x
+**Versão:** 1.0.18 | **Stack:** Laravel 9.52 · Vue 3.5 (Options API) · Bootstrap 5.3 · MySQL/MariaDB · Laravel Mix 6.x
 
 ---
 
@@ -41,17 +43,23 @@ if ($user->hasRole('admin')) { }     // ❌ ERRADO — quebra a arquitetura
 
 ```bash
 # Desenvolvimento
-npm run watch          # Recompilar assets
+npm run dev            # Compilar assets (uma vez)
+npm run watch          # Compilar assets (contínuo)
 php artisan serve      # Servidor local
-composer clear         # Limpa cache, route, view, config
+composer clear         # Limpa cache, route, view, config (dumpautoload + 4 clears)
 
 # Banco
 php artisan db:seed    # Popular banco (uso normal)
 composer fresh         # migrate:fresh --seed (SOMENTE se pedido explicitamente)
 
-# Qualidade
-php artisan test
-./vendor/bin/pint
+# Testes
+php artisan test                              # Todos os testes
+php artisan test --filter=NomeDoTeste         # Teste específico
+php artisan test tests/Unit/Models/           # Diretório específico
+
+# Lint
+./vendor/bin/pint                             # Fix style (Laravel Pint)
+./vendor/bin/pint --test                      # Dry-run (apenas reportar)
 
 # Logs
 # Browser: /log-viewer | Terminal: tail -f storage/logs/laravel.log
@@ -70,102 +78,34 @@ php artisan test
 
 ---
 
-## Estado das Features (Abril 2026)
-
-| Feature | Status |
-|---------|--------|
-| CRUD de Kids + Checklists | Completo |
-| Competências + Domínios + Níveis | Completo |
-| Planos de desenvolvimento | Completo |
-| Geração de PDF (checklist, overview, plano) | Completo |
-| Prontuários — Kids e Adultos | Completo |
-| Sidebar vertical + design system | Completo |
-| Atribuição profissional ↔ paciente adulto | Completo |
-| Notificações por e-mail (templates) | Parcial — fila com falhas |
-| Cadastro de adulto via UI para profissional | Incompleto — apenas Admin |
-| Agendamento de sessões | Não iniciado |
-| Portal de responsáveis | Não iniciado |
-| Exportação Excel/CSV | Não iniciado |
-
----
-
 ## Skills Disponíveis (Slash Commands)
 
-Use `/nome` para carregar o contexto de cada domínio:
+Use `/nome` para carregar o contexto + regras de negócio de cada domínio:
 
 | Skill | Conteúdo |
 |-------|----------|
-| `/arquitetura` | Modelos, controllers, observers, jobs, middleware |
-| `/dicionario` | Schema completo do banco (31 tabelas) |
-| `/pacientes` | Kids vs. Adultos — tipos, fluxos, atribuição |
-| `/prontuarios` | Prontuários polimórficos + versionamento |
-| `/auth` | Sistema de permissões + relacionamento profissional/usuário |
-| `/frontend` | Vue components, CSS, design system |
-| `/tipografia` | Sistema tipográfico, variáveis CSS |
-| `/sidebar` | Layout sidebar v2.0 |
-| `/documentos` | Geração de PDFs, templates |
+| `/arquitetura` | Modelos, controllers, observers, services, helpers, padrões arquiteturais |
+| `/auth` | Autorização (`can()` NUNCA `hasRole()`), permissions, policies, regras Professional↔User |
+| `/pacientes` | Modelo unificado Kids, classificação por birth_date, scopes adults/children |
+| `/prontuarios` | Prontuários polimórficos, versionamento, scope forAuthProfessional |
+| `/dicionario` | Schema do banco (31 tabelas), convenções, enums, pivots |
+| `/frontend` | Vue 3 Options API, CSS architecture, componentes, compilação |
+| `/tipografia` | Fonte Nunito, tokens CSS, ordem de carregamento |
+| `/sidebar` | Layout sidebar v2.0, estilos inline, menu com permissões |
+| `/documentos` | Geração de PDFs, 6 modelos, DomPDF, polimorfismo |
+| `/logging` | Duas camadas (Observer + Domain Logger), LGPD, armazenamento |
+| `/testing` | Estrutura de testes, comandos, debugging, lint |
 | `/deploy` | Manual de atualização em produção |
 | `/sdd` | Metodologia Spec-Driven Development |
 
 ---
 
-## Índice de Documentação
+## Estrutura de Documentação
 
-### Arquitetura e Dados
+```
+docs/           → 13 docs ativos (referenciados pelas skills acima)
+docs/specs/     → 4 specs de features pendentes
+docs/historico/ → Planos concluídos, análises históricas, implementações passadas
+```
 
-| Arquivo | Conteúdo |
-|---------|----------|
-| `docs/architecture.md` | Modelos, controllers, observers, jobs, middleware |
-| `docs/dicionario-dados.md` | Schema completo do banco (31 tabelas) |
-| `docs/PROFESSIONAL_USER_RELATIONSHIP.md` | Relacionamentos profissional/usuário + autorização |
-| `docs/packages.md` | Todos os pacotes (backend, frontend, dev) |
-
-### Domínio Clínico
-
-| Arquivo | Conteúdo |
-|---------|----------|
-| `docs/TIPOS_DE_PACIENTES.md` | Kids vs. Adultos — tipos, fluxos, atribuição |
-| `docs/medical-records.md` | Prontuários (polimórfico + versionamento) |
-| `docs/documentos.md` | Geração de documentos PDF |
-
-### Frontend e Design
-
-| Arquivo | Conteúdo |
-|---------|----------|
-| `docs/frontend.md` | Vue components, CSS, design system de botões |
-| `docs/tipografia.md` | Sistema tipográfico completo |
-| `docs/novo-layout-sidebar.md` | Layout sidebar v2.0 |
-
-### Operacional
-
-| Arquivo | Conteúdo |
-|---------|----------|
-| `docs/logging.md` | Sistema de logging (observers + domain loggers) |
-| `docs/testing.md` | Estrutura de testes e debugging |
-| `docs/MANUAL_ATUALIZACAO_PRODUCAO.md` | Deploy em produção |
-
-### Processo e Planejamento
-
-| Arquivo | Conteúdo |
-|---------|----------|
-| `docs/SDD.md` | Metodologia Spec-Driven Development |
-| `docs/PRD.md` | Product Requirements Document (Jan/2025 — parcialmente desatualizado) |
-| `docs/analise_adulto.md` | Análise histórica — decisão de suporte a adultos |
-
-### Specs Pendentes (features não implementadas)
-
-| Arquivo | Conteúdo |
-|---------|----------|
-| `docs/remover-dropdown-acoes.md` | Substituir dropdowns por botões simples |
-| `docs/ux-checklist-show-page.md` | Cards mobile-first para checklists |
-| `docs/relatorios.md` | Plano de relatórios clínicos |
-| `docs/plano-observabilidade-v2.md` | Stack de monitoring (Pail) |
-
-### Referência Pontual
-
-| Arquivo | Conteúdo |
-|---------|----------|
-| `docs/cep-autocomplete.md` | Busca de endereço por CEP (ViaCEP) |
-| `docs/routes_checklist.md` | Tabela de rotas da API de checklists |
-
-> Docs históricos (planos de implementação concluídos, investigações, tickets) estão em `docs/historico/`.
+**Ponto de entrada:** sempre pelas skills (`/nome`). Os docs em `docs/` são referência detalhada que as skills carregam automaticamente.

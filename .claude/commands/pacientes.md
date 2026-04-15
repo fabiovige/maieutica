@@ -1,1 +1,37 @@
-Leia `docs/TIPOS_DE_PACIENTES.md` na íntegra. Use-o para responder perguntas sobre os dois tipos de pacientes do sistema: Kids (crianças, avaliação Denver) e Users adultos (allow=true, sem role). Inclui fluxo de cadastro, diferenças de atribuição e prontuários polimórficos. Para detalhes de autorização e relacionamentos, consulte `docs/PROFESSIONAL_USER_RELATIONSHIP.md`.
+Leia `docs/TIPOS_DE_PACIENTES.md` na íntegra. Use-o para responder perguntas sobre pacientes.
+
+## Modelo Unificado
+
+**Todos os pacientes estão na tabela `kids`** — crianças e adultos. A distinção é calculada dinamicamente pela data de nascimento.
+
+**Classificação automática:**
+- `$kid->is_adult` — accessor computado: `diffInYears(birth_date, now()) >= 13` retorna `true`
+- Constante: `Kid::ADULT_AGE_YEARS = 13`
+- NÃO existe flag `is_adult` no banco — é sempre calculado
+
+**Scopes:**
+```php
+Kid::adults()->get();           // idade >= 13
+Kid::children()->get();         // idade < 13 (ou sem birth_date)
+Kid::denverEligible()->get();   // crianças elegíveis ao Denver (até 60 meses)
+```
+
+## Diferenças por Tipo
+
+| Aspecto | Criança (< 13) | Adulto (>= 13) |
+|---------|----------------|-----------------|
+| Checklists Denver | Sim | Não |
+| Planos de desenvolvimento | Sim | Não |
+| Prontuários | Sim (morphMany) | Sim (morphMany) |
+| Documentos gerados | Sim | Sim |
+| Responsável legal | Sim (`responsible_id`) | Opcional |
+| Atribuição a profissional | `kid_professional` | `kid_professional` |
+
+## Regras Críticas
+
+- `birth_date` é obrigatório — a classificação depende dele
+- Nunca usar flag booleana para classificar — sempre calcular pela idade
+- Atribuição a profissional: pivot `kid_professional` com campo `is_primary` (funciona para ambos)
+- Cadastro de adulto via UI: disponível apenas para Admin (limitação conhecida)
+
+Para autorização e relacionamentos, consulte `/auth`. Para prontuários, consulte `/prontuarios`.
