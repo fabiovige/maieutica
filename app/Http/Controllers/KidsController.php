@@ -35,12 +35,13 @@ class KidsController extends Controller
     {
         $this->authorize('viewAny', Kid::class);
 
-        $query = Kid::with(['professionals.user', 'professionals.specialty', 'responsible']);
+        // Base query com filtros de permissao e busca
+        $baseQuery = Kid::query()->with(['professionals.user', 'professionals.specialty', 'responsible']);
 
         // Filtro de busca geral (nome, responsável)
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
+            $baseQuery->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%'.$search.'%')
                     ->orWhereHas('responsible', function ($responsibleQuery) use ($search) {
                         $responsibleQuery->where('name', 'like', '%'.$search.'%');
@@ -55,75 +56,33 @@ class KidsController extends Controller
 
         // Responsáveis veem apenas kids sob sua responsabilidade
         if (! auth()->user()->can('kid-list-all') && ! auth()->user()->professional->count()) {
-            $query->where('responsible_id', auth()->user()->id);
+            $baseQuery->where('responsible_id', auth()->user()->id);
         }
         // Profissionais veem apenas seus kids
         elseif (auth()->user()->professional->count() > 0) {
             $professionalId = auth()->user()->professional->first()->id;
-            $query->whereHas('professionals', function ($q) use ($professionalId) {
+            $baseQuery->whereHas('professionals', function ($q) use ($professionalId) {
                 $q->where('professional_id', $professionalId);
             });
         }
 
-        // Ordenação
-        $sort = $request->input('sort', 'created_desc');
-
-        if (in_array($sort, ['progress_asc', 'progress_desc'])) {
-            // Para ordenação por progresso: buscar todos, calcular, ordenar, paginar manualmente
-            $allKids = $query->get();
-
-            foreach ($allKids as $kid) {
-                $overviewData = $this->overviewService->getOverviewData($kid->id);
-                $kid->progress_percentage = round($overviewData['totalPercentage'], 2);
-            }
-
-            $sorted = $sort === 'progress_desc'
-                ? $allKids->sortByDesc('progress_percentage')
-                : $allKids->sortBy('progress_percentage');
-
-            $page = $request->input('page', 1);
-            $perPage = self::PAGINATION_DEFAULT;
-            $paginatedItems = $sorted->slice(($page - 1) * $perPage, $perPage)->values();
-
-            $kids = new \Illuminate\Pagination\LengthAwarePaginator(
-                $paginatedItems,
-                $allKids->count(),
-                $perPage,
-                $page,
-                ['path' => $request->url(), 'query' => $request->query()]
-            );
-        } else {
-            switch ($sort) {
-                case 'name_asc':
-                    $query->orderBy('name', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('name', 'desc');
-                    break;
-                case 'created_asc':
-                    $query->orderBy('created_at', 'asc');
-                    break;
-                default:
-                    $query->orderBy('created_at', 'desc');
-                    break;
-            }
-
-            $kids = $query->paginate(self::PAGINATION_DEFAULT);
-
-            // Calcular progresso para cada criança
-            foreach ($kids as $kid) {
-                $overviewData = $this->overviewService->getOverviewData($kid->id);
-                $kid->progress_percentage = round($overviewData['totalPercentage'], 2);
-            }
+        // Criancas com progresso
+        $children = (clone $baseQuery)->children()->orderBy('name')->get();
+        foreach ($children as $kid) {
+            $overviewData = $this->overviewService->getOverviewData($kid->id);
+            $kid->progress_percentage = round($overviewData['totalPercentage'], 2);
         }
 
-        // Log kids list access with filters
+        // Adultos
+        $adults = (clone $baseQuery)->adults()->orderBy('name')->get();
+
+        // Log
         $this->kidLogger->listed([
             'search' => $request->input('search'),
-            'total_results' => $kids->total(),
+            'total_results' => $children->count() + $adults->count(),
         ]);
 
-        return view('kids.index', compact('kids'));
+        return view('kids.index', compact('children', 'adults'));
     }
 
     public function create()
@@ -158,7 +117,6 @@ class KidsController extends Controller
             $kidData = [
                 'name' => $request->name,
                 'birth_date' => $request->birth_date,
-                'is_adult' => $request->boolean('is_adult'),
                 'gender' => $request->gender,
                 'ethnicity' => $request->ethnicity,
                 'responsible_id' => $request->responsible_id,
@@ -395,7 +353,6 @@ class KidsController extends Controller
             $kid->update([
                 'name' => $validated['name'],
                 'birth_date' => $validated['birth_date'],
-                'is_adult' => $request->boolean('is_adult'),
                 'gender' => $validated['gender'],
                 'ethnicity' => $validated['ethnicity'],
                 'responsible_id' => $request->input('responsible_id'),

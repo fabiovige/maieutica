@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\Auth;
 
 class Kid extends BaseModel
 {
+    public const ADULT_AGE_YEARS = 13;
+
     protected $fillable = [
         'name',
         'birth_date',
-        'is_adult',
         'photo',
         'gender',
         'ethnicity',
@@ -31,7 +32,6 @@ class Kid extends BaseModel
 
     protected $casts = [
         'birth_date' => 'date',
-        'is_adult' => 'boolean',
     ];
 
     public const GENDERS = [
@@ -136,6 +136,24 @@ class Kid extends BaseModel
         }
     }
 
+    /**
+     * Determina se o paciente é adulto (idade >= 13 anos) com base na data de nascimento.
+     */
+    public function getIsAdultAttribute(): bool
+    {
+        $raw = $this->getRawOriginal('birth_date') ?? null;
+
+        if (! $raw) {
+            return false;
+        }
+
+        try {
+            return Carbon::parse($raw)->diffInYears(Carbon::now()) >= self::ADULT_AGE_YEARS;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
     public function getBirthDateAttribute($value)
     {
         if (! $value) {
@@ -233,12 +251,16 @@ class Kid extends BaseModel
 
     public function scopeAdults(Builder $query)
     {
-        return $query->where('is_adult', true);
+        return $query->whereNotNull('birth_date')
+            ->whereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) >= ?', [self::ADULT_AGE_YEARS]);
     }
 
     public function scopeChildren(Builder $query)
     {
-        return $query->where('is_adult', false);
+        return $query->where(function ($q) {
+            $q->whereNull('birth_date')
+              ->orWhereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) < ?', [self::ADULT_AGE_YEARS]);
+        });
     }
 
     /**

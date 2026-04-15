@@ -43,17 +43,23 @@ class HomeController extends Controller
         // ── Stat cards ─────────────────────────────────────────────────────────
         if ($user->can('kid-list-all')) {
             $totalKids             = Kid::count();
+            $totalChildren         = Kid::children()->count();
+            $totalAdults           = Kid::adults()->count();
             $totalChecklists       = Checklist::count();
             $checklistsEmAndamento = Checklist::where('situation', 'a')->count();
             $totalProfessionals    = Professional::count();
         } elseif ($isProfessional) {
             $totalKids             = $professional->kids()->count();
+            $totalChildren         = Kid::children()->whereHas('professionals', fn($q) => $q->where('professional_id', $professional->id))->count();
+            $totalAdults           = Kid::adults()->whereHas('professionals', fn($q) => $q->where('professional_id', $professional->id))->count();
             $totalChecklists       = Checklist::whereHas('kid.professionals', fn($q) => $q->where('professional_id', $professional->id))->count();
             $checklistsEmAndamento = Checklist::where('situation', 'a')
                 ->whereHas('kid.professionals', fn($q) => $q->where('professional_id', $professional->id))->count();
             $totalProfessionals    = Professional::count();
         } else {
             $totalKids             = Kid::where('responsible_id', $user->id)->count();
+            $totalChildren         = Kid::children()->where('responsible_id', $user->id)->count();
+            $totalAdults           = Kid::adults()->where('responsible_id', $user->id)->count();
             $totalChecklists       = Checklist::whereHas('kid', fn($q) => $q->where('responsible_id', $user->id))->count();
             $checklistsEmAndamento = Checklist::where('situation', 'a')
                 ->whereHas('kid', fn($q) => $q->where('responsible_id', $user->id))->count();
@@ -137,6 +143,8 @@ class HomeController extends Controller
 
         return view('home', compact(
             'totalKids',
+            'totalChildren',
+            'totalAdults',
             'totalChecklists',
             'checklistsEmAndamento',
             'totalProfessionals',

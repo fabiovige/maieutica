@@ -5,7 +5,7 @@
 Implementation of a medical records system to document patient evolution over time. Professionals can create, view, edit and delete medical session records. System follows existing Maiêutica patterns with permission-based authorization and soft deletes.
 
 **Supported Patients:**
-- **Kids** — criancas (`is_adult=false`) e adultos (`is_adult=true`), todos na tabela `kids`
+- **Kids** — criancas (idade < 13) e adultos (idade >= 13), todos na tabela `kids`, classificados por `birth_date`
 
 ## Design Decisions (Confirmed with User)
 
@@ -30,7 +30,7 @@ Implementation of a medical records system to document patient evolution over ti
 
 **Rationale:** Professionals need to see complete patient history (visibility), but can only modify their own notes (integrity).
 
-**Important:** Todos os pacientes (criancas e adultos) sao registrados na tabela `kids`. Adultos tem `is_adult = true`. Ambos se relacionam com Profissionais via pivot `kid_professional`. Ver `docs/TIPOS_DE_PACIENTES.md`.
+**Important:** Todos os pacientes (criancas e adultos) sao registrados na tabela `kids`. Adultos sao classificados automaticamente por `birth_date` (idade >= 13). Ambos se relacionam com Profissionais via pivot `kid_professional`. Ver `docs/TIPOS_DE_PACIENTES.md`.
 
 ---
 
@@ -151,7 +151,7 @@ public function getPatientNameAttribute()
 public function getPatientTypeNameAttribute()
 {
     return match($this->patient_type) {
-        'App\Models\Kid' => $this->patient?->is_adult ? 'Adulto' : 'Criança',
+        'App\Models\Kid' => $this->patient?->is_adult ? 'Adulto' : 'Criança', // is_adult é accessor computado por birth_date
         default => 'Desconhecido',
     };
 }
@@ -451,7 +451,7 @@ private function getKidsForUser()
 private function getUserPatientsForUser()
 {
     if (auth()->user()->can('medical-record-list-all')) {
-        return Kid::where('is_adult', true)->orderBy('name')->get();
+        return Kid::adults()->orderBy('name')->get();
     }
 
     $professional = auth()->user()->professional->first();
@@ -460,7 +460,7 @@ private function getUserPatientsForUser()
         return collect([]);
     }
 
-    return Kid::where('is_adult', true)
+    return Kid::adults()
         ->whereHas('professionals', function ($q) use ($professional) {
             $q->where('professional_id', $professional->id);
         })
@@ -878,7 +878,7 @@ private function getPatientIdentifier($medicalRecord): string
 
 8. **Conditional Validation:** `patient_id` must validate existence in correct table based on `patient_type`. Use closure validation.
 
-9. **Atribuição Paciente-Profissional:** Todos os pacientes (criancas e adultos) sao vinculados via `kid_professional`. Profissional ve apenas pacientes atribuidos a ele. Admin ve todos. Adultos sao Kids com `is_adult = true`. Ver `docs/TIPOS_DE_PACIENTES.md`.
+9. **Atribuição Paciente-Profissional:** Todos os pacientes (criancas e adultos) sao vinculados via `kid_professional`. Profissional ve apenas pacientes atribuidos a ele. Admin ve todos. Adultos sao classificados automaticamente por `birth_date` (idade >= 13). Ver `docs/TIPOS_DE_PACIENTES.md`.
 
 ### ⚠️ ATTENTION
 

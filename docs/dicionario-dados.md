@@ -155,8 +155,7 @@ roles ◄──── role_has_permissions ────► permissions
 | `name` | varchar(191) | NAO | | | Nome da crianca |
 | `gender` | enum('M','F') | SIM | | NULL | Sexo: M=Masculino, F=Feminino |
 | `ethnicity` | enum('branco','pardo','negro','indigena','amarelo','multiracial','nao_declarado','outro') | SIM | | NULL | Etnia |
-| `birth_date` | date | NAO | | | Data de nascimento |
-| `is_adult` | tinyint(1) | NAO | | 0 | Flag: 0=crianca, 1=adulto |
+| `birth_date` | date | NAO | | | Data de nascimento (idade >= 13 = adulto) |
 | `photo` | varchar(191) | SIM | | NULL | Caminho da foto |
 | `created_by` | bigint(20) unsigned | SIM | | NULL | ID do usuario que criou |
 | `updated_by` | bigint(20) unsigned | SIM | | NULL | ID do usuario que atualizou |

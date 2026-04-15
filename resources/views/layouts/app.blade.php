@@ -662,7 +662,7 @@
                                 @can('kid-list')
                                     <li>
                                         <a href="{{ route('kids.index') }}" class="submenu-link {{ request()->routeIs('kids.*') && !request()->routeIs('kids.trash') ? 'active' : '' }}">
-                                            Crianças
+                                            Pacientes
                                         </a>
                                     </li>
                                 @endcan
@@ -768,7 +768,7 @@
                                 @can('kid-list-all')
                                     <li>
                                         <a href="{{ route('kids.trash') }}" class="submenu-link {{ request()->routeIs('kids.trash') ? 'active' : '' }}">
-                                            Crianças
+                                            Pacientes
                                             @php $count = App\Models\Kid::onlyTrashed()->count(); @endphp
                                             @if($count > 0)<span class="menu-badge">{{ $count }}</span>@endif
                                         </a>

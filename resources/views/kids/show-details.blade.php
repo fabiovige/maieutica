@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 @section('title')
-    Visualizar Criança
+    Visualizar Paciente
 @endsection
 
 @section('breadcrumb-items')
     <li class="breadcrumb-item">
         <a href="{{ route('kids.index') }}">
-            <i class="bi bi-people"></i> Crianças
+            <i class="bi bi-people"></i> Pacientes
         </a>
     </li>
     <li class="breadcrumb-item active" aria-current="page">
@@ -24,8 +24,8 @@
         </div>
     </div>
 
-    <!-- Últimos Checklists -->
-    @if($kid->checklists && $kid->checklists->count() > 0)
+    <!-- Últimos Checklists (apenas para crianças) -->
+    @if(!$kid->is_adult && $kid->checklists && $kid->checklists->count() > 0)
         <div class="row mt-4">
             <div class="col-12">
                 <div class="card shadow-sm">

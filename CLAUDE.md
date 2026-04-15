@@ -65,7 +65,7 @@ php artisan test
 - **Fonte base:** 16px (1rem) em todos os arquivos
 - **Login:** `auth/login.blade.php` standalone — não carrega `app.css`/`custom.css`
 - **PDF:** Templates estendem `documents.layouts.pdf-base`, fonte `DejaVu Sans`
-- **Pacientes:** Todos na tabela `kids` — criancas (`is_adult=false`) e adultos (`is_adult=true`). Ver `/pacientes`
+- **Pacientes:** Todos na tabela `kids` — criancas (idade < 13) e adultos (idade >= 13), calculado por `birth_date`. Constante: `Kid::ADULT_AGE_YEARS`
 - **Failed Jobs:** 7 registros em `failed_jobs` — investigar antes de usar workers de fila
 
 ---

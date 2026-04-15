@@ -128,7 +128,7 @@
 
         {{-- ── Stat Cards ── --}}
         <div class="row g-3 mb-4">
-            <div class="col-6 col-xl-3">
+            <div class="col-6 col-xl">
                 <div class="card border-0 shadow-sm stat-card h-100" style="background:#e8f0fe;">
                     <div class="card-body p-3 d-flex align-items-center gap-3">
                         <div class="stat-icon" style="background:#4285f4;">
@@ -136,13 +136,27 @@
                         </div>
                         <div>
                             <div class="small" style="color:#5f6368;">Crianças</div>
-                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $totalKids }}</div>
+                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $totalChildren }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-6 col-xl-3">
+            <div class="col-6 col-xl">
+                <div class="card border-0 shadow-sm stat-card h-100" style="background:#f3e8fe;">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon" style="background:#7c3aed;">
+                            <i class="bi bi-person-fill text-white"></i>
+                        </div>
+                        <div>
+                            <div class="small" style="color:#5f6368;">Adultos</div>
+                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $totalAdults }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl">
                 <div class="card border-0 shadow-sm stat-card h-100" style="background:#e6f4ea;">
                     <div class="card-body p-3 d-flex align-items-center gap-3">
                         <div class="stat-icon" style="background:#34a853;">
@@ -156,7 +170,7 @@
                 </div>
             </div>
 
-            <div class="col-6 col-xl-3">
+            <div class="col-6 col-xl">
                 <div class="card border-0 shadow-sm stat-card h-100" style="background:#fef7e0;">
                     <div class="card-body p-3 d-flex align-items-center gap-3">
                         <div class="stat-icon" style="background:#f9ab00;">
@@ -170,7 +184,7 @@
                 </div>
             </div>
 
-            <div class="col-6 col-xl-3">
+            <div class="col-6 col-xl">
                 <div class="card border-0 shadow-sm stat-card h-100" style="background:#f0fdf4;">
                     <div class="card-body p-3 d-flex align-items-center gap-3">
                         <div class="stat-icon" style="background:#059669;">

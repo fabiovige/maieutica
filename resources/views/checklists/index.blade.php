@@ -179,7 +179,7 @@
 
     {{-- Paginação --}}
     <div class="d-flex justify-content-center mt-3">
-        {{ $checklists->onEachSide(1)->links() }}
+        {{ $checklists->onEachSide(1)->appends(request()->query())->links() }}
     </div>
 
     {{-- Gráficos (apenas no contexto de kid) --}}

@@ -69,28 +69,12 @@
                         <label for="patient_id" class="form-label">Paciente</label>
                         <select name="patient_id" id="patient_id" class="form-select select2" data-placeholder="Todos os pacientes">
                             <option value="">Todos</option>
-                            @if($kids->isNotEmpty())
-                                <optgroup label="Crianças">
-                                    @foreach($kids as $kid)
-                                        <option value="{{ $kid->id }}" data-type="App\Models\Kid"
-                                            {{ request('patient_id') == $kid->id && request('filter_patient_type', 'App\Models\Kid') === 'App\Models\Kid' ? 'selected' : '' }}>
-                                            {{ $kid->name }} ({{ $kid->age ?? 'N/D' }})
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
-                            @if($userPatients->isNotEmpty())
-                                <optgroup label="Adultos">
-                                    @foreach($userPatients as $user)
-                                        <option value="{{ $user->id }}" data-type="App\Models\User"
-                                            {{ request('patient_id') == $user->id && request('filter_patient_type') === 'App\Models\User' ? 'selected' : '' }}>
-                                            {{ $user->name }}
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
+                            @foreach($patients as $patient)
+                                <option value="{{ $patient->id }}" {{ request('patient_id') == $patient->id ? 'selected' : '' }}>
+                                    {{ $patient->name }} ({{ $patient->age ?? 'N/D' }})
+                                </option>
+                            @endforeach
                         </select>
-                        <input type="hidden" name="filter_patient_type" id="filter_patient_type" value="{{ request('filter_patient_type', 'App\Models\Kid') }}">
                     </div>
 
                     <div class="col-auto d-flex align-items-end">
@@ -131,13 +115,13 @@
                             <span class="fw-semibold text-dark">{{ $record->patient_name }}</span>
 
                             {{-- Tipo --}}
-                            @if($record->patient_type === 'App\Models\Kid')
-                                <span class="badge bg-primary-subtle text-primary-emphasis">
-                                    <i class="bi bi-person-hearts"></i> Criança
+                            @if($record->patient && $record->patient->is_adult)
+                                <span class="badge" style="background:#f3e8fe; color:#7c3aed;">
+                                    <i class="bi bi-person"></i> Adulto
                                 </span>
                             @else
-                                <span class="badge bg-secondary-subtle text-secondary-emphasis">
-                                    <i class="bi bi-person"></i> Adulto
+                                <span class="badge bg-primary-subtle text-primary-emphasis">
+                                    <i class="bi bi-person-hearts"></i> Criança
                                 </span>
                             @endif
 
@@ -188,13 +172,3 @@
 
 @endsection
 
-@push('scripts')
-<script>
-    $(document).ready(function () {
-        $('#patient_id').on('change', function () {
-            const type = $(this).find('option:selected').data('type') || 'App\\Models\\Kid';
-            $('#filter_patient_type').val(type);
-        });
-    });
-</script>
-@endpush

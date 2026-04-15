@@ -56,9 +56,8 @@ class MedicalRecordsController extends Controller
 
         // Filter by specific patient
         if ($request->filled('patient_id')) {
-            $patientType = $request->filled('filter_patient_type') ? $request->filter_patient_type : Kid::class;
             $query->where('patient_id', $request->patient_id)
-                ->where('patient_type', $patientType);
+                ->where('patient_type', Kid::class);
         }
 
         // Filter by date range
@@ -110,10 +109,9 @@ class MedicalRecordsController extends Controller
 
         // Get data for filters
         $professionals = $this->getProfessionalsForFilter();
-        $kids = $this->getKidsForUser();
-        $userPatients = $this->getUserPatientsForUser();
+        $patients = $this->getPatientsForUser();
 
-        return view('medical-records.index', compact('medicalRecords', 'professionals', 'kids', 'userPatients'));
+        return view('medical-records.index', compact('medicalRecords', 'professionals', 'patients'));
     }
 
     /**
@@ -123,11 +121,10 @@ class MedicalRecordsController extends Controller
     {
         $this->authorize('create', MedicalRecord::class);
 
-        $kids = $this->getKidsForUser();
-        $userPatients = $this->getUserPatientsForUser();
+        $patients = $this->getPatientsForUser();
         $professionals = $this->getProfessionalsForFilter();
 
-        return view('medical-records.create', compact('kids', 'userPatients', 'professionals'));
+        return view('medical-records.create', compact('patients', 'professionals'));
     }
 
     /**
@@ -646,6 +643,49 @@ class MedicalRecordsController extends Controller
     private function getKidsForUser()
     {
         if (auth()->user()->can('medical-record-list-all')) {
+            return Kid::children()->orderBy('name')->get();
+        }
+
+        $professional = auth()->user()->professional->first();
+        if (! $professional) {
+            return collect([]);
+        }
+
+        return Kid::children()
+            ->whereHas('professionals', function ($q) use ($professional) {
+                $q->where('professional_id', $professional->id);
+            })->orderBy('name')->get();
+    }
+
+    /**
+     * Get adult patients (age >= 13) for current user based on permissions.
+     */
+    private function getUserPatientsForUser()
+    {
+        if (auth()->user()->can('medical-record-list-all')) {
+            return Kid::adults()->orderBy('name')->get();
+        }
+
+        $professional = auth()->user()->professional->first();
+
+        if (! $professional) {
+            return collect([]);
+        }
+
+        return Kid::adults()
+            ->whereHas('professionals', function ($q) use ($professional) {
+                $q->where('professional_id', $professional->id);
+            })
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * Get all patients (children + adults) for current user based on permissions.
+     */
+    private function getPatientsForUser()
+    {
+        if (auth()->user()->can('medical-record-list-all')) {
             return Kid::orderBy('name')->get();
         }
 
@@ -657,29 +697,6 @@ class MedicalRecordsController extends Controller
         return Kid::whereHas('professionals', function ($q) use ($professional) {
             $q->where('professional_id', $professional->id);
         })->orderBy('name')->get();
-    }
-
-    /**
-     * Get adult patients (Kids with is_adult=true) for current user based on permissions.
-     */
-    private function getUserPatientsForUser()
-    {
-        if (auth()->user()->can('medical-record-list-all')) {
-            return Kid::where('is_adult', true)->orderBy('name')->get();
-        }
-
-        $professional = auth()->user()->professional->first();
-
-        if (! $professional) {
-            return collect([]);
-        }
-
-        return Kid::where('is_adult', true)
-            ->whereHas('professionals', function ($q) use ($professional) {
-                $q->where('professional_id', $professional->id);
-            })
-            ->orderBy('name')
-            ->get();
     }
 
     /**
