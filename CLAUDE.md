@@ -1,57 +1,57 @@
 # CLAUDE.md — Constituição do Maiêutica
 
-Este arquivo é a **constituição** do projeto para o Claude Code. Contém apenas regras inegociáveis e comandos essenciais. Detalhes técnicos estão em `docs/`.
-
-## Projeto
-
 **Maiêutica** — Plataforma clínica de avaliação cognitiva infantil. Em produção em maieuticavaliacom.br.
 
-**Versão:** 1.0.18
-
-**Stack:**
-- Backend: Laravel 9.x (PHP ^8.0.2)
-- Frontend: Vue 3.5 (Options API) + Bootstrap 5.3 + Chart.js 3.9
-- Database: MySQL/MariaDB
-- Build: Laravel Mix 6.x (Webpack)
-- Auth: Spatie Laravel Permission ^6.9 (baseada em permissões, NÃO em roles)
+**Versão:** 1.0.18 | **Stack:** Laravel 9.x · Vue 3.5 (Options API) · Bootstrap 5.3 · MySQL/MariaDB · Laravel Mix 6.x
 
 ---
 
-## Regras Críticas de Produção
+## Regras Inegociáveis
 
-**Este sistema está em produção.** Nunca fazer mudanças que possam quebrar funcionalidades existentes.
+**Este sistema está em produção.**
 
-- Testar manualmente antes de commitar
-- Sempre usar migrations para mudanças no banco (nunca `ALTER TABLE` direto)
-- Refatorar incrementalmente e validar antes de mergear
-- Nunca otimizar prematuramente — estabilidade em primeiro lugar
-- **Nunca esvaziar o banco local de desenvolvimento** — usar `php artisan db:seed` para popular
+- Nunca quebrar funcionalidades existentes — testar antes de commitar
+- Sempre usar migrations (nunca `ALTER TABLE` direto)
+- Refatorar incrementalmente — estabilidade antes de elegância
+- **Nunca esvaziar o banco local** — usar `php artisan db:seed`
+
+---
+
+## Autorização — CRÍTICO
+
+**SEMPRE `can()`, NUNCA `hasRole()` para autorização:**
+
+```php
+$user->can('user-edit')              // ✅ Controller/Service
+@can('user-edit') ... @endcan        // ✅ Blade
+$this->authorize('update', $user);   // ✅ Policy
+
+if ($user->hasRole('admin')) { }     // ❌ ERRADO — quebra a arquitetura
+```
+
+**Padrão:** `{entidade}-{ação}[-all]` — ex: `kid-list`, `kid-list-all`, `medical-record-edit`
+
+**Roles** = apenas para atribuição: `$user->assignRole('profissional')`
+
+**10 Policies:** `Checklist`, `Kid`, `MedicalRecord`, `GeneratedDocument`, `Plane`, `Professional`, `User`, `Role`, `Responsible`, `Competence`
 
 ---
 
 ## Comandos Essenciais
 
 ```bash
-# Setup
-composer install && npm install
-cp .env.example .env && php artisan key:generate
-php artisan migrate --seed && npm run dev
-
 # Desenvolvimento
-npm run watch          # Watch e recompilar assets
-npm run hot            # Hot reload (mais rápido)
-php artisan serve      # Servidor de desenvolvimento
+npm run watch          # Recompilar assets
+php artisan serve      # Servidor local
+composer clear         # Limpa cache, route, view, config
 
-# Cache
-composer clear         # limpa: cache, route, view, config, clear-compiled
-
-# Banco (desenvolvimento)
+# Banco
 php artisan db:seed    # Popular banco (uso normal)
-composer fresh         # migrate:fresh --seed (SOMENTE se usuário pedir explicitamente)
+composer fresh         # migrate:fresh --seed (SOMENTE se pedido explicitamente)
 
-# Testes
+# Qualidade
 php artisan test
-./vendor/bin/pint      # Formatter PHP
+./vendor/bin/pint
 
 # Logs
 # Browser: /log-viewer | Terminal: tail -f storage/logs/laravel.log
@@ -59,101 +59,113 @@ php artisan test
 
 ---
 
-## Sistema de Autorização
+## Notas Rápidas
 
-### CRÍTICO: Baseado em Permissões (NÃO em Roles)
-
-**SEMPRE usar `can()` para autorização:**
-```php
-$user->can('user-edit')              // Controller/Service
-@can('user-edit') ... @endcan        // Blade
-$this->authorize('update', $user);   // Delegação para Policy
-```
-
-**NUNCA usar `hasRole()` para autorização:**
-```php
-// ERRADO — quebra a arquitetura!
-if ($user->hasRole('admin')) { }
-@role('admin') ... @endrole
-```
-
-**Roles** = Contêineres para agrupar permissões (apenas para atribuição: `$user->assignRole('profissional')`)  
-**Permissions** = Verificações reais de autorização no código
-
-### Padrão de Nomes: `{entidade}-{ação}[-all]`
-
-| Padrão | Significado |
-|--------|-------------|
-| `user-list` | Pode listar próprios/atribuídos |
-| `user-list-all` | Pode listar TODOS (admin) |
-| `user-edit` | Pode editar próprios/atribuídos |
-| `user-edit-all` | Pode editar TODOS (admin) |
-
-**Ações:** `list`, `show`, `create`, `edit`, `delete`, `restore` (usa `edit`)
-
-### Policies (10 total)
-
-Todas seguem o mesmo padrão:
-```php
-public function viewAny(User $user): bool {
-    return $user->can('user-list') || $user->can('user-list-all');
-}
-public function update(User $user, User $model): bool {
-    return $user->can('user-edit') || $user->can('user-edit-all');
-}
-// viewTrash/restore usam permissão 'edit'
-// forceDelete usa apenas permissão '-all'
-```
-
-**Policies disponíveis:** `ChecklistPolicy`, `KidPolicy`, `MedicalRecordPolicy`, `GeneratedDocumentPolicy`, `PlanePolicy`, `ProfessionalPolicy`, `UserPolicy`, `RolePolicy`, `ResponsiblePolicy`, `CompetencePolicy`
-
-Ver `docs/PROFESSIONAL_USER_RELATIONSHIP.md` para padrões de autorização detalhados.
+- **Estilos sidebar:** Inline em `app.blade.php`, não no SCSS compilado
+- **Fonte base:** 16px (1rem) em todos os arquivos
+- **Login:** `auth/login.blade.php` standalone — não carrega `app.css`/`custom.css`
+- **PDF:** Templates estendem `documents.layouts.pdf-base`, fonte `DejaVu Sans`
+- **Pacientes:** Todos na tabela `kids` — criancas (`is_adult=false`) e adultos (`is_adult=true`). Ver `/pacientes`
+- **Failed Jobs:** 7 registros em `failed_jobs` — investigar antes de usar workers de fila
 
 ---
 
-## Notas Importantes
+## Estado das Features (Abril 2026)
 
-- **Localização BR:** `laravellegends/pt-br-validator` para CPF, datas, telefones
-- **Windows dev:** Desenvolvido no MINGW64, paths podem diferir
-- **Estilos do sidebar:** Estão **inline** no `app.blade.php` (`<style>`), não no SCSS compilado
-- **Fonte base:** 16px (1rem) unificado em todos os arquivos (SCSS, CSS, inline)
-- **Login standalone:** `auth/login.blade.php` não carrega `app.css`/`custom.css`
-- **PDF:** Templates estendem `documents.layouts.pdf-base`, fonte `DejaVu Sans`
-- **Limitação conhecida:** Profissionais não podem criar prontuários para pacientes adultos via UI. Workaround: Admin cria. Requer completar pivot `professional_user_patient`.
+| Feature | Status |
+|---------|--------|
+| CRUD de Kids + Checklists | Completo |
+| Competências + Domínios + Níveis | Completo |
+| Planos de desenvolvimento | Completo |
+| Geração de PDF (checklist, overview, plano) | Completo |
+| Prontuários — Kids e Adultos | Completo |
+| Sidebar vertical + design system | Completo |
+| Atribuição profissional ↔ paciente adulto | Completo |
+| Notificações por e-mail (templates) | Parcial — fila com falhas |
+| Cadastro de adulto via UI para profissional | Incompleto — apenas Admin |
+| Agendamento de sessões | Não iniciado |
+| Portal de responsáveis | Não iniciado |
+| Exportação Excel/CSV | Não iniciado |
+
+---
+
+## Skills Disponíveis (Slash Commands)
+
+Use `/nome` para carregar o contexto de cada domínio:
+
+| Skill | Conteúdo |
+|-------|----------|
+| `/arquitetura` | Modelos, controllers, observers, jobs, middleware |
+| `/dicionario` | Schema completo do banco (31 tabelas) |
+| `/pacientes` | Kids vs. Adultos — tipos, fluxos, atribuição |
+| `/prontuarios` | Prontuários polimórficos + versionamento |
+| `/auth` | Sistema de permissões + relacionamento profissional/usuário |
+| `/frontend` | Vue components, CSS, design system |
+| `/tipografia` | Sistema tipográfico, variáveis CSS |
+| `/sidebar` | Layout sidebar v2.0 |
+| `/documentos` | Geração de PDFs, templates |
+| `/deploy` | Manual de atualização em produção |
+| `/sdd` | Metodologia Spec-Driven Development |
 
 ---
 
 ## Índice de Documentação
 
+### Arquitetura e Dados
+
 | Arquivo | Conteúdo |
 |---------|----------|
-| `docs/SDD.md` | Metodologia Spec-Driven Development para este projeto |
-| `docs/architecture.md` | Modelos, controllers, observers, jobs, middleware, estatísticas |
-| `docs/frontend.md` | Vue components, CSS architecture, design system de botões |
+| `docs/architecture.md` | Modelos, controllers, observers, jobs, middleware |
+| `docs/dicionario-dados.md` | Schema completo do banco (31 tabelas) |
+| `docs/PROFESSIONAL_USER_RELATIONSHIP.md` | Relacionamentos profissional/usuário + autorização |
 | `docs/packages.md` | Todos os pacotes (backend, frontend, dev) |
-| `docs/testing.md` | Estrutura de testes e debugging |
-| `docs/dicionario-dados.md` | Schema completo (31 tabelas) |
+
+### Domínio Clínico
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `docs/TIPOS_DE_PACIENTES.md` | Kids vs. Adultos — tipos, fluxos, atribuição |
+| `docs/medical-records.md` | Prontuários (polimórfico + versionamento) |
+| `docs/documentos.md` | Geração de documentos PDF |
+
+### Frontend e Design
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `docs/frontend.md` | Vue components, CSS, design system de botões |
 | `docs/tipografia.md` | Sistema tipográfico completo |
 | `docs/novo-layout-sidebar.md` | Layout sidebar v2.0 |
-| `docs/medical-records.md` | Prontuários (polimórfico + versionamento) |
-| `docs/documentos.md` | Geração de documentos |
-| `docs/PROFESSIONAL_USER_RELATIONSHIP.md` | Relacionamentos profissional/usuário |
-| `docs/PRD.md` | Product Requirements Document |
+
+### Operacional
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `docs/logging.md` | Sistema de logging (observers + domain loggers) |
+| `docs/testing.md` | Estrutura de testes e debugging |
 | `docs/MANUAL_ATUALIZACAO_PRODUCAO.md` | Deploy em produção |
-| `docs/analise_adulto.md` | Pacientes adultos (parcialmente implementado) |
 
----
+### Processo e Planejamento
 
-## Mudanças Recentes
+| Arquivo | Conteúdo |
+|---------|----------|
+| `docs/SDD.md` | Metodologia Spec-Driven Development |
+| `docs/PRD.md` | Product Requirements Document (Jan/2025 — parcialmente desatualizado) |
+| `docs/analise_adulto.md` | Análise histórica — decisão de suporte a adultos |
 
-- **2026-03-10:** Redesign dos templates de e-mail (layout limpo, cor rosa institucional)
-- **2026-03-10:** Fix: senha provisória no cadastro de profissional
-- **2026-03-10:** Aumento global de fonte: base 14px → 16px (1rem)
-- **2026-02-09:** Padronização de botões em tabelas (ícone + label)
-- **2026-02-08:** Novo layout com sidebar vertical
-- **2026-02-08:** Padronização tipográfica completa (5 fases)
-- **2026-02-08:** Sistema de botões padronizado (`_buttons.scss`)
-- **2026-01-27:** Campo `is_intern` na tabela `professionals`
-- **2025-12-28:** Tabela pivot `professional_user_patient`
-- **2025-12-22:** Prontuários com suporte polimórfico e versionamento
-- **2025-12-06:** Documentos gerados com suporte polimórfico
+### Specs Pendentes (features não implementadas)
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `docs/remover-dropdown-acoes.md` | Substituir dropdowns por botões simples |
+| `docs/ux-checklist-show-page.md` | Cards mobile-first para checklists |
+| `docs/relatorios.md` | Plano de relatórios clínicos |
+| `docs/plano-observabilidade-v2.md` | Stack de monitoring (Pail) |
+
+### Referência Pontual
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `docs/cep-autocomplete.md` | Busca de endereço por CEP (ViaCEP) |
+| `docs/routes_checklist.md` | Tabela de rotas da API de checklists |
+
+> Docs históricos (planos de implementação concluídos, investigações, tickets) estão em `docs/historico/`.

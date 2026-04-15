@@ -1,0 +1,1 @@
+Leia `docs/PROFESSIONAL_USER_RELATIONSHIP.md` na íntegra. Use-o para responder perguntas sobre o sistema de autorização do Maiêutica: permissões (NUNCA roles), padrão `{entidade}-{ação}[-all]`, policies, relacionamento profissional-usuário e pivot tables de atribuição. Regra crítica: sempre `can()`, nunca `hasRole()` para autorização.

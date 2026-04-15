@@ -1,0 +1,1 @@
+Leia `docs/documentos.md` na íntegra. Use-o para responder perguntas sobre geração de documentos PDF: templates, modelos disponíveis, polimorfismo (Kid ou User), DomPDF, e fluxo de geração. Todos os templates estendem `documents.layouts.pdf-base` com fonte DejaVu Sans.

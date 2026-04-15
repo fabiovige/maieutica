@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\KidRequest;
-use App\Jobs\SendKidUpdateJob;
 use App\Models\Checklist;
 use App\Models\Competence;
 use App\Models\Domain;
@@ -23,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 class KidsController extends Controller
 {
     protected $overviewService;
+
     protected $kidLogger;
 
     public function __construct(OverviewService $overviewService, KidLogger $kidLogger)
@@ -40,21 +40,21 @@ class KidsController extends Controller
         // Filtro de busca geral (nome, responsável)
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhereHas('responsible', function($responsibleQuery) use ($search) {
-                      $responsibleQuery->where('name', 'like', '%' . $search . '%');
-                  })
-                  ->orWhereHas('professionals', function($profQuery) use ($search) {
-                      $profQuery->whereHas('user', function($userQuery) use ($search) {
-                          $userQuery->where('name', 'like', '%' . $search . '%');
-                      });
-                  });
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%'.$search.'%')
+                    ->orWhereHas('responsible', function ($responsibleQuery) use ($search) {
+                        $responsibleQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('professionals', function ($profQuery) use ($search) {
+                        $profQuery->whereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('name', 'like', '%'.$search.'%');
+                        });
+                    });
             });
         }
 
         // Responsáveis veem apenas kids sob sua responsabilidade
-        if (!auth()->user()->can('kid-list-all') && !auth()->user()->professional->count()) {
+        if (! auth()->user()->can('kid-list-all') && ! auth()->user()->professional->count()) {
             $query->where('responsible_id', auth()->user()->id);
         }
         // Profissionais veem apenas seus kids
@@ -134,9 +134,9 @@ class KidsController extends Controller
         $professions = User::whereHas('professional', function ($query) {
             $query->whereNull('deleted_at');
         })
-        ->where('allow', true)
-        ->orderBy('name')
-        ->get();
+            ->where('allow', true)
+            ->orderBy('name')
+            ->get();
 
         // Buscar usuários ativos para serem responsáveis
         $responsibles = User::where('allow', true)
@@ -158,6 +158,7 @@ class KidsController extends Controller
             $kidData = [
                 'name' => $request->name,
                 'birth_date' => $request->birth_date,
+                'is_adult' => $request->boolean('is_adult'),
                 'gender' => $request->gender,
                 'ethnicity' => $request->ethnicity,
                 'responsible_id' => $request->responsible_id,
@@ -176,20 +177,20 @@ class KidsController extends Controller
                 // Comportamento antigo: auto-attach se o form não enviou profissionais
                 $kid->professionals()->attach($userProfessional->id, [
                     'created_at' => now(),
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ]);
 
                 // Log professional attachment
                 $this->kidLogger->professionalAttached($kid, $userProfessional->id, [
                     'source' => 'auto_attach_on_create',
                 ]);
-            } elseif (!empty($professionals)) {
+            } elseif (! empty($professionals)) {
                 // Novo comportamento: anexar profissionais selecionados no formulário
                 $syncData = [];
                 foreach ($professionals as $professionalId) {
                     $syncData[$professionalId] = [
                         'created_at' => now(),
-                        'updated_at' => now()
+                        'updated_at' => now(),
                     ];
                 }
 
@@ -207,7 +208,7 @@ class KidsController extends Controller
             // We log at controller level with additional context
             $this->kidLogger->created($kid, [
                 'source' => 'controller',
-                'has_professional' => !empty($professionals) || !is_null($userProfessional),
+                'has_professional' => ! empty($professionals) || ! is_null($userProfessional),
                 'professionals_count' => count($professionals),
             ]);
 
@@ -251,6 +252,7 @@ class KidsController extends Controller
         } catch (\Exception $e) {
             $this->kidLogger->operationFailed('show', $e, ['kid_id' => $kid->id]);
             flash('Erro ao visualizar dados da criança.')->error();
+
             return redirect()->route('kids.index');
         }
     }
@@ -258,13 +260,14 @@ class KidsController extends Controller
     public function showPlane(Kid $kid, $checklistId = null)
     {
         // Verifica se tem permissão para plano manual OU se pode visualizar a criança
-        if (!auth()->user()->can('checklist-plane-manual') && !auth()->user()->can('kid-show')) {
+        if (! auth()->user()->can('checklist-plane-manual') && ! auth()->user()->can('kid-show')) {
             abort(403, 'Você não tem permissão para acessar planos manuais.');
         }
 
         try {
             if ($kid->checklists()->count() === 0) {
                 flash(self::MSG_NOT_FOUND_CHECKLIST_USER)->warning();
+
                 return redirect()->back();
             }
 
@@ -315,12 +318,12 @@ class KidsController extends Controller
             // Buscar profissionais ativos através da tabela professionals
             $professions = User::whereHas('professional', function ($query) {
                 $query->whereNull('deleted_at')
-                      ->whereNotNull('specialty_id');
+                    ->whereNotNull('specialty_id');
             })
-            ->with(['professional.specialty'])
-            ->where('allow', true)
-            ->orderBy('name')
-            ->get();
+                ->with(['professional.specialty'])
+                ->where('allow', true)
+                ->orderBy('name')
+                ->get();
 
             // Buscar usuários ativos para serem responsáveis
             $responsibles = User::where('allow', true)
@@ -331,6 +334,7 @@ class KidsController extends Controller
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
             $this->kidLogger->operationFailed('edit', $e, ['kid_id' => $kid->id]);
+
             return redirect()->back();
         }
     }
@@ -347,9 +351,9 @@ class KidsController extends Controller
             $professions = User::whereHas('professional', function ($query) {
                 $query->whereNull('deleted_at');
             })
-            ->where('allow', true)
-            ->orderBy('name')
-            ->get();
+                ->where('allow', true)
+                ->orderBy('name')
+                ->get();
 
             // Buscar usuários ativos para serem responsáveis
             $responsibles = User::where('allow', true)
@@ -360,6 +364,7 @@ class KidsController extends Controller
         } catch (Exception $e) {
             flash($e->getMessage())->warning();
             $this->kidLogger->operationFailed('eyeKid', $e, ['kid_id' => $kid->id]);
+
             return redirect()->back();
         }
     }
@@ -373,9 +378,9 @@ class KidsController extends Controller
             'birth_date' => 'required|date_format:d/m/Y|before:today|after:1900-01-01',
             'gender' => 'required|string',
             'ethnicity' => 'required|string',
-            //'responsible_id' => 'required|exists:users,id',
+            // 'responsible_id' => 'required|exists:users,id',
             'professionals' => 'array',
-            'professionals.*' => 'exists:professionals,id'
+            'professionals.*' => 'exists:professionals,id',
         ]);
 
         try {
@@ -390,6 +395,7 @@ class KidsController extends Controller
             $kid->update([
                 'name' => $validated['name'],
                 'birth_date' => $validated['birth_date'],
+                'is_adult' => $request->boolean('is_adult'),
                 'gender' => $validated['gender'],
                 'ethnicity' => $validated['ethnicity'],
                 'responsible_id' => $request->input('responsible_id'),
@@ -405,7 +411,7 @@ class KidsController extends Controller
                 $syncData[$professionalId] = [
                     'is_primary' => $professionalId == $primaryProfessional,
                     'created_at' => now(),
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ];
             }
 
@@ -439,7 +445,7 @@ class KidsController extends Controller
             // Log successful update (KidObserver will also log at model level)
             $this->kidLogger->updated($kid, $changes, [
                 'source' => 'controller',
-                'professionals_changed' => !empty($attached) || !empty($detached),
+                'professionals_changed' => ! empty($attached) || ! empty($detached),
                 'attached_count' => count($attached),
                 'detached_count' => count($detached),
             ]);
@@ -544,7 +550,7 @@ class KidsController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
 
-            flash('Erro ao restaurar criança: ' . $e->getMessage())->warning();
+            flash('Erro ao restaurar criança: '.$e->getMessage())->warning();
 
             $this->kidLogger->operationFailed('restore', $e, [
                 'kid_id' => $id,
@@ -566,10 +572,9 @@ class KidsController extends Controller
 
             $professionalNames = [];
             foreach ($professionals as $professional) {
-                $professionalNames[] = $professional->user->first()->name . ' - (' . $professional->specialty->name . ')';
+                $professionalNames[] = $professional->user->first()->name.' - ('.$professional->specialty->name.')';
             }
             $therapist = implode("\n", $professionalNames);
-
 
             $date = $plane->first()->created_at;
             $arr = [];
@@ -608,13 +613,13 @@ class KidsController extends Controller
 
                     $pdf->Ln(5);
                     $pdf->SetFont('helvetica', 'B', 10);
-                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
+                    $txt = $competence->level_id.$v['domain']->initial.$competence->code.' - '.$competence->description;
                     $pdf->Ln(5);
                     $pdf->Write(0, $txt, '', 0, 'L', true);
 
                     $pdf->Ln(1);
                     $pdf->SetFont('helvetica', 'I', 8);
-                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
+                    $pdf->Write(0, '"'.$competence->description_detail.'"', '', 0, 'L', true);
 
                     $pdf->Ln(4);
                     $pdf->SetFont('helvetica', '', 9);
@@ -630,7 +635,7 @@ class KidsController extends Controller
                 'competences_count' => $plane->competences()->count(),
             ]);
 
-            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
+            $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
         } catch (Exception $e) {
             $this->kidLogger->pdfGenerationFailed($kid ?? Kid::find($id), 'plane', $e, [
                 'plane_id' => $id,
@@ -645,7 +650,7 @@ class KidsController extends Controller
     public function pdfPlaneAuto($kidId, $checklislId, $note)
     {
         // Verifica se tem permissão para plano automático
-        if (!auth()->user()->can('checklist-plane-automatic')) {
+        if (! auth()->user()->can('checklist-plane-automatic')) {
             abort(403, 'Você não tem permissão para acessar planos automáticos.');
         }
 
@@ -687,7 +692,7 @@ class KidsController extends Controller
 
             $professionalNames = [];
             foreach ($professionals as $professional) {
-                $professionalNames[] = $professional->user->first()->name . ' - (' . $professional->specialty->name . ')';
+                $professionalNames[] = $professional->user->first()->name.' - ('.$professional->specialty->name.')';
             }
             $therapist = implode("\n", $professionalNames);
 
@@ -742,13 +747,13 @@ class KidsController extends Controller
 
                     $pdf->Ln(5);
                     $pdf->SetFont('helvetica', 'B', 10);
-                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
+                    $txt = $competence->level_id.$v['domain']->initial.$competence->code.' - '.$competence->description;
                     $pdf->Ln(5);
                     $pdf->Write(0, $txt, '', 0, 'L', true);
 
                     $pdf->Ln(1);
                     $pdf->SetFont('helvetica', 'I', 8);
-                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
+                    $pdf->Write(0, '"'.$competence->description_detail.'"', '', 0, 'L', true);
 
                     $pdf->Ln(4);
                     $pdf->SetFont('helvetica', '', 9);
@@ -766,7 +771,7 @@ class KidsController extends Controller
                 'competences_count' => count($competencesNotes),
             ]);
 
-            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
+            $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
         } catch (Exception $e) {
             $this->kidLogger->pdfGenerationFailed(
                 $kid ?? Kid::find($kidId),
@@ -853,13 +858,13 @@ class KidsController extends Controller
 
                     $pdf->Ln(5);
                     $pdf->SetFont('helvetica', 'B', 10);
-                    $txt = $competence->level_id . $v['domain']->initial . $competence->code . ' - ' . $competence->description;
+                    $txt = $competence->level_id.$v['domain']->initial.$competence->code.' - '.$competence->description;
                     $pdf->Ln(5);
                     $pdf->Write(0, $txt, '', 0, 'L', true);
 
                     $pdf->Ln(1);
                     $pdf->SetFont('helvetica', 'I', 8);
-                    $pdf->Write(0, '"' . $competence->description_detail . '"', '', 0, 'L', true);
+                    $pdf->Write(0, '"'.$competence->description_detail.'"', '', 0, 'L', true);
 
                     $pdf->Ln(4);
                     $pdf->SetFont('helvetica', '', 9);
@@ -876,7 +881,7 @@ class KidsController extends Controller
                 'competences_count' => count($competences),
             ]);
 
-            $pdf->Output($nameKid . '_' . $date->format('dmY') . '_' . $plane->id . '.pdf', 'I');
+            $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
         } catch (Exception $e) {
             $this->kidLogger->pdfGenerationFailed(
                 $kid ?? Kid::find($kidId),
@@ -887,7 +892,7 @@ class KidsController extends Controller
                     'plane_id' => $planeId,
                 ]
             );
-            flash('Erro ao gerar o plano: ' . $e->getMessage())->error();
+            flash('Erro ao gerar o plano: '.$e->getMessage())->error();
 
             return redirect()->back();
         }
@@ -918,7 +923,7 @@ class KidsController extends Controller
         $pdf->AddPage();
 
         $pdf->SetFont('helvetica', '', 18);
-        $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: ' . $plane_id, 0, 1, 'C');
+        $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: '.$plane_id, 0, 1, 'C');
 
         $pdf->SetFont('helvetica', '', 16);
         $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
@@ -937,12 +942,12 @@ class KidsController extends Controller
         $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Write(0, 'Data: ' . $date, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Write(0, 'Data: '.$date, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(15);
 
         if ($planeName) {
             $pdf->SetFont('helvetica', '', 10);
-            $pdf->Write(0, '(' . $planeName . ')', '', 0, 'C', true, 0, false, false, 0);
+            $pdf->Write(0, '('.$planeName.')', '', 0, 'C', true, 0, false, false, 0);
             $pdf->Ln(3);
         }
     }
@@ -959,7 +964,7 @@ class KidsController extends Controller
 
                 // Remove foto antiga se existir
                 if ($oldPhoto) {
-                    $oldPhotoPath = public_path('images/kids/' . $oldPhoto);
+                    $oldPhotoPath = public_path('images/kids/'.$oldPhoto);
                     if (file_exists($oldPhotoPath)) {
                         unlink($oldPhotoPath);
                         $this->kidLogger->photoDeleted($kid, $oldPhoto);
@@ -974,15 +979,15 @@ class KidsController extends Controller
 
                 // Salva nova foto
                 $file = $request->file('photo');
-                $fileName = time() . '_' . $kid->id . '.' . $file->getClientOriginalExtension();
+                $fileName = time().'_'.$kid->id.'.'.$file->getClientOriginalExtension();
                 $file->move($path, $fileName);
 
                 // Salva o caminho relativo no banco
-                $photoPath = 'images/kids/' . $fileName;
+                $photoPath = 'images/kids/'.$fileName;
                 $kid->update(['photo' => $photoPath]);
 
                 $this->kidLogger->photoUploaded($kid, $photoPath, [
-                    'replaced_photo' => !is_null($oldPhoto),
+                    'replaced_photo' => ! is_null($oldPhoto),
                 ]);
 
                 flash('Foto atualizada com sucesso!')->success();
@@ -1284,7 +1289,7 @@ class KidsController extends Controller
             ->get();
 
         // Se nenhum checklist foi selecionado, usar os dois mais recentes
-        if (!$firstChecklistId && !$secondChecklistId && $allChecklists->count() >= 2) {
+        if (! $firstChecklistId && ! $secondChecklistId && $allChecklists->count() >= 2) {
             $firstChecklistId = $allChecklists->first()->id;
             $secondChecklistId = $allChecklists->skip(1)->first()->id;
         }
@@ -1296,11 +1301,12 @@ class KidsController extends Controller
         // Validar se há checklists disponíveis
         if ($allChecklists->count() === 0) {
             flash('Esta criança ainda não possui checklists para realizar análise comparativa.')->warning();
+
             return redirect()->route('kids.show', $kidId);
         }
 
         // Se só há 1 checklist e nenhum foi selecionado, usar como primeiro
-        if (!$firstChecklist && $allChecklists->count() > 0) {
+        if (! $firstChecklist && $allChecklists->count() > 0) {
             $firstChecklist = $allChecklists->first();
         }
 
@@ -1604,8 +1610,9 @@ class KidsController extends Controller
         // Usar o checklist dos dados retornados pelo service (que pode ser o selecionado ou o atual)
         $currentChecklist = $data['currentChecklist'];
 
-        if (!$currentChecklist) {
+        if (! $currentChecklist) {
             flash('Não é possível gerar PDF. Esta criança não possui checklist avaliado.')->warning();
+
             return redirect()->back();
         }
 
@@ -1615,7 +1622,7 @@ class KidsController extends Controller
         $currentDate = Carbon::now()->format('d/m/Y');
 
         // Montar a saída com informação do checklist
-        $checklistInfo = $checklistId ? "Checklist #" . $currentChecklist->id : "Checklist Atual";
+        $checklistInfo = $checklistId ? 'Checklist #'.$currentChecklist->id : 'Checklist Atual';
         $periodAvaliable = "Período de avaliação: {$createdAt} até {$currentDate} ({$checklistInfo})";
 
         // Criar uma nova instância do PDF
@@ -1648,7 +1655,7 @@ class KidsController extends Controller
         $pdf->Ln(10);
 
         // Obter o caminho da foto da criança
-        $photoPath = storage_path('app/public/' . $kid->photo);
+        $photoPath = storage_path('app/public/'.$kid->photo);
 
         // Verificar se o arquivo existe
         if (file_exists($photoPath)) {
@@ -1701,22 +1708,22 @@ class KidsController extends Controller
         $professionals = $kid->professionals()->get();
         $professionalNames = [];
         foreach ($professionals as $professional) {
-            $professionalNames[] = $professional->user->first()->name . ' (' . $professional->specialty->name . ')';
+            $professionalNames[] = $professional->user->first()->name.' ('.$professional->specialty->name.')';
         }
-        $txt = 'Profissionais: ' . implode(', ', $professionalNames);
+        $txt = 'Profissionais: '.implode(', ', $professionalNames);
 
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
-        $txt = 'Responsável: ' . $kid->responsible->name;
+        $txt = 'Responsável: '.$kid->responsible->name;
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
-        $txt = 'Desenvolvimento: ' . round($data['developmentalAgeInMonths'], 0) . ' meses';
+        $txt = 'Desenvolvimento: '.round($data['developmentalAgeInMonths'], 0).' meses';
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
-        $txt = 'Atraso: ' . round($data['delayInMonths'], 0) . ' meses';
+        $txt = 'Atraso: '.round($data['delayInMonths'], 0).' meses';
         $pdf->Cell(0, 2, $txt, 0, 1, 'C');
         $pdf->Ln(1);
 
@@ -1763,15 +1770,15 @@ class KidsController extends Controller
         foreach ($data['domainData'] as $domain) {
             $color = $this->getProgressColor($domain['percentage']);
             $html .= '<tr>
-                <td nowrap="nowrap">' . $domain['name'] . '</td>
-                <td style="text-align: center;">' . $domain['itemsTotal'] . '</td>
-                <td style="text-align: center;">' . $domain['itemsTested'] . '</td>
-                <td style="text-align: center;">' . $domain['itemsValid'] . '</td>
-                <td style="text-align: center;">' . $domain['itemsInvalid'] . '</td>
+                <td nowrap="nowrap">'.$domain['name'].'</td>
+                <td style="text-align: center;">'.$domain['itemsTotal'].'</td>
+                <td style="text-align: center;">'.$domain['itemsTested'].'</td>
+                <td style="text-align: center;">'.$domain['itemsValid'].'</td>
+                <td style="text-align: center;">'.$domain['itemsInvalid'].'</td>
                 <td style="text-align: left;">
                     <div style="position: relative; width: 100%;">
-                        <div style="width: ' . $domain['percentage'] . '%; background-color: ' . $color . '; color: white; text-align: left; padding: 2px; border-radius: 3px;">
-                            ' . $domain['percentage'] . '%
+                        <div style="width: '.$domain['percentage'].'%; background-color: '.$color.'; color: white; text-align: left; padding: 2px; border-radius: 3px;">
+                            '.$domain['percentage'].'%
                         </div>
                     </div>
                 </td>
@@ -1801,11 +1808,11 @@ class KidsController extends Controller
         foreach ($data['weakAreas'] as $domain) {
             $color = $this->getProgressColor($domain['percentage']);
             $html .= '<tr>
-                <td style="white-space: nowrap;">' . $domain['name'] . '</td>
+                <td style="white-space: nowrap;">'.$domain['name'].'</td>
                 <td style="text-align: left;">
                     <div style="position: relative; width: 100%;">
-                        <div style="width: ' . $domain['percentage'] . '%; background-color: ' . $color . '; color: white; text-align: left; padding: 2px; border-radius: 3px;">
-                            ' . $domain['percentage'] . '%
+                        <div style="width: '.$domain['percentage'].'%; background-color: '.$color.'; color: white; text-align: left; padding: 2px; border-radius: 3px;">
+                            '.$domain['percentage'].'%
                         </div>
                     </div>
                 </td>
@@ -1819,8 +1826,8 @@ class KidsController extends Controller
         $this->kidLogger->pdfGenerated($kid, 'overview', [
             'checklist_id' => $currentChecklist->id,
             'level_id' => $levelId,
-            'has_bar_chart' => !empty($barChartImage),
-            'has_radar_chart' => !empty($radarChartImage),
+            'has_bar_chart' => ! empty($barChartImage),
+            'has_radar_chart' => ! empty($radarChartImage),
         ]);
 
         // Gerar o PDF e retorná-lo como resposta
@@ -1848,13 +1855,13 @@ class KidsController extends Controller
                         $tempDir = storage_path('app/temp');
 
                         // Garantir que o diretório existe com permissões corretas
-                        if (!file_exists($tempDir)) {
+                        if (! file_exists($tempDir)) {
                             mkdir($tempDir, 0755, true);
                         }
 
                         // Criar nome único para o arquivo
-                        $tempFileName = uniqid('chart_') . '.png';
-                        $tempImagePath = $tempDir . DIRECTORY_SEPARATOR . $tempFileName;
+                        $tempFileName = uniqid('chart_').'.png';
+                        $tempImagePath = $tempDir.DIRECTORY_SEPARATOR.$tempFileName;
 
                         // Salvar a imagem
                         if (file_put_contents($tempImagePath, $decodedImage)) {
@@ -1879,7 +1886,7 @@ class KidsController extends Controller
                                 \Log::info("Gráfico '$title' adicionado com sucesso ao PDF (largura: {$width}mm)");
                             } else {
                                 \Log::warning("Arquivo de imagem não é válido para '$title'");
-                                $this->addErrorMessage($pdf, "Gráfico não disponível");
+                                $this->addErrorMessage($pdf, 'Gráfico não disponível');
                             }
 
                             // Remover o arquivo temporário
@@ -1888,23 +1895,23 @@ class KidsController extends Controller
                             }
                         } else {
                             \Log::error("Falha ao salvar arquivo temporário para '$title'");
-                            $this->addErrorMessage($pdf, "Erro ao processar gráfico");
+                            $this->addErrorMessage($pdf, 'Erro ao processar gráfico');
                         }
                     } else {
                         \Log::warning("Dados de imagem insuficientes para '$title'");
-                        $this->addErrorMessage($pdf, "Dados de gráfico insuficientes");
+                        $this->addErrorMessage($pdf, 'Dados de gráfico insuficientes');
                     }
                 } else {
                     \Log::warning("Formato de imagem inválido para '$title'");
-                    $this->addErrorMessage($pdf, "Formato de gráfico inválido");
+                    $this->addErrorMessage($pdf, 'Formato de gráfico inválido');
                 }
             } catch (Exception $e) {
-                \Log::error("Erro ao processar imagem para PDF '$title': " . $e->getMessage());
-                $this->addErrorMessage($pdf, "Erro ao carregar gráfico: " . $e->getMessage());
+                \Log::error("Erro ao processar imagem para PDF '$title': ".$e->getMessage());
+                $this->addErrorMessage($pdf, 'Erro ao carregar gráfico: '.$e->getMessage());
             }
         } else {
             \Log::warning("Nenhuma imagem fornecida para '$title'");
-            $this->addErrorMessage($pdf, "Gráfico não foi gerado");
+            $this->addErrorMessage($pdf, 'Gráfico não foi gerado');
         }
     }
 
@@ -1923,7 +1930,7 @@ class KidsController extends Controller
         $roundedPercentage = (int) round($percentage / 10) * 10;
         $roundedPercentage = max(0, min(100, $roundedPercentage));
 
-        return match($roundedPercentage) {
+        return match ($roundedPercentage) {
             0 => '#6a2046',    // Mais escuro para 0%
             10 => '#8a2e5c',   // Escuro
             20 => '#a34677',

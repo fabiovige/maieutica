@@ -23,7 +23,7 @@ Checklist → checklist_competence (pivot com nota 0-3) → Competence → Domai
 
 ---
 
-## Modelos (23 total)
+## Modelos (24 total + BaseModel)
 
 | Categoria | Modelos |
 |-----------|---------|
@@ -32,14 +32,17 @@ Checklist → checklist_competence (pivot com nota 0-3) → Competence → Domai
 | **Avaliação** | `Checklist`, `ChecklistCompetence`, `Competence`, `Level`, `Domain`, `DomainLevel` |
 | **Planos** | `Plane`, `CompetencePlane` |
 | **Registros** | `MedicalRecord` (polimórfico), `GeneratedDocument` (polimórfico) |
-| **Permissões** | `Role`, `Ability`, `AbilityRole` |
+| **Permissões** | `Role`, `Ability`, `AbilityRole`, `Resource` |
 | **Logging** | `Log` |
+| **Sistema** | `Release` (versões/changelog do sistema) |
+
+> `BaseModel` é classe base abstrata (inclui SoftDeletes + audit fields).
 
 ---
 
 ## Controllers
 
-### Web Controllers (15) — `app/Http/Controllers/`
+### Web Controllers (16) — `app/Http/Controllers/`
 
 | Controller | Responsabilidade |
 |------------|-----------------|
@@ -57,6 +60,7 @@ Checklist → checklist_competence (pivot com nota 0-3) → Competence → Domai
 | `HomeController` | Dashboard |
 | `AddressController` | Gestão de endereço/CEP |
 | `DocumentationController` | Documentação dinâmica |
+| `ReleaseController` | Changelog/release notes do sistema |
 
 ### API Controllers (8) — `app/Http/Controllers/Api/`
 

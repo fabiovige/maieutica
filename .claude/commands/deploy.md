@@ -1,0 +1,1 @@
+Leia `docs/MANUAL_ATUALIZACAO_PRODUCAO.md` na íntegra. Use-o para responder perguntas sobre o processo de deploy em produção (maieuticavaliacom.br): passos, comandos, ordem de execução, rollback e cuidados. Este sistema está em produção — siga os passos exatamente.

@@ -1,0 +1,1 @@
+Leia `docs/frontend.md` na íntegra. Use-o para responder perguntas sobre o frontend do Maiêutica: componentes Vue 3 (Options API), arquitetura CSS, sistema de botões, DataTables, SweetAlert2 e padrões de UI. Para tipografia e sidebar, complemente com `docs/tipografia.md` e `docs/novo-layout-sidebar.md`.

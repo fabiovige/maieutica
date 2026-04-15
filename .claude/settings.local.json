@@ -20,7 +20,8 @@
       "mcp__mysql-server-maieutica__execute_query",
       "mcp__maieutica-local__describe_table",
       "Bash(grep -r \"months\\\\|age\\\\|years\\\\|6\\\\|Denver\" /c/wamp64/www/maieutica.test/database/seeders/*.php | head -30)",
-      "mcp__maieutica-local__execute_query"
+      "mcp__maieutica-local__execute_query",
+      "Bash(./vendor/bin/pint:*)"
     ],
     "deny": [],
     "ask": [],

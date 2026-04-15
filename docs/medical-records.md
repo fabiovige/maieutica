@@ -5,8 +5,7 @@
 Implementation of a medical records system to document patient evolution over time. Professionals can create, view, edit and delete medical session records. System follows existing Maiêutica patterns with permission-based authorization and soft deletes.
 
 **Supported Patients:**
-- **Kids** (children up to 6 years - Denver assessment)
-- **Users** (patients over 6 years old and adults)
+- **Kids** — criancas (`is_adult=false`) e adultos (`is_adult=true`), todos na tabela `kids`
 
 ## Design Decisions (Confirmed with User)
 
@@ -20,16 +19,18 @@ Implementation of a medical records system to document patient evolution over ti
 ### Authorization (Different from Kids/Checklists)
 
 **Professionals can:**
-- ✅ **VIEW** medical records of ALL assigned patients (Kids or Users, even created by others)
+- ✅ **VIEW (listagem)** apenas prontuários que **eles próprios criaram** para pacientes atribuídos (scope `forAuthProfessional` filtra por `created_by`)
 - ✅ **CREATE** medical records for their assigned patients (Kids or Users)
 - ⚠️ **EDIT/DELETE** ONLY medical records they created themselves (created_by check)
+
+> **Nota (2026-04-02):** A regra anterior permitia ver TODOS os prontuários de pacientes atribuídos, mesmo criados por outros profissionais. O commit `d1accb1` restringiu a listagem ao criador. A Policy `view()` ainda permite acesso direto via URL — avaliar se precisa ser restringida também.
 
 **Admin can:**
 - ✅ View, create, edit, delete ALL medical records
 
 **Rationale:** Professionals need to see complete patient history (visibility), but can only modify their own notes (integrity).
 
-**Important:** Kids maintain relationship with Professionals via `kid_professional` pivot. Users (adult patients) will have similar or direct relationship with Professional (to be defined in implementation).
+**Important:** Todos os pacientes (criancas e adultos) sao registrados na tabela `kids`. Adultos tem `is_adult = true`. Ambos se relacionam com Profissionais via pivot `kid_professional`. Ver `docs/TIPOS_DE_PACIENTES.md`.
 
 ---
 
@@ -69,7 +70,7 @@ Schema::create('medical_records', function (Blueprint $table) {
 
 **Important:**
 - `morphs('patient')` creates `patient_id` (unsignedBigInteger) + `patient_type` (string) with indexes
-- **patient_type** will store: `App\Models\Kid` or `App\Models\User`
+- **patient_type** will store: `App\Models\Kid` (tanto criancas quanto adultos)
 - When Kid/User deleted, **no** automatic CASCADE (Laravel doesn't support CASCADE on morphs)
 - Will need to implement **event listeners** or **deleting observers** to clean orphaned records
 - `created_by` RESTRICT: cannot delete user who created medical records
@@ -150,8 +151,7 @@ public function getPatientNameAttribute()
 public function getPatientTypeNameAttribute()
 {
     return match($this->patient_type) {
-        'App\Models\Kid' => 'Criança',
-        'App\Models\User' => 'Adulto',
+        'App\Models\Kid' => $this->patient?->is_adult ? 'Adulto' : 'Criança',
         default => 'Desconhecido',
     };
 }
@@ -159,31 +159,18 @@ public function getPatientTypeNameAttribute()
 
 **Scopes:**
 ```php
-// Filter by authenticated professional (Kids AND Users assigned)
+// Filter by authenticated professional — only records created by this user for assigned Kids
 public function scopeForAuthProfessional($query)
 {
-    $user = auth()->user();
-    $professional = $user->professional->first();
+    $professional = auth()->user()->professional->first();
 
     if (!$professional) {
         return $query->whereRaw('1 = 0'); // Return empty
     }
 
-    return $query->where(function ($q) use ($professional) {
-        // Medical records of Kids assigned to professional
-        $q->where(function ($subQ) use ($professional) {
-            $subQ->where('patient_type', 'App\Models\Kid')
-                ->whereHas('patient.professionals', function ($kidQ) use ($professional) {
-                    $kidQ->where('professional_id', $professional->id);
-                });
-        })
-        // OR medical records of Users (adult patients) assigned
-        // TODO: implement User->Professional assignment logic when defined
-        ->orWhere(function ($subQ) use ($professional) {
-            $subQ->where('patient_type', 'App\Models\User');
-            // Add whereHas when User->Professional relationship is implemented
-        });
-    });
+    return $query->where('created_by', auth()->id())
+        ->where('patient_type', Kid::class)
+        ->whereIn('patient_id', $professional->kids()->pluck('kids.id'));
 }
 
 // Filter by specific patient
@@ -269,21 +256,10 @@ public function view(User $user, MedicalRecord $medicalRecord): bool
     if ($user->can('medical-record-show')) {
         if ($medicalRecord->created_by === $user->id) return true;
 
-        // OR if patient is assigned to them
+        // OR if patient (Kid — crianca ou adulto) is assigned to them
         $professional = $user->professional->first();
         if ($professional && $medicalRecord->patient) {
-            // If Kid, check professionals pivot
-            if ($medicalRecord->patient_type === 'App\Models\Kid') {
-                if ($medicalRecord->patient->professionals->contains($professional->id)) {
-                    return true;
-                }
-            }
-
-            // If User (adult patient), check assignment
-            // TODO: implement when User->Professional relationship is defined
-            if ($medicalRecord->patient_type === 'App\Models\User') {
-                // Temporarily allow viewing for any professional
-                // Adjust when User->Professional assignment system is implemented
+            if ($medicalRecord->patient->professionals->contains($professional->id)) {
                 return true;
             }
         }
@@ -474,19 +450,22 @@ private function getKidsForUser()
 
 private function getUserPatientsForUser()
 {
-    // TODO: Implement when User->Professional relationship is defined
-    // For now, returns users who are not professionals or admin
-
     if (auth()->user()->can('medical-record-list-all')) {
-        // Admin sees all users (filter to patients only if needed)
-        return User::where('allow', 1) // Active
-                   ->orderBy('name')
-                   ->get();
+        return Kid::where('is_adult', true)->orderBy('name')->get();
     }
 
-    // Professional sees only their assigned user patients
-    // Temporarily returns empty until assignment system is implemented
-    return collect([]);
+    $professional = auth()->user()->professional->first();
+
+    if (!$professional) {
+        return collect([]);
+    }
+
+    return Kid::where('is_adult', true)
+        ->whereHas('professionals', function ($q) use ($professional) {
+            $q->where('professional_id', $professional->id);
+        })
+        ->orderBy('name')
+        ->get();
 }
 ```
 
@@ -502,21 +481,13 @@ private function getUserPatientsForUser()
 public function rules(): array
 {
     return [
-        'patient_type' => 'required|in:App\Models\Kid,App\Models\User',
+        'patient_type' => 'required|in:App\Models\Kid',
         'patient_id' => [
             'required',
             'integer',
-            // Conditional validation: checks if ID exists in corresponding table
             function ($attribute, $value, $fail) {
-                $type = $this->input('patient_type');
-                if ($type === 'App\Models\Kid') {
-                    if (!Kid::find($value)) {
-                        $fail('O paciente (criança) selecionado não existe.');
-                    }
-                } elseif ($type === 'App\Models\User') {
-                    if (!User::find($value)) {
-                        $fail('O paciente (adulto) selecionado não existe.');
-                    }
+                if (!Kid::find($value)) {
+                    $fail('O paciente selecionado não existe.');
                 }
             },
         ],
@@ -553,8 +524,8 @@ public function messages(): array
 ```
 
 **Important Validations:**
-- `patient_type`: must be `App\Models\Kid` or `App\Models\User`
-- `patient_id`: conditional validation checks existence in correct table
+- `patient_type`: must be `App\Models\Kid` (todos os pacientes sao Kids)
+- `patient_id`: validates existence in `kids` table
 - `session_date`: Brazilian format (d/m/Y), cannot be future
 - Minimum 10 characters for text fields (ensures meaningful content)
 - `referral_closure`: nullable (optional)
@@ -630,15 +601,17 @@ Create 5 files in `resources/views/medical-records/`
 
 **JavaScript:**
 - jQuery mask for date: `$('#session_date').mask('00/00/0000')`
-- Toggle patient dropdown based on selected type
+- Toggle patient dropdown based on selected type (crianca/adulto)
+- `patient_type` is always `App\Models\Kid` — toggle only switches which dropdown is visible
 ```javascript
-$('#patient_type').change(function() {
-    const type = $(this).val();
-    $('.patient-dropdown').hide();
-    if (type === 'App\\Models\\Kid') {
-        $('#kid-dropdown').show();
-    } else if (type === 'App\\Models\\User') {
-        $('#user-dropdown').show();
+$('input[name="patient_type_toggle"]').on('change', function() {
+    const toggle = $(this).val();
+    if (toggle === 'kid') {
+        $('#patient_kid_wrapper').show();
+        $('#patient_adult_wrapper').hide();
+    } else {
+        $('#patient_adult_wrapper').show();
+        $('#patient_kid_wrapper').hide();
     }
 });
 ```
@@ -731,21 +704,12 @@ private function getPatientIdentifier($medicalRecord): string
 {
     if (!$medicalRecord->patient) return '[UNKNOWN PATIENT]';
 
-    // For Kids, use initials
-    if ($medicalRecord->patient_type === 'App\Models\Kid') {
-        return $medicalRecord->patient->initials ?? '[KID]';
-    }
-
-    // For Users, use only ID (don't expose name)
-    if ($medicalRecord->patient_type === 'App\Models\User') {
-        return '[USER-' . $medicalRecord->patient_id . ']';
-    }
-
-    return '[PATIENT]';
+    // All patients are Kids — use initials (LGPD compliant)
+    return $medicalRecord->patient->initials ?? '[PATIENT]';
 }
 ```
 
-- Uses secure patient identifier (Kid->initials or User-ID)
+- Uses secure patient identifier (Kid->initials)
 - Never logs full name or medical field contents
 - Includes user context (id, name, email, IP)
 - Log includes patient type (Kid/User) but no sensitive data
@@ -914,7 +878,7 @@ private function getPatientIdentifier($medicalRecord): string
 
 8. **Conditional Validation:** `patient_id` must validate existence in correct table based on `patient_type`. Use closure validation.
 
-9. **TODO User->Professional:** Current implementation assumes any professional can create record for any User. Adjust when User->Professional assignment system is defined.
+9. **Atribuição Paciente-Profissional:** Todos os pacientes (criancas e adultos) sao vinculados via `kid_professional`. Profissional ve apenas pacientes atribuidos a ele. Admin ve todos. Adultos sao Kids com `is_adult = true`. Ver `docs/TIPOS_DE_PACIENTES.md`.
 
 ### ⚠️ ATTENTION
 

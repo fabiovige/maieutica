@@ -33,7 +33,7 @@ class MedicalRecordLogger
      */
     public function updated(MedicalRecord $medicalRecord, array $changes = [], array $additionalContext = []): void
     {
-        $changedFields = !empty($changes) ? array_keys($changes) : [];
+        $changedFields = ! empty($changes) ? array_keys($changes) : [];
 
         Log::notice('Medical record updated', array_merge([
             'medical_record_id' => $medicalRecord->id,
@@ -153,7 +153,7 @@ class MedicalRecordLogger
      */
     private function buildUserContext(): array
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return [
                 'user_id' => null,
                 'user_name' => 'Guest',
@@ -175,25 +175,15 @@ class MedicalRecordLogger
      * Get safe patient identifier for logging (LGPD-compliant).
      *
      * For Kids: uses initials
-     * For Users: uses only ID (no name)
+     * All patients are Kids (children and adults) — uses initials for LGPD compliance.
      */
     private function getPatientIdentifier(MedicalRecord $medicalRecord): string
     {
-        if (!$medicalRecord->patient) {
+        if (! $medicalRecord->patient) {
             return '[UNKNOWN PATIENT]';
         }
 
-        // For Kids, use initials
-        if ($medicalRecord->patient_type === 'App\\Models\\Kid') {
-            return $medicalRecord->patient->initials ?? '[KID]';
-        }
-
-        // For Users, use only ID (don't expose name)
-        if ($medicalRecord->patient_type === 'App\\Models\\User') {
-            return '[USER-' . $medicalRecord->patient_id . ']';
-        }
-
-        return '[PATIENT]';
+        return $medicalRecord->patient->initials ?? '[PATIENT]';
     }
 
     /**

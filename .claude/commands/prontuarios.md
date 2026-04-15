@@ -1,0 +1,1 @@
+Leia `docs/medical-records.md` na íntegra. Use-o para responder perguntas sobre prontuários: modelo polimórfico, versionamento, policy, scope forAuthProfessional, e fluxo de criação/edição. Para entender a diferença entre paciente Kid e paciente adulto, consulte também `docs/TIPOS_DE_PACIENTES.md`.

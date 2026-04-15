@@ -1,0 +1,1 @@
+Leia `docs/TIPOS_DE_PACIENTES.md` na íntegra. Use-o para responder perguntas sobre os dois tipos de pacientes do sistema: Kids (crianças, avaliação Denver) e Users adultos (allow=true, sem role). Inclui fluxo de cadastro, diferenças de atribuição e prontuários polimórficos. Para detalhes de autorização e relacionamentos, consulte `docs/PROFESSIONAL_USER_RELATIONSHIP.md`.

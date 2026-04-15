@@ -11,6 +11,7 @@ class Kid extends BaseModel
     protected $fillable = [
         'name',
         'birth_date',
+        'is_adult',
         'photo',
         'gender',
         'ethnicity',
@@ -30,6 +31,7 @@ class Kid extends BaseModel
 
     protected $casts = [
         'birth_date' => 'date',
+        'is_adult' => 'boolean',
     ];
 
     public const GENDERS = [
@@ -227,6 +229,16 @@ class Kid extends BaseModel
                 $checklist->delete();
             });
         });
+    }
+
+    public function scopeAdults(Builder $query)
+    {
+        return $query->where('is_adult', true);
+    }
+
+    public function scopeChildren(Builder $query)
+    {
+        return $query->where('is_adult', false);
     }
 
     /**

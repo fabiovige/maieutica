@@ -1,0 +1,1 @@
+Leia `docs/dicionario-dados.md` na íntegra. Use-o para responder perguntas sobre o schema do banco de dados: tabelas, colunas, tipos, chaves estrangeiras e relacionamentos. Para entender como os modelos se relacionam no código, complemente com `docs/architecture.md`.

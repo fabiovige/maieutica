@@ -1,0 +1,1 @@
+Leia `docs/novo-layout-sidebar.md` na íntegra. Use-o para responder perguntas sobre o layout sidebar v2.0: estrutura HTML, estilos inline em app.blade.php, colapso para 70px, e integração com o design system. Importante: os estilos do sidebar estão INLINE no app.blade.php, não no SCSS compilado.

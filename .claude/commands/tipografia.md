@@ -1,0 +1,1 @@
+Leia `docs/tipografia.md` na íntegra. Use-o para responder perguntas sobre o sistema tipográfico do Maiêutica: fonte Nunito, tamanhos (base 16px/1rem), variáveis CSS (`--fs-*`, `--fw-*`), arquivos envolvidos (app.scss, custom.css, typography.css) e ordem de carregamento. Para o sidebar e layout, consulte `docs/novo-layout-sidebar.md`.

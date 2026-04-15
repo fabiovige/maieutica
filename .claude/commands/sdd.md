@@ -1,0 +1,1 @@
+Leia `docs/SDD.md` na íntegra. Use-o para entender e aplicar a metodologia Spec-Driven Development deste projeto: como criar specs antes de implementar, estrutura de documentos de design, e processo de validação antes do código.

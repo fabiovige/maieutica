@@ -14,13 +14,21 @@ use Illuminate\Support\Facades\DB;
 class MedicalRecordsController extends Controller
 {
     const PAGINATION_DEFAULT = 15;
+
     const MSG_CREATE_SUCCESS = 'Prontuário criado com sucesso.';
+
     const MSG_CREATE_ERROR = 'Erro ao criar prontuário.';
+
     const MSG_VERSION_SUCCESS = 'Nova versão do prontuário criada com sucesso.';
+
     const MSG_VERSION_ERROR = 'Erro ao criar nova versão do prontuário.';
+
     const MSG_DELETE_SUCCESS = 'Prontuário movido para a lixeira com sucesso.';
+
     const MSG_DELETE_ERROR = 'Erro ao mover prontuário para a lixeira.';
+
     const MSG_RESTORE_SUCCESS = 'Prontuário restaurado com sucesso.';
+
     const MSG_RESTORE_ERROR = 'Erro ao restaurar prontuário.';
 
     protected $medicalRecordLogger;
@@ -41,7 +49,7 @@ class MedicalRecordsController extends Controller
 
         // Filter by professional (admin only)
         if ($request->filled('professional_id') && auth()->user()->can('medical-record-list-all')) {
-            $query->whereHas('creator.professional', function($q) use ($request) {
+            $query->whereHas('creator.professional', function ($q) use ($request) {
                 $q->where('professionals.id', $request->professional_id);
             });
         }
@@ -50,7 +58,7 @@ class MedicalRecordsController extends Controller
         if ($request->filled('patient_id')) {
             $patientType = $request->filled('filter_patient_type') ? $request->filter_patient_type : Kid::class;
             $query->where('patient_id', $request->patient_id)
-                  ->where('patient_type', $patientType);
+                ->where('patient_type', $patientType);
         }
 
         // Filter by date range
@@ -67,9 +75,9 @@ class MedicalRecordsController extends Controller
         // Search in complaint or evolution notes
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('complaint', 'like', '%' . $search . '%')
-                  ->orWhere('evolution_notes', 'like', '%' . $search . '%');
+            $query->where(function ($q) use ($search) {
+                $q->where('complaint', 'like', '%'.$search.'%')
+                    ->orWhere('evolution_notes', 'like', '%'.$search.'%');
             });
         }
 
@@ -92,7 +100,7 @@ class MedicalRecordsController extends Controller
         $query->currentVersion();
 
         $medicalRecords = $query->orderBy('session_date', 'desc')
-                                ->paginate(self::PAGINATION_DEFAULT);
+            ->paginate(self::PAGINATION_DEFAULT);
 
         // Log access
         $this->medicalRecordLogger->listed([
@@ -137,11 +145,11 @@ class MedicalRecordsController extends Controller
             if ($request->filled('professional_id') && auth()->user()->can('medical-record-create-all')) {
                 // Admin is creating for a specific professional
                 $professional = \App\Models\Professional::find($request->professional_id);
-                if (!$professional) {
+                if (! $professional) {
                     throw new \Exception('Profissional não encontrado.');
                 }
                 $creatorUser = $professional->user->first();
-                if (!$creatorUser) {
+                if (! $creatorUser) {
                     throw new \Exception('Usuário do profissional não encontrado.');
                 }
                 $data['created_by'] = $creatorUser->id;
@@ -286,8 +294,9 @@ class MedicalRecordsController extends Controller
         $this->authorize('update', $medicalRecord);
 
         // Only allow creating new version from current version
-        if (!$medicalRecord->is_current_version) {
+        if (! $medicalRecord->is_current_version) {
             flash('Não é possível criar nova versão de um prontuário antigo. Use a versão atual.')->warning();
+
             return redirect()->route('medical-records.show', $medicalRecord->getLatestVersion());
         }
 
@@ -304,8 +313,9 @@ class MedicalRecordsController extends Controller
         $this->authorize('update', $medicalRecord);
 
         // Only allow creating new version from current version
-        if (!$medicalRecord->is_current_version) {
+        if (! $medicalRecord->is_current_version) {
             flash('Não é possível criar nova versão de um prontuário antigo.')->warning();
+
             return redirect()->back();
         }
 
@@ -372,11 +382,11 @@ class MedicalRecordsController extends Controller
 
         // For now, just download the HTML
         // TODO: Integrate with PDF library (dompdf, wkhtmltopdf, etc.)
-        $filename = 'prontuario_' . $medicalRecord->id . '_v' . $medicalRecord->version . '.html';
+        $filename = 'prontuario_'.$medicalRecord->id.'_v'.$medicalRecord->version.'.html';
 
         return response($medicalRecord->html_content)
             ->header('Content-Type', 'text/html')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 
     /**
@@ -601,12 +611,12 @@ class MedicalRecordsController extends Controller
         $patientId = $request->input('patient_id');
         $patientType = $request->input('patient_type', 'App\\Models\\Kid');
 
-        if (!$patientId) {
+        if (! $patientId) {
             return response()->json([]);
         }
 
-        // Validate patient_type
-        if (!in_array($patientType, ['App\\Models\\Kid', 'App\\Models\\User'])) {
+        // Validate patient_type (all patients are Kids — children and adults)
+        if (! in_array($patientType, ['App\\Models\\Kid'])) {
             $patientType = 'App\\Models\\Kid';
         }
 
@@ -640,7 +650,7 @@ class MedicalRecordsController extends Controller
         }
 
         $professional = auth()->user()->professional->first();
-        if (!$professional) {
+        if (! $professional) {
             return collect([]);
         }
 
@@ -650,23 +660,26 @@ class MedicalRecordsController extends Controller
     }
 
     /**
-     * Get User patients for current user based on permissions.
+     * Get adult patients (Kids with is_adult=true) for current user based on permissions.
      */
     private function getUserPatientsForUser()
     {
         if (auth()->user()->can('medical-record-list-all')) {
-            // Admin sees all active users
-            return User::where('allow', 1)->orderBy('name')->get();
+            return Kid::where('is_adult', true)->orderBy('name')->get();
         }
 
-        // Professional sees only their assigned user patients
         $professional = auth()->user()->professional->first();
 
-        if (!$professional) {
+        if (! $professional) {
             return collect([]);
         }
 
-        return $professional->patients()->orderBy('name')->get();
+        return Kid::where('is_adult', true)
+            ->whereHas('professionals', function ($q) use ($professional) {
+                $q->where('professional_id', $professional->id);
+            })
+            ->orderBy('name')
+            ->get();
     }
 
     /**
@@ -674,12 +687,12 @@ class MedicalRecordsController extends Controller
      */
     private function getProfessionalsForFilter()
     {
-        if (!auth()->user()->can('medical-record-list-all')) {
+        if (! auth()->user()->can('medical-record-list-all')) {
             return collect([]);
         }
 
         return \App\Models\Professional::with('user')
-            ->whereHas('user', function($q) {
+            ->whereHas('user', function ($q) {
                 $q->where('allow', 1); // Only active users
             })
             ->orderBy('id')

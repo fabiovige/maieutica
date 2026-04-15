@@ -24,19 +24,13 @@ class MedicalRecordRequest extends FormRequest
         $patientType = $this->input('patient_type');
 
         $rules = [
-            'patient_type' => 'required|in:App\\Models\\Kid,App\\Models\\User',
+            'patient_type' => 'required|in:App\\Models\\Kid',
             'patient_id' => [
                 'required',
                 'integer',
-                function ($attribute, $value, $fail) use ($patientType) {
-                    if ($patientType === 'App\\Models\\User') {
-                        if (!User::find($value)) {
-                            $fail('O paciente selecionado não existe.');
-                        }
-                    } else {
-                        if (!Kid::find($value)) {
-                            $fail('O paciente selecionado não existe.');
-                        }
+                function ($attribute, $value, $fail) {
+                    if (! Kid::find($value)) {
+                        $fail('O paciente selecionado não existe.');
                     }
                 },
             ],

@@ -1,0 +1,1 @@
+Leia `docs/architecture.md` na íntegra e use-o como contexto para responder perguntas sobre a arquitetura do Maiêutica: modelos, controllers, observers, jobs, middleware, services e componentes. Se a pergunta for sobre um modelo ou tabela específica, também consulte `docs/dicionario-dados.md`.
