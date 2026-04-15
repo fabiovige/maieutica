@@ -119,14 +119,11 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <div class="d-flex gap-1 justify-content-center">
-                                @can('user-show')
-                                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-secondary btn-sm">Ver</a>
-                                @endcan
-                                @can('user-edit')
-                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-secondary btn-sm">Editar</a>
-                                @endcan
-                            </div>
+                            @can('user-show')
+                                <a href="{{ route('users.show', $user->id) }}" class="btn btn-secondary btn-sm">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            @endcan
                         </td>
                     </tr>
                 @endforeach

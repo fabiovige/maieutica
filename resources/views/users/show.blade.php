@@ -56,8 +56,10 @@
                     @endif
                 </div>
                 <div class="card-footer d-flex justify-content-between">
-                    @can('users.update')
-                        <x-button href="{{route('users.edit', $user->id)}}" icon="pencil" name="Editar" type="link" class="dark"></x-button>
+                    @can('user-edit')
+                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-secondary btn-sm">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
                     @endcan
                 </div>
             </div>

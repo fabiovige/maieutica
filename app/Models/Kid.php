@@ -318,6 +318,6 @@ class Kid extends BaseModel
                 ->with(['professionals', 'responsible', 'checklists']);
         }
 
-        return $query->get();
+        return $query->orderBy('name')->get();
     }
 }
