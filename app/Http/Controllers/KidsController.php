@@ -433,11 +433,6 @@ class KidsController extends Controller
 
         DB::beginTransaction();
         try {
-            // Verifica se a criança tem checklists associados
-            if ($kid->checklists()->count() > 0) {
-                throw new Exception('Não é possível mover para lixeira. Esta criança possui checklists associados.');
-            }
-
             // Marca quem excluiu
             $kid->deleted_by = auth()->id();
             $kid->save();

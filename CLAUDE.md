@@ -8,6 +8,50 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## Arquitetura
+
+### Camada de modelos
+
+- `BaseModel` (extends `Model`) — usado por quase todos os modelos. Traz `SoftDeletes` + `HasFactory`. Campos de auditoria (`created_by`, `updated_by`, `deleted_by`) existem nas tabelas mas o boot de auditoria no BaseModel está **comentado** — auditoria real é feita pelos Observers.
+- `User` extends `Authenticatable` (não BaseModel) — usa `HasRoles` (Spatie), `HasApiTokens` (Sanctum).
+- `Checklist` extends `Model` diretamente (não BaseModel) — tem `SoftDeletes` + `HasFactory` próprios.
+
+### Relacionamentos-chave
+
+```
+User ←M:N→ Professional (pivot: user_professional)
+Professional → Specialty
+Kid → Responsible (belongsTo)
+Kid → Checklist (hasMany) → Competence (M:N pivot com note)
+Checklist → Plane (hasMany) → Competence (M:N)
+MedicalRecord → patient (morphTo: Kid ou User)
+GeneratedDocument → documentable (morphTo: Kid ou User)
+```
+
+### Dual-layer controllers
+
+- **Web** (`Http/Controllers/`): Blade views, forms, DataTables server-side (yajra). Padrão CRUD + rotas extras `trash`, `restore`, `chart`, `fill`, `clonar`.
+- **API** (`Http/Controllers/Api/`): JSON para componentes Vue montados dentro das views Blade. Não é SPA — Vue é usado como ilhas reativas dentro de templates Blade.
+
+### Padrão de rotas recorrente
+
+Quase todos os resources seguem: `resource CRUD` + `GET trash` + `POST {id}/restore` + rotas especializadas (PDF, chart, overview).
+
+### Side effects: Observers + Domain Loggers
+
+- **6 Observers** (`app/Observers/`): `Checklist`, `Kid`, `Professional`, `Responsible`, `Role`, `User` — tratam efeitos colaterais (logging, auditoria).
+- **6 Domain Loggers** (`app/Services/Logging/`): loggers por entidade para registro de ações de domínio.
+- **Database Logger** (`app/Services/Log/`): custom Monolog handler que grava em tabela `logs`.
+
+### Frontend
+
+- Vue components em `resources/js/components/` — montados dentro de Blade templates (não SPA)
+- Webpack alias: `@` → `resources/js` (usar em imports)
+- DataTables server-side para listagens (rotas `*/datatable/index`)
+- jQuery + Select2 + SweetAlert2 coexistem com Vue
+
+---
+
 ## Regras Inegociáveis
 
 **Este sistema está em produção.**
@@ -75,6 +119,10 @@ php artisan test tests/Unit/Models/           # Diretório específico
 - **PDF:** Templates estendem `documents.layouts.pdf-base`, fonte `DejaVu Sans`
 - **Pacientes:** Todos na tabela `kids` — criancas (idade < 13) e adultos (idade >= 13), calculado por `birth_date`. Constante: `Kid::ADULT_AGE_YEARS`
 - **Failed Jobs:** 7 registros em `failed_jobs` — investigar antes de usar workers de fila
+- **Testes usam banco real** — `DB_DATABASE :memory:` está comentado em `phpunit.xml`; testes Feature/Unit rodam contra o banco configurado em `.env`
+- **SCSS load order:** `_config.scss` → `_variables.scss` → `_custom.scss` → bootstrap → `_buttons.scss`
+- **CSS load order (HTML):** `app.css` (compilado) → `custom.css` (direto) → `typography.css` (direto)
+- **Global helpers:** `app/helpers.php` (autoloaded via composer) — `label_case()`, `get_progress_color()`, `get_progress_gradient()`, `get_chart_gradient()`
 
 ---
 
