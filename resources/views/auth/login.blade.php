@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @include('layouts.partials.pwa-meta')
     <title>{{ config('app.name') }} - Acesso</title>
 
     <!-- Bootstrap CSS -->
