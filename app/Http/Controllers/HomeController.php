@@ -104,6 +104,17 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
 
+        // ── Pacientes adultos ───────────────────────────────────────────────────
+        $adultsQuery = Kid::adults();
+        if ($user->can('kid-list-all')) {
+            // admin: sem filtro
+        } elseif ($isProfessional) {
+            $adultsQuery->whereHas('professionals', fn($q) => $q->where('professional_id', $professional->id));
+        } else {
+            $adultsQuery->where('responsible_id', $user->id);
+        }
+        $adultPatients = $adultsQuery->orderBy('name')->get();
+
         return view('home', compact(
             'totalKids',
             'totalChildren',
@@ -111,7 +122,8 @@ class HomeController extends Controller
             'totalChecklists',
             'totalProfessionals',
             'kidsWithChecklists',
-            'kidsWithoutChecklists'
+            'kidsWithoutChecklists',
+            'adultPatients'
         ));
     }
 }
