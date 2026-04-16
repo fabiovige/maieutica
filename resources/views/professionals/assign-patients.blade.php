@@ -75,7 +75,7 @@
                         <tr>
                             <th>Nome</th>
                             <th style="width:120px;">Idade</th>
-                            <th style="width:80px;" class="text-center">Acoes</th>
+                            <th style="width:80px;" class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -109,7 +109,7 @@
                         <tr>
                             <th>Nome</th>
                             <th style="width:120px;">Idade</th>
-                            <th style="width:80px;" class="text-center">Acoes</th>
+                            <th style="width:80px;" class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>

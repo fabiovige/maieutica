@@ -908,7 +908,7 @@
         </div>
     </div>
 
-    <script src="{{ mix('js/app.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}?v={{ config('app.version', '1.0') }}"></script>
     <script src="{{ asset('js/select2.full.min.js') }}"></script>
     <script src="{{ asset('js/select2-pt-BR.js') }}"></script>
     <script>

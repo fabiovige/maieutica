@@ -790,7 +790,7 @@
         </div>
     </div>
 
-    <script src="{{ mix('js/app.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}?v={{ config('app.version', '1.0') }}"></script>
     <script>
         (function() {
             'use strict';
