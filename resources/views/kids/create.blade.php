@@ -80,7 +80,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="birth_date" class="form-label">Data de Nascimento</label>
                                 <input type="text" class="form-control datepicker @error('birth_date') is-invalid @enderror"

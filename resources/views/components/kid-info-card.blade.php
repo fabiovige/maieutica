@@ -13,13 +13,17 @@
                 @endif
             </div>
             <div class="col-md-5">
-                <h4 class="mb-1">{{ $kid->name }}</h4>
+                <h4 class="mb-1">
+                    {{ $kid->name }}
+                    @if($kid->is_adult)
+                        <span class="badge ms-2" style="background:#7c3aed; font-size:0.75rem; vertical-align:middle;">Adulto</span>
+                    @else
+                        <span class="badge bg-primary ms-2" style="font-size:0.75rem; vertical-align:middle;">Criança</span>
+                    @endif
+                </h4>
                 <p class="text-muted mb-2">
                     <i class="bi bi-calendar-event"></i>
-                    @if (isset($kid->birth_date))
-                        {{ $kid->birth_date }}
-                    @endif
-                    ({{ $kid->months }} meses)
+                    {{ $kid->age ?? 'N/D' }}
                 </p>
                 @if ($kid->responsible)
                     <p class="mb-1">
@@ -102,26 +106,28 @@
                         </a>
                     @endcan
 
-                    @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
-                        <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}"
-                           class="btn btn-success"
-                           title="Ver Checklists da Criança">
-                            <i class="bi bi-card-checklist"></i> Checklists
-                        </a>
-                    @endif
+                    @if(!$kid->is_adult)
+                        @if(auth()->user()->can('checklist-list') || auth()->user()->id === $kid->responsible_id)
+                            <a href="{{ route('checklists.index', ['kidId' => $kid->id]) }}"
+                               class="btn btn-success"
+                               title="Ver Checklists">
+                                <i class="bi bi-card-checklist"></i> Checklists
+                            </a>
+                        @endif
 
-                    @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
-                        <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}"
-                           class="btn btn-purple"
-                           title="Análise Comparativa">
-                            <i class="bi bi-clipboard-data"></i> Comparativo
-                        </a>
+                        @if(auth()->user()->can('kid-list') || auth()->user()->id === $kid->responsible_id)
+                            <a href="{{ route('kids.radarChart2', ['kidId' => $kid->id, 'levelId' => 0]) }}"
+                               class="btn btn-purple"
+                               title="Análise Comparativa">
+                                <i class="bi bi-clipboard-data"></i> Comparativo
+                            </a>
 
-                        <a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}"
-                           class="btn btn-orange"
-                           title="Desenvolvimento da Criança">
-                            <i class="bi bi-bar-chart"></i> Desenvolvimento
-                        </a>
+                            <a href="{{ route('kids.overview', ['kidId' => $kid->id]) }}"
+                               class="btn btn-orange"
+                               title="Desenvolvimento">
+                                <i class="bi bi-bar-chart"></i> Desenvolvimento
+                            </a>
+                        @endif
                     @endif
                 </div>
             </div>

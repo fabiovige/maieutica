@@ -128,7 +128,21 @@
 
         {{-- ── Stat Cards ── --}}
         <div class="row g-3 mb-4">
-            <div class="col-6 col-xl-3">
+            <div class="col-6 col-xl">
+                <div class="card border-0 shadow-sm stat-card h-100" style="background:#fef3c7;">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon" style="background:#d97706;">
+                            <i class="bi bi-person-lines-fill text-white"></i>
+                        </div>
+                        <div>
+                            <div class="small" style="color:#5f6368;">Total Pacientes</div>
+                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $totalKids }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl">
                 <div class="card border-0 shadow-sm stat-card h-100" style="background:#e8f0fe;">
                     <div class="card-body p-3 d-flex align-items-center gap-3">
                         <div class="stat-icon" style="background:#4285f4;">
@@ -136,13 +150,27 @@
                         </div>
                         <div>
                             <div class="small" style="color:#5f6368;">Crianças</div>
-                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $totalKids }}</div>
+                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $totalChildren }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-6 col-xl-3">
+            <div class="col-6 col-xl">
+                <div class="card border-0 shadow-sm stat-card h-100" style="background:#f3e8fe;">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon" style="background:#7c3aed;">
+                            <i class="bi bi-person-fill text-white"></i>
+                        </div>
+                        <div>
+                            <div class="small" style="color:#5f6368;">Adultos</div>
+                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $totalAdults }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl">
                 <div class="card border-0 shadow-sm stat-card h-100" style="background:#e6f4ea;">
                     <div class="card-body p-3 d-flex align-items-center gap-3">
                         <div class="stat-icon" style="background:#34a853;">
@@ -156,156 +184,113 @@
                 </div>
             </div>
 
-            <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm stat-card h-100" style="background:#fef7e0;">
-                    <div class="card-body p-3 d-flex align-items-center gap-3">
-                        <div class="stat-icon" style="background:#f9ab00;">
-                            <i class="bi bi-hourglass-split text-white"></i>
-                        </div>
-                        <div>
-                            <div class="small" style="color:#5f6368;">Em Andamento</div>
-                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $checklistsEmAndamento }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm stat-card h-100" style="background:#f0fdf4;">
-                    <div class="card-body p-3 d-flex align-items-center gap-3">
-                        <div class="stat-icon" style="background:#059669;">
-                            <i class="bi bi-graph-up-arrow text-white"></i>
-                        </div>
-                        <div>
-                            <div class="small" style="color:#5f6368;">Média Geral</div>
-                            <div class="fs-4 fw-bold" style="color:#202124;">{{ $avgDevelopment }}%</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        {{-- ── Gráficos ── --}}
-        <div class="row g-3">
+        {{-- ── Listas de Crianças ── --}}
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-with-checklists" data-bs-toggle="tab" data-bs-target="#pane-with-checklists" type="button" role="tab">
+                    <i class="bi bi-clipboard2-check text-success"></i> Com Checklists
+                    <span class="badge bg-success ms-1">{{ $kidsWithChecklists->count() }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-without-checklists" data-bs-toggle="tab" data-bs-target="#pane-without-checklists" type="button" role="tab">
+                    <i class="bi bi-clipboard2-x text-warning"></i> Sem Checklists
+                    <span class="badge bg-warning text-dark ms-1">{{ $kidsWithoutChecklists->count() }}</span>
+                </button>
+            </li>
+        </ul>
 
-            {{-- Gráfico de linha: evolução mensal --}}
-            <div class="col-12 col-lg-7">
-                <div class="card border-0 shadow-sm chart-card h-100">
-                    <div class="card-header bg-white border-bottom d-flex align-items-center gap-2">
-                        <i class="bi bi-graph-up text-primary"></i>
-                        <span class="fw-semibold">Evolução Média de Desenvolvimento (últimos 6 meses)</span>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="lineChart" height="240"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Ranking Top 5 --}}
-            <div class="col-12 col-lg-5">
-                <div class="card border-0 shadow-sm chart-card h-100">
-                    <div class="card-header bg-white border-bottom d-flex align-items-center gap-2">
-                        <i class="bi bi-trophy text-warning"></i>
-                        <span class="fw-semibold">Top 5 Crianças Mais Evoluídas</span>
-                    </div>
-                    <div class="card-body py-3">
-                        @forelse($top5Kids as $index => $kid)
-                            @php
-                                $rankColors = ['#f9ab00','#94a3b8','#cd7f32','#64748b','#64748b'];
-                                $pct = $kid->progress ?? 0;
-                            @endphp
-                            <div class="ranking-item d-flex align-items-center gap-3 px-2 py-2 mb-1">
-                                <div class="rank-badge text-white" style="background:{{ $rankColors[$index] }};">
-                                    {{ $index + 1 }}
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <span class="fw-semibold small">{{ $kid->name }}</span>
-                                        <span class="small fw-bold" style="color:{{ get_progress_color($pct) }};">{{ $pct }}%</span>
-                                    </div>
-                                    <div class="progress" style="height:6px;border-radius:4px;">
-                                        <div class="progress-bar"
-                                             style="width:{{ $pct }}%; background-color:{{ get_progress_color($pct) }} !important;"
-                                             role="progressbar"
-                                             aria-valuenow="{{ $pct }}"
-                                             aria-valuemin="0" aria-valuemax="100">
+        <div class="tab-content">
+            {{-- Tab Crianças COM checklists --}}
+            <div class="tab-pane fade show active" id="pane-with-checklists" role="tabpanel">
+                @if($kidsWithChecklists->isNotEmpty())
+                    <table class="table table-hover table-bordered align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nome</th>
+                                <th style="width:120px;">Idade</th>
+                                <th style="width:140px;">Progresso</th>
+                                <th style="width:120px;" class="text-center">Checklists</th>
+                                <th style="width:80px;" class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($kidsWithChecklists as $kid)
+                                <tr>
+                                    <td>{{ $kid->name }}</td>
+                                    <td><small class="text-muted">{{ $kid->age ?? 'N/D' }}</small></td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height:6px;border-radius:4px;">
+                                                <div class="progress-bar"
+                                                     style="width:{{ $kid->progress }}%; background-color:{{ get_progress_color($kid->progress) }} !important;"
+                                                     role="progressbar"
+                                                     aria-valuenow="{{ $kid->progress }}"
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                            <span class="small fw-bold" style="color:{{ get_progress_color($kid->progress) }};">{{ $kid->progress }}%</span>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="text-center text-muted py-4">
-                                <i class="bi bi-clipboard2-x fs-3 d-block mb-2"></i>
-                                Nenhum dado de avaliação encontrado.
-                            </div>
-                        @endforelse
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark">{{ $kid->checklists_count }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @can('kid-show')
+                                            <a href="{{ route('kids.show', $kid->id) }}" class="btn btn-secondary btn-sm">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        @endcan
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <div class="alert alert-light mt-3 mb-0">
+                        <i class="bi bi-info-circle"></i> Nenhuma criança com checklist.
                     </div>
-                </div>
+                @endif
             </div>
 
+            {{-- Tab Crianças SEM checklists --}}
+            <div class="tab-pane fade" id="pane-without-checklists" role="tabpanel">
+                @if($kidsWithoutChecklists->isNotEmpty())
+                    <table class="table table-hover table-bordered align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nome</th>
+                                <th style="width:120px;">Idade</th>
+                                <th style="width:80px;" class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($kidsWithoutChecklists as $kid)
+                                <tr>
+                                    <td>{{ $kid->name }}</td>
+                                    <td><small class="text-muted">{{ $kid->age ?? 'N/D' }}</small></td>
+                                    <td class="text-center">
+                                        @can('kid-show')
+                                            <a href="{{ route('kids.show', $kid->id) }}" class="btn btn-secondary btn-sm">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        @endcan
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <div class="alert alert-light mt-3 mb-0">
+                        <i class="bi bi-check-circle text-success"></i> Todas as crianças possuem checklists!
+                    </div>
+                @endif
+            </div>
         </div>
 
     @endif
 
 @endsection
 
-@push('scripts')
-@unless(isset($isPatient) && $isPatient)
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const labels  = @json($monthlyTrend->pluck('label'));
-    const data    = @json($monthlyTrend->pluck('avg_pct'));
-    const counts  = @json($monthlyTrend->pluck('checklist_count'));
-
-    new Chart(document.getElementById('lineChart'), {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Média de Desenvolvimento (%)',
-                data: data,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59,130,246,0.08)',
-                borderWidth: 2.5,
-                pointBackgroundColor: '#3b82f6',
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                fill: true,
-                tension: 0.4,
-                spanGaps: true,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: ctx => ` Desenvolvimento: ${ctx.raw !== null ? ctx.raw + '%' : 'sem dados'}`,
-                        afterLabel: (ctx) => {
-                            const c = counts[ctx.dataIndex];
-                            return c > 0 ? ` ${c} checklist(s) avaliado(s)` : '';
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    min: 0,
-                    max: 100,
-                    ticks: { callback: v => v + '%', stepSize: 20 },
-                    grid: { color: 'rgba(0,0,0,0.05)' }
-                },
-                x: {
-                    grid: { display: false }
-                }
-            }
-        }
-    });
-});
-</script>
-@endunless
-@endpush

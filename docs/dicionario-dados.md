@@ -1,6 +1,6 @@
 # Dicionario de Dados - Maieutica
 
-> Gerado em: 2026-02-06
+> Atualizado em: 2026-04-13
 > Banco de dados: `maieutica` (MySQL/MariaDB)
 > Total de tabelas: **31**
 
@@ -25,7 +25,7 @@
 | 13 | [competence_plane](#competence_plane) | Pivot: competencia x plano | 159 |
 | 14 | [medical_records](#medical_records) | Prontuarios medicos (polimorficos) | 5 |
 | 15 | [generated_documents](#generated_documents) | Documentos gerados (polimorficos) | 3 |
-| 16 | [document_templates](#document_templates) | Templates de documentos | 5 |
+| 16 | [releases](#releases) | Versoes/changelog do sistema | 7 |
 | 17 | [kid_professional](#kid_professional) | Pivot: crianca x profissional | 12 |
 | 18 | [user_professional](#user_professional) | Pivot: usuario x profissional (1:1) | 2 |
 | 19 | [professional_user_patient](#professional_user_patient) | Pivot: profissional x paciente adulto | 0 |
@@ -155,7 +155,7 @@ roles ◄──── role_has_permissions ────► permissions
 | `name` | varchar(191) | NAO | | | Nome da crianca |
 | `gender` | enum('M','F') | SIM | | NULL | Sexo: M=Masculino, F=Feminino |
 | `ethnicity` | enum('branco','pardo','negro','indigena','amarelo','multiracial','nao_declarado','outro') | SIM | | NULL | Etnia |
-| `birth_date` | date | NAO | | | Data de nascimento |
+| `birth_date` | date | NAO | | | Data de nascimento (idade >= 13 = adulto) |
 | `photo` | varchar(191) | SIM | | NULL | Caminho da foto |
 | `created_by` | bigint(20) unsigned | SIM | | NULL | ID do usuario que criou |
 | `updated_by` | bigint(20) unsigned | SIM | | NULL | ID do usuario que atualizou |
@@ -182,6 +182,7 @@ roles ◄──── role_has_permissions ────► permissions
 |--------|------|------|-------|---------|-----------|
 | `id` | bigint(20) unsigned | NAO | PK | auto_increment | Identificador unico |
 | `registration_number` | varchar(191) | SIM | | NULL | Numero de registro profissional (CRP, CRM, etc.) |
+| `council` | varchar(20) | SIM | | NULL | Conselho profissional (CRP, CRM, CREFITO, etc.) |
 | `bio` | text | SIM | | NULL | Biografia/descricao profissional |
 | `is_intern` | tinyint(1) | NAO | | 0 | Indica se e estagiario |
 | `specialty_id` | bigint(20) unsigned | NAO | FK | | Especialidade do profissional |
@@ -531,25 +532,29 @@ roles ◄──── role_has_permissions ────► permissions
 
 ---
 
-### document_templates
+### releases
 
-> Templates para geracao de documentos
+> Versoes e changelog do sistema
 
 | Coluna | Tipo | Nulo | Chave | Default | Descricao |
 |--------|------|------|-------|---------|-----------|
 | `id` | bigint(20) unsigned | NAO | PK | auto_increment | Identificador unico |
-| `name` | varchar(191) | NAO | | | Nome do template |
-| `type` | varchar(191) | NAO | | | Tipo do documento |
-| `html_content` | longtext | NAO | | | Conteudo HTML do template |
-| `description` | text | SIM | | NULL | Descricao do template |
-| `available_placeholders` | longtext | NAO | | | Placeholders disponiveis (JSON) |
-| `version` | varchar(191) | NAO | | '1.0' | Versao do template |
-| `is_active` | tinyint(1) | NAO | | 1 | Se o template esta ativo |
+| `version` | varchar(20) | NAO | | | Numero da versao (ex: 1.0.18) |
+| `title` | varchar(191) | NAO | | | Titulo da release |
+| `release_date` | date | NAO | | | Data de lancamento |
+| `description` | text | SIM | | NULL | Descricao geral |
+| `items` | longtext | NAO | | | Itens da release (JSON array) |
+| `commits` | longtext | SIM | | NULL | Commits incluidos (JSON array) |
 | `created_at` | timestamp | SIM | | NULL | Data de criacao |
 | `updated_at` | timestamp | SIM | | NULL | Data de atualizacao |
-| `deleted_at` | timestamp | SIM | | NULL | Soft delete |
 
 **Indices:** `PRIMARY (id)`
+
+**Observacoes:**
+- Campos `items` e `commits` armazenam arrays JSON (cast no Model)
+- Sem soft delete — releases sao permanentes
+
+> **Nota:** A tabela `document_templates` existia anteriormente mas foi removida. Templates de documentos agora sao gerenciados via views Blade (`resources/views/documents/`).
 
 ---
 
@@ -904,7 +909,7 @@ roles ◄──── role_has_permissions ────► permissions
 ## Padroes Utilizados
 
 ### Soft Delete
-Tabelas com `deleted_at`: `users`, `kids`, `checklists`, `planes`, `professionals`, `professional_profiles`, `specialties`, `roles`, `medical_records`, `generated_documents`, `document_templates`
+Tabelas com `deleted_at`: `users`, `kids`, `checklists`, `planes`, `professionals`, `professional_profiles`, `specialties`, `roles`, `medical_records`, `generated_documents`
 
 ### Auditoria (created_by / updated_by / deleted_by)
 Tabelas com campos de auditoria: `users`, `kids`, `checklists`, `planes`, `professionals`, `professional_profiles`, `specialties`, `roles`, `medical_records`, `generated_documents`

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfessionalRequest;
+use App\Models\Kid;
 use App\Models\Professional;
 use App\Models\Specialty;
 use App\Models\User;
@@ -478,24 +479,16 @@ class ProfessionalController extends Controller
     /**
      * Show form to assign user patients to a professional
      */
-    public function assignPatientsForm(Professional $professional)
+    public function assignPatientsForm(Request $request, Professional $professional)
     {
         $this->authorize('update', $professional);
 
-        // Get all active users (excluding the professional's own user)
-        $professionalUserId = $professional->user->first()?->id;
-
-        $availablePatients = User::where('allow', 1)
-            ->where('id', '!=', $professionalUserId)
-            ->orderBy('name')
-            ->get();
-
-        // Get currently assigned patients
-        $assignedPatientIds = $professional->patients()->pluck('users.id')->toArray();
+        $children = $professional->kids()->children()->orderBy('name')->get();
+        $adults = $professional->kids()->adults()->orderBy('name')->get();
 
         $this->professionalLogger->viewed($professional, 'assign_patients_form');
 
-        return view('professionals.assign-patients', compact('professional', 'availablePatients', 'assignedPatientIds'));
+        return view('professionals.assign-patients', compact('professional', 'children', 'adults'));
     }
 
     /**
@@ -511,18 +504,10 @@ class ProfessionalController extends Controller
             $patients = $request->input('patients', []);
 
             // Get original assignments for logging
-            $originalPatients = $professional->patients()->pluck('users.id')->toArray();
+            $originalPatients = $professional->kids()->pluck('kids.id')->toArray();
 
-            // Sync patients with timestamps
-            $syncData = [];
-            foreach ($patients as $patientId) {
-                $syncData[$patientId] = [
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
-
-            $professional->patients()->sync($syncData);
+            // Sync kids via kid_professional pivot
+            $professional->kids()->sync($patients);
 
             // Log changes
             $attached = array_diff($patients, $originalPatients);
@@ -532,7 +517,7 @@ class ProfessionalController extends Controller
                 $this->professionalLogger->created($professional, [
                     'action' => 'patient_attached',
                     'patient_id' => $patientId,
-                    'patient_type' => 'User',
+                    'patient_type' => 'Kid',
                 ]);
             }
 
@@ -540,7 +525,7 @@ class ProfessionalController extends Controller
                 $this->professionalLogger->deleted($professional, [
                     'action' => 'patient_detached',
                     'patient_id' => $patientId,
-                    'patient_type' => 'User',
+                    'patient_type' => 'Kid',
                 ]);
             }
 

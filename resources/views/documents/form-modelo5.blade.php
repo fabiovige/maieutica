@@ -35,8 +35,8 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label for="kid_id" class="form-label">Paciente <span class="text-danger">*</span></label>
-                                <select name="kid_id" id="kid_id" class="form-select" required>
-                                    <option value="">Selecione uma criança</option>
+                                <select name="kid_id" id="kid_id" class="form-select select2" data-placeholder="Selecione um paciente" required>
+                                    <option value=""></option>
                                     @foreach($kids as $kid)
                                         <option value="{{ $kid->id }}">{{ $kid->name }} - {{ $kid->age }}</option>
                                     @endforeach

@@ -43,106 +43,75 @@ class HomeController extends Controller
         // ── Stat cards ─────────────────────────────────────────────────────────
         if ($user->can('kid-list-all')) {
             $totalKids             = Kid::count();
+            $totalChildren         = Kid::children()->count();
+            $totalAdults           = Kid::adults()->count();
             $totalChecklists       = Checklist::count();
-            $checklistsEmAndamento = Checklist::where('situation', 'a')->count();
             $totalProfessionals    = Professional::count();
         } elseif ($isProfessional) {
             $totalKids             = $professional->kids()->count();
+            $totalChildren         = Kid::children()->whereHas('professionals', fn($q) => $q->where('professional_id', $professional->id))->count();
+            $totalAdults           = Kid::adults()->whereHas('professionals', fn($q) => $q->where('professional_id', $professional->id))->count();
             $totalChecklists       = Checklist::whereHas('kid.professionals', fn($q) => $q->where('professional_id', $professional->id))->count();
-            $checklistsEmAndamento = Checklist::where('situation', 'a')
-                ->whereHas('kid.professionals', fn($q) => $q->where('professional_id', $professional->id))->count();
             $totalProfessionals    = Professional::count();
         } else {
             $totalKids             = Kid::where('responsible_id', $user->id)->count();
+            $totalChildren         = Kid::children()->where('responsible_id', $user->id)->count();
+            $totalAdults           = Kid::adults()->where('responsible_id', $user->id)->count();
             $totalChecklists       = Checklist::whereHas('kid', fn($q) => $q->where('responsible_id', $user->id))->count();
-            $checklistsEmAndamento = Checklist::where('situation', 'a')
-                ->whereHas('kid', fn($q) => $q->where('responsible_id', $user->id))->count();
             $totalProfessionals    = Professional::count();
         }
 
-        // ── Escopo de kids para métricas ────────────────────────────────────────
-        $kidScope = function ($query) use ($user, $isProfessional, $professional) {
-            if ($user->can('kid-list-all')) {
-                // admin: sem filtro
-            } elseif ($isProfessional) {
-                $kidIds = $professional->kids()->pluck('kids.id');
-                $query->whereIn('k.id', $kidIds);
-            } else {
-                $query->where('k.responsible_id', $user->id);
-            }
-        };
-
-        // ── Gráfico de linha: evolução mensal (últimos 6 meses) ─────────────────
-        // Aproximação: note=3 (Consistente) / total notes avaliadas (note>0)
-        $monthlyTrendRaw = DB::table('checklists as c')
-            ->leftJoin('checklist_competence as cc', 'cc.checklist_id', '=', 'c.id')
-            ->join('kids as k', 'k.id', '=', 'c.kid_id')
-            ->whereNull('c.deleted_at')
-            ->whereNull('k.deleted_at')
-            ->where('c.created_at', '>=', now()->subMonths(6)->startOfMonth())
-            ->selectRaw("DATE_FORMAT(c.created_at, '%Y-%m') as month,
-                         ROUND(
-                             SUM(CASE WHEN cc.note = 3 THEN 1 ELSE 0 END) * 100.0
-                             / NULLIF(SUM(CASE WHEN cc.note > 0 THEN 1 ELSE 0 END), 0)
-                         , 1) as avg_pct,
-                         COUNT(DISTINCT c.id) as checklist_count")
-            ->groupBy('month')
-            ->orderBy('month')
-            ->when(true, $kidScope)
-            ->get();
-
-        // Garantir que todos os 6 meses apareçam no gráfico (mesmo que sem dados)
-        $monthlyTrend = collect();
-        for ($i = 5; $i >= 0; $i--) {
-            $month = now()->subMonths($i)->format('Y-m');
-            $label = now()->subMonths($i)->translatedFormat('M/Y');
-            $found = $monthlyTrendRaw->firstWhere('month', $month);
-            $monthlyTrend->push([
-                'month'           => $month,
-                'label'           => $label,
-                'avg_pct'         => $found ? (float) $found->avg_pct : null,
-                'checklist_count' => $found ? (int) $found->checklist_count : 0,
-            ]);
+        // ── Escopo base para filtrar crianças do usuário ────────────────────────
+        $childrenQuery = Kid::children();
+        if ($user->can('kid-list-all')) {
+            // admin: sem filtro
+        } elseif ($isProfessional) {
+            $childrenQuery->whereHas('professionals', fn($q) => $q->where('professional_id', $professional->id));
+        } else {
+            $childrenQuery->where('responsible_id', $user->id);
         }
 
-        // ── Top 5 crianças mais evoluídas ───────────────────────────────────────
-        $top5Kids = DB::table('kids as k')
-            ->join('checklists as c', fn($j) => $j->on('c.kid_id', '=', 'k.id')->whereNull('c.deleted_at'))
-            ->join('checklist_competence as cc', 'cc.checklist_id', '=', 'c.id')
-            ->whereNull('k.deleted_at')
-            ->selectRaw("k.id, k.name,
-                         ROUND(
-                             SUM(CASE WHEN cc.note = 3 THEN 1 ELSE 0 END) * 100.0
-                             / NULLIF(SUM(CASE WHEN cc.note > 0 THEN 1 ELSE 0 END), 0)
-                         , 1) as progress")
-            ->groupBy('k.id', 'k.name')
-            ->orderByDesc('progress')
-            ->limit(5)
-            ->when(true, $kidScope)
-            ->get();
-
-        // ── Média geral de desenvolvimento ──────────────────────────────────────
-        $avgDevelopment = $top5Kids->isNotEmpty()
-            ? round(
-                DB::table('checklists as c')
-                    ->join('checklist_competence as cc', 'cc.checklist_id', '=', 'c.id')
-                    ->join('kids as k', 'k.id', '=', 'c.kid_id')
+        // ── Crianças COM checklists (com progresso) ─────────────────────────────
+        $kidsWithChecklists = (clone $childrenQuery)
+            ->whereHas('checklists')
+            ->withCount('checklists')
+            ->get()
+            ->map(function ($kid) {
+                $total = DB::table('checklist_competence as cc')
+                    ->join('checklists as c', 'c.id', '=', 'cc.checklist_id')
+                    ->where('c.kid_id', $kid->id)
                     ->whereNull('c.deleted_at')
-                    ->whereNull('k.deleted_at')
-                    ->when(true, $kidScope)
-                    ->selectRaw("ROUND(SUM(CASE WHEN cc.note = 3 THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN cc.note > 0 THEN 1 ELSE 0 END), 0), 1) as avg")
-                    ->value('avg') ?? 0
-              , 1)
-            : 0;
+                    ->where('cc.note', '>', 0)
+                    ->count();
+
+                $consistent = DB::table('checklist_competence as cc')
+                    ->join('checklists as c', 'c.id', '=', 'cc.checklist_id')
+                    ->where('c.kid_id', $kid->id)
+                    ->whereNull('c.deleted_at')
+                    ->where('cc.note', 3)
+                    ->count();
+
+                $kid->progress = $total > 0 ? round($consistent * 100.0 / $total, 1) : 0;
+
+                return $kid;
+            })
+            ->sortByDesc('progress')
+            ->values();
+
+        // ── Crianças SEM checklists ─────────────────────────────────────────────
+        $kidsWithoutChecklists = (clone $childrenQuery)
+            ->doesntHave('checklists')
+            ->orderBy('name')
+            ->get();
 
         return view('home', compact(
             'totalKids',
+            'totalChildren',
+            'totalAdults',
             'totalChecklists',
-            'checklistsEmAndamento',
             'totalProfessionals',
-            'monthlyTrend',
-            'top5Kids',
-            'avgDevelopment'
+            'kidsWithChecklists',
+            'kidsWithoutChecklists'
         ));
     }
 }

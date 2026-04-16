@@ -81,7 +81,7 @@ class MedicalRecord extends BaseModel
      */
     public function getSessionDateFormattedAttribute()
     {
-        if (!$this->attributes['session_date']) {
+        if (! $this->attributes['session_date']) {
             return null;
         }
 
@@ -94,8 +94,9 @@ class MedicalRecord extends BaseModel
 
     public function setSessionDateAttribute($value)
     {
-        if (!$value) {
+        if (! $value) {
             $this->attributes['session_date'] = null;
+
             return;
         }
 
@@ -123,12 +124,12 @@ class MedicalRecord extends BaseModel
 
     public function getPatientTypeNameAttribute()
     {
-        if (str_contains($this->patient_type, 'Kid')) {
-            return 'Criança';
+        if ($this->patient && $this->patient->is_adult) {
+            return 'Adulto';
         }
 
-        if (str_contains($this->patient_type, 'User')) {
-            return 'Adulto';
+        if (str_contains($this->patient_type, 'Kid')) {
+            return 'Criança';
         }
 
         return 'Desconhecido';
@@ -142,23 +143,13 @@ class MedicalRecord extends BaseModel
     {
         $professional = auth()->user()->professional->first();
 
-        if (!$professional) {
+        if (! $professional) {
             return $query->whereRaw('1 = 0'); // Return no results
         }
 
         return $query->where('created_by', auth()->id())
-            ->where(function ($q) use ($professional) {
-                // Records for assigned Kids
-                $q->where(function ($subQ) use ($professional) {
-                    $subQ->where('patient_type', Kid::class)
-                         ->whereIn('patient_id', $professional->kids()->pluck('kids.id'));
-                })
-                // Records for assigned User patients
-                ->orWhere(function ($subQ) use ($professional) {
-                    $subQ->where('patient_type', User::class)
-                         ->whereIn('patient_id', $professional->patients()->pluck('users.id'));
-                });
-            });
+            ->where('patient_type', Kid::class)
+            ->whereIn('patient_id', $professional->kids()->pluck('kids.id'));
     }
 
     /**
@@ -170,7 +161,7 @@ class MedicalRecord extends BaseModel
         $userId = auth()->id();
 
         return $query->where('patient_type', User::class)
-                     ->where('patient_id', $userId);
+            ->where('patient_id', $userId);
     }
 
     /**
@@ -179,7 +170,7 @@ class MedicalRecord extends BaseModel
     public function scopeForPatient(Builder $query, $patientId, $patientType)
     {
         return $query->where('patient_id', $patientId)
-                     ->where('patient_type', $patientType);
+            ->where('patient_type', $patientType);
     }
 
     /**
@@ -204,11 +195,11 @@ class MedicalRecord extends BaseModel
     public function getAllVersions()
     {
         $parentId = $this->parent_id ?? $this->id;
-        
+
         return MedicalRecord::where('id', $parentId)
-                            ->orWhere('parent_id', $parentId)
-                            ->orderBy('version', 'desc')
-                            ->get();
+            ->orWhere('parent_id', $parentId)
+            ->orderBy('version', 'desc')
+            ->get();
     }
 
     /**
@@ -217,13 +208,13 @@ class MedicalRecord extends BaseModel
     public function getLatestVersion()
     {
         $parentId = $this->parent_id ?? $this->id;
-        
-        return MedicalRecord::where(function($q) use ($parentId) {
-                                $q->where('id', $parentId)
-                                  ->orWhere('parent_id', $parentId);
-                            })
-                            ->where('is_current_version', true)
-                            ->first();
+
+        return MedicalRecord::where(function ($q) use ($parentId) {
+            $q->where('id', $parentId)
+                ->orWhere('parent_id', $parentId);
+        })
+            ->where('is_current_version', true)
+            ->first();
     }
 
     /**

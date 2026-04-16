@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 
 class Kid extends BaseModel
 {
+    public const ADULT_AGE_YEARS = 13;
+
     protected $fillable = [
         'name',
         'birth_date',
@@ -134,6 +136,24 @@ class Kid extends BaseModel
         }
     }
 
+    /**
+     * Determina se o paciente é adulto (idade >= 13 anos) com base na data de nascimento.
+     */
+    public function getIsAdultAttribute(): bool
+    {
+        $raw = $this->getRawOriginal('birth_date') ?? null;
+
+        if (! $raw) {
+            return false;
+        }
+
+        try {
+            return Carbon::parse($raw)->diffInYears(Carbon::now()) >= self::ADULT_AGE_YEARS;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
     public function getBirthDateAttribute($value)
     {
         if (! $value) {
@@ -229,6 +249,20 @@ class Kid extends BaseModel
         });
     }
 
+    public function scopeAdults(Builder $query)
+    {
+        return $query->whereNotNull('birth_date')
+            ->whereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) >= ?', [self::ADULT_AGE_YEARS]);
+    }
+
+    public function scopeChildren(Builder $query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('birth_date')
+              ->orWhereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) < ?', [self::ADULT_AGE_YEARS]);
+        });
+    }
+
     /**
      * Scope para filtrar crianças elegíveis ao Denver (até 6 anos).
      */
@@ -284,6 +318,6 @@ class Kid extends BaseModel
                 ->with(['professionals', 'responsible', 'checklists']);
         }
 
-        return $query->get();
+        return $query->orderBy('name')->get();
     }
 }

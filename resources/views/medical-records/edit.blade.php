@@ -31,25 +31,25 @@
                     <div class="col-md-6 mb-3">
                         <label for="patient_id" class="form-label">
                             Paciente
-                            @if($medicalRecord->patient_type === 'App\Models\Kid')
-                                <span class="badge bg-primary ms-1"><i class="bi bi-person-hearts"></i> Criança</span>
-                            @else
+                            @if($medicalRecord->patient && $medicalRecord->patient->is_adult)
                                 <span class="badge bg-secondary ms-1"><i class="bi bi-person"></i> Adulto</span>
+                            @else
+                                <span class="badge bg-primary ms-1"><i class="bi bi-person-hearts"></i> Criança</span>
                             @endif
                             <span class="text-danger">*</span>
                         </label>
                         <select name="patient_id" id="patient_id" class="form-select select2 @error('patient_id') is-invalid @enderror" data-placeholder="Selecione o paciente">
                             <option value="">Selecione o paciente</option>
-                            @if($medicalRecord->patient_type === 'App\Models\Kid')
-                                @foreach($kids as $kid)
-                                    <option value="{{ $kid->id }}" {{ old('patient_id', $medicalRecord->patient_id) == $kid->id ? 'selected' : '' }}>
-                                        {{ $kid->name }} ({{ $kid->age ?? 'Idade N/D' }})
+                            @if($medicalRecord->patient && $medicalRecord->patient->is_adult)
+                                @foreach($userPatients as $patient)
+                                    <option value="{{ $patient->id }}" {{ old('patient_id', $medicalRecord->patient_id) == $patient->id ? 'selected' : '' }}>
+                                        {{ $patient->name }} ({{ $patient->age ?? 'Idade N/D' }})
                                     </option>
                                 @endforeach
                             @else
-                                @foreach($userPatients as $user)
-                                    <option value="{{ $user->id }}" {{ old('patient_id', $medicalRecord->patient_id) == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }}
+                                @foreach($kids as $kid)
+                                    <option value="{{ $kid->id }}" {{ old('patient_id', $medicalRecord->patient_id) == $kid->id ? 'selected' : '' }}>
+                                        {{ $kid->name }} ({{ $kid->age ?? 'Idade N/D' }})
                                     </option>
                                 @endforeach
                             @endif

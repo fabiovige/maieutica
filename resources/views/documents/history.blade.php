@@ -74,15 +74,10 @@
             Nenhum documento encontrado.
         </div>
     @else
-        <div class="card">
-            <div class="card-header bg-primary">
-                <h3 class="card-title-custom mb-0 text-white">
-                    <i class="bi bi-clock-history"></i> Histórico de Documentos Gerados
-                </h3>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover table-striped align-middle mb-0">
+        <h3 class="mb-3"><i class="bi bi-clock-history"></i> Histórico de Documentos Gerados</h3>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th style="width: 60px;" class="text-center">ID</th>
@@ -144,8 +139,6 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-            </div>
         </div>
 
         <div class="d-flex justify-content-end mt-3">
