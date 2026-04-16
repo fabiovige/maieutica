@@ -192,7 +192,7 @@
         </li>
     @endcan
 
-    <!-- Tutorial - Disponível para todos os usuários -->
+    <!-- Tutorial - Disponível para todos os usuários OK -->
     <li class="nav-item">
         <a class="nav-link @if (request()->is('tutorial*')) active @endif"
            aria-current="page"
