@@ -18,3 +18,12 @@ yarn-error.log
 /public/hot
 
 tmpclaude-*
+
+# Build artifacts
+/public/mix-manifest.json
+
+# Uploads de usuários (não versionar)
+/public/images/kids/*
+!/public/images/kids/.gitkeep
+/public/images/avatar/*
+!/public/images/avatar/.gitkeep
