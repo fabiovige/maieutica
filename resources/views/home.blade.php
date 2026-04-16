@@ -190,14 +190,20 @@
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="tab-with-checklists" data-bs-toggle="tab" data-bs-target="#pane-with-checklists" type="button" role="tab">
-                    <i class="bi bi-clipboard2-check text-success"></i> Com Checklists
+                    <i class="bi bi-clipboard2-check text-success"></i> Crianças com Checklists
                     <span class="badge bg-success ms-1">{{ $kidsWithChecklists->count() }}</span>
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="tab-without-checklists" data-bs-toggle="tab" data-bs-target="#pane-without-checklists" type="button" role="tab">
-                    <i class="bi bi-clipboard2-x text-warning"></i> Sem Checklists
+                    <i class="bi bi-clipboard2-x text-warning"></i> Crianças sem Checklists
                     <span class="badge bg-warning text-dark ms-1">{{ $kidsWithoutChecklists->count() }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-adults" data-bs-toggle="tab" data-bs-target="#pane-adults" type="button" role="tab">
+                    <i class="bi bi-person-fill text-purple"></i> Pacientes Adultos
+                    <span class="badge bg-purple ms-1" style="background-color:#7c3aed !important;">{{ $adultPatients->count() }}</span>
                 </button>
             </li>
         </ul>
@@ -285,6 +291,40 @@
                 @else
                     <div class="alert alert-light mt-3 mb-0">
                         <i class="bi bi-check-circle text-success"></i> Todas as crianças possuem checklists!
+                    </div>
+                @endif
+            </div>
+
+            {{-- Tab Pacientes Adultos --}}
+            <div class="tab-pane fade" id="pane-adults" role="tabpanel">
+                @if($adultPatients->isNotEmpty())
+                    <table class="table table-hover table-bordered align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nome</th>
+                                <th style="width:120px;">Idade</th>
+                                <th style="width:80px;" class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($adultPatients as $adult)
+                                <tr>
+                                    <td>{{ $adult->name }}</td>
+                                    <td><small class="text-muted">{{ $adult->age ?? 'N/D' }}</small></td>
+                                    <td class="text-center">
+                                        @can('kid-show')
+                                            <a href="{{ route('kids.show', $adult->id) }}" class="btn btn-secondary btn-sm">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        @endcan
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <div class="alert alert-light mt-3 mb-0">
+                        <i class="bi bi-info-circle"></i> Nenhum paciente adulto cadastrado.
                     </div>
                 @endif
             </div>
