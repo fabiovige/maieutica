@@ -13,4 +13,6 @@ public/storage
 .env.*
 *.log
 *.md
-docker
+# docker/ é ignorado no contexto, EXCETO o entrypoint que precisa ser copiado
+docker/*
+!docker/php/entrypoint.sh

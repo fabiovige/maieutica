@@ -1,10 +1,43 @@
-* text=auto
+# Normalização global — git decide pelo tipo detectado, LF no repositório
+* text=auto eol=lf
 
+# ── Diffs especializados ─────────────────────────────────────────
 *.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
+*.css       diff=css
+*.html      diff=html
+*.md        diff=markdown
+*.php       diff=php
 
-/.github export-ignore
+# ── Scripts e config Docker/Unix — SEMPRE LF (quebra no container se CRLF) ──
+*.sh               text eol=lf
+Dockerfile         text eol=lf
+docker-compose.yml text eol=lf
+.dockerignore      text eol=lf
+.env*              text eol=lf
+*.conf             text eol=lf
+*.ini              text eol=lf
+*.cnf              text eol=lf
+*.yml              text eol=lf
+*.yaml             text eol=lf
+
+# ── Scripts Windows — CRLF ───────────────────────────────────────
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# ── Binários — nunca converter ───────────────────────────────────
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.pdf   binary
+*.ttf   binary
+*.woff  binary
+*.woff2 binary
+*.eot   binary
+
+# ── Export ignore ────────────────────────────────────────────────
+/.github     export-ignore
 CHANGELOG.md export-ignore
