@@ -1,3 +1,7 @@
+---
+description: Metodologia Spec-Driven Development para features complexas
+---
+
 Leia `docs/SDD.md` na íntegra. Use-o para entender e aplicar a metodologia Spec-Driven Development.
 
 ## Quando Usar

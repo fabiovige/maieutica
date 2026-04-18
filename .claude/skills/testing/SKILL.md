@@ -1,3 +1,7 @@
+---
+description: Estrutura de testes, comandos, debugging, lint
+---
+
 Leia `docs/testing.md` na íntegra. Use-o para responder perguntas sobre testes e debugging.
 
 ## Estrutura de Testes (21 arquivos)

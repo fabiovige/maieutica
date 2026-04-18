@@ -1,3 +1,7 @@
+---
+description: Modelo unificado Kids, classificação por birth_date, scopes adults/children
+---
+
 Leia `docs/TIPOS_DE_PACIENTES.md` na íntegra. Use-o para responder perguntas sobre pacientes.
 
 ## Modelo Unificado

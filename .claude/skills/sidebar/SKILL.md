@@ -1,3 +1,7 @@
+---
+description: Layout sidebar v2.0, estilos inline, menu com permissões
+---
+
 Leia `docs/novo-layout-sidebar.md` na íntegra. Use-o para responder perguntas sobre o layout sidebar v2.0.
 
 ## Estrutura

@@ -1,3 +1,7 @@
+---
+description: Vue 3 Options API, CSS architecture, componentes, compilação, Bootstrap 5.3
+---
+
 Leia `docs/frontend.md` na íntegra. Use-o para responder perguntas sobre o frontend.
 
 ## Stack e Padrões

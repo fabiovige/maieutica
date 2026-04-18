@@ -1,3 +1,7 @@
+---
+description: Autorização (can() NUNCA hasRole()), permissions, policies, regras Professional↔User
+---
+
 Leia `docs/PROFESSIONAL_USER_RELATIONSHIP.md` na íntegra. Use-o para responder perguntas sobre autorização e relacionamentos profissional/usuário.
 
 ## Regras de Autorização — INEGOCIÁVEIS

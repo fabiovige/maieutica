@@ -1,3 +1,7 @@
+---
+description: Manual de atualização em produção, regras de deploy
+---
+
 Leia `docs/MANUAL_ATUALIZACAO_PRODUCAO.md` na íntegra. Use-o para responder perguntas sobre deploy em produção.
 
 ## Ambiente

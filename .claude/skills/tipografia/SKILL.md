@@ -1,3 +1,7 @@
+---
+description: Fonte Nunito, tokens CSS, ordem de carregamento tipográfico
+---
+
 Leia `docs/tipografia.md` na íntegra. Use-o para responder perguntas sobre o sistema tipográfico.
 
 ## Fundamentos

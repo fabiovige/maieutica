@@ -1,3 +1,7 @@
+---
+description: Modelos, controllers, observers, services, helpers, padrões arquiteturais
+---
+
 Leia `docs/architecture.md` na íntegra e use-o como contexto para responder perguntas sobre a arquitetura do Maiêutica.
 
 ## Regras Arquiteturais

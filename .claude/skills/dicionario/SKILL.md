@@ -1,3 +1,7 @@
+---
+description: Schema do banco (31 tabelas), convenções, enums, pivots
+---
+
 Leia `docs/dicionario-dados.md` na íntegra. Use-o para responder perguntas sobre o schema do banco.
 
 ## Convenções do Banco (31 tabelas)

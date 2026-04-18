@@ -1,3 +1,7 @@
+---
+description: Prontuários polimórficos, versionamento, scope forAuthProfessional
+---
+
 Leia `docs/medical-records.md` na íntegra. Use-o para responder perguntas sobre prontuários.
 
 ## Modelo Polimórfico

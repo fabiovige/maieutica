@@ -1,3 +1,7 @@
+---
+description: Duas camadas (Observer + Domain Logger), LGPD, armazenamento de logs
+---
+
 Leia `docs/logging.md` na íntegra. Use-o para responder perguntas sobre o sistema de logging.
 
 ## Arquitetura de Duas Camadas

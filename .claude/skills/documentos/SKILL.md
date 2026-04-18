@@ -1,3 +1,7 @@
+---
+description: Geração de PDFs, 6 modelos, DomPDF, polimorfismo
+---
+
 Leia `docs/documentos.md` na íntegra. Use-o para responder perguntas sobre geração de documentos PDF.
 
 ## Fluxo de Geração
