@@ -1,13 +1,19 @@
 services:
 
-  # ── PHP-FPM 8.2 ──────────────────────────────────────────────────
+  # ── PHP-FPM 8.2 (serviço principal) ──────────────────────────────
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        UID: ${APP_UID:-1000}
+        GID: ${APP_GID:-1000}
+    image: maieutica_app
     container_name: maieutica_app
     restart: unless-stopped
     working_dir: /var/www/html
+    environment:
+      RUN_SETUP: "true"
     volumes:
       - .:/var/www/html
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
@@ -23,7 +29,7 @@ services:
     container_name: maieutica_nginx
     restart: unless-stopped
     ports:
-      - "8080:80"   # Acesse em http://localhost:8080
+      - "80:80"   # Acesse em http://maieutica.test
     volumes:
       - .:/var/www/html
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
@@ -55,6 +61,83 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  # ── Node 18 (compila assets: Vue + SCSS via Laravel Mix) ─────────
+  node:
+    image: node:18-alpine
+    container_name: maieutica_node
+    restart: unless-stopped
+    working_dir: /var/www/html
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - maieutica_network
+    # Instala dependências se node_modules estiver vazio e entra em watch mode
+    command: >
+      sh -c "
+        if [ ! -d node_modules ] || [ -z \"$(ls -A node_modules 2>/dev/null)\" ]; then
+          echo '[node] Instalando dependências npm...';
+          npm install;
+        fi;
+        echo '[node] Iniciando watch (Laravel Mix)...';
+        npm run watch
+      "
+
+  # ── Queue Worker (processa jobs em background) ───────────────────
+  queue:
+    image: maieutica_app
+    container_name: maieutica_queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      RUN_SETUP: "false"
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - maieutica_network
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
+    command: php artisan queue:work --tries=3 --timeout=120 --sleep=3
+
+  # ── Scheduler (roda schedule:run a cada minuto) ──────────────────
+  scheduler:
+    image: maieutica_app
+    container_name: maieutica_scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      RUN_SETUP: "false"
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - maieutica_network
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "while true; do
+        php artisan schedule:run --verbose --no-interaction;
+        sleep 60;
+      done"
+
+  # ── MailHog (captura emails em dev) ──────────────────────────────
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: maieutica_mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # UI web: http://localhost:8025
+    networks:
+      - maieutica_network
 
 volumes:
   maieutica_db_data:

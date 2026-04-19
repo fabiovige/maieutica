@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Maiêutica** — Plataforma clínica de avaliação cognitiva infantil. Em produção em maieuticavaliacom.br.
 
-**Versão:** 1.0.18 | **Stack:** Laravel 9.52 · Vue 3.5 (Options API) · Bootstrap 5.3 · MySQL/MariaDB · Laravel Mix 6.x
+**Versão:** 1.0.18 | **Stack:** Laravel 9.52 (PHP ^8.0.2) · Vue 3.5 (Options API) · Bootstrap 5.3 · MySQL/MariaDB · Laravel Mix 6.x
 
 ---
 
@@ -30,8 +30,13 @@ GeneratedDocument → documentable (morphTo: Kid ou User)
 
 ### Dual-layer controllers
 
-- **Web** (`Http/Controllers/`): Blade views, forms, DataTables server-side (yajra). Padrão CRUD + rotas extras `trash`, `restore`, `chart`, `fill`, `clonar`.
-- **API** (`Http/Controllers/Api/`): JSON para componentes Vue montados dentro das views Blade. Não é SPA — Vue é usado como ilhas reativas dentro de templates Blade.
+- **Web** (`Http/Controllers/`): 19 controllers — Blade views, forms, DataTables server-side (yajra). Padrão CRUD + rotas extras `trash`, `restore`, `chart`, `fill`, `clonar`.
+- **API** (`Http/Controllers/Api/`): 8 controllers — JSON para componentes Vue montados dentro das views Blade. Não é SPA — Vue é usado como ilhas reativas dentro de templates Blade. Padrão: `apiResource` + rotas custom (ex: `Planes` tem `newPlane`, `storeplane`, `showCompetences`).
+
+### Middleware relevante
+
+- **`AclMiddleware`** — verifica flag `allow` do user; auto-logout se desabilitado; SuperAdmin bypassa checagem.
+- **`SecurityHeaders`** — adiciona X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, HSTS (prod), Permissions-Policy.
 
 ### Padrão de rotas recorrente
 
@@ -45,7 +50,8 @@ Quase todos os resources seguem: `resource CRUD` + `GET trash` + `POST {id}/rest
 
 ### Frontend
 
-- Vue components em `resources/js/components/` — montados dentro de Blade templates (não SPA)
+- Vue components em `resources/js/components/` (9 componentes) — montados dentro de Blade templates (não SPA)
+- Composables em `resources/js/composables/` (8 módulos) — lógica reutilizável para charts, checklists, competences, domains, kids, levels, planes
 - Webpack alias: `@` → `resources/js` (usar em imports)
 - DataTables server-side para listagens (rotas `*/datatable/index`)
 - jQuery + Select2 + SweetAlert2 coexistem com Vue
@@ -123,6 +129,9 @@ php artisan test tests/Unit/Models/           # Diretório específico
 - **SCSS load order:** `_config.scss` → `_variables.scss` → `_custom.scss` → bootstrap → `_buttons.scss`
 - **CSS load order (HTML):** `app.css` (compilado) → `custom.css` (direto) → `typography.css` (direto)
 - **Global helpers:** `app/helpers.php` (autoloaded via composer) — `label_case()`, `get_progress_color()`, `get_progress_gradient()`, `get_chart_gradient()`
+- **Enums:** `app/Enums/ProgressColors.php` — mapeamento de cores para barras de progresso
+- **Mail:** 3 classes em `app/Mail/` — `UserCreatedMail`, `UserUpdatedMail`, `UserDeletedMail` (lifecycle do User)
+- **Health check:** `GET /health` (sem auth) — retorna JSON com status de database, cache, disk, queue
 
 ---
 
@@ -145,6 +154,12 @@ Use `/nome` para carregar o contexto + regras de negócio de cada domínio:
 | `/testing` | Estrutura de testes, comandos, debugging, lint |
 | `/deploy` | Manual de atualização em produção |
 | `/sdd` | Metodologia Spec-Driven Development |
+| `/rotas` | Mapa completo de rotas web e API, middleware stack, padrões de URL |
+| `/seguranca` | Middleware de segurança, headers, CSRF, XSS, health check, proteções |
+| `/servicos` | Services (Checklist, Overview), helpers, enums, jobs, notifications |
+| `/emails` | Mail classes, notifications, filas de email, templates, fluxos |
+| `/seeds` | Seeders, ordem de execução, dados de teste, factories, comandos |
+| `/specs` | Features pendentes, roadmap, especificações de implementação |
 
 ---
 

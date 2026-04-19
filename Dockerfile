@@ -1,6 +1,10 @@
 # PHP 8.2 FPM — paridade com produção Hostinger
 FROM php:8.2-fpm
 
+# ── Build args (permite UID/GID do host no WSL2) ─────────────────
+ARG UID=1000
+ARG GID=1000
+
 # ── Dependências do sistema ───────────────────────────────────────
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
@@ -19,8 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libtidy-dev \
     libsodium-dev \
     libmagickwand-dev \
-    nodejs \
-    npm \
+    default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Extensões PHP ─────────────────────────────────────────────────
@@ -47,8 +50,14 @@ RUN docker-php-ext-install \
     xml \
     dom \
     simplexml \
-    xmlwriter \
-    xmlreader
+    xmlwriter
+
+# xmlreader no PHP 8.2.30+ precisa dos headers do dom em /usr/local/include/php/ext/dom/
+RUN docker-php-source extract \
+    && mkdir -p /usr/local/include/php/ext/dom \
+    && cp /usr/src/php/ext/dom/*.h /usr/local/include/php/ext/dom/ \
+    && docker-php-ext-install xmlreader \
+    && docker-php-source delete
 
 # ── Imagick (via PECL) ────────────────────────────────────────────
 RUN pecl install imagick \
@@ -57,11 +66,18 @@ RUN pecl install imagick \
 # ── Composer ─────────────────────────────────────────────────────
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# ── Usuário não-root ──────────────────────────────────────────────
-RUN groupmod -g 1000 www-data \
-    && usermod -u 1000 -g www-data www-data
+# ── Usuário com UID/GID do host ──────────────────────────────────
+RUN groupmod -g ${GID} www-data \
+    && usermod -u ${UID} -g www-data www-data \
+    && mkdir -p /var/www/.composer \
+    && chown -R www-data:www-data /var/www
+
+# ── Entrypoint ────────────────────────────────────────────────────
+COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /var/www/html
 
 EXPOSE 9000
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]
