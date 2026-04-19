@@ -25,29 +25,11 @@
     </div>
 @endsection
 
-@push('styles')
-<style>
-    .record-card {
-        border-radius: 12px !important;
-        transition: box-shadow 0.2s ease, transform 0.15s ease;
-    }
-    .record-card:hover {
-        box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
-        transform: translateY(-1px);
-    }
-    .record-meta { font-size: 0.875rem; }
-    @media (max-width: 575px) {
-        .record-card .card-body { padding: 0.85rem 1rem !important; }
-        .record-meta { font-size: 0.8125rem; }
-    }
-</style>
-@endpush
-
 @section('content')
 
     {{-- Filtros --}}
     @if(!auth()->user()->can('medical-record-view-own') || auth()->user()->can('medical-record-list-all'))
-        <div class="card mb-3 border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card mb-3" style="border-radius:12px; border:1px solid #e9ecef;">
             <div class="card-body">
                 <form method="GET" action="{{ route('medical-records.index') }}" class="row g-3" id="filter-form">
 
@@ -77,44 +59,42 @@
                         </select>
                     </div>
 
-                    <div class="col-auto d-flex align-items-end">
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-search"></i> Buscar
-                            </button>
-                            @if(request()->hasAny(['professional_id', 'patient_id']))
-                                <a href="{{ route('medical-records.index') }}" class="btn btn-secondary" title="Limpar filtros">
-                                    <i class="bi bi-x-lg"></i>
-                                </a>
-                            @endif
+                    @if(request()->hasAny(['professional_id', 'patient_id']))
+                        <div class="col-auto d-flex align-items-end">
+                            <a href="{{ route('medical-records.index') }}" class="btn btn-secondary" title="Limpar filtros">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
                         </div>
-                    </div>
+                    @endif
 
                 </form>
             </div>
         </div>
     @endif
 
-    {{-- Lista de Prontuários em Cards --}}
-    <div class="d-flex flex-column gap-2">
-        @forelse($medicalRecords as $record)
-            <div class="card shadow-sm border-0 record-card">
-                <div class="card-body py-3 px-4">
-                    <div class="d-flex align-items-center gap-3">
-
-                        {{-- Informações --}}
-                        <div class="d-flex flex-wrap align-items-center gap-3 flex-grow-1 record-meta">
-
-                            {{-- Data da sessão --}}
-                            <span class="badge bg-info-subtle text-info-emphasis px-2 py-1">
-                                <i class="bi bi-calendar3 me-1"></i>
+    {{-- Lista de Prontuários em Tabela --}}
+    @if($medicalRecords->isNotEmpty())
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:110px;">Data</th>
+                    <th>Paciente</th>
+                    <th style="width:110px;">Tipo</th>
+                    <th>Profissional</th>
+                    <th>Demanda</th>
+                    <th style="width:80px;" class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($medicalRecords as $record)
+                    <tr>
+                        <td>
+                            <small class="text-muted">
                                 {{ $record->session_date ? $record->session_date->format('d/m/Y') : 'N/D' }}
-                            </span>
-
-                            {{-- Paciente --}}
-                            <span class="fw-semibold text-dark">{{ $record->patient_name }}</span>
-
-                            {{-- Tipo --}}
+                            </small>
+                        </td>
+                        <td>{{ $record->patient_name }}</td>
+                        <td>
                             @if($record->patient && $record->patient->is_adult)
                                 <span class="badge" style="background:#f3e8fe; color:#7c3aed;">
                                     <i class="bi bi-person"></i> Adulto
@@ -124,51 +104,51 @@
                                     <i class="bi bi-person-hearts"></i> Criança
                                 </span>
                             @endif
-
-                            {{-- Profissional --}}
-                            <span class="text-muted small">
-                                <i class="bi bi-person-badge me-1"></i>{{ $record->creator->name ?? 'N/D' }}
-                            </span>
-
-                            {{-- Trecho da demanda --}}
+                        </td>
+                        <td><small class="text-muted">{{ $record->creator->name ?? 'N/D' }}</small></td>
+                        <td>
                             @if($record->complaint)
-                                <span class="text-muted small fst-italic text-truncate" style="max-width:280px;">
-                                    {{ \Illuminate\Support\Str::limit(strip_tags($record->complaint), 60) }}
-                                </span>
+                                <small class="text-muted fst-italic">
+                                    {{ \Illuminate\Support\Str::limit(strip_tags($record->complaint), 80) }}
+                                </small>
+                            @else
+                                <small class="text-muted">—</small>
                             @endif
-
-                        </div>
-
-                        {{-- Botão Ver --}}
-                        @can('view', $record)
-                            <div class="flex-shrink-0">
+                        </td>
+                        <td class="text-center">
+                            @can('view', $record)
                                 <a href="{{ route('medical-records.show', $record) }}" class="btn btn-secondary btn-sm">
-                                    <i class="bi bi-eye"></i> Ver
+                                    <i class="bi bi-eye"></i>
                                 </a>
-                            </div>
-                        @endcan
-
-                    </div>
-                </div>
-            </div>
-        @empty
-            <div class="alert alert-info border-0 shadow-sm" style="border-radius:12px;">
-                <i class="bi bi-info-circle"></i>
-                @if(auth()->user()->can('medical-record-view-own') && !auth()->user()->can('medical-record-list-all'))
-                    Você ainda não possui prontuários registrados.
-                @else
-                    Nenhum prontuário encontrado.
-                @endif
-            </div>
-        @endforelse
-    </div>
-
-    {{-- Paginação --}}
-    @if($medicalRecords->isNotEmpty())
-        <div class="d-flex justify-content-end mt-3">
+                            @endcan
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-center mt-3">
             {{ $medicalRecords->onEachSide(1)->appends(request()->query())->links() }}
+        </div>
+    @else
+        <div class="alert alert-light mt-3 mb-0">
+            <i class="bi bi-info-circle"></i>
+            @if(auth()->user()->can('medical-record-view-own') && !auth()->user()->can('medical-record-list-all'))
+                Você ainda não possui prontuários registrados.
+            @else
+                Nenhum prontuário encontrado.
+            @endif
         </div>
     @endif
 
 @endsection
+
+@push('scripts')
+<script>
+    $(function () {
+        $('#patient_id, #professional_id').on('change', function () {
+            $('#filter-form').trigger('submit');
+        });
+    });
+</script>
+@endpush
 
