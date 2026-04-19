@@ -50,8 +50,14 @@ RUN docker-php-ext-install \
     xml \
     dom \
     simplexml \
-    xmlwriter \
-    xmlreader
+    xmlwriter
+
+# xmlreader no PHP 8.2.30+ precisa dos headers do dom em /usr/local/include/php/ext/dom/
+RUN docker-php-source extract \
+    && mkdir -p /usr/local/include/php/ext/dom \
+    && cp /usr/src/php/ext/dom/*.h /usr/local/include/php/ext/dom/ \
+    && docker-php-ext-install xmlreader \
+    && docker-php-source delete
 
 # ── Imagick (via PECL) ────────────────────────────────────────────
 RUN pecl install imagick \
