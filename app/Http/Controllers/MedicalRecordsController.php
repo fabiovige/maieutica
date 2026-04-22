@@ -200,13 +200,16 @@ class MedicalRecordsController extends Controller
             $medicalRecord->patient->load(['responsible', 'professionals.user']);
         }
 
-        // Load other medical records for this patient (continuity)
-        $patientRecords = MedicalRecord::where('patient_type', $medicalRecord->patient_type)
-            ->where('patient_id', $medicalRecord->patient_id)
-            ->where('id', '!=', $medicalRecord->id)
-            ->currentVersion()
-            ->orderBy('session_date', 'desc')
-            ->get();
+        // Outros registros do mesmo paciente: apenas admin (visao global)
+        $patientRecords = collect();
+        if (auth()->user()->can('medical-record-list-all')) {
+            $patientRecords = MedicalRecord::where('patient_type', $medicalRecord->patient_type)
+                ->where('patient_id', $medicalRecord->patient_id)
+                ->where('id', '!=', $medicalRecord->id)
+                ->currentVersion()
+                ->orderBy('session_date', 'desc')
+                ->get();
+        }
 
         $this->medicalRecordLogger->viewed($medicalRecord, [
             'source' => 'controller',

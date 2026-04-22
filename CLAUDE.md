@@ -154,6 +154,7 @@ Use `/nome` para carregar o contexto + regras de negócio de cada domínio:
 | `/logging` | Duas camadas (Observer + Domain Logger), LGPD, armazenamento |
 | `/testing` | Estrutura de testes, comandos, debugging, lint |
 | `/deploy` | Manual de atualização em produção |
+| `/release` | Criação de tags SemVer e GitHub Releases (gh CLI, tag anotada, notas agrupadas) |
 | `/sdd` | Metodologia Spec-Driven Development |
 | `/rotas` | Mapa completo de rotas web e API, middleware stack, padrões de URL |
 | `/seguranca` | Middleware de segurança, headers, CSRF, XSS, health check, proteções |
