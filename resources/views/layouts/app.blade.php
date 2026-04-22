@@ -649,7 +649,7 @@
                         <div class="menu-item">
                             <a class="menu-link has-submenu {{ request()->routeIs('checklists.*') || request()->routeIs('kids.*') ? 'active open' : '' }}" data-submenu="submenu-denver">
                                 <i class="bi bi-clipboard2-pulse"></i>
-                                <span>Denver</span>
+                                <span>Avaliação Multidimensional</span>
                                 <i class="bi bi-chevron-down submenu-arrow"></i>
                             </a>
                             <ul class="submenu {{ request()->routeIs('checklists.*') || request()->routeIs('kids.*') ? 'open' : '' }}" id="submenu-denver">

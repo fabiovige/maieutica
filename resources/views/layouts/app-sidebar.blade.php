@@ -553,7 +553,7 @@
                 @auth
                     {{-- Denver --}}
                     @if(auth()->user()->can('checklist-list') || auth()->user()->can('kid-list'))
-                        <div class="menu-section">Denver</div>
+                        <div class="menu-section">Avaliação Multidimensional</div>
                         @can('checklist-list')
                             <div class="menu-item">
                                 <a href="{{ route('checklists.index') }}" class="menu-link {{ request()->routeIs('checklists.*') ? 'active' : '' }}">

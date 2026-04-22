@@ -103,7 +103,7 @@ class ReleaseSeeder extends Seeder
                         'CSS vars padronizadas: --fs-base, --fs-xs, --fs-sm, etc.',
                     ],
                     'layout' => [
-                        'Submenus dropdown no sidebar (Denver, Prontuarios, Documentos, Cadastros)',
+                        'Submenus dropdown no sidebar (Avaliacao Multidimensional, Prontuarios, Documentos, Cadastros)',
                         'Visualizacao padrao da lista de criancas alterada de cards para tabela',
                     ],
                     'emails' => [
@@ -144,16 +144,16 @@ class ReleaseSeeder extends Seeder
         Release::updateOrCreate(
             ['version' => 'v2.3.0'],
             [
-                'title' => 'Prontuarios Unificados, Filtro Denver e Continuidade Clinica',
+                'title' => 'Prontuarios Unificados, Filtro Avaliacao Multidimensional e Continuidade Clinica',
                 'release_date' => '2026-03-23',
-                'description' => 'Unificacao do cadastro de pacientes nos prontuarios, filtro de idade no Denver, historico de prontuarios com continuidade clinica e correcao dos testes.',
+                'description' => 'Unificacao do cadastro de pacientes nos prontuarios, filtro de idade na Avaliacao Multidimensional, historico de prontuarios com continuidade clinica e correcao dos testes.',
                 'items' => [
                     'features' => [
                         'Dropdown unico de pacientes nos prontuarios com idade visivel (sem separacao Crianca/Adulto)',
                         'Painel lateral com historico de prontuarios ao selecionar paciente no formulario de criacao',
                         'Secao "Outros Registros deste Paciente" na visualizacao do prontuario (continuidade clinica)',
                         'Secao de prontuarios na pagina de detalhes do paciente (kids/show) com botao "Novo Prontuario"',
-                        'Filtro Denver: apenas criancas ate 6 anos aparecem no dropdown de criacao de checklist',
+                        'Filtro Avaliacao Multidimensional: apenas criancas ate 6 anos aparecem no dropdown de criacao de checklist',
                         'Idade visivel ao lado do nome em todos os dropdowns de pacientes',
                         'Rota patient-history para busca de historico via AJAX',
                         'Rota history mapeada para historico de versoes de prontuarios',
@@ -166,12 +166,12 @@ class ReleaseSeeder extends Seeder
                         'Correcao: memory_limit insuficiente no phpunit.xml (aumentado para 512M)',
                     ],
                     'docs' => [
-                        'docs/fix-001.md - Investigacao detalhada dos problemas de pacientes, Denver e continuidade',
+                        'docs/fix-001.md - Investigacao detalhada dos problemas de pacientes, Avaliacao Multidimensional e continuidade',
                         'docs/jira-001.md - Plano de implementacao em 3 fases com decisoes tecnicas',
                     ],
                 ],
                 'commits' => [
-                    ['hash' => '9841c69', 'message' => 'Fix: unificar pacientes nos prontuarios, filtrar Denver por idade e adicionar continuidade'],
+                    ['hash' => '9841c69', 'message' => 'Fix: unificar pacientes nos prontuarios, filtrar Avaliacao Multidimensional por idade e adicionar continuidade'],
                 ],
             ]
         );
@@ -189,10 +189,10 @@ class ReleaseSeeder extends Seeder
                         'Prontuarios: suporte polimórfico completo a pacientes adultos (User) alem de criancas (Kid)',
                         'Prontuarios: filtro de patient_type na busca da listagem',
                         'Select2 aplicado no dropdown de crianca no formulario de criacao de checklist',
-                        'Checklist create: nivel fixo em 4 Denver (sem seletor manual)',
+                        'Checklist create: nivel fixo em 4 Avaliacao Multidimensional (sem seletor manual)',
                     ],
                     'bugs' => [
-                        'Denver: escopo de elegibilidade corrigido para 60 meses (5 anos) - era YEAR impreciso',
+                        'Avaliacao Multidimensional: escopo de elegibilidade corrigido para 60 meses (5 anos) - era YEAR impreciso',
                         'Dropdown em tabelas: corrigido corte por overflow com position fixed via JS',
                         'PDF: pagina exclusiva de assinatura com page-break-before (evita assinatura cortada)',
                         'MedicalRecordRequest: session_date opcional no PUT (apenas obrigatoria no POST)',

@@ -123,7 +123,7 @@ class MedicalRecordSeeder extends Seeder
                 'patient_type' => Kid::class,
                 'session_date' => '2026-02-20',
                 'complaint' => 'Avaliação de desenvolvimento. Pediatra encaminhou por atraso na fala. Criança de 3 anos com vocabulário restrito (aproximadamente 20 palavras).',
-                'objective_technique' => 'Observação do desenvolvimento neuropsicomotor. Avaliação de linguagem receptiva e expressiva. Denver II (itens de linguagem e pessoal-social). Interação com brinquedos estruturados e não estruturados.',
+                'objective_technique' => 'Observação do desenvolvimento neuropsicomotor. Avaliação de linguagem receptiva e expressiva. Avaliação Multidimensional (itens de linguagem e pessoal-social). Interação com brinquedos estruturados e não estruturados.',
                 'evolution_notes' => 'Valentina apresenta linguagem expressiva abaixo do esperado para a idade. Linguagem receptiva adequada (compreende comandos de 2 etapas). Usa gestos para se comunicar. Contato visual presente. Brincadeira simbólica emergente. Desenvolvimento motor adequado. Interação social adequada com adultos. Perfil sugere atraso específico de linguagem expressiva, sem indicadores de TEA.',
                 'referral_closure' => 'Encaminhamento para fonoaudiologia (prioridade). Reavaliação em 3 meses. Orientações aos pais: estimulação de linguagem em contexto natural, leitura compartilhada diária.',
                 'version' => 1,

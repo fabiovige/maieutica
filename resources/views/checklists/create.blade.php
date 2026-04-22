@@ -24,7 +24,7 @@
                         <div class="form-group">
                             <div class="row">
                                 <div class="col">
-                                        <label for="kid_id">Criança <small class="text-muted">(até 6 anos - Denver)</small></label> <br>
+                                        <label for="kid_id">Criança <small class="text-muted">(até 6 anos - Avaliação Multidimensional)</small></label> <br>
                                         <select class="form-select select2 @error('kid_id') is-invalid @enderror" aria-label="kid_id" name="kid_id" data-placeholder="Selecione a criança">
                                             <option value="">Selecione a criança</option>
                                             @foreach($kids as $kid)

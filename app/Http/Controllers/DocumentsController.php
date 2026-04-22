@@ -152,7 +152,7 @@ class DocumentsController extends Controller
         // Gera o PDF do HTML
         $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
-        return $pdf->stream('declaracao_modelo_1.pdf');
+        return $pdf->download('declaracao_modelo_1.pdf');
     }
 
     /**
@@ -202,7 +202,7 @@ class DocumentsController extends Controller
         // Gera o PDF do HTML
         $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
-        return $pdf->stream('declaracao_modelo_2.pdf');
+        return $pdf->download('declaracao_modelo_2.pdf');
     }
 
     /**
@@ -315,7 +315,7 @@ class DocumentsController extends Controller
         // Gera o PDF do HTML
         $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
-        return $pdf->stream('laudo_psicologico_modelo_3.pdf');
+        return $pdf->download('laudo_psicologico_modelo_3.pdf');
     }
 
     /**
@@ -450,7 +450,7 @@ class DocumentsController extends Controller
         // Gera o PDF do HTML
         $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
-        return $pdf->stream('parecer_psicologico_modelo_4.pdf');
+        return $pdf->download('parecer_psicologico_modelo_4.pdf');
     }
 
     /**
@@ -572,7 +572,7 @@ class DocumentsController extends Controller
         // Gera o PDF do HTML
         $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
-        return $pdf->stream('relatorio_multiprofissional_modelo_5.pdf');
+        return $pdf->download('relatorio_multiprofissional_modelo_5.pdf');
     }
 
     /**
@@ -647,7 +647,7 @@ class DocumentsController extends Controller
         // Gera o PDF do HTML
         $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
-        return $pdf->stream('relatorio_psicologico_modelo_6.pdf');
+        return $pdf->download('relatorio_psicologico_modelo_6.pdf');
     }
 
     /**
@@ -698,7 +698,7 @@ class DocumentsController extends Controller
 
         $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
-        return $pdf->stream($document->filename);
+        return $pdf->download($document->filename);
     }
 
     /**

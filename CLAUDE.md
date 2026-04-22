@@ -150,6 +150,7 @@ Use `/nome` para carregar o contexto + regras de negócio de cada domínio:
 | `/tipografia` | Fonte Nunito, tokens CSS, ordem de carregamento |
 | `/sidebar` | Layout sidebar v2.0, estilos inline, menu com permissões |
 | `/documentos` | Geração de PDFs, 6 modelos, DomPDF, polimorfismo |
+| `/pdf` | Regras de geração de PDF (TCPDF + DomPDF), download forçado, nomenclatura, rotas |
 | `/logging` | Duas camadas (Observer + Domain Logger), LGPD, armazenamento |
 | `/testing` | Estrutura de testes, comandos, debugging, lint |
 | `/deploy` | Manual de atualização em produção |

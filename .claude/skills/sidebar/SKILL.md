@@ -24,7 +24,7 @@ Leia `docs/novo-layout-sidebar.md` na íntegra. Use-o para responder perguntas s
 ## Menu e Permissões
 
 A sidebar usa `@can()` para mostrar/ocultar seções:
-- Seção Denver: `@can('checklist-list')` e `@can('kid-list')`
+- Seção Avaliação Multidimensional: `@can('checklist-list')` e `@can('kid-list')`
 - Seção Prontuários: `@can('medical-record-list')`
 - Seção Documentos: `@can('document-list')`
 - Seção Cadastros: `@can('professional-list')`, `@can('user-list')`, `@can('role-list')`
