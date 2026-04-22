@@ -6,7 +6,7 @@ Leia `docs/architecture.md` na íntegra e use-o como contexto para responder per
 
 ## Regras Arquiteturais
 
-**Domínio central:** Checklists de avaliação Denver (notas 0-3) para Kids, com prontuários polimórficos para Kids e adultos.
+**Domínio central:** Checklists de Avaliação Multidimensional (notas 0-3) para Kids, com prontuários polimórficos para Kids e adultos.
 
 **Camadas do sistema:**
 - Controllers (thin) → Services (lógica) → Models (Eloquent) → Observers (eventos)

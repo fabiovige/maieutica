@@ -27,7 +27,7 @@
                                role="button"
                                data-bs-toggle="dropdown"
                                aria-expanded="false">
-                                <i class="bi bi-clipboard-check"></i> Denver
+                                <i class="bi bi-clipboard-check"></i> Avaliação Multidimensional
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="denverDropdown">
                                 @can('checklist-list')

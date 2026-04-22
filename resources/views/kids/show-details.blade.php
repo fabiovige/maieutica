@@ -84,7 +84,7 @@
                         @endcan
                     </div>
                     <div class="card-body">
-                        @if($medicalRecords->count() > 0)
+                        @if($medicalRecords->total() > 0)
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover">
                                     <thead>
@@ -113,6 +113,12 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small class="text-muted">
+                                    Exibindo {{ $medicalRecords->firstItem() }}–{{ $medicalRecords->lastItem() }} de {{ $medicalRecords->total() }}
+                                </small>
+                                {{ $medicalRecords->onEachSide(1)->appends(request()->query())->links() }}
                             </div>
                         @else
                             <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Nenhum prontuário registrado para este paciente.</p>

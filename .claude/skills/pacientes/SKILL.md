@@ -17,14 +17,14 @@ Leia `docs/TIPOS_DE_PACIENTES.md` na íntegra. Use-o para responder perguntas so
 ```php
 Kid::adults()->get();           // idade >= 13
 Kid::children()->get();         // idade < 13 (ou sem birth_date)
-Kid::denverEligible()->get();   // crianças elegíveis ao Denver (até 60 meses)
+Kid::denverEligible()->get();   // crianças elegíveis à Avaliação Multidimensional (até 60 meses) — nome do scope mantido por compatibilidade
 ```
 
 ## Diferenças por Tipo
 
 | Aspecto | Criança (< 13) | Adulto (>= 13) |
 |---------|----------------|-----------------|
-| Checklists Denver | Sim | Não |
+| Checklists Avaliação Multidimensional | Sim | Não |
 | Planos de desenvolvimento | Sim | Não |
 | Prontuários | Sim (morphMany) | Sim (morphMany) |
 | Documentos gerados | Sim | Sim |

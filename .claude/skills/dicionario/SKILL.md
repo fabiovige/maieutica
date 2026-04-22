@@ -21,7 +21,7 @@ Leia `docs/dicionario-dados.md` na íntegra. Use-o para responder perguntas sobr
 - `users.type`: `i` (interno) / `e` (externo)
 - `kids.gender`: `M` / `F`
 - `kids.ethnicity`: 8 valores possíveis
-- `checklists.level`: 1-4 (níveis Denver)
+- `checklists.level`: 1-4 (níveis Avaliação Multidimensional)
 - `checklists.situation`: `a` (aberto) / `f` (finalizado)
 - `logs.action`: insert / update / remove / info
 
@@ -32,6 +32,6 @@ Leia `docs/dicionario-dados.md` na íntegra. Use-o para responder perguntas sobr
 - `competence_plane` — Competence ↔ Plane
 - `domain_level` — Domain ↔ Level
 
-**Escala Denver (notas):** 0=Não testado, 1=Emergente, 2=Inconsistente, 3=Consistente
+**Escala Avaliação Multidimensional (notas):** 0=Não testado, 1=Emergente, 2=Inconsistente, 3=Consistente
 
 Para entender como os modelos se relacionam no código, consulte `/arquitetura`.

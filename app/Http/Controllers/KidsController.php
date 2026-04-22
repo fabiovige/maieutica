@@ -66,12 +66,22 @@ class KidsController extends Controller
             });
         }
 
-        // Criancas com progresso
-        $children = (clone $baseQuery)->children()->orderBy('name')->paginate(15, ['*'], 'children_page');
-        foreach ($children as $kid) {
+        // Criancas COM checklists (com progresso)
+        $childrenWithChecklists = (clone $baseQuery)->children()
+            ->whereHas('checklists')
+            ->withCount('checklists')
+            ->orderBy('name')
+            ->paginate(15, ['*'], 'with_page');
+        foreach ($childrenWithChecklists as $kid) {
             $overviewData = $this->overviewService->getOverviewData($kid->id);
             $kid->progress_percentage = round($overviewData['totalPercentage'], 2);
         }
+
+        // Criancas SEM checklists
+        $childrenWithoutChecklists = (clone $baseQuery)->children()
+            ->doesntHave('checklists')
+            ->orderBy('name')
+            ->paginate(15, ['*'], 'without_page');
 
         // Adultos
         $adults = (clone $baseQuery)->adults()->orderBy('name')->paginate(15, ['*'], 'adults_page');
@@ -79,10 +89,10 @@ class KidsController extends Controller
         // Log
         $this->kidLogger->listed([
             'search' => $request->input('search'),
-            'total_results' => $children->total() + $adults->total(),
+            'total_results' => $childrenWithChecklists->total() + $childrenWithoutChecklists->total() + $adults->total(),
         ]);
 
-        return view('kids.index', compact('children', 'adults'));
+        return view('kids.index', compact('childrenWithChecklists', 'childrenWithoutChecklists', 'adults'));
     }
 
     public function create()
@@ -196,13 +206,23 @@ class KidsController extends Controller
                 $query->orderBy('created_at', 'desc')->limit(5);
             }]);
 
-            // Load medical records for this patient
-            $medicalRecords = $kid->medicalRecords()
+            // Load medical records for this patient — scoped by role
+            $medicalRecordsQuery = $kid->medicalRecords()
                 ->where('is_current_version', true)
-                ->with('creator')
+                ->with('creator');
+
+            $user = auth()->user();
+            if ($user->can('medical-record-list-all')) {
+                // Admin: sees all records
+            } elseif ($user->can('medical-record-view-own')) {
+                $medicalRecordsQuery->forAuthPatient();
+            } else {
+                $medicalRecordsQuery->forAuthProfessional();
+            }
+
+            $medicalRecords = $medicalRecordsQuery
                 ->orderBy('session_date', 'desc')
-                ->limit(10)
-                ->get();
+                ->paginate(10, ['*'], 'records_page');
 
             $this->kidLogger->viewed($kid, 'details');
 
@@ -587,7 +607,11 @@ class KidsController extends Controller
                 'competences_count' => $plane->competences()->count(),
             ]);
 
-            $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
+            $filename = $nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf';
+
+            return response($pdf->Output($filename, 'S'), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
         } catch (Exception $e) {
             $this->kidLogger->pdfGenerationFailed($kid ?? Kid::find($id), 'plane', $e, [
                 'plane_id' => $id,
@@ -723,7 +747,11 @@ class KidsController extends Controller
                 'competences_count' => count($competencesNotes),
             ]);
 
-            $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
+            $filename = $nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf';
+
+            return response($pdf->Output($filename, 'S'), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
         } catch (Exception $e) {
             $this->kidLogger->pdfGenerationFailed(
                 $kid ?? Kid::find($kidId),
@@ -833,7 +861,11 @@ class KidsController extends Controller
                 'competences_count' => count($competences),
             ]);
 
-            $pdf->Output($nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf', 'I');
+            $filename = $nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf';
+
+            return response($pdf->Output($filename, 'S'), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
         } catch (Exception $e) {
             $this->kidLogger->pdfGenerationFailed(
                 $kid ?? Kid::find($kidId),
@@ -1603,7 +1635,7 @@ class KidsController extends Controller
 
         // Definir o título do PDF
         $pdf->SetFont('helvetica', '', 22);
-        $pdf->Cell(0, 10, 'Prontuário de desenvolvimento', 0, 1, 'C');
+        $pdf->Cell(0, 10, 'Relatório de Desenvolvimento', 0, 1, 'C');
         $pdf->Ln(10);
 
         // Obter o caminho da foto da criança
@@ -1655,33 +1687,26 @@ class KidsController extends Controller
         $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(10);
 
-        $pdf->SetFont('helvetica', '', 14);
-
+        // Bloco de informacoes do paciente: tamanho, altura e espacamento uniformes
         $professionals = $kid->professionals()->get();
         $professionalNames = [];
         foreach ($professionals as $professional) {
             $professionalNames[] = $professional->user->first()->name.' ('.$professional->specialty->name.')';
         }
-        $txt = 'Profissionais: '.implode(', ', $professionalNames);
 
-        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
-        $pdf->Ln(1);
+        $infoLines = [
+            'Profissionais: '.implode(', ', $professionalNames),
+            'Responsável: '.$kid->responsible->name,
+            'Desenvolvimento: '.round($data['developmentalAgeInMonths'], 0).' meses',
+            'Atraso: '.round($data['delayInMonths'], 0).' meses',
+            $periodAvaliable,
+        ];
 
-        $txt = 'Responsável: '.$kid->responsible->name;
-        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
-        $pdf->Ln(1);
-
-        $txt = 'Desenvolvimento: '.round($data['developmentalAgeInMonths'], 0).' meses';
-        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
-        $pdf->Ln(1);
-
-        $txt = 'Atraso: '.round($data['delayInMonths'], 0).' meses';
-        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
-        $pdf->Ln(1);
-
-        $txt = $periodAvaliable;
-        $pdf->Cell(0, 2, $txt, 0, 1, 'C');
-        $pdf->Ln(1);
+        $pdf->SetFont('helvetica', '', 12);
+        foreach ($infoLines as $line) {
+            $pdf->MultiCell(0, 6, $line, 0, 'C', false, 1);
+            $pdf->Ln(2);
+        }
 
         // $pdf->Ln(20);
         // $txt2 = "Esta avaliação foi composta pelo instrumento Checklist Curriculum Denver. Mantivemos como base de aferição o Nível III do Checklist Curriculum Denver para efeitos de comparação em relação ao próprio desenvolvimento de " . $kid->name . ". Os resultados estão ilustrados abaixo:";
@@ -1782,9 +1807,13 @@ class KidsController extends Controller
             'has_radar_chart' => ! empty($radarChartImage),
         ]);
 
-        // Gerar o PDF e retorná-lo como resposta
-        return response($pdf->Output('overview.pdf', 'S'), 200)
-            ->header('Content-Type', 'application/pdf');
+        // Gerar o PDF e forcar download (evita erro ao dar F5 em rota POST)
+        $safeName = \Illuminate\Support\Str::slug($kid->name, '-');
+        $filename = 'relatorio-desenvolvimento_'.$safeName.'_'.Carbon::now()->format('Ymd-His').'.pdf';
+
+        return response($pdf->Output($filename, 'S'), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 
     // Método auxiliar para adicionar gráficos ao PDF
