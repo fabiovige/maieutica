@@ -126,7 +126,8 @@
 
     </div>
 
-    {{-- Outros registros do mesmo paciente --}}
+    {{-- Outros registros do mesmo paciente (apenas admin) --}}
+    @can('medical-record-list-all')
     @if(isset($patientRecords) && $patientRecords->count() > 0)
         <div class="card border-0 shadow-sm mb-4" style="border-radius:12px;">
             <div class="card-header bg-transparent border-bottom fw-semibold">
@@ -153,5 +154,6 @@
             </div>
         </div>
     @endif
+    @endcan
 
 @endsection
