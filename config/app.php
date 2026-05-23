@@ -186,6 +186,11 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
 
+        /*
+         * Module Service Providers...
+         */
+        App\Modules\Lgpd\Providers\LgpdServiceProvider::class,
+
     ],
 
     /*

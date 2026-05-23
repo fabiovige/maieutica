@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Modules\Lgpd\Infrastructure\Seeders\LgpdPermissionSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -26,6 +27,7 @@ class DatabaseSeeder extends Seeder
             ChecklistSeeder::class,
             //PlaneSeeder::class,
             ReleaseSeeder::class,
+            LgpdPermissionSeeder::class,
         ]);
     }
 }
