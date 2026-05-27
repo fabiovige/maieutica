@@ -51,20 +51,20 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - `RetentionPolicyModel.php` com fillable e casts
     - _Requisitos: 2.1, 3.3, 4.1, 6.1_
 
-- [~] 2. Checkpoint — Executar migrations e verificar estrutura
+- [x] 2. Checkpoint — Executar migrations e verificar estrutura
   - Executar `php artisan migrate` e verificar que as 5 tabelas foram criadas
   - Executar `php artisan db:seed --class=LgpdPermissionSeeder` e verificar permissões
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 3. ConsentRecord — Aggregate, Service e handlers
-  - [~] 3.1 Criar DTOs da camada Application
+- [x] 3. ConsentRecord — Aggregate, Service e handlers
+  - [x] 3.1 Criar DTOs da camada Application
     - `CreateConsentDTO.php` com propriedades readonly tipadas
     - `CreateDataRequestDTO.php`
     - `CreateRetentionPolicyDTO.php`
     - `ComplianceReportFilterDTO.php`
     - _Requisitos: 2.1, 4.1, 6.1, 7.3_
 
-  - [~] 3.2 Implementar ConsentService
+  - [x] 3.2 Implementar ConsentService
     - Método `create()` — valida unicidade ativo por titular+finalidade, valida base legal, cria registro
     - Método `revoke()` — altera status para revogado, preenche revoked_at/revoked_by, dispara ConsentRevoked
     - Método `findActiveForSubject()` — busca consentimento ativo por titular+finalidade
@@ -73,7 +73,7 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Método `changeLegalBasis()` — altera base legal com registro no histórico
     - _Requisitos: 2.1, 2.2, 2.3, 2.4, 2.6, 2.7, 9.2, 9.3, 9.4, 9.5_
 
-  - [~] 3.3 Criar Domain Events
+  - [x] 3.3 Criar Domain Events
     - `ConsentRevoked.php` com payload: consentRecordId, subjectId, purpose, revokedAt
     - `DataDeletionCompleted.php` com payload: dataRequestId, subjectId, deletedCategories
     - `DataRequestDeadlineAlert.php` com payload: dataRequestId, requestType, deadline, businessDaysRemaining
@@ -96,20 +96,20 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Testar changeLegalBasis com registro no histórico
     - _Requisitos: 2.1, 2.2, 2.4, 2.7, 9.5_
 
-- [ ] 4. AccessLog — Observer, Listener e Service
-  - [~] 4.1 Implementar AccessLogService
+- [x] 4. AccessLog — Observer, Listener e Service
+  - [x] 4.1 Implementar AccessLogService
     - Método `create()` — cria registro imutável com IP, user-agent, timestamp
     - Método `listFiltered()` — filtragem por titular, operador, período, tipo; paginação máx 50
     - Tratamento de contexto ausente (IP/user-agent = "system" quando fora de HTTP)
     - _Requisitos: 3.1, 3.4, 3.5_
 
-  - [~] 4.2 Implementar MedicalRecordLgpdObserver
+  - [x] 4.2 Implementar MedicalRecordLgpdObserver
     - Registrar no LgpdServiceProvider observando o model MedicalRecord
     - Capturar eventos `updated`, `deleted`, `restored` e criar AccessLog correspondente
     - Usar try/catch para não propagar exceções ao módulo de prontuários
     - _Requisitos: 3.2, 10.8_
 
-  - [~] 4.3 Implementar MedicalRecordAccessListener e MedicalRecordWriteListener
+  - [x] 4.3 Implementar MedicalRecordAccessListener e MedicalRecordWriteListener
     - `MedicalRecordAccessListener` — escuta evento `MedicalRecordAccessed` e cria AccessLog
     - `MedicalRecordWriteListener` — escuta eventos de escrita do Observer
     - Registrar listeners no LgpdServiceProvider via `$listen`
@@ -129,15 +129,15 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Testar Observer capturando operações de escrita
     - _Requisitos: 3.1, 3.3, 3.4_
 
-- [ ] 5. DataRequest — Service, BusinessDayCalculator e Jobs de prazo
-  - [~] 5.1 Implementar BusinessDayCalculator
+- [x] 5. DataRequest — Service, BusinessDayCalculator e Jobs de prazo
+  - [x] 5.1 Implementar BusinessDayCalculator
     - Método `addBusinessDays()` — soma N dias úteis excluindo sábados, domingos e feriados nacionais
     - Método `businessDaysRemaining()` — calcula dias úteis restantes até deadline
     - Método `isBusinessDay()` — verifica se data é dia útil
     - Lista de feriados nacionais brasileiros configurável em `config/lgpd.php`
     - _Requisitos: 4.2, 5.1_
 
-  - [~] 5.2 Implementar DataRequestService
+  - [x] 5.2 Implementar DataRequestService
     - Método `create()` — valida campos obrigatórios, calcula deadline via BusinessDayCalculator, status inicial "aberta"
     - Método `assignOperator()` — transição aberta → em_andamento, registra operador e started_at
     - Método `complete()` — transição em_andamento → concluída, registra resposta e retention_justification
@@ -146,7 +146,7 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Validação de máquina de estados com InvalidDataRequestTransitionException
     - _Requisitos: 4.1, 4.2, 4.5, 4.7, 4.8, 4.9, 4.10_
 
-  - [~] 5.3 Implementar CheckDataRequestDeadlinesJob
+  - [x] 5.3 Implementar CheckDataRequestDeadlinesJob
     - Buscar DataRequests com status aberta/em_andamento
     - Identificar requisições com ≤ 5 dias úteis restantes → disparar DataRequestDeadlineAlert
     - Identificar requisições com prazo expirado → marcar como vencida
@@ -154,7 +154,7 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Registrar execução no log: data/hora, qtd verificadas, alertas, vencidas
     - _Requisitos: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-  - [~] 5.4 Registrar Job no Kernel (schedule)
+  - [x] 5.4 Registrar Job no Kernel (schedule)
     - Agendar `CheckDataRequestDeadlinesJob` para execução diária às 06:00
     - _Requisitos: 5.1_
 
@@ -172,11 +172,11 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Testar Job com cenários de alerta e expiração
     - _Requisitos: 4.2, 4.8, 4.9, 5.1, 5.2_
 
-- [~] 6. Checkpoint — Verificar serviços e jobs
+- [x] 6. Checkpoint — Verificar serviços e jobs
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. RetentionPolicy — Service e Job de verificação
-  - [~] 7.1 Implementar RetentionPolicyService
+- [x] 7. RetentionPolicy — Service e Job de verificação
+  - [x] 7.1 Implementar RetentionPolicyService
     - Método `create()` — valida período contra mínimo legal, cria política
     - Método `update()` — valida período contra mínimo legal, atualiza política
     - Método `validateAgainstLegalMinimum()` — compara período com mínimo da categoria
@@ -184,7 +184,7 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Lançar `RetentionPeriodViolationException` quando período < mínimo legal
     - _Requisitos: 6.1, 6.3, 6.4, 6.5_
 
-  - [~] 7.2 Implementar CheckRetentionPoliciesJob
+  - [x] 7.2 Implementar CheckRetentionPoliciesJob
     - Verificar dados cujo período de retenção expirou por categoria
     - Sinalizar registros para revisão
     - Disparar notificação para operadores com permissão `lgpd-retention-manage`
@@ -201,8 +201,8 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Testar getMinimumRetentionDays para cada categoria
     - _Requisitos: 6.1, 6.3, 6.5_
 
-- [ ] 8. Controllers, rotas e views Blade com DataTables
-  - [~] 8.1 Criar Form Requests de validação
+- [x] 8. Controllers, rotas e views Blade com DataTables
+  - [x] 8.1 Criar Form Requests de validação
     - `StoreConsentRequest.php` — valida subject_id, subject_type, purpose, legal_basis, term_version
     - `StoreDataRequestRequest.php` — valida type, requester_name, requester_document (CPF), contact_method
     - `StoreRetentionPolicyRequest.php` — valida category, retention_days, expiration_action
@@ -211,7 +211,7 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Mensagens de erro em pt-BR
     - _Requisitos: 2.6, 4.9, 6.5, 7.3, 7.6_
 
-  - [~] 8.2 Implementar ConsentController
+  - [x] 8.2 Implementar ConsentController
     - `index()` — retorna view Blade com DataTable
     - `datatable()` — endpoint server-side com filtros por titular, finalidade, status
     - `show()` — detalhes do consentimento
@@ -220,13 +220,13 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Middleware de permissões: `lgpd-consent-list`, `lgpd-consent-show`, `lgpd-consent-manage`
     - _Requisitos: 2.1, 2.2, 8.1, 8.9_
 
-  - [~] 8.3 Implementar AccessLogController
+  - [x] 8.3 Implementar AccessLogController
     - `index()` — retorna view Blade com DataTable
     - `datatable()` — endpoint server-side com filtros por titular, operador, período, tipo
     - Middleware de permissão: `lgpd-access-log-view`
     - _Requisitos: 3.5, 8.3_
 
-  - [~] 8.4 Implementar DataRequestController
+  - [x] 8.4 Implementar DataRequestController
     - `index()` — retorna view Blade com DataTable
     - `datatable()` — endpoint server-side com filtros por tipo, status, prazo
     - `show()` — detalhes da requisição
@@ -236,20 +236,20 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Middleware de permissões: `lgpd-request-list`, `lgpd-request-show`, `lgpd-request-manage`
     - _Requisitos: 4.1, 4.5, 4.10, 8.2, 8.9_
 
-  - [~] 8.5 Implementar RetentionPolicyController
+  - [x] 8.5 Implementar RetentionPolicyController
     - `index()` — retorna view Blade com listagem de políticas
     - `store()` — cria política via RetentionPolicyService
     - `update()` — atualiza política via RetentionPolicyService
     - Middleware de permissões: `lgpd-retention-list`, `lgpd-retention-manage`
     - _Requisitos: 6.1, 6.5_
 
-  - [~] 8.6 Criar arquivo de rotas web.php do módulo
+  - [x] 8.6 Criar arquivo de rotas web.php do módulo
     - Definir todas as rotas conforme design (prefixo `/lgpd`)
     - Aplicar middleware `auth` + permissões específicas por rota
     - Registrar rotas no LgpdServiceProvider
     - _Requisitos: 1.3, 8.7_
 
-  - [~] 8.7 Criar views Blade para listagens e detalhes
+  - [x] 8.7 Criar views Blade para listagens e detalhes
     - `resources/views/modules/lgpd/consents/index.blade.php` — listagem com DataTable
     - `resources/views/modules/lgpd/consents/show.blade.php` — detalhes
     - `resources/views/modules/lgpd/access-logs/index.blade.php` — listagem com DataTable
@@ -260,7 +260,7 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Textos em pt-BR, badges de status com cores semânticas
     - _Requisitos: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.8_
 
-  - [~] 8.8 Criar componentes Vue 3 (Options API) para formulários interativos
+  - [x] 8.8 Criar componentes Vue 3 (Options API) para formulários interativos
     - `ConsentForm.vue` — formulário de registro de consentimento (select2 para titular, select para finalidade/base legal)
     - `DataRequestForm.vue` — formulário de nova requisição (máscara CPF, select tipo)
     - `RetentionPolicyForm.vue` — formulário de política de retenção (validação de mínimo legal client-side)
@@ -275,18 +275,18 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Testar validação de Form Requests
     - _Requisitos: 8.7, 8.9_
 
-- [~] 9. Checkpoint — Verificar rotas, views e permissões
+- [x] 9. Checkpoint — Verificar rotas, views e permissões
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Relatório de conformidade em PDF
-  - [~] 10.1 Implementar ComplianceReportService
+- [x] 10. Relatório de conformidade em PDF
+  - [x] 10.1 Implementar ComplianceReportService
     - Método `generate()` — coleta métricas do período, renderiza PDF via DomPDF
     - Calcular: total consentimentos ativos, DataRequests por status, total acessos, tempo médio resposta
     - Tratar período sem dados (texto de ausência por seção)
     - Validar intervalo ≤ 365 dias e data_final >= data_inicial
     - _Requisitos: 7.1, 7.3, 7.4, 7.5, 7.6_
 
-  - [~] 10.2 Criar template Blade do relatório PDF
+  - [x] 10.2 Criar template Blade do relatório PDF
     - `resources/views/modules/lgpd/reports/compliance-pdf.blade.php`
     - Estender `documents.layouts.pdf-base`
     - Fonte DejaVu Sans, formato A4 retrato
@@ -294,14 +294,14 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Nome do arquivo: `relatorio-conformidade-lgpd_{data-inicial}_{data-final}_{YmdHis}.pdf`
     - _Requisitos: 7.1, 7.2_
 
-  - [~] 10.3 Implementar ComplianceReportController
+  - [x] 10.3 Implementar ComplianceReportController
     - `form()` — retorna view com formulário de período
     - `generate()` — valida período via GenerateReportRequest, gera PDF via service, força download
     - Middleware de permissão: `lgpd-report-generate`
     - Content-Disposition: attachment
     - _Requisitos: 7.1, 7.3_
 
-  - [~] 10.4 Criar view Blade do formulário de relatório
+  - [x] 10.4 Criar view Blade do formulário de relatório
     - `resources/views/modules/lgpd/reports/form.blade.php`
     - Campos: data inicial, data final (datepicker pt-BR)
     - Validação client-side de intervalo máximo 365 dias
@@ -318,19 +318,19 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Testar rejeição de período inválido
     - _Requisitos: 7.1, 7.4, 7.5, 7.6_
 
-- [ ] 11. Integração final — Events, wiring e API Resources
-  - [~] 11.1 Implementar API Resources para respostas JSON
+- [x] 11. Integração final — Events, wiring e API Resources
+  - [x] 11.1 Implementar API Resources para respostas JSON
     - `ConsentRecordResource.php` — formata resposta de consentimento
     - `AccessLogResource.php` — formata resposta de log de acesso
     - `DataRequestResource.php` — formata resposta de requisição
     - _Requisitos: 8.9_
 
-  - [~] 11.2 Criar rotas api.php do módulo (se necessário para Vue)
+  - [x] 11.2 Criar rotas api.php do módulo (se necessário para Vue)
     - Endpoints JSON consumidos pelos componentes Vue
     - Registrar no LgpdServiceProvider
     - _Requisitos: 1.3_
 
-  - [~] 11.3 Registrar todos os listeners e observers no LgpdServiceProvider
+  - [x] 11.3 Registrar todos os listeners e observers no LgpdServiceProvider
     - Mapear `MedicalRecordAccessed` → `MedicalRecordAccessListener`
     - Registrar `MedicalRecordLgpdObserver` no model MedicalRecord
     - Registrar schedule do `CheckDataRequestDeadlinesJob`
@@ -346,7 +346,7 @@ Implementação do módulo LGPD como módulo autocontido em `app/Modules/Lgpd/`,
     - Testar que falha no dispatch não interrompe operação principal
     - **Valida: Requisitos 10.1, 10.2, 10.3, 10.7, 10.8**
 
-- [~] 12. Checkpoint final — Validação completa
+- [x] 12. Checkpoint final — Validação completa
   - Executar suite completa de testes: `php artisan test tests/Feature/Modules/Lgpd/ tests/Unit/Modules/Lgpd/`
   - Verificar que todas as rotas respondem corretamente
   - Verificar que permissões bloqueiam acesso não autorizado

@@ -7,7 +7,9 @@ use DomainException;
 class RetentionPeriodViolationException extends DomainException
 {
     private string $category;
+
     private int $requestedDays;
+
     private int $minimumDays;
 
     public function __construct(string $category, int $requestedDays, int $minimumDays)

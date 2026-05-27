@@ -7,6 +7,7 @@ use DomainException;
 class InvalidDataRequestTransitionException extends DomainException
 {
     private string $currentStatus;
+
     private string $attemptedStatus;
 
     public function __construct(string $currentStatus, string $attemptedStatus)

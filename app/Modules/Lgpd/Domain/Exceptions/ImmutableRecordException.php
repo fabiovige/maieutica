@@ -7,6 +7,7 @@ use DomainException;
 class ImmutableRecordException extends DomainException
 {
     private int $recordId;
+
     private string $operation;
 
     public function __construct(int $recordId, string $operation)

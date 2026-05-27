@@ -65,6 +65,9 @@ import Select2 from 'vue3-select2-component'
 import VueSweetalert2 from "vue-sweetalert2"
 import Resume from "./components/Resume"
 import Resumekid from "./components/Resumekid"
+import ConsentForm from "./components/ConsentForm"
+import DataRequestForm from "./components/DataRequestForm"
+import RetentionPolicyForm from "./components/RetentionPolicyForm"
 
 const app = createApp({
     setup() {
@@ -81,4 +84,7 @@ app.component('Dashboard', Dashboard)
 app.component('Resume', Resume)
 app.component('Resumekid', Resumekid)
 app.component('Select2', Select2)
+app.component('ConsentForm', ConsentForm)
+app.component('DataRequestForm', DataRequestForm)
+app.component('RetentionPolicyForm', RetentionPolicyForm)
 app.mount('#app')

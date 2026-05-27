@@ -7,6 +7,7 @@ use DomainException;
 class DuplicateActiveConsentException extends DomainException
 {
     private int $subjectId;
+
     private string $purpose;
 
     public function __construct(int $subjectId, string $purpose)
