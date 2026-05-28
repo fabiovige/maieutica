@@ -746,6 +746,54 @@
                         </div>
                     @endif
 
+                    {{-- LGPD --}}
+                    @if(auth()->user()->can('lgpd-consent-list') || auth()->user()->can('lgpd-access-log-view') || auth()->user()->can('lgpd-request-list') || auth()->user()->can('lgpd-retention-list') || auth()->user()->can('lgpd-report-generate'))
+                        <div class="menu-item">
+                            <a class="menu-link has-submenu {{ request()->routeIs('lgpd.*') ? 'active open' : '' }}" data-submenu="submenu-lgpd">
+                                <i class="bi bi-shield-lock"></i>
+                                <span>LGPD</span>
+                                <i class="bi bi-chevron-down submenu-arrow"></i>
+                            </a>
+                            <ul class="submenu {{ request()->routeIs('lgpd.*') ? 'open' : '' }}" id="submenu-lgpd">
+                                @can('lgpd-consent-list')
+                                    <li>
+                                        <a href="{{ route('lgpd.consents.index') }}" class="submenu-link {{ request()->routeIs('lgpd.consents.*') ? 'active' : '' }}">
+                                            Consentimentos
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('lgpd-request-list')
+                                    <li>
+                                        <a href="{{ route('lgpd.requests.index') }}" class="submenu-link {{ request()->routeIs('lgpd.requests.*') ? 'active' : '' }}">
+                                            Requisições
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('lgpd-access-log-view')
+                                    <li>
+                                        <a href="{{ route('lgpd.access-logs.index') }}" class="submenu-link {{ request()->routeIs('lgpd.access-logs.*') ? 'active' : '' }}">
+                                            Logs de Acesso
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('lgpd-retention-list')
+                                    <li>
+                                        <a href="{{ route('lgpd.retention.index') }}" class="submenu-link {{ request()->routeIs('lgpd.retention.*') ? 'active' : '' }}">
+                                            Retenção de Dados
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('lgpd-report-generate')
+                                    <li>
+                                        <a href="{{ route('lgpd.reports.form') }}" class="submenu-link {{ request()->routeIs('lgpd.reports.*') ? 'active' : '' }}">
+                                            Relatório
+                                        </a>
+                                    </li>
+                                @endcan
+                            </ul>
+                        </div>
+                    @endif
+
                     {{-- Administração --}}
                     @if(auth()->user()->can('checklist-list-all') || auth()->user()->can('kid-list-all') || auth()->user()->can('user-list-all'))
                         <div class="menu-section">Administração</div>
