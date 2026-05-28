@@ -33,8 +33,8 @@ class ComplianceReportController extends Controller
     {
         try {
             $filter = new ComplianceReportFilterDTO(
-                startDate: Carbon::parse($request->validated('start_date')),
-                endDate: Carbon::parse($request->validated('end_date')),
+                startDate: Carbon::createFromFormat('d/m/Y', $request->validated('start_date'))->startOfDay(),
+                endDate: Carbon::createFromFormat('d/m/Y', $request->validated('end_date'))->endOfDay(),
             );
 
             return $this->reportService->generate($filter);

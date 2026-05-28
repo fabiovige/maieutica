@@ -25,8 +25,8 @@ class GenerateReportRequest extends FormRequest
     public function rules()
     {
         return [
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'start_date' => 'required|date_format:d/m/Y',
+            'end_date' => 'required|date_format:d/m/Y',
         ];
     }
 
@@ -40,10 +40,12 @@ class GenerateReportRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             if ($this->start_date && $this->end_date && ! $validator->errors()->has('start_date') && ! $validator->errors()->has('end_date')) {
-                $start = Carbon::parse($this->start_date);
-                $end = Carbon::parse($this->end_date);
+                $start = Carbon::createFromFormat('d/m/Y', $this->start_date);
+                $end = Carbon::createFromFormat('d/m/Y', $this->end_date);
 
-                if ($start->diffInDays($end) > 365) {
+                if ($end->lt($start)) {
+                    $validator->errors()->add('end_date', 'A data final deve ser igual ou posterior à data inicial.');
+                } elseif ($start->diffInDays($end) > 365) {
                     $validator->errors()->add('end_date', 'O intervalo entre as datas não pode exceder 365 dias.');
                 }
             }

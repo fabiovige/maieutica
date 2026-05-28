@@ -41,8 +41,11 @@
                                         'access_logs' => 'Logs de acesso',
                                         'dados_cadastrais' => 'Dados cadastrais',
                                     ];
+                                    $catValue = $policy->category instanceof \App\Modules\Lgpd\Domain\ValueObjects\DataCategory
+                                        ? $policy->category->value
+                                        : (string) $policy->category;
                                 @endphp
-                                {{ $categoryLabels[$policy->category] ?? $policy->category }}
+                                {{ $categoryLabels[$catValue] ?? $catValue }}
                             </td>
                             <td>{{ number_format($policy->retention_days, 0, ',', '.') }}</td>
                             <td>
@@ -54,8 +57,11 @@
                                         'sinalizar_revisao' => 'Sinalizar para revisão',
                                         'anonimizar' => 'Anonimizar',
                                     ];
+                                    $actionValue = is_string($policy->expiration_action)
+                                        ? $policy->expiration_action
+                                        : (string) $policy->expiration_action;
                                 @endphp
-                                {{ $actionLabels[$policy->expiration_action] ?? $policy->expiration_action }}
+                                {{ $actionLabels[$actionValue] ?? $actionValue }}
                             </td>
                             <td>{{ $policy->legal_reference ?? '—' }}</td>
                             @can('lgpd-retention-manage')
