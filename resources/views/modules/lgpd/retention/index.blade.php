@@ -91,13 +91,96 @@
         </div>
     </div>
 
-    {{-- Formulário Vue de Política de Retenção (substitui o form estático) --}}
+    {{-- Formulário de Nova Política --}}
     @can('lgpd-retention-manage')
-    <div class="mb-4">
-        <retention-policy-form
-            store-url="{{ route('lgpd.retention.store') }}"
-            update-url-base="{{ route('lgpd.retention.update', ':id') }}"
-        ></retention-policy-form>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Nova Política de Retenção</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ route('lgpd.retention.store') }}">
+                @csrf
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="new-category" class="form-label">Categoria <span class="text-danger">*</span></label>
+                        <select name="category" id="new-category" class="form-select" required>
+                            <option value="">Selecione...</option>
+                            <option value="prontuarios">Prontuários</option>
+                            <option value="consentimentos">Consentimentos</option>
+                            <option value="access_logs">Logs de acesso</option>
+                            <option value="dados_cadastrais">Dados cadastrais</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="new-retention-days" class="form-label">Período (dias) <span class="text-danger">*</span></label>
+                        <input type="number" name="retention_days" id="new-retention-days" class="form-control" min="1" required placeholder="Ex: 7300">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="new-expiration-action" class="form-label">Ação de Expiração <span class="text-danger">*</span></label>
+                        <select name="expiration_action" id="new-expiration-action" class="form-select" required>
+                            <option value="">Selecione...</option>
+                            <option value="sinalizar_revisao">Sinalizar para revisão</option>
+                            <option value="anonimizar">Anonimizar</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-lg me-1"></i> Salvar Política
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3 py-2 mb-0">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <strong>Mínimos legais:</strong>
+                    Prontuários: 7.300 dias (20 anos) |
+                    Consentimentos: 1.825 dias (5 anos) |
+                    Logs de acesso: 1.825 dias (5 anos) |
+                    Dados cadastrais: 1.825 dias (5 anos)
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modal de Edição --}}
+    <div class="modal fade" id="editPolicyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="edit-policy-form" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar Política de Retenção</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Categoria</label>
+                            <select name="category" id="edit-category" class="form-select" required>
+                                <option value="prontuarios">Prontuários</option>
+                                <option value="consentimentos">Consentimentos</option>
+                                <option value="access_logs">Logs de acesso</option>
+                                <option value="dados_cadastrais">Dados cadastrais</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Período (dias) <span class="text-danger">*</span></label>
+                            <input type="number" name="retention_days" id="edit-retention-days" class="form-control" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ação de Expiração <span class="text-danger">*</span></label>
+                            <select name="expiration_action" id="edit-expiration-action" class="form-select" required>
+                                <option value="sinalizar_revisao">Sinalizar para revisão</option>
+                                <option value="anonimizar">Anonimizar</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> Atualizar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     @endcan
 </div>
@@ -106,18 +189,21 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    // Editar política via Vue component
     $('.btn-edit-policy').on('click', function() {
-        var data = {
-            id: $(this).data('id'),
-            category: $(this).data('category'),
-            retention_days: $(this).data('retention-days'),
-            expiration_action: $(this).data('expiration-action')
-        };
+        var id = $(this).data('id');
+        var category = $(this).data('category');
+        var retentionDays = $(this).data('retention-days');
+        var expirationAction = $(this).data('expiration-action');
 
-        // Dispatch custom event for Vue component to pick up
-        var event = new CustomEvent('edit-retention-policy', { detail: data });
-        document.dispatchEvent(event);
+        $('#edit-category').val(category);
+        $('#edit-retention-days').val(retentionDays);
+        $('#edit-expiration-action').val(expirationAction);
+
+        var baseUrl = '{{ route("lgpd.retention.update", ":id") }}';
+        $('#edit-policy-form').attr('action', baseUrl.replace(':id', id));
+
+        var modal = new bootstrap.Modal(document.getElementById('editPolicyModal'));
+        modal.show();
     });
 });
 </script>

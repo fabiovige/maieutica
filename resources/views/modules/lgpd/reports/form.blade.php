@@ -93,9 +93,13 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    // Configurar datepickers com opções específicas para o formulário de relatório
-    $('#start_date').datepicker('option', 'maxDate', 0);
-    $('#end_date').datepicker('option', 'maxDate', 0);
+    // Inicializar datepickers
+    $('#start_date, #end_date').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        maxDate: 0
+    });
 
     // Validação client-side do intervalo
     function validateInterval() {
@@ -124,12 +128,10 @@ $(document).ready(function() {
         var startDate = new Date(startParts[2], startParts[1] - 1, startParts[0]);
         var endDate = new Date(endParts[2], endParts[1] - 1, endParts[0]);
 
-        // Verificar se as datas são válidas
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
             return;
         }
 
-        // Verificar se data final é anterior à data inicial
         if (endDate < startDate) {
             $warningMsg.text('A data final deve ser igual ou posterior à data inicial.');
             $warning.removeClass('d-none');
@@ -137,7 +139,6 @@ $(document).ready(function() {
             return;
         }
 
-        // Calcular diferença em dias
         var diffTime = Math.abs(endDate - startDate);
         var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -148,24 +149,7 @@ $(document).ready(function() {
         }
     }
 
-    // Validar ao alterar qualquer campo de data
     $('#start_date, #end_date').on('change', validateInterval);
-
-    // Validar também quando o datepicker fecha (onClose)
-    $('#start_date').datepicker('option', 'onClose', function() {
-        validateInterval();
-    });
-    $('#end_date').datepicker('option', 'onClose', function() {
-        validateInterval();
-    });
-
-    // Validar ao submeter o formulário
-    $('#report-form').on('submit', function(e) {
-        validateInterval();
-        if ($('#btn-generate').prop('disabled')) {
-            e.preventDefault();
-        }
-    });
 });
 </script>
 @endpush
