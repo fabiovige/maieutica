@@ -420,7 +420,7 @@ class ChecklistController extends Controller
 
         //$this->authorize('viewTrash', Checklist::class);
 
-        $query = Checklist::onlyTrashed()->with(['kid', 'competences']);
+        $query = Checklist::onlyTrashed()->with(['kid' => fn($q) => $q->withTrashed(), 'competences']);
 
         // Aplica filtros baseados no tipo de usuário
         if (!auth()->user()->can('checklist-list-all')) {
