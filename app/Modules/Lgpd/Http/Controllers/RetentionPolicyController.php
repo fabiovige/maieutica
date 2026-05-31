@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Lgpd\Application\DTOs\CreateRetentionPolicyDTO;
 use App\Modules\Lgpd\Application\Services\RetentionPolicyService;
 use App\Modules\Lgpd\Domain\Exceptions\RetentionPeriodViolationException;
+use App\Modules\Lgpd\Domain\ValueObjects\DataCategory;
 use App\Modules\Lgpd\Http\Requests\StoreRetentionPolicyRequest;
 use App\Modules\Lgpd\Infrastructure\Models\RetentionPolicyModel;
 
@@ -30,7 +31,20 @@ class RetentionPolicyController extends Controller
             ->orderBy('category')
             ->get();
 
-        return view('modules.lgpd.retention.index', compact('policies'));
+        // Categorias que ainda não possuem política — únicas selecionáveis no
+        // formulário de criação (evita violar o unique de category).
+        $usedCategories = $policies
+            ->map(fn ($policy) => $policy->category instanceof DataCategory
+                ? $policy->category->value
+                : (string) $policy->category)
+            ->all();
+
+        $availableCategories = array_filter(
+            DataCategory::cases(),
+            fn (DataCategory $category) => ! in_array($category->value, $usedCategories, true)
+        );
+
+        return view('modules.lgpd.retention.index', compact('policies', 'availableCategories'));
     }
 
     /**

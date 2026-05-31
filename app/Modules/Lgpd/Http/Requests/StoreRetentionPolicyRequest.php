@@ -25,11 +25,16 @@ class StoreRetentionPolicyRequest extends FormRequest
      */
     public function rules()
     {
+        // Em update (PUT /retention-policies/{id}) ignora o próprio registro;
+        // em store (POST) o id é null e a unicidade vale para toda a tabela.
+        $policyId = $this->route('id');
+
         return [
             'category' => [
                 'required',
                 'string',
                 Rule::in(array_column(DataCategory::cases(), 'value')),
+                Rule::unique('lgpd_retention_policies', 'category')->ignore($policyId, 'id'),
             ],
             'retention_days' => 'required|integer|min:1',
             'expiration_action' => 'required|string|in:sinalizar_revisao,anonimizar',
@@ -46,6 +51,7 @@ class StoreRetentionPolicyRequest extends FormRequest
         return [
             'category.required' => 'A categoria é obrigatória.',
             'category.in' => 'A categoria informada não é válida.',
+            'category.unique' => 'Já existe uma política de retenção para esta categoria. Edite a política existente em vez de criar uma nova.',
             'retention_days.required' => 'O período de retenção é obrigatório.',
             'retention_days.integer' => 'O período de retenção deve ser um número inteiro.',
             'retention_days.min' => 'O período de retenção deve ser no mínimo 1 dia.',

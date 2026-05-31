@@ -93,6 +93,15 @@
 
     {{-- Formulário de Nova Política --}}
     @can('lgpd-retention-manage')
+    @php
+        $categoryLabels = [
+            'prontuarios' => 'Prontuários',
+            'consentimentos' => 'Consentimentos',
+            'access_logs' => 'Logs de acesso',
+            'dados_cadastrais' => 'Dados cadastrais',
+        ];
+    @endphp
+    @if(count($availableCategories) > 0)
     <div class="card mb-4">
         <div class="card-header">
             <h6 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Nova Política de Retenção</h6>
@@ -105,10 +114,9 @@
                         <label for="new-category" class="form-label">Categoria <span class="text-danger">*</span></label>
                         <select name="category" id="new-category" class="form-select" required>
                             <option value="">Selecione...</option>
-                            <option value="prontuarios">Prontuários</option>
-                            <option value="consentimentos">Consentimentos</option>
-                            <option value="access_logs">Logs de acesso</option>
-                            <option value="dados_cadastrais">Dados cadastrais</option>
+                            @foreach($availableCategories as $category)
+                                <option value="{{ $category->value }}">{{ $categoryLabels[$category->value] ?? $category->value }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -140,6 +148,12 @@
             </form>
         </div>
     </div>
+    @else
+    <div class="alert alert-success mb-4">
+        <i class="bi bi-check-circle me-1"></i>
+        Todas as categorias já possuem uma política de retenção. Use o botão <strong>Editar</strong> na tabela acima para ajustar uma política existente.
+    </div>
+    @endif
 
     {{-- Modal de Edição --}}
     <div class="modal fade" id="editPolicyModal" tabindex="-1">
