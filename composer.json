@@ -93,7 +93,12 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "policy": {
+            "advisories": {
+                "ignore-id": ["PKSA-8qx3-n5y5-vvnd"]
+            }
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true
