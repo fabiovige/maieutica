@@ -76,6 +76,9 @@ return [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
+            // Cria o arquivo com escrita de grupo (defesa em profundidade caso
+            // algum processo fora do www-data gere o log).
+            'permission' => 0664,
         ],
 
         'daily' => [
@@ -83,6 +86,8 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 60,
+            // Cria o log diário com escrita de grupo (0664) em vez do 0644 padrão.
+            'permission' => 0664,
         ],
 
         'slack' => [

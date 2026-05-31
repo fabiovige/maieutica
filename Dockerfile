@@ -9,6 +9,7 @@ ARG GID=1000
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
+    gosu \
     unzip \
     zip \
     libpng-dev \

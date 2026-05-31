@@ -201,6 +201,29 @@ app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
 ---
 
+## Nota: correção de permissões de log (somente ambiente de desenvolvimento)
+
+> ⚠️ **Não afeta a Hostinger.** Em produção todos os processos PHP (site + cron) rodam sob o **mesmo usuário** da conta, então os logs sempre nascem com o dono correto e este problema não ocorre. A correção abaixo é exclusiva do **ambiente de desenvolvimento em Docker**.
+
+**Sintoma (apenas no Docker):** `The stream or file ".../storage/logs/laravel-AAAA-MM-DD.log" could not be opened in append mode: Failed to open stream: Permission denied`.
+
+**Causa:** os serviços `queue` e `scheduler` rodavam `artisan` como `root`, criando o log do dia com dono `root` e impedindo o `php-fpm` (`www-data`) de gravar.
+
+**Correção estrutural aplicada (dev):**
+- `docker/php/entrypoint.sh` — rebaixa todo comando PHP de aplicação para `www-data` via `gosu` (setup do `app`, `queue:work`, `schedule:run`). Só o *master* do `php-fpm` fica root.
+- `Dockerfile` — adicionado o pacote `gosu`.
+
+Por exigirem rebuild da imagem, **após dar pull dessas mudanças em qualquer máquina de dev** execute:
+
+```bash
+docker compose build app
+docker compose up -d --force-recreate app queue scheduler
+```
+
+**Único item desta correção que chega em produção:** `config/logging.php` ganhou `'permission' => 0664` nos canais `daily`/`single`. É inócuo na Hostinger (usuário único) e é aplicado normalmente pelo `php artisan config:cache` do deploy — nenhuma ação extra necessária.
+
+---
+
 ## Resumo rápido (checklist)
 
 - [ ] Merge `feat/modulo-lgpd` → `main`
