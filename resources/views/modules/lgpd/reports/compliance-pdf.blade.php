@@ -204,7 +204,7 @@
             <tbody>
                 @foreach($retentionPolicies as $policy)
                     <tr>
-                        <td>{{ ucfirst(str_replace('_', ' ', $policy->category)) }}</td>
+                        <td>{{ $policy->category instanceof \App\Modules\Lgpd\Domain\ValueObjects\DataCategory ? $policy->category->label() : ucfirst(str_replace('_', ' ', (string) $policy->category)) }}</td>
                         <td>{{ number_format($policy->retention_days, 0, ',', '.') }} dias</td>
                         <td>{{ number_format($policy->legal_minimum_days, 0, ',', '.') }} dias</td>
                         <td>{{ ucfirst(str_replace('_', ' ', $policy->expiration_action)) }}</td>

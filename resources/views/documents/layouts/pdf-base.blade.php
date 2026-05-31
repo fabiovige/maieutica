@@ -148,11 +148,15 @@
 <body>
 
     {{-- MARCA D'ÁGUA --}}
-    <img class="watermark" src="data:image/png;base64,{{ $watermark }}" alt="watermark">
+    @if(!empty($watermark))
+        <img class="watermark" src="data:image/png;base64,{{ $watermark }}" alt="watermark">
+    @endif
 
     {{-- HEADER --}}
     <header>
-        <img src="data:image/png;base64,{{ $logo }}" alt="logo">
+        @if(!empty($logo))
+            <img src="data:image/png;base64,{{ $logo }}" alt="logo">
+        @endif
     </header>
 
     {{-- FOOTER --}}
@@ -201,8 +205,8 @@
                     @yield('signature')
                 @else
                     <div class="signature-line">
-                        {{ $nome_psicologo }}<br>
-                        {{ $council ?? 'Reg.' }}: {{ $crp }}
+                        {{ $nome_psicologo ?? '' }}<br>
+                        {{ $council ?? 'Reg.' }}: {{ $crp ?? '' }}
                     </div>
                 @endif
             </div>
@@ -211,7 +215,7 @@
                 @yield('date-location')
             @else
                 <div class="date-location">
-                    {{ $cidade }}, {{ $data_formatada }}.
+                    {{ $cidade ?? '' }}, {{ $data_formatada ?? '' }}.
                 </div>
             @endif
         </div>
