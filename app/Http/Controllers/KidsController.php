@@ -548,7 +548,7 @@ class KidsController extends Controller
             }
             $therapist = implode("\n", $professionalNames);
 
-            $date = $plane->first()->created_at;
+            $date = $plane->created_at;
             $arr = [];
 
             foreach ($plane->competences()->get() as $c => $competence) {
@@ -672,7 +672,7 @@ class KidsController extends Controller
             }
             $therapist = implode("\n", $professionalNames);
 
-            $date = $plane->first()->created_at;
+            $date = $plane->created_at;
             $arr = [];
 
             // get competences por nota
@@ -793,7 +793,7 @@ class KidsController extends Controller
             // get kid
             $nameKid = $kid->name;
             $therapist = $kid->professional->name;
-            $date = $plane->first()->created_at;
+            $date = $plane->created_at;
             $arr = [];
 
             // get competences do plane
