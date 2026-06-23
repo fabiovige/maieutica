@@ -302,6 +302,13 @@ class ChecklistController extends Controller
 
             $data = $request->all();
             $data['updated_by'] = Auth::id();
+
+            if (isset($data['created_at']) && $data['created_at']) {
+                $data['created_at'] = \Carbon\Carbon::parse($data['created_at']);
+            } else {
+                unset($data['created_at']);
+            }
+
             if (isset($data['situation'])) {
                 $checklist->situation = $data['situation'];
             }

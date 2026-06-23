@@ -64,13 +64,15 @@
                                 <label for="created_at">Data de criação</label>
                                 <br />
                                 <input
-                                    disabled
-                                    class="form-control bg-ligth"
-                                    type="text"
+                                    class="form-control @error('created_at') is-invalid @enderror"
+                                    type="date"
                                     name="created_at"
-                                    value="{{ $checklist->created_at->format('d/m/Y') }}"
-                                    readonly
+                                    value="{{ $checklist->created_at->format('Y-m-d') }}"
+                                    max="{{ now()->format('Y-m-d') }}"
                                 />
+                                @error('created_at')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col">
                                 <input

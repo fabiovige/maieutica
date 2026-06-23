@@ -30,6 +30,7 @@ class ChecklistRequest extends FormRequest
             case 'PUT':
                 return [
                     'description' => 'required|min:6',
+                    'created_at' => 'nullable|date|before_or_equal:today',
                 ];
 
             default:

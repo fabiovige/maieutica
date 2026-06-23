@@ -86,6 +86,7 @@
         <table class="table table-hover table-bordered align-middle mb-0">
             <thead class="table-light">
                 <tr>
+                    <th style="width:60px;" class="text-center">ID</th>
                     <th>Status</th>
                     @if(!isset($kid))
                         <th>Criança</th>
@@ -99,6 +100,7 @@
                 @foreach($checklists as $checklist)
                     @php $isOpen = $checklist->situation_label === 'Aberto'; @endphp
                     <tr>
+                        <td class="text-center text-muted small">{{ $checklist->id }}</td>
                         <td>
                             <span class="badge {{ $isOpen ? 'bg-success' : 'bg-secondary opacity-75' }}">
                                 <i class="bi {{ $isOpen ? 'bi-unlock' : 'bi-lock' }}"></i>
