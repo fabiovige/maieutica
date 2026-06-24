@@ -1816,6 +1816,72 @@ class KidsController extends Controller
             ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 
+    public function generateComparativoPdf(Request $request, $kidId)
+    {
+        $kid = Kid::findOrFail($kidId);
+        $this->authorize('view', $kid);
+
+        $barChartImage  = $request->input('barChartImage');
+        $radarChartImage = $request->input('radarChartImage');
+        $firstChecklistId  = $request->input('firstChecklistId');
+        $secondChecklistId = $request->input('secondChecklistId');
+        $levelId = $request->input('levelId');
+
+        $firstChecklist  = $firstChecklistId  ? \App\Models\Checklist::find($firstChecklistId)  : null;
+        $secondChecklist = $secondChecklistId ? \App\Models\Checklist::find($secondChecklistId) : null;
+
+        $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf->AddPage();
+
+        $logoPath = public_path('images/logo_login.png');
+        $pdf->Ln(10);
+        if (file_exists($logoPath)) {
+            $logoWidth = 60;
+            $x = ($pdf->getPageWidth() - $logoWidth) / 2;
+            $pdf->Image($logoPath, $x, '', $logoWidth, '', 'PNG');
+        }
+        $pdf->Ln(40);
+
+        $pdf->SetFont('helvetica', '', 22);
+        $pdf->Cell(0, 10, 'Relatório Comparativo', 0, 1, 'C');
+        $pdf->Ln(6);
+
+        $pdf->SetFont('helvetica', '', 18);
+        $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(4);
+
+        $pdf->SetFont('helvetica', '', 14);
+        $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
+        $pdf->Ln(10);
+
+        $pdf->SetFont('helvetica', '', 12);
+        $nivelLabel = $levelId && $levelId != '0' ? 'Nível ' . $levelId : 'Todos os níveis';
+        $pdf->MultiCell(0, 6, 'Nível: ' . $nivelLabel, 0, 'C', false, 1);
+        $pdf->Ln(2);
+
+        if ($firstChecklist) {
+            $pdf->MultiCell(0, 6, 'Checklist 1: #' . $firstChecklist->id . ' - ' . $firstChecklist->created_at->format('d/m/Y'), 0, 'C', false, 1);
+            $pdf->Ln(2);
+        }
+        if ($secondChecklist) {
+            $pdf->MultiCell(0, 6, 'Checklist 2: #' . $secondChecklist->id . ' - ' . $secondChecklist->created_at->format('d/m/Y'), 0, 'C', false, 1);
+            $pdf->Ln(2);
+        }
+
+        $pdf->AddPage();
+        $this->addChartToPdf($pdf, $barChartImage, 'Gráfico de Barras: Comparativo por Domínio', 160);
+
+        $pdf->AddPage();
+        $this->addChartToPdf($pdf, $radarChartImage, 'Gráfico de Radar: Comparativo por Domínio', 160);
+
+        $safeName = \Illuminate\Support\Str::slug($kid->name, '-');
+        $filename = 'relatorio-comparativo_' . $safeName . '_' . Carbon::now()->format('Ymd-His') . '.pdf';
+
+        return response($pdf->Output($filename, 'S'), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
     // Método auxiliar para adicionar gráficos ao PDF
     private function addChartToPdf($pdf, $imageData, $title, $width = null, $height = null)
     {
