@@ -35,7 +35,7 @@
     <div class="row">
         @if (isset($kid))
             <div class="col-md-12 mb-3">
-                <x-kid-info-card :kid="$kid" />
+                <x-kid-info-card :kid="$kid" :showProfessionals="false" />
             </div>
         @endif
     </div>

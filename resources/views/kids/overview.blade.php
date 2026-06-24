@@ -19,7 +19,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12 mb-4">
-            <x-kid-info-card :kid="$kid" />
+            <x-kid-info-card :kid="$kid" :showProfessionals="false" />
         </div>
     </div>
 

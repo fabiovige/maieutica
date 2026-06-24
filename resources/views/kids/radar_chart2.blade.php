@@ -20,7 +20,7 @@ Comparativo
     <!-- Info Card da Criança -->
     <div class="row mb-4">
         <div class="col-12">
-            <x-kid-info-card :kid="$kid" />
+            <x-kid-info-card :kid="$kid" :showProfessionals="false" />
         </div>
     </div>
 
