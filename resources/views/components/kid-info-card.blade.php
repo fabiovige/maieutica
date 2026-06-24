@@ -1,3 +1,4 @@
+@props(['kid', 'showProfessionals' => true])
 <div class="card shadow-sm">
     <div class="card-body">
         <div class="row align-items-center">
@@ -52,6 +53,7 @@
                     @endif
                 </p>
             </div>
+            @if($showProfessionals)
             <div class="col-md-5">
                 <div class="card bg-light">
                     <div class="card-body">
@@ -92,6 +94,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- Botões de Ação -->

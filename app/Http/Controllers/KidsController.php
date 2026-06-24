@@ -917,13 +917,12 @@ class KidsController extends Controller
         $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
         $pdf->Ln(15);
 
-        $pdf->SetFont('helvetica', '', 14);
-        $pdf->Write(0, 'Profissional(ais)', '', 0, 'C', true, 0, false, false, 0);
-        $pdf->Ln(5);
-
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->Write(0, $therapist, '', 0, 'C', true, 0, false, false, 0);
-        $pdf->Ln(5);
+        // $pdf->SetFont('helvetica', '', 14);
+        // $pdf->Write(0, 'Profissional(ais)', '', 0, 'C', true, 0, false, false, 0);
+        // $pdf->Ln(5);
+        // $pdf->SetFont('helvetica', '', 12);
+        // $pdf->Write(0, $therapist, '', 0, 'C', true, 0, false, false, 0);
+        // $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Write(0, 'Data: '.$date, '', 0, 'C', true, 0, false, false, 0);
@@ -1695,7 +1694,7 @@ class KidsController extends Controller
         }
 
         $infoLines = [
-            'Profissionais: '.implode(', ', $professionalNames),
+            // 'Profissionais: '.implode(', ', $professionalNames),
             'Responsável: '.$kid->responsible->name,
             'Desenvolvimento: '.round($data['developmentalAgeInMonths'], 0).' meses',
             'Atraso: '.round($data['delayInMonths'], 0).' meses',

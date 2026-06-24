@@ -27,7 +27,7 @@ Avaliação
 <div class="row mb-4">
     @if(isset($kid))
     <div class="col-md-12">
-        <x-kid-info-card :kid="$kid" />
+        <x-kid-info-card :kid="$kid" :showProfessionals="false" />
     </div>
     @endif
 </div>
