@@ -159,6 +159,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/analysis/{kidId}/level/{levelId}/{firstChecklistId?}/{secondChecklistId?}', [KidsController::class, 'showRadarChart2'])->name('kids.radarChart2');
     Route::get('/{kidId}/level/{levelId}/domain/{domainId}/checklist/{checklistId?}', [KidsController::class, 'showDomainDetails'])->name('kids.domainDetails');
     Route::post('/kids/{kidId}/overview/generate-pdf', [KidsController::class, 'generatePdf'])->name('kids.generatePdf');
+    Route::post('/analysis/{kidId}/generate-pdf', [KidsController::class, 'generateComparativoPdf'])->name('kids.generateComparativoPdf');
 
 });
 

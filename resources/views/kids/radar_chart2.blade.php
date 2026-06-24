@@ -76,13 +76,30 @@ Comparativo
                             </div>
                         </div>
 
-                        <!-- Status dos Checklists -->
-                        <div class="col-md-1">
+                        <!-- Status -->
+                        <div class="col-md-1 d-flex align-items-end">
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#statusModal">
                                 <i class="bi bi-info-circle"></i>
                             </button>
                         </div>
                     </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button id="generateComparativoPdfBtn" class="btn btn-primary">
+                                <i class="bi bi-filetype-pdf"></i> Gerar PDF
+                            </button>
+                        </div>
+                    </div>
+
+                        <form id="comparativoPdfForm" action="{{ route('kids.generateComparativoPdf', ['kidId' => $kid->id]) }}" method="POST" style="display:none;" target="_blank">
+                            @csrf
+                            <input type="hidden" name="barChartImage"   id="comparativoBarChartImageInput">
+                            <input type="hidden" name="radarChartImage" id="comparativoRadarChartImageInput">
+                            <input type="hidden" name="firstChecklistId"  id="comparativoFirstChecklistId"  value="{{ $firstChecklist?->id }}">
+                            <input type="hidden" name="secondChecklistId" id="comparativoSecondChecklistId" value="{{ $secondChecklist?->id }}">
+                            <input type="hidden" name="levelId" value="{{ $levelId }}">
+                        </form>
                 </div>
             </div>
         </div>
@@ -330,6 +347,42 @@ Comparativo
         document.getElementById('firstChecklistId').addEventListener('change', updateUrl);
         document.getElementById('secondChecklistId').addEventListener('change', updateUrl);
         document.getElementById('comparisonLevelId').addEventListener('change', updateUrl);
+
+        // Botão Gerar PDF do Comparativo
+        document.getElementById('generateComparativoPdfBtn').addEventListener('click', async function () {
+            const button = this;
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            try {
+                // Força update dos gráficos antes de capturar
+                if (typeof barChart !== 'undefined') barChart.update();
+                if (typeof window.radarChart !== 'undefined' && window.radarChart) window.radarChart.update();
+
+                await new Promise(r => setTimeout(r, 800));
+
+                const barCanvas   = document.getElementById('barChart');
+                const radarCanvas = document.getElementById('radarChart');
+
+                const barImage   = barCanvas   ? barCanvas.toDataURL('image/png', 1.0)   : 'data:,';
+                const radarImage = radarCanvas ? radarCanvas.toDataURL('image/png', 1.0) : 'data:,';
+
+                // Sincroniza checklists selecionados no momento do clique
+                document.getElementById('comparativoFirstChecklistId').value  = document.getElementById('firstChecklistId').value;
+                document.getElementById('comparativoSecondChecklistId').value = document.getElementById('secondChecklistId').value;
+
+                document.getElementById('comparativoBarChartImageInput').value   = barImage;
+                document.getElementById('comparativoRadarChartImageInput').value = radarImage;
+
+                document.getElementById('comparativoPdfForm').submit();
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.' });
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="bi bi-filetype-pdf"></i> Gerar PDF';
+            }
+        });
     });
 </script>
 @endpush
