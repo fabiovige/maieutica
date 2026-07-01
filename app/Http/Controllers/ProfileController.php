@@ -81,9 +81,9 @@ class ProfileController extends Controller
                     mkdir($path, 0777, true);
                 }
 
-                // Salva novo avatar
+                // Salva novo avatar (extensão derivada do MIME real, não do cliente)
                 $file = $request->file('avatar');
-                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $fileName = time() . '_' . uniqid() . '.' . $file->extension();
                 $file->move($path, $fileName);
 
                 // Salva o caminho relativo no banco
