@@ -10,39 +10,38 @@ use App\Http\Controllers\Api\LevelController;
 use App\Http\Controllers\Api\PlaneController;
 use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => 'auth'], function () {});
+Route::middleware('auth:sanctum')->group(function () {
+    // levels
+    Route::apiResource('levels', LevelController::class);
 
-// levels
-Route::apiResource('levels', LevelController::class);
+    // domains
+    Route::get('domains/initials/{level_id}', [DomainController::class, 'getInitials'])->name('api.domains.initials');
+    Route::apiResource('domains', DomainController::class);
 
-// domains
-Route::get('domains/initials/{level_id}', [DomainController::class, 'getInitials'])->name('api.domains.initials');
-Route::apiResource('domains', DomainController::class);
+    // competences
+    Route::apiResource('competences', CompetenceController::class);
 
-// competences
-Route::apiResource('competences', CompetenceController::class);
+    // checklists
+    Route::apiResource('checklists', ChecklistController::class);
+    Route::get('checklists/{checklist}/competences/{note}', [ChecklistController::class, 'getCompetencesByNote']);
 
-// checklists
-Route::apiResource('checklists', ChecklistController::class);
+    // kids
+    Route::get('kids/byuser/{user_id}', [KidController::class, 'byuser'])->name('api.byuser');
+    Route::apiResource('kids', KidController::class);
 
-// checklists
-Route::get('kids/byuser/{user_id}', [KidController::class, 'byuser'])->name('api.byuser');
-Route::apiResource('kids', KidController::class);
+    // planes
+    Route::get('planes/newplane', [PlaneController::class, 'newPlane'])->name('api.planes.newplane');
+    Route::get('planes/deleteplane', [PlaneController::class, 'deletePlane'])->name('api.planes.deleteplane');
+    Route::get('planes/storeplane', [PlaneController::class, 'storePlane'])->name('api.planes.storeplane');
+    Route::get('planes/showcompetences/{plane_id}', [PlaneController::class, 'showCompetences'])->name('api.planes.showcompetences');
+    Route::get('planes/showbykids/{kid_id}/{checklist_id}', [PlaneController::class, 'showByKids'])->name('api.planes.showbykids');
+    Route::apiResource('planes', PlaneController::class);
 
-// planes
-Route::get('planes/newplane', [PlaneController::class, 'newPlane'])->name('api.planes.newplane');
-Route::get('planes/deleteplane', [PlaneController::class, 'deletePlane'])->name('api.planes.deleteplane');
-Route::get('planes/storeplane', [PlaneController::class, 'storePlane'])->name('api.planes.storeplane');
-Route::get('planes/showcompetences/{plane_id}', [PlaneController::class, 'showCompetences'])->name('api.planes.showcompetences');
-Route::get('planes/showbykids/{kid_id}/{checklist_id}', [PlaneController::class, 'showByKids'])->name('api.planes.showbykids');
-Route::apiResource('planes', PlaneController::class);
+    // checklistregisters
+    Route::post('/checklistregisters/single', [ChecklistRegisterController::class, 'storeSingle']);
+    Route::get('checklistregisters/progressbar/{checklist_id}/{level_id}', [ChecklistRegisterController::class, 'progressbar'])->name('api.checklistregisters.progressbar');
+    Route::apiResource('checklistregisters', ChecklistRegisterController::class);
 
-// checklistregisters
-Route::post('/checklistregisters/single', [ChecklistRegisterController::class, 'storeSingle']);
-Route::get('checklistregisters/progressbar/{checklist_id}/{level_id}', [ChecklistRegisterController::class, 'progressbar'])->name('api.checklistregisters.progressbar');
-Route::apiResource('checklistregisters', ChecklistRegisterController::class);
-
-// charts
-Route::get('charts/percentage', [ChartController::class, 'percentage'])->name('api.charts.percentage');
-
-Route::get('checklists/{checklist}/competences/{note}', [App\Http\Controllers\Api\ChecklistController::class, 'getCompetencesByNote']);
+    // charts
+    Route::get('charts/percentage', [ChartController::class, 'percentage'])->name('api.charts.percentage');
+});

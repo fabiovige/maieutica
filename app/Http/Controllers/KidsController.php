@@ -937,6 +937,8 @@ class KidsController extends Controller
 
     public function uploadPhoto(Request $request, Kid $kid)
     {
+        $this->authorize('update', $kid);
+
         try {
             $request->validate([
                 'photo' => ['required', 'image', 'max:1024'], // max 1MB
@@ -960,9 +962,9 @@ class KidsController extends Controller
                     mkdir($path, 0777, true);
                 }
 
-                // Salva nova foto
+                // Salva nova foto (extensão derivada do MIME real, não do cliente)
                 $file = $request->file('photo');
-                $fileName = time().'_'.$kid->id.'.'.$file->getClientOriginalExtension();
+                $fileName = time().'_'.$kid->id.'.'.$file->extension();
                 $file->move($path, $fileName);
 
                 // Salva o caminho relativo no banco

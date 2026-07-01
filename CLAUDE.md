@@ -124,14 +124,33 @@ php artisan test tests/Unit/Models/           # Diretório específico
 - **Login:** `auth/login.blade.php` standalone — não carrega `app.css`/`custom.css`
 - **PDF:** Templates estendem `documents.layouts.pdf-base`, fonte `DejaVu Sans`
 - **Pacientes:** Todos na tabela `kids` — criancas (idade < 13) e adultos (idade >= 13), calculado por `birth_date`. Constante: `Kid::ADULT_AGE_YEARS`
-- **Failed Jobs:** 7 registros em `failed_jobs` — investigar antes de usar workers de fila
+- **Fila:** Investigar `failed_jobs` antes de usar workers de fila (`php artisan queue:work`)
 - **Testes usam banco real** — `DB_DATABASE :memory:` está comentado em `phpunit.xml`; testes Feature/Unit rodam contra o banco configurado em `.env`
+- **Auditoria ativa (temporária):** Profissionais ocultos em `kids/overview` e `analysis/{id}/level/{level}` via `showProfessionals=false` no componente `kid-info-card`. Documentado em `docs/profissionais-ocultos-auditoria.md` — NÃO remover sem consultar esse doc.
 - **SCSS load order:** `_config.scss` → `_variables.scss` → `_custom.scss` → bootstrap → `_buttons.scss`
 - **CSS load order (HTML):** `app.css` (compilado) → `custom.css` (direto) → `typography.css` (direto)
 - **Global helpers:** `app/helpers.php` (autoloaded via composer) — `label_case()`, `get_progress_color()`, `get_progress_gradient()`, `get_chart_gradient()`
 - **Enums:** `app/Enums/ProgressColors.php` — mapeamento de cores para barras de progresso
 - **Mail:** 3 classes em `app/Mail/` — `UserCreatedMail`, `UserUpdatedMail`, `UserDeletedMail` (lifecycle do User)
 - **Health check:** `GET /health` (sem auth) — retorna JSON com status de database, cache, disk, queue
+
+---
+
+## Segurança — Decisões e Padrões
+
+### Vulnerabilidades corrigidas (2026-07-01, commit `2fb0527`)
+
+1. **API sem autenticação** — todas as rotas em `routes/api.php` estavam fora de qualquer middleware de auth. Corrigido: todas dentro de `Route::middleware('auth:sanctum')->group(...)`. O `EnsureFrontendRequestsAreStateful` no grupo `api` do Kernel garante compatibilidade com autenticação via cookie de sessão (Vue nos Blades).
+
+2. **Upload RCE — extensão controlada pelo cliente** — `getClientOriginalExtension()` em `KidsController::uploadPhoto` e `ProfileController::updateAvatar` permitia salvar arquivo com extensão `.php` disfarçado de imagem. Corrigido: usar `$file->extension()` que deriva a extensão do MIME real. Adicionalmente, o nginx passou a bloquear execução de PHP em `/images/` e `/storage/`.
+
+3. **IDOR no upload de foto** — `KidsController::uploadPhoto` não chamava `$this->authorize()`, permitindo que qualquer usuário autenticado trocasse a foto de qualquer paciente. Corrigido: `$this->authorize('update', $kid)` adicionado no início do método.
+
+### Padrões a seguir em uploads
+
+- **Sempre** usar `$file->extension()` — nunca `getClientOriginalExtension()`
+- Salvar fora de `public/` quando possível; se em `public/`, garantir que o nginx bloqueie PHP no diretório
+- Validar com a rule `image` do Laravel (verifica MIME real via `finfo`)
 
 ---
 
@@ -168,8 +187,8 @@ Use `/nome` para carregar o contexto + regras de negócio de cada domínio:
 ## Estrutura de Documentação
 
 ```
-docs/           → 13 docs ativos (referenciados pelas skills acima)
-docs/specs/     → 4 specs de features pendentes
+docs/           → docs ativos (referenciados pelas skills acima)
+docs/specs/     → specs de features pendentes (relatorios, pwa, ux-checklist, observabilidade, remover-dropdown)
 docs/historico/ → Planos concluídos, análises históricas, implementações passadas
 ```
 
