@@ -136,6 +136,24 @@ php artisan test tests/Unit/Models/           # Diretório específico
 
 ---
 
+## Segurança — Decisões e Padrões
+
+### Vulnerabilidades corrigidas (2026-07-01, commit `2fb0527`)
+
+1. **API sem autenticação** — todas as rotas em `routes/api.php` estavam fora de qualquer middleware de auth. Corrigido: todas dentro de `Route::middleware('auth:sanctum')->group(...)`. O `EnsureFrontendRequestsAreStateful` no grupo `api` do Kernel garante compatibilidade com autenticação via cookie de sessão (Vue nos Blades).
+
+2. **Upload RCE — extensão controlada pelo cliente** — `getClientOriginalExtension()` em `KidsController::uploadPhoto` e `ProfileController::updateAvatar` permitia salvar arquivo com extensão `.php` disfarçado de imagem. Corrigido: usar `$file->extension()` que deriva a extensão do MIME real. Adicionalmente, o nginx passou a bloquear execução de PHP em `/images/` e `/storage/`.
+
+3. **IDOR no upload de foto** — `KidsController::uploadPhoto` não chamava `$this->authorize()`, permitindo que qualquer usuário autenticado trocasse a foto de qualquer paciente. Corrigido: `$this->authorize('update', $kid)` adicionado no início do método.
+
+### Padrões a seguir em uploads
+
+- **Sempre** usar `$file->extension()` — nunca `getClientOriginalExtension()`
+- Salvar fora de `public/` quando possível; se em `public/`, garantir que o nginx bloqueie PHP no diretório
+- Validar com a rule `image` do Laravel (verifica MIME real via `finfo`)
+
+---
+
 ## Skills Disponíveis (Slash Commands)
 
 Use `/nome` para carregar o contexto + regras de negócio de cada domínio:
