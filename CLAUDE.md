@@ -124,8 +124,9 @@ php artisan test tests/Unit/Models/           # Diretório específico
 - **Login:** `auth/login.blade.php` standalone — não carrega `app.css`/`custom.css`
 - **PDF:** Templates estendem `documents.layouts.pdf-base`, fonte `DejaVu Sans`
 - **Pacientes:** Todos na tabela `kids` — criancas (idade < 13) e adultos (idade >= 13), calculado por `birth_date`. Constante: `Kid::ADULT_AGE_YEARS`
-- **Failed Jobs:** 7 registros em `failed_jobs` — investigar antes de usar workers de fila
+- **Fila:** Investigar `failed_jobs` antes de usar workers de fila (`php artisan queue:work`)
 - **Testes usam banco real** — `DB_DATABASE :memory:` está comentado em `phpunit.xml`; testes Feature/Unit rodam contra o banco configurado em `.env`
+- **Auditoria ativa (temporária):** Profissionais ocultos em `kids/overview` e `analysis/{id}/level/{level}` via `showProfessionals=false` no componente `kid-info-card`. Documentado em `docs/profissionais-ocultos-auditoria.md` — NÃO remover sem consultar esse doc.
 - **SCSS load order:** `_config.scss` → `_variables.scss` → `_custom.scss` → bootstrap → `_buttons.scss`
 - **CSS load order (HTML):** `app.css` (compilado) → `custom.css` (direto) → `typography.css` (direto)
 - **Global helpers:** `app/helpers.php` (autoloaded via composer) — `label_case()`, `get_progress_color()`, `get_progress_gradient()`, `get_chart_gradient()`
@@ -168,8 +169,8 @@ Use `/nome` para carregar o contexto + regras de negócio de cada domínio:
 ## Estrutura de Documentação
 
 ```
-docs/           → 13 docs ativos (referenciados pelas skills acima)
-docs/specs/     → 4 specs de features pendentes
+docs/           → docs ativos (referenciados pelas skills acima)
+docs/specs/     → specs de features pendentes (relatorios, pwa, ux-checklist, observabilidade, remover-dropdown)
 docs/historico/ → Planos concluídos, análises históricas, implementações passadas
 ```
 
