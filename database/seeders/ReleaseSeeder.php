@@ -299,5 +299,30 @@ class ReleaseSeeder extends Seeder
                 ],
             ]
         );
+
+        // Agosto 2026 - v2.11.0
+        Release::updateOrCreate(
+            ['version' => 'v2.11.0'],
+            [
+                'title' => 'Integracao com Sentry',
+                'release_date' => '2026-08-06',
+                'description' => 'Integracao do Sentry para monitoramento de erros, performance, logs e metricas em producao, e refatoracao da geracao de documentos e PDFs para Services dedicados.',
+                'items' => [
+                    'features' => [
+                        'Sentry integrado: captura automatica de excecoes nao tratadas via Handler.php',
+                        'Sentry: logs de nivel warning ou superior enviados automaticamente (canal sentry_logs)',
+                        'Sentry: monitoramento de performance (traces) e metricas habilitados',
+                        'PII (IP, request, usuario) desabilitado por padrao no Sentry, alinhado a LGPD',
+                    ],
+                    'refatoracao' => [
+                        'Geracao de documentos e PDFs de planos extraida de DocumentsController e KidsController para Services dedicados (Factory Method + Builder)',
+                    ],
+                ],
+                'commits' => [
+                    ['hash' => 'f99cfaa', 'message' => 'feat: integrar Sentry (error monitoring, performance, logs, metrics)'],
+                    ['hash' => 'edfe125', 'message' => 'padroes php implementado'],
+                ],
+            ]
+        );
     }
 }
