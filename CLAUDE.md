@@ -152,6 +152,17 @@ php artisan test tests/Unit/Models/           # Diretório específico
 - Salvar fora de `public/` quando possível; se em `public/`, garantir que o nginx bloqueie PHP no diretório
 - Validar com a rule `image` do Laravel (verifica MIME real via `finfo`)
 
+### `SANCTUM_STATEFUL_DOMAINS` — incidente 2026-08-04
+
+A produção é acessível tanto por `maieuticavalia.com.br` quanto por `www.maieuticavalia.com.br` (nenhum redirect canônico entre os dois no nginx/LiteSpeed). `config/cors.php` já listava os dois domínios manualmente, mas `SANCTUM_STATEFUL_DOMAINS` nunca foi definido no `.env` de produção — o Sanctum caía no default do framework, que deriva a lista "stateful" **só a partir do host de `APP_URL`** (`config/sanctum.php:16`).
+
+Resultado: usuários que acessavam pela variante de domínio ausente dessa lista (ex.: `www` quando `APP_URL` aponta para o domínio sem `www`) tinham sessão `web` válida (a página Blade carregava normalmente) mas todas as chamadas `/api/*` do Vue retornavam 401 — o `EnsureFrontendRequestsAreStateful` não reconhecia o Referer/Origin como "stateful" e o cookie de sessão era ignorado. Sintoma reportado: tela de checklist não mostrava competências em avaliação e não criava plano manual para uma usuária específica, sem nenhum erro visível fora do console (401 em `/api/levels`, `/api/domains`, `/api/competences`, `/api/checklistregisters/.../progressbar`).
+
+**Correção:** `SANCTUM_STATEFUL_DOMAINS` deve **sempre** listar todos os domínios pelos quais a aplicação é acessada (com e sem `www`), explicitamente — nunca depender do default derivado de `APP_URL`. Ver `.env.example`.
+
+- Ao adicionar/mudar domínio de acesso em produção, atualizar `SANCTUM_STATEFUL_DOMAINS` junto com `config/cors.php` — os dois precisam ficar sincronizados
+- Sintoma característico desse tipo de bug: página carrega autenticada, mas chamadas `/api/*` (Vue) retornam 401 — indica falha no guard `sanctum`/stateful, não no guard `web`
+
 ---
 
 ## Skills Disponíveis (Slash Commands)
