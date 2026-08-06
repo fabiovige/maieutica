@@ -68,8 +68,13 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['daily', 'database'],
+            'channels' => ['daily', 'database', 'sentry_logs'],
             'ignore_exceptions' => false,
+        ],
+
+        'sentry_logs' => [
+            'driver' => 'sentry_logs',
+            'level' => env('SENTRY_LOG_LEVEL', 'warning'),
         ],
 
         'single' => [

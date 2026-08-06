@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Sentry\Laravel\Integration;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -36,6 +37,10 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+        $this->reportable(function (Throwable $e) {
+            Integration::captureUnhandledException($e);
+        });
+
         $this->reportable(function (Throwable $e) {
             // Notificar admin por email em erros criticos (producao)
             if (app()->isProduction() && $this->shouldNotifyAdmin($e)) {
