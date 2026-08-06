@@ -201,7 +201,7 @@ docker compose exec node sh -c "chown -R root:root node_modules"
 
 | Aspecto         | Wamp Windows              | Docker WSL2               |
 |-----------------|---------------------------|---------------------------|
-| PHP             | 8.x do Wamp               | 8.2-fpm (paridade prod)   |
+| PHP             | 8.x do Wamp               | 8.1-fpm (paridade prod)   |
 | DB              | MariaDB do Wamp           | MariaDB 10.11             |
 | Node            | Instalado no host         | Container `node`          |
 | Queue           | `sync` (sem worker)       | Worker dedicado           |

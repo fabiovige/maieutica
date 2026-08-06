@@ -1,5 +1,5 @@
-# PHP 8.2 FPM — paridade com produção Hostinger
-FROM php:8.2-fpm
+# PHP 8.1 FPM — paridade com produção Hostinger (CLI real: 8.1.34)
+FROM php:8.1-fpm
 
 # ── Build args (permite UID/GID do host no WSL2) ─────────────────
 ARG UID=1000
