@@ -4,46 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Models\GeneratedDocument;
 use App\Models\Kid;
+use App\Models\Professional;
+use App\Services\Documents\DocumentGenerator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class DocumentsController extends Controller
 {
-    /**
-     * Prepara os assets (watermark e logo) em base64
-     */
-    private function prepareAssets(): array
-    {
-        return [
-            'watermark' => base64_encode(file_get_contents(public_path('images/bg-doc.png'))),
-            'logo' => base64_encode(file_get_contents(public_path('images/logotipo.png'))),
-        ];
-    }
+    public function __construct(private DocumentGenerator $documentGenerator) {}
 
     /**
-     * Busca Kid com profissionais e usuários relacionados
+     * Lista de profissionais ativos para os selects dos formulários de documento.
      */
-    private function getKidWithRelations(int $kidId): Kid
+    private function activeProfessionalsForForm()
     {
-        return Kid::with(['professionals.user'])->findOrFail($kidId);
-    }
+        return Professional::with('user')
+            ->whereHas('user')
+            ->get()
+            ->map(function ($professional) {
+                $user = $professional->user->first();
 
-    /**
-     * Prepara dados comuns para todos os documentos
-     */
-    private function getCommonDocumentData(Kid $kid): array
-    {
-        $professional = $kid->professionals->first();
-        $user = $professional ? $professional->user->first() : null;
-
-        return [
-            'nome_paciente' => strtoupper($kid->name),
-            'nome_psicologo' => $user ? strtoupper($user->name) : 'N/A',
-            'council' => $professional?->council_label ?? 'Reg.',
-            'crp' => $professional->registration_number ?? 'N/A',
-            'cidade' => $user->city ?? 'Santana de Parnaíba',
-            'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
-        ];
+                return [
+                    'id' => $professional->id,
+                    'name' => $user ? $user->name : 'N/A',
+                    'council' => $professional->council_label,
+                    'crp' => $professional->registration_number ?? 'N/A',
+                ];
+            });
     }
 
     /**
@@ -88,234 +75,9 @@ class DocumentsController extends Controller
     public function showFormModelo3()
     {
         $kids = Kid::getKids();
-        $professionals = \App\Models\Professional::with('user')
-            ->whereHas('user')
-            ->get()
-            ->map(function ($professional) {
-                $user = $professional->user->first();
-                return [
-                    'id' => $professional->id,
-                    'name' => $user ? $user->name : 'N/A',
-                    'council' => $professional->council_label,
-                    'crp' => $professional->registration_number ?? 'N/A',
-                ];
-            });
+        $professionals = $this->activeProfessionalsForForm();
 
         return view('documents.form-modelo3', compact('kids', 'professionals'));
-    }
-
-    /**
-     * Gera Declaração Modelo 1 para uma criança específica
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function modelo1(Request $request)
-    {
-        // Validação
-        $request->validate([
-            'kid_id' => 'required|exists:kids,id',
-        ]);
-
-        // Busca dados
-        $kid = $this->getKidWithRelations($request->kid_id);
-
-        // Monta dados do documento
-        $data = array_merge(
-            $this->getCommonDocumentData($kid),
-            $this->prepareAssets(),
-            [
-                'dias_horarios' => $request->input('dias_horarios', 'em horários estabelecidos'),
-                'previsao_termino' => $request->input('previsao_termino', null),
-            ]
-        );
-
-        // Renderiza HTML para string
-        $html = view('documents.modelo1', $data)->render();
-
-        // Salva no banco de dados
-        GeneratedDocument::create([
-            'model_type' => 1,
-            'documentable_id' => $kid->id,
-            'documentable_type' => Kid::class,
-            'professional_id' => $kid->professionals->first()?->id,
-            'generated_by' => auth()->id(),
-            'html_content' => $html,
-            'form_data' => $request->except(['_token']),
-            'metadata' => [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'document_title' => 'Declaração - Modelo 1',
-            ],
-            'generated_at' => now(),
-        ]);
-
-        // Gera o PDF do HTML
-        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
-
-        return $pdf->download('declaracao_modelo_1.pdf');
-    }
-
-    /**
-     * Gera Declaração Modelo 2 para uma criança específica
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function modelo2(Request $request)
-    {
-        // Validação
-        $request->validate([
-            'kid_id' => 'required|exists:kids,id',
-        ]);
-
-        // Busca dados
-        $kid = $this->getKidWithRelations($request->kid_id);
-
-        // Monta dados do documento
-        $data = array_merge(
-            $this->getCommonDocumentData($kid),
-            $this->prepareAssets(),
-            [
-                'mes_inicio' => $kid->created_at->format('d/m/Y'),
-            ]
-        );
-
-        // Renderiza HTML para string
-        $html = view('documents.modelo2', $data)->render();
-
-        // Salva no banco de dados
-        GeneratedDocument::create([
-            'model_type' => 2,
-            'documentable_id' => $kid->id,
-            'documentable_type' => Kid::class,
-            'professional_id' => $kid->professionals->first()?->id,
-            'generated_by' => auth()->id(),
-            'html_content' => $html,
-            'form_data' => $request->except(['_token']),
-            'metadata' => [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'document_title' => 'Declaração Simplificada - Modelo 2',
-            ],
-            'generated_at' => now(),
-        ]);
-
-        // Gera o PDF do HTML
-        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
-
-        return $pdf->download('declaracao_modelo_2.pdf');
-    }
-
-    /**
-     * Gera Laudo Psicológico Modelo 3 para uma criança específica
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function modelo3(Request $request)
-    {
-        // Validação
-        $request->validate([
-            'kid_id' => 'required|exists:kids,id',
-            'professionals' => 'nullable|array',
-            'professionals.*' => 'exists:professionals,id',
-        ]);
-
-        // Busca dados
-        $kid = $this->getKidWithRelations($request->kid_id);
-
-        // Busca profissionais selecionados ou usa o profissional do paciente
-        $professionalsData = [];
-        if ($request->has('professionals') && count($request->professionals) > 0) {
-            $selectedProfessionals = \App\Models\Professional::with('user')
-                ->whereIn('id', $request->professionals)
-                ->get();
-
-            foreach ($selectedProfessionals as $prof) {
-                $user = $prof->user->first();
-                $professionalsData[] = [
-                    'name' => $user ? strtoupper($user->name) : 'N/A',
-                    'council' => $prof->council_label,
-                    'crp' => $prof->registration_number ?? 'N/A',
-                    'city' => $user->city ?? 'Santana de Parnaíba',
-                ];
-            }
-        } else {
-            // Se não foi selecionado nenhum, usa o profissional do paciente
-            $professional = $kid->professionals->first();
-            $user = $professional ? $professional->user->first() : null;
-            $professionalsData[] = [
-                'name' => $user ? strtoupper($user->name) : 'N/A',
-                'council' => $professional?->council_label ?? 'Reg.',
-                'crp' => $professional->registration_number ?? 'N/A',
-                'city' => $user->city ?? 'Santana de Parnaíba',
-            ];
-        }
-
-        // Prepara os assets
-        $watermark = base64_encode(file_get_contents(public_path('images/bg-doc.png')));
-        $logo = base64_encode(file_get_contents(public_path('images/logo-doc.jpg')));
-
-        // Monta dados do documento
-        $data = [
-            // Dados básicos
-            'nome_paciente' => strtoupper($kid->name),
-            'idade' => $kid->age ?? 'Não informada',
-            'sexo' => isset($kid->gender) ? ($kid->gender == 'M' ? 'Masculino' : 'Feminino') : 'Não informado',
-            'solicitante' => $request->input('solicitante', null),
-            'finalidade' => $request->input('finalidade', 'Avaliação psicológica'),
-
-            // Profissionais
-            'professionals' => $professionalsData,
-
-            // Profissional principal (para assinatura)
-            'nome_psicologo' => $professionalsData[0]['name'],
-            'council' => $professionalsData[0]['council'],
-            'crp' => $professionalsData[0]['crp'],
-            'cidade' => $professionalsData[0]['city'],
-            'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
-
-            // Assets
-            'watermark' => $watermark,
-            'logo' => $logo,
-
-            // Dados específicos do laudo
-            'nome_informante' => $request->input('nome_informante', null),
-            'sintomas' => $request->input('sintomas', null),
-            'consequencias' => $request->input('consequencias', null),
-            'hipotese_diagnostico' => $request->input('hipotese_diagnostico', null),
-            'numero_encontros' => $request->input('numero_encontros', null),
-            'duracao_horas' => $request->input('duracao_horas', null),
-            'procedimentos_texto' => $request->input('procedimentos_texto', null),
-            'analise_texto' => $request->input('analise_texto', null),
-            'diagnostico' => $request->input('diagnostico', null),
-            'sintoma_principal' => $request->input('sintoma_principal', null),
-            'cid' => $request->input('cid', null),
-            'referencias' => $request->input('referencias', null),
-        ];
-
-        // Renderiza HTML para string
-        $html = view('documents.modelo3', $data)->render();
-
-        // Salva no banco de dados
-        GeneratedDocument::create([
-            'model_type' => 3,
-            'documentable_id' => $kid->id,
-            'documentable_type' => Kid::class,
-            'professional_id' => $kid->professionals->first()?->id,
-            'generated_by' => auth()->id(),
-            'html_content' => $html,
-            'form_data' => $request->except(['_token']),
-            'metadata' => [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'document_title' => 'Laudo Psicológico - Modelo 3',
-            ],
-            'generated_at' => now(),
-        ]);
-
-        // Gera o PDF do HTML
-        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
-
-        return $pdf->download('laudo_psicologico_modelo_3.pdf');
     }
 
     /**
@@ -326,131 +88,9 @@ class DocumentsController extends Controller
     public function showFormModelo4()
     {
         $kids = Kid::getKids();
-        $professionals = \App\Models\Professional::with('user')
-            ->whereHas('user')
-            ->get()
-            ->map(function ($professional) {
-                $user = $professional->user->first();
-                return [
-                    'id' => $professional->id,
-                    'name' => $user ? $user->name : 'N/A',
-                    'council' => $professional->council_label,
-                    'crp' => $professional->registration_number ?? 'N/A',
-                ];
-            });
+        $professionals = $this->activeProfessionalsForForm();
 
         return view('documents.form-modelo4', compact('kids', 'professionals'));
-    }
-
-    /**
-     * Gera Parecer Psicológico Modelo 4 para uma criança específica
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function modelo4(Request $request)
-    {
-        // Validação
-        $request->validate([
-            'kid_id' => 'required|exists:kids,id',
-            'solicitante' => 'required|string',
-            'finalidade' => 'required|string',
-            'descricao_demanda' => 'required|string',
-            'analise' => 'required|string',
-            'conclusao' => 'required|string',
-            'referencias' => 'required|string',
-            'professionals' => 'nullable|array',
-            'professionals.*' => 'exists:professionals,id',
-        ]);
-
-        // Busca dados
-        $kid = $this->getKidWithRelations($request->kid_id);
-
-        // Busca profissionais selecionados ou usa o profissional do paciente
-        $professionalsData = [];
-        if ($request->has('professionals') && count($request->professionals) > 0) {
-            $selectedProfessionals = \App\Models\Professional::with('user')
-                ->whereIn('id', $request->professionals)
-                ->get();
-
-            foreach ($selectedProfessionals as $prof) {
-                $user = $prof->user->first();
-                $professionalsData[] = [
-                    'name' => $user ? strtoupper($user->name) : 'N/A',
-                    'council' => $prof->council_label,
-                    'crp' => $prof->registration_number ?? 'N/A',
-                    'city' => $user->city ?? 'Santana de Parnaíba',
-                ];
-            }
-        } else {
-            // Se não foi selecionado nenhum, usa o profissional do paciente
-            $professional = $kid->professionals->first();
-            $user = $professional ? $professional->user->first() : null;
-            $professionalsData[] = [
-                'name' => $user ? strtoupper($user->name) : 'N/A',
-                'council' => $professional?->council_label ?? 'Reg.',
-                'crp' => $professional->registration_number ?? 'N/A',
-                'city' => $user->city ?? 'Santana de Parnaíba',
-            ];
-        }
-
-        // Prepara os assets
-        $watermark = base64_encode(file_get_contents(public_path('images/bg-doc.png')));
-        $logo = base64_encode(file_get_contents(public_path('images/logotipo.png')));
-
-        // Monta dados do documento
-        $data = [
-            // Dados básicos
-            'nome_paciente' => strtoupper($kid->name),
-            'idade' => $kid->age ?? 'Não informada',
-            'sexo' => isset($kid->gender) ? ($kid->gender == 'M' ? 'Masculino' : 'Feminino') : 'Não informado',
-            'solicitante' => $request->input('solicitante'),
-            'finalidade' => $request->input('finalidade'),
-
-            // Profissionais
-            'professionals' => $professionalsData,
-
-            // Profissional principal (para assinatura)
-            'nome_psicologo' => $professionalsData[0]['name'],
-            'council' => $professionalsData[0]['council'],
-            'crp' => $professionalsData[0]['crp'],
-            'cidade' => $professionalsData[0]['city'],
-            'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
-
-            // Assets
-            'watermark' => $watermark,
-            'logo' => $logo,
-
-            // Dados específicos do parecer
-            'descricao_demanda' => $request->input('descricao_demanda'),
-            'analise' => $request->input('analise'),
-            'conclusao' => $request->input('conclusao'),
-            'referencias' => $request->input('referencias'),
-        ];
-
-        // Renderiza HTML para string
-        $html = view('documents.modelo4', $data)->render();
-
-        // Salva no banco de dados
-        GeneratedDocument::create([
-            'model_type' => 4,
-            'documentable_id' => $kid->id,
-            'documentable_type' => Kid::class,
-            'professional_id' => $kid->professionals->first()?->id,
-            'generated_by' => auth()->id(),
-            'html_content' => $html,
-            'form_data' => $request->except(['_token']),
-            'metadata' => [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'document_title' => 'Parecer Psicológico - Modelo 4',
-            ],
-            'generated_at' => now(),
-        ]);
-
-        // Gera o PDF do HTML
-        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
-
-        return $pdf->download('parecer_psicologico_modelo_4.pdf');
     }
 
     /**
@@ -461,118 +101,9 @@ class DocumentsController extends Controller
     public function showFormModelo5()
     {
         $kids = Kid::getKids();
-        $professionals = \App\Models\Professional::with('user')
-            ->whereHas('user')
-            ->get()
-            ->map(function ($professional) {
-                $user = $professional->user->first();
-                return [
-                    'id' => $professional->id,
-                    'name' => $user ? $user->name : 'N/A',
-                    'council' => $professional->council_label,
-                    'crp' => $professional->registration_number ?? 'N/A',
-                ];
-            });
+        $professionals = $this->activeProfessionalsForForm();
 
         return view('documents.form-modelo5', compact('kids', 'professionals'));
-    }
-
-    /**
-     * Gera Relatório Multiprofissional Modelo 5 para uma criança específica
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function modelo5(Request $request)
-    {
-        // Validação
-        $request->validate([
-            'kid_id' => 'required|exists:kids,id',
-            'descricao_demanda' => 'required|string',
-            'procedimentos_texto' => 'required|string',
-            'analise' => 'required|string',
-            'conclusao' => 'required|string',
-            'professionals' => 'required|array|min:1',
-            'professionals.*' => 'exists:professionals,id',
-        ]);
-
-        // Busca dados
-        $kid = $this->getKidWithRelations($request->kid_id);
-
-        // Busca profissionais selecionados (obrigatório para este modelo)
-        $professionalsData = [];
-        $selectedProfessionals = \App\Models\Professional::with('user')
-            ->whereIn('id', $request->professionals)
-            ->get();
-
-        foreach ($selectedProfessionals as $prof) {
-            $user = $prof->user->first();
-            $professionalsData[] = [
-                'name' => $user ? strtoupper($user->name) : 'N/A',
-                'crp' => $prof->registration_number ?? 'N/A',
-                'city' => $user->city ?? 'Santana de Parnaíba',
-            ];
-        }
-
-        // Prepara os assets
-        $watermark = base64_encode(file_get_contents(public_path('images/bg-doc.png')));
-        $logo = base64_encode(file_get_contents(public_path('images/logotipo.png')));
-
-        // Monta dados do documento
-        $data = [
-            // Dados básicos
-            'nome_paciente' => strtoupper($kid->name),
-            'idade' => $kid->age ?? 'Não informada',
-            'sexo' => isset($kid->gender) ? ($kid->gender == 'M' ? 'Masculino' : 'Feminino') : 'Não informado',
-            'solicitante' => $request->input('solicitante'),
-            'finalidade' => $request->input('finalidade', 'Avaliação multiprofissional'),
-
-            // Profissionais
-            'professionals' => $professionalsData,
-
-            // Profissional principal (para assinatura)
-            'nome_psicologo' => $professionalsData[0]['name'],
-            'council' => $professionalsData[0]['council'],
-            'crp' => $professionalsData[0]['crp'],
-            'cidade' => $professionalsData[0]['city'],
-            'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
-
-            // Assets
-            'watermark' => $watermark,
-            'logo' => $logo,
-
-            // Dados específicos do relatório
-            'descricao_demanda' => $request->input('descricao_demanda'),
-            'numero_encontros' => $request->input('numero_encontros'),
-            'duracao_horas' => $request->input('duracao_horas'),
-            'procedimentos_texto' => $request->input('procedimentos_texto'),
-            'analise' => $request->input('analise'),
-            'conclusao' => $request->input('conclusao'),
-        ];
-
-        // Renderiza HTML para string
-        $html = view('documents.modelo5', $data)->render();
-
-        // Salva no banco de dados
-        GeneratedDocument::create([
-            'model_type' => 5,
-            'documentable_id' => $kid->id,
-            'documentable_type' => Kid::class,
-            'professional_id' => $kid->professionals->first()?->id,
-            'generated_by' => auth()->id(),
-            'html_content' => $html,
-            'form_data' => $request->except(['_token']),
-            'metadata' => [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'document_title' => 'Relatório Multiprofissional - Modelo 5',
-            ],
-            'generated_at' => now(),
-        ]);
-
-        // Gera o PDF do HTML
-        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
-
-        return $pdf->download('relatorio_multiprofissional_modelo_5.pdf');
     }
 
     /**
@@ -588,66 +119,51 @@ class DocumentsController extends Controller
     }
 
     /**
+     * Gera Declaração Modelo 1 para uma criança específica
+     */
+    public function modelo1(Request $request)
+    {
+        return $this->documentGenerator->generate(1, $request);
+    }
+
+    /**
+     * Gera Declaração Modelo 2 para uma criança específica
+     */
+    public function modelo2(Request $request)
+    {
+        return $this->documentGenerator->generate(2, $request);
+    }
+
+    /**
+     * Gera Laudo Psicológico Modelo 3 para uma criança específica
+     */
+    public function modelo3(Request $request)
+    {
+        return $this->documentGenerator->generate(3, $request);
+    }
+
+    /**
+     * Gera Parecer Psicológico Modelo 4 para uma criança específica
+     */
+    public function modelo4(Request $request)
+    {
+        return $this->documentGenerator->generate(4, $request);
+    }
+
+    /**
+     * Gera Relatório Multiprofissional Modelo 5 para uma criança específica
+     */
+    public function modelo5(Request $request)
+    {
+        return $this->documentGenerator->generate(5, $request);
+    }
+
+    /**
      * Gera Relatório Psicológico Modelo 6 para uma criança específica
-     *
-     * @return \Illuminate\Http\Response
      */
     public function modelo6(Request $request)
     {
-        // Validação
-        $request->validate([
-            'kid_id' => 'required|exists:kids,id',
-            'descricao_demanda' => 'required|string',
-            'procedimentos_texto' => 'required|string',
-            'analise' => 'required|string',
-            'conclusao' => 'required|string',
-        ]);
-
-        // Busca dados
-        $kid = $this->getKidWithRelations($request->kid_id);
-
-        // Monta dados do documento
-        $data = array_merge(
-            $this->getCommonDocumentData($kid),
-            $this->prepareAssets(),
-            [
-                'idade' => $kid->age ?? 'Não informada',
-                'sexo' => isset($kid->gender) ? ($kid->gender == 'M' ? 'Masculino' : 'Feminino') : 'Não informado',
-                'solicitante' => $request->input('solicitante'),
-                'finalidade' => $request->input('finalidade'),
-                'descricao_demanda' => $request->input('descricao_demanda'),
-                'numero_encontros' => $request->input('numero_encontros'),
-                'duracao_horas' => $request->input('duracao_horas'),
-                'procedimentos_texto' => $request->input('procedimentos_texto'),
-                'analise' => $request->input('analise'),
-                'conclusao' => $request->input('conclusao'),
-            ]
-        );
-
-        // Renderiza HTML para string
-        $html = view('documents.modelo6', $data)->render();
-
-        // Salva no banco de dados
-        GeneratedDocument::create([
-            'model_type' => 6,
-            'documentable_id' => $kid->id,
-            'documentable_type' => Kid::class,
-            'professional_id' => $kid->professionals->first()?->id,
-            'generated_by' => auth()->id(),
-            'html_content' => $html,
-            'form_data' => $request->except(['_token']),
-            'metadata' => [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'document_title' => 'Relatório Psicológico - Modelo 6',
-            ],
-            'generated_at' => now(),
-        ]);
-
-        // Gera o PDF do HTML
-        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
-
-        return $pdf->download('relatorio_psicologico_modelo_6.pdf');
+        return $this->documentGenerator->generate(6, $request);
     }
 
     /**
@@ -694,102 +210,11 @@ class DocumentsController extends Controller
     {
         $this->authorize('download', $document);
 
-        $html = $this->reRenderDocument($document);
+        $html = $this->documentGenerator->rerender($document);
 
         $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
         return $pdf->download($document->filename);
-    }
-
-    /**
-     * Re-renderiza o HTML do documento a partir do template Blade,
-     * usando os dados originais armazenados em form_data e documentable.
-     */
-    private function reRenderDocument(GeneratedDocument $document): string
-    {
-        $kid = $this->getKidWithRelations($document->documentable_id);
-        $formData = $document->form_data ?? [];
-        $assets = $this->prepareAssets();
-        $common = $this->getCommonDocumentData($kid);
-
-        switch ($document->model_type) {
-            case 1:
-                return view('documents.modelo1', array_merge($common, $assets, [
-                    'dias_horarios'    => $formData['dias_horarios'] ?? 'em horários estabelecidos',
-                    'previsao_termino' => $formData['previsao_termino'] ?? null,
-                ]))->render();
-
-            case 2:
-                return view('documents.modelo2', array_merge($common, $assets, [
-                    'mes_inicio' => $kid->created_at->format('d/m/Y'),
-                ]))->render();
-
-            case 3:
-            case 4:
-            case 5:
-                $professionalsData = $this->buildProfessionalsData($kid, $formData['professionals'] ?? []);
-                $logo = base64_encode(file_get_contents(public_path('images/logo-doc.jpg')));
-                $data = array_merge([
-                    'nome_paciente'  => strtoupper($kid->name),
-                    'idade'          => $kid->age ?? 'Não informada',
-                    'sexo'           => ($kid->gender ?? null) === 'M' ? 'Masculino' : (($kid->gender ?? null) === 'F' ? 'Feminino' : 'Não informado'),
-                    'professionals'  => $professionalsData,
-                    'nome_psicologo' => $professionalsData[0]['name'],
-                    'council'        => $professionalsData[0]['council'],
-                    'crp'            => $professionalsData[0]['crp'],
-                    'cidade'         => $professionalsData[0]['city'],
-                    'data_formatada' => now()->locale('pt_BR')->isoFormat('D [de] MMMM [de] YYYY'),
-                    'watermark'      => $assets['watermark'],
-                    'logo'           => $logo,
-                ], array_intersect_key($formData, array_flip([
-                    'solicitante', 'finalidade', 'nome_informante', 'sintomas', 'consequencias',
-                    'hipotese_diagnostico', 'numero_encontros', 'duracao_horas', 'procedimentos_texto',
-                    'analise_texto', 'analise', 'diagnostico', 'sintoma_principal', 'cid',
-                    'referencias', 'conclusao', 'descricao_demanda',
-                ])));
-                return view('documents.modelo' . $document->model_type, $data)->render();
-
-            case 6:
-                return view('documents.modelo6', array_merge($common, $assets, array_intersect_key($formData, array_flip([
-                    'idade', 'sexo', 'solicitante', 'finalidade', 'descricao_demanda',
-                    'numero_encontros', 'duracao_horas', 'procedimentos_texto', 'analise', 'conclusao',
-                ]))))->render();
-
-            default:
-                return $document->html_content;
-        }
-    }
-
-    /**
-     * Monta array de profissionais para modelos 3/4/5.
-     */
-    private function buildProfessionalsData(Kid $kid, array $professionalIds): array
-    {
-        if (!empty($professionalIds)) {
-            $professionals = \App\Models\Professional::with('user')
-                ->whereIn('id', $professionalIds)
-                ->get();
-
-            return $professionals->map(function ($prof) {
-                $user = $prof->user->first();
-                return [
-                    'name'    => $user ? strtoupper($user->name) : 'N/A',
-                    'council' => $prof->council_label,
-                    'crp'     => $prof->registration_number ?? 'N/A',
-                    'city'    => $user->city ?? 'Santana de Parnaíba',
-                ];
-            })->toArray();
-        }
-
-        $professional = $kid->professionals->first();
-        $user = $professional ? $professional->user->first() : null;
-
-        return [[
-            'name'    => $user ? strtoupper($user->name) : 'N/A',
-            'council' => $professional?->council_label ?? 'Reg.',
-            'crp'     => $professional->registration_number ?? 'N/A',
-            'city'    => $user->city ?? 'Santana de Parnaíba',
-        ]];
     }
 
     /**

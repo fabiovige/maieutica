@@ -11,6 +11,9 @@ use App\Models\Plane;
 use App\Models\User;
 use App\Services\Logging\KidLogger;
 use App\Services\OverviewService;
+use App\Services\Pdf\PlaneAutoBuilder;
+use App\Services\Pdf\PlaneAutoViewBuilder;
+use App\Services\Pdf\PlaneFromExistingPlanBuilder;
 use App\Util\MyPdf;
 use Auth;
 use Exception;
@@ -536,69 +539,10 @@ class KidsController extends Controller
     {
         try {
             $plane = Plane::findOrFail($id);
-            $kid_id = $plane->kid()->first()->id;
 
-            $kid = Kid::findOrFail($kid_id);
-            $nameKid = $plane->kid()->first()->name;
-            $professionals = $kid->professionals()->get();
-
-            $professionalNames = [];
-            foreach ($professionals as $professional) {
-                $professionalNames[] = $professional->user->first()->name.' - ('.$professional->specialty->name.')';
-            }
-            $therapist = implode("\n", $professionalNames);
-
-            $date = $plane->created_at;
-            $arr = [];
-
-            foreach ($plane->competences()->get() as $c => $competence) {
-                $initial = $competence->domain()->first()->initial;
-                $arr[$initial]['domain'] = $competence->domain()->first();
-                $arr[$initial]['competences'][] = $competence;
-            }
-
-            $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-
-            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'), $plane->name);
-
-            $totalDomain = count($arr);
-            $countDomain = 1;
-
-            foreach ($arr as $initial => $v) {
-                $countCompetences = 1;
-                $pdf->AddPage();
-
-                $pdf->Ln(5);
-                $pdf->SetFont('helvetica', 'B', 14);
-
-                // Domain
-                $domain = $v['domain']->name;
-                $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
-
-                foreach ($v['competences'] as $k => $competence) {
-
-                    if ($countCompetences == 8) {
-                        $pdf->AddPage();
-                        $countCompetences = 1;
-                    }
-                    $countCompetences++;
-
-                    $pdf->Ln(5);
-                    $pdf->SetFont('helvetica', 'B', 10);
-                    $txt = $competence->level_id.$v['domain']->initial.$competence->code.' - '.$competence->description;
-                    $pdf->Ln(5);
-                    $pdf->Write(0, $txt, '', 0, 'L', true);
-
-                    $pdf->Ln(1);
-                    $pdf->SetFont('helvetica', 'I', 8);
-                    $pdf->Write(0, '"'.$competence->description_detail.'"', '', 0, 'L', true);
-
-                    $pdf->Ln(4);
-                    $pdf->SetFont('helvetica', '', 9);
-                    $etapas = 'Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____';
-                    $pdf->Write(0, $etapas, '', 0, 'L', true);
-                }
-            }
+            $builder = new PlaneFromExistingPlanBuilder($plane);
+            $pdf = $builder->build();
+            $kid = $builder->getKid();
 
             // Log successful PDF generation
             $this->kidLogger->pdfGenerated($kid, 'plane', [
@@ -607,7 +551,7 @@ class KidsController extends Controller
                 'competences_count' => $plane->competences()->count(),
             ]);
 
-            $filename = $nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf';
+            $filename = $kid->name.'_'.$plane->created_at->format('dmY').'_'.$plane->id.'.pdf';
 
             return response($pdf->Output($filename, 'S'), 200)
                 ->header('Content-Type', 'application/pdf')
@@ -631,10 +575,7 @@ class KidsController extends Controller
         }
 
         try {
-            // Primeiro, verificar se o kid existe
             $kid = Kid::findOrFail($kidId);
-
-            // Verificar se o checklist existe
             $checklist = Checklist::findOrFail($checklislId);
 
             // Verificar se o checklist pertence ao kid
@@ -642,101 +583,9 @@ class KidsController extends Controller
                 throw new Exception('Este checklist não pertence a esta criança.');
             }
 
-            // criar o plane
-            $dataCreatePlane = [
-                'kid_id' => $kid->id, // Usar o id do modelo encontrado
-                'name' => Plane::NOTES_DESCRIPTION[$note],
-                'checklist_id' => $checklist->id, // Usar o id do modelo encontrado
-                'created_by' => auth()->user()->id,
-            ];
-
-            // Criar o plane dentro de uma transação
-
-            $existingPlane = Plane::where('kid_id', $kid->id)->where('checklist_id', $checklist->id)->where('is_active', true)->where('name', $dataCreatePlane['name'])->first();
-            if ($existingPlane) {
-                // throw new Exception('Já existe um plano ativo para esta criança.');
-                $plane = $existingPlane;
-            } else {
-                $plane = Plane::create($dataCreatePlane);
-            }
-
-            // get kid
-            $nameKid = $kid->name;
-
-            // get professionals
-            $professionals = $kid->professionals()->get();
-
-            $professionalNames = [];
-            foreach ($professionals as $professional) {
-                $professionalNames[] = $professional->user->first()->name.' - ('.$professional->specialty->name.')';
-            }
-            $therapist = implode("\n", $professionalNames);
-
-            $date = $plane->created_at;
-            $arr = [];
-
-            // get competences por nota
-            $competencesNotes = Checklist::getCompetencesByNote($checklist->id, $note)->pluck('id')->toArray();
-
-            // verifica se existe competencias
-            if (count($competencesNotes) == 0) {
-                throw new Exception('Não existem competências para este checklist e nota.');
-            }
-
-            // se exite competentes adiciona a competence_plane
-            $plane->competences()->sync($competencesNotes);
-
-            // get competences do plane
-            $competences = $plane->competences()->get();
-
-            foreach ($competences as $c => $competence) {
-                $initial = $competence->domain()->first()->initial;
-                $arr[$initial]['domain'] = $competence->domain()->first();
-                $arr[$initial]['competences'][] = $competence;
-            }
-
-            $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-
-            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'), $plane->name);
-
-            $totalDomain = count($arr);
-            $countDomain = 1;
-
-            foreach ($arr as $initial => $v) {
-                $countCompetences = 1;
-                $pdf->AddPage();
-
-                $pdf->Ln(5);
-                $pdf->SetFont('helvetica', 'B', 14);
-
-                // Domain
-                $domain = $v['domain']->name;
-                $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
-
-                foreach ($v['competences'] as $k => $competence) {
-
-                    if ($countCompetences == 8) {
-                        $pdf->AddPage();
-                        $countCompetences = 1;
-                    }
-                    $countCompetences++;
-
-                    $pdf->Ln(5);
-                    $pdf->SetFont('helvetica', 'B', 10);
-                    $txt = $competence->level_id.$v['domain']->initial.$competence->code.' - '.$competence->description;
-                    $pdf->Ln(5);
-                    $pdf->Write(0, $txt, '', 0, 'L', true);
-
-                    $pdf->Ln(1);
-                    $pdf->SetFont('helvetica', 'I', 8);
-                    $pdf->Write(0, '"'.$competence->description_detail.'"', '', 0, 'L', true);
-
-                    $pdf->Ln(4);
-                    $pdf->SetFont('helvetica', '', 9);
-                    $etapas = 'Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____';
-                    $pdf->Write(0, $etapas, '', 0, 'L', true);
-                }
-            }
+            $builder = new PlaneAutoBuilder($kid, $checklist, $note);
+            $pdf = $builder->build();
+            $plane = $builder->getPlane();
 
             // Log successful PDF generation
             $this->kidLogger->pdfGenerated($kid, 'plane_auto', [
@@ -744,10 +593,10 @@ class KidsController extends Controller
                 'plane_name' => $plane->name,
                 'checklist_id' => $checklist->id,
                 'note' => $note,
-                'competences_count' => count($competencesNotes),
+                'competences_count' => $builder->getCompetencesCount(),
             ]);
 
-            $filename = $nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf';
+            $filename = $kid->name.'_'.$plane->created_at->format('dmY').'_'.$plane->id.'.pdf';
 
             return response($pdf->Output($filename, 'S'), 200)
                 ->header('Content-Type', 'application/pdf')
@@ -771,10 +620,7 @@ class KidsController extends Controller
     public function pdfPlaneAutoView($kidId, $checklislId, $planeId)
     {
         try {
-            // Primeiro, verificar se o kid existe
             $kid = Kid::findOrFail($kidId);
-
-            // Verificar se o checklist existe
             $checklist = Checklist::findOrFail($checklislId);
 
             // Verificar se o checklist pertence ao kid
@@ -782,86 +628,20 @@ class KidsController extends Controller
                 throw new Exception('Este checklist não pertence a esta criança.');
             }
 
-            // obter o plane
             $plane = Plane::findOrFail($planeId);
 
-            // verificar se o plane pertence ao checklist
-            if ($plane->checklist_id != $checklist->id) {
-                throw new Exception('Este plano não pertence a este checklist.');
-            }
-
-            // get kid
-            $nameKid = $kid->name;
-            $therapist = $kid->professional->name;
-            $date = $plane->created_at;
-            $arr = [];
-
-            // get competences do plane
-            $competences = $plane->competences()->get();
-
-            // verificar se existe competencias
-            if (count($competences) == 0) {
-                throw new Exception('Não existem competências para este plano.');
-            }
-
-            foreach ($competences as $c => $competence) {
-                $initial = $competence->domain()->first()->initial;
-                $arr[$initial]['domain'] = $competence->domain()->first();
-                $arr[$initial]['competences'][] = $competence;
-            }
-
-            $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-
-            $this->preferences($pdf, $kid, $therapist, $plane->id, $date->format('d/m/Y H:i'));
-
-            $totalDomain = count($arr);
-            $countDomain = 1;
-
-            foreach ($arr as $initial => $v) {
-                $countCompetences = 1;
-                $pdf->AddPage();
-
-                $pdf->Ln(5);
-                $pdf->SetFont('helvetica', 'B', 14);
-
-                // Domain
-                $domain = $v['domain']->name;
-                $pdf->Cell(0, 0, $domain, 1, 1, 'L', 0, '', 0);
-
-                foreach ($v['competences'] as $k => $competence) {
-
-                    if ($countCompetences == 8) {
-                        $pdf->AddPage();
-                        $countCompetences = 1;
-                    }
-                    $countCompetences++;
-
-                    $pdf->Ln(5);
-                    $pdf->SetFont('helvetica', 'B', 10);
-                    $txt = $competence->level_id.$v['domain']->initial.$competence->code.' - '.$competence->description;
-                    $pdf->Ln(5);
-                    $pdf->Write(0, $txt, '', 0, 'L', true);
-
-                    $pdf->Ln(1);
-                    $pdf->SetFont('helvetica', 'I', 8);
-                    $pdf->Write(0, '"'.$competence->description_detail.'"', '', 0, 'L', true);
-
-                    $pdf->Ln(4);
-                    $pdf->SetFont('helvetica', '', 9);
-                    $etapas = 'Etapa 1.:_____        Etapa 2.:_____       Etapa 3.:_____       Etapa 4.:_____       Etapa 5.:_____';
-                    $pdf->Write(0, $etapas, '', 0, 'L', true);
-                }
-            }
+            $builder = new PlaneAutoViewBuilder($kid, $checklist, $plane);
+            $pdf = $builder->build();
 
             // Log successful PDF generation
             $this->kidLogger->pdfGenerated($kid, 'plane_auto_view', [
                 'plane_id' => $plane->id,
                 'plane_name' => $plane->name,
                 'checklist_id' => $checklist->id,
-                'competences_count' => count($competences),
+                'competences_count' => $plane->competences()->count(),
             ]);
 
-            $filename = $nameKid.'_'.$date->format('dmY').'_'.$plane->id.'.pdf';
+            $filename = $kid->name.'_'.$plane->created_at->format('dmY').'_'.$plane->id.'.pdf';
 
             return response($pdf->Output($filename, 'S'), 200)
                 ->header('Content-Type', 'application/pdf')
@@ -879,59 +659,6 @@ class KidsController extends Controller
             flash('Erro ao gerar o plano: '.$e->getMessage())->error();
 
             return redirect()->back();
-        }
-    }
-
-    private function preferences(&$pdf, $kid, $therapist, $plane_id, $date, $planeName)
-    {
-        $preferences = [
-            'HideToolbar' => true,
-            'HideMenubar' => true,
-            'HideWindowUI' => true,
-            'FitWindow' => true,
-            'CenterWindow' => true,
-            'DisplayDocTitle' => true,
-            'NonFullScreenPageMode' => 'UseNone', // UseNone, UseOutlines, UseThumbs, UseOC
-            'ViewArea' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
-            'ViewClip' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
-            'PrintArea' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
-            'PrintClip' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
-            'PrintScaling' => 'AppDefault', // None, AppDefault
-            'Duplex' => 'DuplexFlipLongEdge', // Simplex, DuplexFlipShortEdge, DuplexFlipLongEdge
-            'PickTrayByPDFSize' => true,
-            'PrintPageRange' => [1, 1, 2, 3],
-            'NumCopies' => 2,
-        ];
-
-        $pdf->setViewerPreferences($preferences);
-        $pdf->AddPage();
-
-        $pdf->SetFont('helvetica', '', 18);
-        $pdf->Cell(0, 60, 'PLANO DE INTERVENÇÃO N.: '.$plane_id, 0, 1, 'C');
-
-        $pdf->SetFont('helvetica', '', 16);
-        $pdf->Write(0, $kid->name, '', 0, 'C', true, 0, false, false, 0);
-        $pdf->Ln(2);
-
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->Write(0, $kid->FullNameMonths, '', 0, 'C', true, 0, false, false, 0);
-        $pdf->Ln(15);
-
-        // $pdf->SetFont('helvetica', '', 14);
-        // $pdf->Write(0, 'Profissional(ais)', '', 0, 'C', true, 0, false, false, 0);
-        // $pdf->Ln(5);
-        // $pdf->SetFont('helvetica', '', 12);
-        // $pdf->Write(0, $therapist, '', 0, 'C', true, 0, false, false, 0);
-        // $pdf->Ln(5);
-
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->Write(0, 'Data: '.$date, '', 0, 'C', true, 0, false, false, 0);
-        $pdf->Ln(15);
-
-        if ($planeName) {
-            $pdf->SetFont('helvetica', '', 10);
-            $pdf->Write(0, '('.$planeName.')', '', 0, 'C', true, 0, false, false, 0);
-            $pdf->Ln(3);
         }
     }
 
@@ -1822,13 +1549,13 @@ class KidsController extends Controller
         $kid = Kid::findOrFail($kidId);
         $this->authorize('view', $kid);
 
-        $barChartImage  = $request->input('barChartImage');
+        $barChartImage = $request->input('barChartImage');
         $radarChartImage = $request->input('radarChartImage');
-        $firstChecklistId  = $request->input('firstChecklistId');
+        $firstChecklistId = $request->input('firstChecklistId');
         $secondChecklistId = $request->input('secondChecklistId');
         $levelId = $request->input('levelId');
 
-        $firstChecklist  = $firstChecklistId  ? \App\Models\Checklist::find($firstChecklistId)  : null;
+        $firstChecklist = $firstChecklistId ? \App\Models\Checklist::find($firstChecklistId) : null;
         $secondChecklist = $secondChecklistId ? \App\Models\Checklist::find($secondChecklistId) : null;
 
         $pdf = new MyPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -1856,16 +1583,16 @@ class KidsController extends Controller
         $pdf->Ln(10);
 
         $pdf->SetFont('helvetica', '', 12);
-        $nivelLabel = $levelId && $levelId != '0' ? 'Nível ' . $levelId : 'Todos os níveis';
-        $pdf->MultiCell(0, 6, 'Nível: ' . $nivelLabel, 0, 'C', false, 1);
+        $nivelLabel = $levelId && $levelId != '0' ? 'Nível '.$levelId : 'Todos os níveis';
+        $pdf->MultiCell(0, 6, 'Nível: '.$nivelLabel, 0, 'C', false, 1);
         $pdf->Ln(2);
 
         if ($firstChecklist) {
-            $pdf->MultiCell(0, 6, 'Checklist 1: #' . $firstChecklist->id . ' - ' . $firstChecklist->created_at->format('d/m/Y'), 0, 'C', false, 1);
+            $pdf->MultiCell(0, 6, 'Checklist 1: #'.$firstChecklist->id.' - '.$firstChecklist->created_at->format('d/m/Y'), 0, 'C', false, 1);
             $pdf->Ln(2);
         }
         if ($secondChecklist) {
-            $pdf->MultiCell(0, 6, 'Checklist 2: #' . $secondChecklist->id . ' - ' . $secondChecklist->created_at->format('d/m/Y'), 0, 'C', false, 1);
+            $pdf->MultiCell(0, 6, 'Checklist 2: #'.$secondChecklist->id.' - '.$secondChecklist->created_at->format('d/m/Y'), 0, 'C', false, 1);
             $pdf->Ln(2);
         }
 
@@ -1876,11 +1603,11 @@ class KidsController extends Controller
         $this->addChartToPdf($pdf, $radarChartImage, 'Gráfico de Radar: Comparativo por Domínio', 160);
 
         $safeName = \Illuminate\Support\Str::slug($kid->name, '-');
-        $filename = 'relatorio-comparativo_' . $safeName . '_' . Carbon::now()->format('Ymd-His') . '.pdf';
+        $filename = 'relatorio-comparativo_'.$safeName.'_'.Carbon::now()->format('Ymd-His').'.pdf';
 
         return response($pdf->Output($filename, 'S'), 200)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 
     // Método auxiliar para adicionar gráficos ao PDF
