@@ -2,10 +2,13 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Sentry\Laravel\Integration;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -37,6 +40,22 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+        // Rotas de integração externa (ex: N8N) nunca devem redirecionar para /login —
+        // o cliente não é um navegador, então erros de auth/autorização sempre voltam em JSON.
+        $this->renderable(function (AuthenticationException $e, Request $request) {
+            if ($request->is('api/integrations/*')) {
+                return response()->json(['message' => 'Não autenticado.'], 401);
+            }
+        });
+
+        $this->renderable(function (HttpExceptionInterface $e, Request $request) {
+            if ($request->is('api/integrations/*')) {
+                return response()->json([
+                    'message' => $e->getMessage() ?: 'Erro na requisição.',
+                ], $e->getStatusCode());
+            }
+        });
+
         $this->reportable(function (Throwable $e) {
             Integration::captureUnhandledException($e);
         });
@@ -51,7 +70,7 @@ class Handler extends ExceptionHandler
 
     private function shouldNotifyAdmin(Throwable $e): bool
     {
-        return !($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException ||
+        return ! ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException ||
                  $e instanceof \Illuminate\Session\TokenMismatchException ||
                  $e instanceof \Illuminate\Validation\ValidationException ||
                  $e instanceof \Illuminate\Auth\AuthenticationException);
@@ -61,21 +80,21 @@ class Handler extends ExceptionHandler
     {
         try {
             $adminEmail = config('mail.admin_email');
-            if (!$adminEmail) {
+            if (! $adminEmail) {
                 return;
             }
 
             Mail::raw(
-                "Erro em producao:\n\n" .
-                get_class($e) . ": " . $e->getMessage() . "\n\n" .
-                "Arquivo: " . $e->getFile() . ":" . $e->getLine() . "\n\n" .
-                "URL: " . (request() ? request()->fullUrl() : 'N/A') . "\n" .
-                "User: " . (auth()->id() ?? 'Guest') . "\n" .
-                "IP: " . (request() ? request()->ip() : 'N/A') . "\n" .
-                "Data: " . now()->format('d/m/Y H:i:s'),
+                "Erro em producao:\n\n".
+                get_class($e).': '.$e->getMessage()."\n\n".
+                'Arquivo: '.$e->getFile().':'.$e->getLine()."\n\n".
+                'URL: '.(request() ? request()->fullUrl() : 'N/A')."\n".
+                'User: '.(auth()->id() ?? 'Guest')."\n".
+                'IP: '.(request() ? request()->ip() : 'N/A')."\n".
+                'Data: '.now()->format('d/m/Y H:i:s'),
                 function ($message) use ($adminEmail) {
                     $message->to($adminEmail)
-                            ->subject('[Maieutica] Erro em Producao');
+                        ->subject('[Maieutica] Erro em Producao');
                 }
             );
         } catch (\Exception $mailError) {

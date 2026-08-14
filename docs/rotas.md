@@ -154,6 +154,18 @@ Todas as rotas API retornam JSON. Usadas pelos componentes Vue dentro das views 
 | GET | `/api/charts/percentage/{checklist}` | Percentual por checklist |
 | GET | `/api/checklists/{checklist}/competences/{note}` | Competencias por nota |
 
+### Integracoes Externas API (`/api/integrations/*`)
+
+Escopo separado das rotas acima — nao sao consumidas pelo Vue, e sim por sistemas externos (ex: N8N) autenticados via Sanctum Personal Access Token (nunca cookie de sessao).
+
+| Metodo | URI | Descricao | Middleware extra |
+|--------|-----|-----------|-------------------|
+| GET | `/api/integrations/professionals` | Lista profissionais ativos: nome completo, email, telefone e profissao (specialty) | `abilities:integration:professionals-read` + `can('professional-list-all')` no controller |
+
+- Conta de servico e token sao provisionados via `php artisan integration:n8n-token` (`app/Console/Commands/CreateN8nIntegrationToken.php`) — nunca criar token manualmente via tinker em producao.
+- A conta de servico recebe **apenas** a permission `professional-list-all`, sem nenhuma role — nao deve ser reaproveitada para outros endpoints.
+- Erros de autenticacao/autorizacao/rota nesse prefixo sempre retornam JSON (nunca redirect para `/login`) — ver `App\Exceptions\Handler::register()`.
+
 ---
 
 ## Padrao de Nomenclatura

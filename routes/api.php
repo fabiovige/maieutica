@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ChecklistController;
 use App\Http\Controllers\Api\ChecklistRegisterController;
 use App\Http\Controllers\Api\CompetenceController;
 use App\Http\Controllers\Api\DomainController;
+use App\Http\Controllers\Api\IntegrationController;
 use App\Http\Controllers\Api\KidController;
 use App\Http\Controllers\Api\LevelController;
 use App\Http\Controllers\Api\PlaneController;
@@ -45,3 +46,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // charts
     Route::get('charts/percentage', [ChartController::class, 'percentage'])->name('api.charts.percentage');
 });
+
+// Integrações externas (ex: N8N) — autenticação via Sanctum Personal Access Token
+// escopado à ability abaixo. Ver App\Console\Commands\CreateN8nIntegrationToken.
+Route::middleware(['auth:sanctum', 'abilities:integration:professionals-read'])
+    ->prefix('integrations')
+    ->group(function () {
+        Route::get('professionals', [IntegrationController::class, 'professionals'])
+            ->name('api.integrations.professionals');
+    });
