@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Maiêutica** — Plataforma clínica de avaliação cognitiva infantil. Em produção em maieuticavaliacom.br.
 
-**Versão:** 1.0.18 | **Stack:** Laravel 9.52 (PHP ^8.0.2) · Vue 3.5 (Options API) · Bootstrap 5.3 · MySQL/MariaDB · Laravel Mix 6.x
+**Versão:** 2.11.0 (ver `database/seeders/ReleaseSeeder.php`) | **Stack:** Laravel 9.x (PHP ^8.0.2) · Vue 3.5 (Options API) · Bootstrap 5.3 · MySQL/MariaDB · Laravel Mix 6.x
 
 ---
 
@@ -30,8 +30,8 @@ GeneratedDocument → documentable (morphTo: Kid ou User)
 
 ### Dual-layer controllers
 
-- **Web** (`Http/Controllers/`): 19 controllers — Blade views, forms, DataTables server-side (yajra). Padrão CRUD + rotas extras `trash`, `restore`, `chart`, `fill`, `clonar`.
-- **API** (`Http/Controllers/Api/`): 8 controllers — JSON para componentes Vue montados dentro das views Blade. Não é SPA — Vue é usado como ilhas reativas dentro de templates Blade. Padrão: `apiResource` + rotas custom (ex: `Planes` tem `newPlane`, `storeplane`, `showCompetences`).
+- **Web** (`Http/Controllers/`): 15 controllers — Blade views, forms, DataTables server-side (yajra). Padrão CRUD + rotas extras `trash`, `restore`, `chart`, `fill`, `clonar`.
+- **API** (`Http/Controllers/Api/`): 9 controllers — JSON para componentes Vue montados dentro das views Blade. Não é SPA — Vue é usado como ilhas reativas dentro de templates Blade. Padrão: `apiResource` + rotas custom (ex: `Planes` tem `newPlane`, `storeplane`, `showCompetences`). Inclui `IntegrationController` — endpoint restrito (`GET /api/integrations/professionals`) para consumo por sistemas externos (N8N) via token Sanctum com ability escopada.
 
 ### Middleware relevante
 
@@ -87,6 +87,8 @@ if ($user->hasRole('admin')) { }     // ❌ ERRADO — quebra a arquitetura
 
 **10 Policies:** `Checklist`, `Kid`, `MedicalRecord`, `GeneratedDocument`, `Plane`, `Professional`, `User`, `Role`, `Responsible`, `Competence`
 
+**Integrações externas (ex: N8N):** contas de serviço dedicadas (sem role), com `syncPermissions()` mínima e token Sanctum emitido com **ability** própria (`abilities:` no middleware, não `auth:sanctum` puro) — nunca reusar token de usuário real. Ver `App\Console\Commands\CreateN8nIntegrationToken` e rota `GET /api/integrations/professionals` (`routes/api.php`) como referência do padrão.
+
 ---
 
 ## Comandos Essenciais
@@ -133,6 +135,8 @@ php artisan test tests/Unit/Models/           # Diretório específico
 - **Enums:** `app/Enums/ProgressColors.php` — mapeamento de cores para barras de progresso
 - **Mail:** 3 classes em `app/Mail/` — `UserCreatedMail`, `UserUpdatedMail`, `UserDeletedMail` (lifecycle do User)
 - **Health check:** `GET /health` (sem auth) — retorna JSON com status de database, cache, disk, queue
+- **Sentry:** `sentry/sentry-laravel` integrado (error monitoring, performance, logs, metrics) — config em `config/sentry.php`, DSN via `SENTRY_LARAVEL_DSN` (vazio/null desabilita, ex: local)
+- **N8N:** workflow de agendamento via WhatsApp exportado em `n8n/fluxo-atendimento.json`; consome a API restrita de integração (`App\Http\Controllers\Api\IntegrationController`)
 
 ---
 
@@ -192,6 +196,7 @@ Use `/nome` para carregar o contexto + regras de negócio de cada domínio:
 | `/emails` | Mail classes, notifications, filas de email, templates, fluxos |
 | `/seeds` | Seeders, ordem de execução, dados de teste, factories, comandos |
 | `/specs` | Features pendentes, roadmap, especificações de implementação |
+| `php-design-patterns` | Skill global (não fica em `.claude/skills/` deste projeto) — usar **sempre** que um padrão de projeto GoF for aplicável ao implementar/refatorar PHP (criação de objetos, desacoplar interface de implementações, comportamento cross-cutting sem herança, trocar algoritmo em runtime, etc.). Referência curada com implementações PHP dos 23 padrões GoF, base para a estrutura de classes/nomes/divisão de responsabilidades. |
 
 ---
 
