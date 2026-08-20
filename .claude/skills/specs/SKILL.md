@@ -13,6 +13,7 @@ Leia `docs/specs-overview.md` na íntegra. Use-o para responder perguntas sobre 
 | Remover Dropdown Ações | Pendente | Média | 1-2 dias |
 | UX Checklist Show Page | Pendente | Média | 2-3 dias |
 | PWA - Instalar como App | **Implementado** | — | — |
+| Agendamentos (WhatsApp -> N8N -> Google Calendar) | Em andamento (Etapa 2/N) | Alta | Por etapa |
 
 ## Resumo Rápido
 
@@ -38,6 +39,11 @@ Leia `docs/specs-overview.md` na íntegra. Use-o para responder perguntas sobre 
 **PWA** (`docs/specs/pwa-instalar-como-app.md`):
 - Implementado (commit `fa66ddf`)
 - manifest.json, sw.js, ícones, meta tags
+
+**Agendamentos** (`docs/specs/agendamentos.md`):
+- Etapa 1 (WhatsApp → N8N → Google Calendar): implementada
+- Etapa 2 (listagem/confirmação no sistema, comando `agenda:sync`): implementada
+- Mais etapas a definir com o usuário conforme avançamos
 
 ## Como Usar
 

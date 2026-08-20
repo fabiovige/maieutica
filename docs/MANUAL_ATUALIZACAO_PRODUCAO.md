@@ -1,5 +1,12 @@
 # Manual de Atualização em Produção
 
+> **Processo atual de deploy:** a publicação normal é disparada pelo webhook
+> GitHub -> Hostinger após o merge de um Pull Request na branch `main`. Não use
+> `git pull` manual como procedimento rotineiro. Os comandos manuais deste
+> documento servem para diagnóstico, configuração inicial ou recuperação quando
+> o deploy automático não executar uma etapa. Para a funcionalidade de
+> agendamentos, siga também `docs/orientacao-hostinger.md`.
+
 ## 📋 Checklist Pré-Deploy
 
 Antes de iniciar qualquer atualização em produção, verifique:

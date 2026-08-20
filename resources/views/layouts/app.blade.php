@@ -671,6 +671,16 @@
                         </div>
                     @endif
 
+                    {{-- Agendamentos --}}
+                    @if(auth()->user()->can('appointment-list') || auth()->user()->can('appointment-list-all'))
+                        <div class="menu-item">
+                            <a href="{{ route('appointments.index') }}" class="menu-link {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
+                                <i class="bi bi-calendar-check"></i>
+                                <span>Agendamentos</span>
+                            </a>
+                        </div>
+                    @endif
+
                     {{-- Prontuários --}}
                     @if(auth()->user()->can('medical-record-list') || auth()->user()->can('medical-record-view-own'))
                         <div class="menu-item">

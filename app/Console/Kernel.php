@@ -14,7 +14,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //
+        // Espelha a agenda do Google Calendar (eventos criados pelo fluxo N8N).
+        // Roda direto no scheduler, sem fila: QUEUE_CONNECTION=sync e ha
+        // failed_jobs acumulados a investigar antes de usar workers.
+        $schedule->command('agenda:sync')
+            ->everyFiveMinutes()
+            ->withoutOverlapping();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Appointment;
 use App\Models\Checklist;
 use App\Models\Competence;
 use App\Models\GeneratedDocument;
@@ -9,6 +10,7 @@ use App\Models\Kid;
 use App\Models\MedicalRecord;
 use App\Models\Plane;
 use App\Models\User;
+use App\Policies\AppointmentPolicy;
 use App\Policies\ChecklistPolicy;
 use App\Policies\CompetencePolicy;
 use App\Policies\GeneratedDocumentPolicy;
@@ -23,6 +25,7 @@ use Spatie\Permission\Models\Role;
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
+        Appointment::class => AppointmentPolicy::class,
         Kid::class => KidPolicy::class,
         User::class => UserPolicy::class,
         Checklist::class => ChecklistPolicy::class,

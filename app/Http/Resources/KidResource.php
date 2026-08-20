@@ -15,7 +15,7 @@ class KidResource extends JsonResource
             'name' => $this->name,
             'birth_date' => $this->birth_date,
             'responsible' => $this->responsible()->first(),
-            'professional' => $this->user()->first(),
+            'professionals' => $this->professionals,
             'checklists' => $this->checklists()->get(),
             'planes' => $this->planes()->get(),
         ];

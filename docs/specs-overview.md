@@ -13,6 +13,7 @@
 | 3 | Remover Dropdown Acoes | Pendente | Media | 1-2 dias | `docs/specs/remover-dropdown-acoes.md` |
 | 4 | UX Checklist Show Page | Pendente | Media | 2-3 dias | `docs/specs/ux-checklist-show-page.md` |
 | 5 | PWA - Instalar como App | Implementado | — | — | `docs/specs/pwa-instalar-como-app.md` |
+| 6 | Agendamentos (WhatsApp -> N8N -> Google Calendar) | Em andamento (Etapa 2/N) | Alta | Por etapa | `docs/specs/agendamentos.md` |
 
 ---
 
@@ -109,6 +110,21 @@
 - Instalavel como app no Android/iOS
 
 **Leia:** `docs/specs/pwa-instalar-como-app.md` para spec original.
+
+---
+
+## 6. Agendamentos (WhatsApp -> N8N -> Google Calendar)
+
+**Objetivo:** captar e confirmar agendamentos sem atendimento manual por telefone/WhatsApp, usando o Google Calendar como intermediario entre um agente N8N e o Maieutica.
+
+**Divisao de responsabilidade:** Google Calendar e dono da existencia/horario do evento; Maieutica e dono do estado de confirmacao e do vinculo com o profissional.
+
+**Etapas:**
+1. **Agendamento via WhatsApp** (Implementado) — agente N8N cria o evento no Google Calendar, consumindo `GET /api/integrations/professionals`.
+2. **Listagem de agendamentos no sistema** (Implementado) — comando `agenda:sync` espelha os eventos para a tabela `appointments`; tela `/appointments` para a recepcao confirmar/recusar e vincular o profissional real.
+3+. A definir conforme avancarmos com o usuario.
+
+**Leia:** `docs/specs/agendamentos.md` para detalhes completos de cada etapa.
 
 ---
 

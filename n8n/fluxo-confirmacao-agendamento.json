@@ -1,0 +1,160 @@
+{
+  "name": "Maieutica - Notificar confirmacao de agendamento",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "maieutica/agendamentos/confirmado",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -640,
+        240
+      ],
+      "id": "a10a1f01-69c8-4a69-bf65-ad9cb4fdf134",
+      "name": "Webhook confirmacao",
+      "webhookId": "c8a14f2a-4932-47b1-aaca-4ce173272e87"
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json.body || {};\nconst appointment = payload.appointment || {};\nconst patient = appointment.patient || {};\nconst professional = appointment.professional || {};\n\nif (payload.event !== 'appointment.confirmed') {\n  throw new Error('Evento invalido: esperado appointment.confirmed.');\n}\n\nif (!payload.event_id || !appointment.id || !appointment.starts_at) {\n  throw new Error('Payload incompleto: event_id, appointment.id e starts_at sao obrigatorios.');\n}\n\nfunction whatsappNumber(value, label) {\n  let digits = String(value || '').replace(/\\D/g, '');\n\n  if (digits.length === 10 || digits.length === 11) {\n    digits = `55${digits}`;\n  }\n\n  if (digits.length < 12 || digits.length > 13) {\n    throw new Error(`Telefone ${label} ausente ou invalido.`);\n  }\n\n  return `${digits}@s.whatsapp.net`;\n}\n\nif (!patient.name || !professional.name) {\n  throw new Error('Payload incompleto: nomes do paciente e do profissional sao obrigatorios.');\n}\n\nconst startsAt = new Date(appointment.starts_at);\nif (Number.isNaN(startsAt.getTime())) {\n  throw new Error('Data do agendamento invalida.');\n}\n\nconst date = new Intl.DateTimeFormat('pt-BR', {\n  timeZone: 'America/Sao_Paulo',\n  weekday: 'long',\n  day: '2-digit',\n  month: '2-digit',\n  year: 'numeric',\n}).format(startsAt);\n\nconst time = new Intl.DateTimeFormat('pt-BR', {\n  timeZone: 'America/Sao_Paulo',\n  hour: '2-digit',\n  minute: '2-digit',\n  hour12: false,\n}).format(startsAt);\n\nconst specialty = professional.specialty ? ` (${professional.specialty})` : '';\n\nreturn [{\n  json: {\n    eventId: payload.event_id,\n    appointmentId: appointment.id,\n    patientNumber: whatsappNumber(patient.phone, 'do paciente'),\n    professionalNumber: whatsappNumber(professional.phone, 'do profissional'),\n    patientMessage: `Ola, ${patient.name}! Seu agendamento com ${professional.name}${specialty} foi confirmado para ${date}, as ${time}.\\n\\nClinica Maieutica`,\n    professionalMessage: `Ola, ${professional.name}! Um atendimento foi confirmado para ${date}, as ${time}.\\n\\nPaciente: ${patient.name}\\nContato: ${patient.phone}\\n\\nClinica Maieutica`,\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        240
+      ],
+      "id": "4ebcf6a0-daef-42bb-aa88-4dff95c94113",
+      "name": "Validar e preparar mensagens"
+    },
+    {
+      "parameters": {
+        "resource": "sendMessage",
+        "instanceApiKey": "CONFIGURE_O_TOKEN_DA_INSTANCIA_EVOLUTION",
+        "sendTextNumber": "={{ $('Validar e preparar mensagens').item.json.patientNumber }}",
+        "sendTextContent": "={{ $('Validar e preparar mensagens').item.json.patientMessage }}",
+        "sendTextDelay": 1000,
+        "sendTextAdditionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-evolution-go.evoGo",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        240
+      ],
+      "id": "51286a4b-74db-4548-b6c1-10aa7a809ae9",
+      "name": "Avisar paciente",
+      "credentials": {
+        "evoGoApi": {
+          "id": "lOOX7PijKFAiSYv5",
+          "name": "EvoGo Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "sendMessage",
+        "instanceApiKey": "CONFIGURE_O_TOKEN_DA_INSTANCIA_EVOLUTION",
+        "sendTextNumber": "={{ $('Validar e preparar mensagens').item.json.professionalNumber }}",
+        "sendTextContent": "={{ $('Validar e preparar mensagens').item.json.professionalMessage }}",
+        "sendTextDelay": 1000,
+        "sendTextAdditionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-evolution-go.evoGo",
+      "typeVersion": 1,
+      "position": [
+        160,
+        240
+      ],
+      "id": "66ca778a-dabe-437e-a5c3-e13fdb012b28",
+      "name": "Avisar profissional",
+      "credentials": {
+        "evoGoApi": {
+          "id": "lOOX7PijKFAiSYv5",
+          "name": "EvoGo Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, event: 'appointment.confirmed', event_id: $('Validar e preparar mensagens').item.json.eventId, appointment_id: $('Validar e preparar mensagens').item.json.appointmentId, patient_notified: true, professional_notified: true } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        432,
+        240
+      ],
+      "id": "6a8dd4d1-c78b-46c4-bb42-7a55ebcb4ac3",
+      "name": "Responder ao Maieutica"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook confirmacao": {
+      "main": [
+        [
+          {
+            "node": "Validar e preparar mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar e preparar mensagens": {
+      "main": [
+        [
+          {
+            "node": "Avisar paciente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avisar paciente": {
+      "main": [
+        [
+          {
+            "node": "Avisar profissional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avisar profissional": {
+      "main": [
+        [
+          {
+            "node": "Responder ao Maieutica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "d9cd79db-fb46-487a-bdf8-60c65dbc1242",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

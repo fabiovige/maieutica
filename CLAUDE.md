@@ -137,6 +137,7 @@ php artisan test tests/Unit/Models/           # Diretório específico
 - **Health check:** `GET /health` (sem auth) — retorna JSON com status de database, cache, disk, queue
 - **Sentry:** `sentry/sentry-laravel` integrado (error monitoring, performance, logs, metrics) — config em `config/sentry.php`, DSN via `SENTRY_LARAVEL_DSN` (vazio/null desabilita, ex: local)
 - **N8N:** workflow de agendamento via WhatsApp exportado em `n8n/fluxo-atendimento.json`; consome a API restrita de integração (`App\Http\Controllers\Api\IntegrationController`)
+- **Agendamentos:** feature em etapas (WhatsApp/N8N → Google Calendar → Maieutica). Etapa 1 (criação do evento) e Etapa 2 (sincronização via `agenda:sync` + tela `/appointments` para confirmação) implementadas. Detalhes e próximas etapas em `docs/specs/agendamentos.md`
 
 ---
 

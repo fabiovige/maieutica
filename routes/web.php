@@ -1,17 +1,17 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\CompetencesController;
+use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\KidsController;
+use App\Http\Controllers\MedicalRecordsController;
 use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TutorialController;
-use App\Http\Controllers\DocumentsController;
-use App\Http\Controllers\MedicalRecordsController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 // Rotas de Autenticação
@@ -116,9 +116,9 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('auth');
 
     // TUTORIAL
-    Route::get('/tutorial',  [TutorialController::class, 'index'])->name('tutorial.index');
-    Route::get('/tutorial/users',  [TutorialController::class, 'users'])->name('tutorial.users');
-    Route::get('/tutorial/checklists',  [TutorialController::class, 'checklists'])->name('tutorial.checklists');
+    Route::get('/tutorial', [TutorialController::class, 'index'])->name('tutorial.index');
+    Route::get('/tutorial/users', [TutorialController::class, 'users'])->name('tutorial.users');
+    Route::get('/tutorial/checklists', [TutorialController::class, 'checklists'])->name('tutorial.checklists');
 
     // Documentos
     Route::get('/documents', [DocumentsController::class, 'index'])->name('documentos.index');
@@ -152,6 +152,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('medical-records', MedicalRecordsController::class);
 
     // Releases
+    // agendamentos (espelho do Google Calendar - ver `php artisan agenda:sync`)
+    Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
+    Route::post('appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->name('appointments.confirm');
+    Route::post('appointments/{appointment}/refuse', [AppointmentController::class, 'refuse'])->name('appointments.refuse');
+
     Route::get('releases', [ReleaseController::class, 'index'])->name('releases.index');
     Route::get('releases/{release}', [ReleaseController::class, 'show'])->name('releases.show');
 
@@ -197,7 +202,7 @@ Route::get('/health', function () {
         $checks['queue'] = 'unknown';
     }
 
-    $allOk = !in_array('fail', $checks);
+    $allOk = ! in_array('fail', $checks);
 
     return response()->json([
         'status' => $allOk ? 'healthy' : 'unhealthy',
@@ -221,4 +226,3 @@ Route::get('users/datatable/index', [UserController::class, 'index_data'])->name
 Route::get('/documentation', [App\Http\Controllers\DocumentationController::class, 'index'])->name('documentation.index');
 Route::get('/documentation/pages/{filename}', [App\Http\Controllers\DocumentationController::class, 'page'])->name('documentation.page');
 Route::get('/documentation/assets/{type}/{filename}', [App\Http\Controllers\DocumentationController::class, 'asset'])->name('documentation.asset');
-

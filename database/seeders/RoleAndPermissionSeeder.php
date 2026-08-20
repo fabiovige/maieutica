@@ -122,10 +122,14 @@ class RoleAndPermissionSeeder extends Seeder
             'medical-record-delete-all',
             'medical-record-view-own', // Created but NOT assigned to admin (patient only)
 
+            // Agendamentos (origem: Google Calendar via fluxo N8N)
+            'appointment-list',      // vê apenas os próprios, já confirmados
+            'appointment-list-all',  // vê todos, incluindo a fila de pendentes
+            'appointment-confirm',   // confirma / recusa um agendamento
+
             // Permissões adicionais / administrativas
             'dashboard-manage',
         ];
-
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
@@ -184,6 +188,9 @@ class RoleAndPermissionSeeder extends Seeder
             'medical-record-create',
             'medical-record-edit',
             'medical-record-delete',
+
+            // Agendamentos - vê apenas os seus, após a confirmação da clínica
+            'appointment-list',
         ];
         $profissional->syncPermissions($permissionsProfissional);
 
