@@ -176,3 +176,35 @@ Configuracao operacional: `docs/passo-a-passo-n8n-desistencia-encaixe.md`.
 ## Proximas Etapas
 
 A definir junto com o usuario, conforme o fluxo avancar (ex.: notificacao ao paciente na confirmacao, cancelamento pelo proprio sistema espelhando de volta pro Calendar, vinculo do agendamento com `Kid`/`MedicalRecord`, etc.). Esta secao e atualizada a cada nova etapa combinada.
+
+---
+
+## Protecoes de concorrencia e seguranca
+
+As solicitacoes criadas pelo WhatsApp continuam entrando como pendentes. Em
+uma corrida extrema, duas pessoas ainda podem enviar solicitacoes para o mesmo
+horario, mas o Laravel nunca confirma duas consultas sobrepostas para o mesmo
+profissional:
+
+- um lock por agenda do profissional serializa as confirmacoes;
+- a consulta de sobreposicao considera inicio e fim, com duracao padrao de 50
+  minutos quando o fim nao estiver preenchido;
+- `appointment_slots` mantem uma reserva duravel dos horarios confirmados;
+- o indice unico de profissional + inicio funciona como ultima barreira para
+  confirmacoes simultaneas no mesmo horario exato;
+- cancelamento e mudanca de horario removem a reserva correspondente.
+
+As acoes de escrita possuem rate limit de 12 operacoes por minuto por usuario
+e 4 operacoes por minuto no mesmo agendamento. Desistencia e encaixe recebem um
+`operation_id` UUID, persistido com indice unico e reutilizado como chave do
+evento enviado ao N8N. Reenvio do mesmo formulario nao repete a operacao.
+
+A consulta somente leitura ao Google Calendar tenta novamente ate tres vezes
+em falhas de conexao, HTTP 429 ou erro 5xx. Os webhooks que enviam WhatsApp nao
+possuem retry automatico: sem deduplicacao persistente no N8N, uma retentativa
+apos perda de resposta poderia duplicar mensagens.
+
+O fluxo principal tambem passou a distinguir explicitamente solicitacao de
+confirmacao: sucesso ao criar o evento significa apenas **solicitacao
+registrada**. A palavra **confirmado** fica reservada ao fluxo posterior da
+clinica.

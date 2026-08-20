@@ -311,6 +311,9 @@ A migration esperada para esta funcionalidade é:
 2026_08_18_170508_create_appointments_table
 2026_08_20_120000_add_cancellation_fields_to_appointments_table
 2026_08_20_120100_create_appointment_replacements_table
+2026_08_20_130000_create_appointment_slots_table
+2026_08_20_130100_add_operation_id_to_appointment_replacements_table
+2026_08_20_130200_backfill_confirmed_appointment_slots
 ```
 
 Se o script de deploy ainda não executou o seeder, rode:

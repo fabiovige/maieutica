@@ -13,6 +13,7 @@ class AppointmentReplacement extends Model
 
     protected $fillable = [
         'appointment_id',
+        'operation_id',
         'action',
         'google_event_id',
         'old_patient_name',

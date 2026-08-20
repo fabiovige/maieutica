@@ -25,7 +25,7 @@ class N8nAppointmentLifecycle
 
     public const FAILED = 'failed';
 
-    public function cancel(Appointment $appointment, ?string $reason): string
+    public function cancel(Appointment $appointment, ?string $reason, string $operationId): string
     {
         $url = config('services.n8n.appointment_cancelled_webhook');
 
@@ -39,7 +39,7 @@ class N8nAppointmentLifecycle
 
         $payload = [
             'event' => 'appointment.cancelled',
-            'event_id' => 'appointment.cancelled.'.$appointment->id.'.'.now()->timestamp,
+            'event_id' => 'appointment.cancelled.'.$appointment->id.'.'.$operationId,
             'occurred_at' => now()->toIso8601String(),
             'appointment' => [
                 'id' => $appointment->id,
@@ -75,7 +75,8 @@ class N8nAppointmentLifecycle
         Appointment $appointment,
         Professional $professional,
         array $replacement,
-        ?string $cancellationReason
+        ?string $cancellationReason,
+        string $operationId
     ): string {
         $url = config('services.n8n.appointment_replaced_webhook');
 
@@ -92,7 +93,7 @@ class N8nAppointmentLifecycle
 
         $payload = [
             'event' => 'appointment.replaced',
-            'event_id' => 'appointment.replaced.'.$appointment->id.'.'.now()->timestamp,
+            'event_id' => 'appointment.replaced.'.$appointment->id.'.'.$operationId,
             'occurred_at' => now()->toIso8601String(),
             'appointment' => [
                 'id' => $appointment->id,

@@ -59,5 +59,16 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(10000)->by(optional($request->user())->id ?: $request->ip());
         });
+
+        RateLimiter::for('appointment-actions', function (Request $request) {
+            $user = optional($request->user())->id ?: $request->ip();
+            $appointment = $request->route('appointment');
+            $appointmentId = is_object($appointment) ? $appointment->getKey() : $appointment;
+
+            return [
+                Limit::perMinute(12)->by('appointment-user:'.$user),
+                Limit::perMinute(4)->by('appointment-record:'.$user.':'.$appointmentId),
+            ];
+        });
     }
 }

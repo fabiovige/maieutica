@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Appointment;
+use App\Models\AppointmentSlot;
 use App\Services\Calendar\AppointmentMapper;
 use App\Services\Calendar\GoogleCalendarClient;
 use Illuminate\Console\Command;
@@ -70,6 +71,9 @@ class SyncGoogleCalendarAppointments extends Command
                     $canceled++;
                     if (! $dryRun) {
                         $appointment->update(['situation' => Appointment::SITUATION_CANCELED]);
+                        AppointmentSlot::query()
+                            ->where('appointment_id', $appointment->id)
+                            ->delete();
                     }
                 }
 
@@ -105,6 +109,12 @@ class SyncGoogleCalendarAppointments extends Command
                 $attributes['confirmed_by'] = null;
                 $attributes['confirmed_at'] = null;
                 $reopened++;
+
+                if (! $dryRun) {
+                    AppointmentSlot::query()
+                        ->where('appointment_id', $appointment->id)
+                        ->delete();
+                }
 
                 Log::notice('Agendamento confirmado teve o horario alterado no Google Calendar', [
                     'appointment_id' => $appointment->id,

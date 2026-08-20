@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\AppointmentReplacement;
+use App\Models\AppointmentSlot;
 use App\Models\Professional;
 use App\Services\Integrations\N8nAppointmentLifecycle;
 use App\Services\Integrations\N8nAppointmentNotifier;
 use App\Services\Logging\AppointmentLogger;
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -105,23 +107,41 @@ class AppointmentController extends Controller
             ]);
         }
 
-        $appointment = DB::transaction(function () use ($appointment, $professional) {
-            $lockedAppointment = Appointment::query()
-                ->lockForUpdate()
-                ->findOrFail($appointment->id);
+        try {
+            $appointment = Cache::lock('appointment-professional-schedule-'.$professional->id, 30)
+                ->block(5, function () use ($appointment, $professional) {
+                    return DB::transaction(function () use ($appointment, $professional) {
+                        $lockedAppointment = Appointment::query()
+                            ->lockForUpdate()
+                            ->findOrFail($appointment->id);
 
-            $this->ensurePending($lockedAppointment);
+                        $this->ensurePending($lockedAppointment);
+                        $this->ensureProfessionalAvailable($professional, $lockedAppointment);
 
-            $lockedAppointment->update([
-                'professional_id' => $professional->id,
-                'situation' => Appointment::SITUATION_CONFIRMED,
-                'confirmed_by' => auth()->id(),
-                'confirmed_at' => now(),
-                'updated_by' => auth()->id(),
-            ]);
+                        $lockedAppointment->update([
+                            'professional_id' => $professional->id,
+                            'situation' => Appointment::SITUATION_CONFIRMED,
+                            'confirmed_by' => auth()->id(),
+                            'confirmed_at' => now(),
+                            'updated_by' => auth()->id(),
+                        ]);
 
-            return $lockedAppointment->fresh();
-        });
+                        $this->persistSlot($lockedAppointment, $professional);
+
+                        return $lockedAppointment->fresh();
+                    });
+                });
+        } catch (LockTimeoutException) {
+            return $this->appointmentRedirect($request)
+                ->with('error', 'A agenda deste profissional está sendo atualizada. Aguarde e tente novamente.');
+        } catch (QueryException $exception) {
+            if (! $this->isUniqueConstraintViolation($exception)) {
+                throw $exception;
+            }
+
+            return $this->appointmentRedirect($request)
+                ->with('error', 'Este horário acabou de ser confirmado para outro paciente. Escolha outro horário.');
+        }
 
         $this->appointmentLogger->confirmed($appointment);
 
@@ -178,18 +198,31 @@ class AppointmentController extends Controller
         $this->authorize('cancel', $appointment);
 
         $validated = $request->validate([
+            'operation_id' => ['required', 'uuid'],
             'cancellation_reason' => ['nullable', 'string', 'max:1000'],
         ]);
+
+        if ($this->operationAlreadyCompleted($appointment, $validated['operation_id'])) {
+            return $this->appointmentRedirect($request)
+                ->with('success', 'Esta desistência já havia sido registrada.');
+        }
 
         try {
             return Cache::lock('appointment-lifecycle-'.$appointment->id, 30)->block(5, function () use ($request, $appointment, $validated) {
                 $appointment = Appointment::with(['professional.user', 'professional.specialty'])
                     ->findOrFail($appointment->id);
+
+                if ($this->operationAlreadyCompleted($appointment, $validated['operation_id'])) {
+                    return $this->appointmentRedirect($request)
+                        ->with('success', 'Esta desistência já havia sido registrada.');
+                }
+
                 $this->ensureConfirmed($appointment);
 
                 $status = $this->n8nAppointmentLifecycle->cancel(
                     $appointment,
-                    $validated['cancellation_reason'] ?? null
+                    $validated['cancellation_reason'] ?? null,
+                    $validated['operation_id']
                 );
 
                 if ($status !== N8nAppointmentLifecycle::SUCCESS) {
@@ -202,6 +235,7 @@ class AppointmentController extends Controller
 
                     AppointmentReplacement::create([
                         'appointment_id' => $lockedAppointment->id,
+                        'operation_id' => $validated['operation_id'],
                         'action' => AppointmentReplacement::ACTION_CANCELLATION,
                         'google_event_id' => $lockedAppointment->google_event_id,
                         'old_patient_name' => $lockedAppointment->patient_name,
@@ -222,6 +256,10 @@ class AppointmentController extends Controller
                         'updated_by' => auth()->id(),
                     ]);
 
+                    AppointmentSlot::query()
+                        ->where('appointment_id', $lockedAppointment->id)
+                        ->delete();
+
                     return $lockedAppointment->fresh();
                 });
 
@@ -233,6 +271,13 @@ class AppointmentController extends Controller
         } catch (LockTimeoutException) {
             return $this->appointmentRedirect($request)
                 ->with('error', 'Este agendamento está sendo processado por outro usuário. Aguarde e tente novamente.');
+        } catch (QueryException $exception) {
+            if (! $this->isUniqueConstraintViolation($exception)) {
+                throw $exception;
+            }
+
+            return $this->appointmentRedirect($request)
+                ->with('success', 'Esta desistência já havia sido registrada.');
         }
     }
 
@@ -241,6 +286,7 @@ class AppointmentController extends Controller
         $this->authorize('replace', $appointment);
 
         $validated = $request->validate([
+            'operation_id' => ['required', 'uuid'],
             'patient_name' => ['required', 'string', 'max:255'],
             'patient_phone' => ['required', 'string', 'max:30'],
             'patient_email' => ['nullable', 'email', 'max:255'],
@@ -248,6 +294,11 @@ class AppointmentController extends Controller
             'professional_id' => ['required', Rule::exists('professionals', 'id')->whereNull('deleted_at')],
             'cancellation_reason' => ['nullable', 'string', 'max:1000'],
         ]);
+
+        if ($this->operationAlreadyCompleted($appointment, $validated['operation_id'])) {
+            return $this->appointmentRedirect($request)
+                ->with('success', 'Este encaixe já havia sido registrado.');
+        }
 
         $professional = Professional::with(['user', 'specialty'])
             ->whereKey($validated['professional_id'])
@@ -263,69 +314,92 @@ class AppointmentController extends Controller
         try {
             return Cache::lock('appointment-lifecycle-'.$appointment->id, 30)->block(5, function () use ($request, $appointment, $professional, $validated) {
                 $appointment = Appointment::with(['professional.user'])->findOrFail($appointment->id);
-                $this->ensureConfirmed($appointment);
 
-                $status = $this->n8nAppointmentLifecycle->replace(
-                    $appointment,
-                    $professional,
-                    $validated,
-                    $validated['cancellation_reason'] ?? null
-                );
-
-                if ($status !== N8nAppointmentLifecycle::SUCCESS) {
-                    return $this->lifecycleFailureRedirect($request, $status, 'realizar o encaixe');
+                if ($this->operationAlreadyCompleted($appointment, $validated['operation_id'])) {
+                    return $this->appointmentRedirect($request)
+                        ->with('success', 'Este encaixe já havia sido registrado.');
                 }
 
-                $appointment = DB::transaction(function () use ($appointment, $professional, $validated) {
-                    $lockedAppointment = Appointment::query()->lockForUpdate()->findOrFail($appointment->id);
-                    $this->ensureConfirmed($lockedAppointment);
+                $this->ensureConfirmed($appointment);
 
-                    AppointmentReplacement::create([
-                        'appointment_id' => $lockedAppointment->id,
-                        'action' => AppointmentReplacement::ACTION_REPLACEMENT,
-                        'google_event_id' => $lockedAppointment->google_event_id,
-                        'old_patient_name' => $lockedAppointment->patient_name,
-                        'old_patient_email' => $lockedAppointment->patient_email,
-                        'old_patient_phone' => $lockedAppointment->patient_phone,
-                        'old_reason' => $lockedAppointment->reason,
-                        'old_professional_id' => $lockedAppointment->professional_id,
-                        'new_patient_name' => $validated['patient_name'],
-                        'new_patient_email' => $validated['patient_email'] ?? null,
-                        'new_patient_phone' => $validated['patient_phone'],
-                        'new_reason' => $validated['reason'] ?? null,
-                        'new_professional_id' => $professional->id,
-                        'cancellation_reason' => $validated['cancellation_reason'] ?? null,
-                        'performed_by' => auth()->id(),
-                        'occurred_at' => now(),
-                    ]);
+                return Cache::lock('appointment-professional-schedule-'.$professional->id, 30)
+                    ->block(5, function () use ($request, $appointment, $professional, $validated) {
+                        $this->ensureProfessionalAvailable($professional, $appointment, $appointment->id);
 
-                    $lockedAppointment->update([
-                        'patient_name' => $validated['patient_name'],
-                        'patient_email' => $validated['patient_email'] ?? null,
-                        'patient_phone' => $validated['patient_phone'],
-                        'reason' => $validated['reason'] ?? null,
-                        'professional_id' => $professional->id,
-                        'professional_raw' => $professional->user->first()?->name,
-                        'specialty_raw' => $professional->specialty?->name,
-                        'confirmed_by' => auth()->id(),
-                        'confirmed_at' => now(),
-                        'canceled_by' => null,
-                        'canceled_at' => null,
-                        'cancellation_reason' => null,
-                        'updated_by' => auth()->id(),
-                    ]);
+                        $status = $this->n8nAppointmentLifecycle->replace(
+                            $appointment,
+                            $professional,
+                            $validated,
+                            $validated['cancellation_reason'] ?? null,
+                            $validated['operation_id']
+                        );
 
-                    return $lockedAppointment->fresh();
-                });
+                        if ($status !== N8nAppointmentLifecycle::SUCCESS) {
+                            return $this->lifecycleFailureRedirect($request, $status, 'realizar o encaixe');
+                        }
 
-                $this->appointmentLogger->replaced($appointment);
+                        $appointment = DB::transaction(function () use ($appointment, $professional, $validated) {
+                            $lockedAppointment = Appointment::query()->lockForUpdate()->findOrFail($appointment->id);
+                            $this->ensureConfirmed($lockedAppointment);
+                            $this->ensureProfessionalAvailable($professional, $lockedAppointment, $lockedAppointment->id);
 
-                return $this->appointmentRedirect($request)
-                    ->with('success', 'Novo paciente encaixado no horário com sucesso.');
+                            AppointmentReplacement::create([
+                                'appointment_id' => $lockedAppointment->id,
+                                'operation_id' => $validated['operation_id'],
+                                'action' => AppointmentReplacement::ACTION_REPLACEMENT,
+                                'google_event_id' => $lockedAppointment->google_event_id,
+                                'old_patient_name' => $lockedAppointment->patient_name,
+                                'old_patient_email' => $lockedAppointment->patient_email,
+                                'old_patient_phone' => $lockedAppointment->patient_phone,
+                                'old_reason' => $lockedAppointment->reason,
+                                'old_professional_id' => $lockedAppointment->professional_id,
+                                'new_patient_name' => $validated['patient_name'],
+                                'new_patient_email' => $validated['patient_email'] ?? null,
+                                'new_patient_phone' => $validated['patient_phone'],
+                                'new_reason' => $validated['reason'] ?? null,
+                                'new_professional_id' => $professional->id,
+                                'cancellation_reason' => $validated['cancellation_reason'] ?? null,
+                                'performed_by' => auth()->id(),
+                                'occurred_at' => now(),
+                            ]);
+
+                            $lockedAppointment->update([
+                                'patient_name' => $validated['patient_name'],
+                                'patient_email' => $validated['patient_email'] ?? null,
+                                'patient_phone' => $validated['patient_phone'],
+                                'reason' => $validated['reason'] ?? null,
+                                'professional_id' => $professional->id,
+                                'professional_raw' => $professional->user->first()?->name,
+                                'specialty_raw' => $professional->specialty?->name,
+                                'confirmed_by' => auth()->id(),
+                                'confirmed_at' => now(),
+                                'canceled_by' => null,
+                                'canceled_at' => null,
+                                'cancellation_reason' => null,
+                                'updated_by' => auth()->id(),
+                            ]);
+
+                            $this->persistSlot($lockedAppointment, $professional);
+
+                            return $lockedAppointment->fresh();
+                        });
+
+                        $this->appointmentLogger->replaced($appointment);
+
+                        return $this->appointmentRedirect($request)
+                            ->with('success', 'Novo paciente encaixado no horário com sucesso.');
+                    });
             });
         } catch (LockTimeoutException) {
             return $this->appointmentRedirect($request)
                 ->with('error', 'Este agendamento está sendo processado por outro usuário. Aguarde e tente novamente.');
+        } catch (QueryException $exception) {
+            if (! $this->isUniqueConstraintViolation($exception)) {
+                throw $exception;
+            }
+
+            return $this->appointmentRedirect($request)
+                ->with('error', 'Este horário acabou de ser ocupado. O encaixe não foi registrado.');
         }
     }
 
@@ -350,6 +424,61 @@ class AppointmentController extends Controller
                 'appointment' => 'Somente um agendamento confirmado pode receber desistência ou encaixe.',
             ]);
         }
+    }
+
+    private function ensureProfessionalAvailable(
+        Professional $professional,
+        Appointment $candidate,
+        ?int $exceptAppointmentId = null
+    ): void {
+        $startsAt = $candidate->starts_at;
+        $endsAt = $candidate->ends_at ?? $candidate->starts_at->copy()->addMinutes(50);
+
+        $conflict = Appointment::query()
+            ->where('professional_id', $professional->id)
+            ->where('situation', Appointment::SITUATION_CONFIRMED)
+            ->when($exceptAppointmentId, fn ($query) => $query->where('id', '!=', $exceptAppointmentId))
+            ->where('starts_at', '<', $endsAt)
+            ->where(function ($query) use ($startsAt) {
+                $query->where('ends_at', '>', $startsAt)
+                    ->orWhere(function ($query) use ($startsAt) {
+                        $query->whereNull('ends_at')
+                            ->where('starts_at', '>', $startsAt->copy()->subMinutes(50));
+                    });
+            })
+            ->lockForUpdate()
+            ->exists();
+
+        if ($conflict) {
+            throw ValidationException::withMessages([
+                'appointment' => 'Este profissional já possui um agendamento confirmado que se sobrepõe a este horário.',
+            ]);
+        }
+    }
+
+    private function persistSlot(Appointment $appointment, Professional $professional): void
+    {
+        AppointmentSlot::updateOrCreate(
+            ['appointment_id' => $appointment->id],
+            [
+                'professional_id' => $professional->id,
+                'starts_at' => $appointment->starts_at,
+                'ends_at' => $appointment->ends_at ?? $appointment->starts_at->copy()->addMinutes(50),
+            ]
+        );
+    }
+
+    private function operationAlreadyCompleted(Appointment $appointment, string $operationId): bool
+    {
+        return AppointmentReplacement::query()
+            ->where('appointment_id', $appointment->id)
+            ->where('operation_id', $operationId)
+            ->exists();
+    }
+
+    private function isUniqueConstraintViolation(QueryException $exception): bool
+    {
+        return in_array((string) $exception->getCode(), ['23000', '23505'], true);
     }
 
     private function lifecycleFailureRedirect(Request $request, string $status, string $operation)

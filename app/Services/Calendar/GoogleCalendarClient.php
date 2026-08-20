@@ -2,6 +2,8 @@
 
 namespace App\Services\Calendar;
 
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -46,6 +48,7 @@ class GoogleCalendarClient
 
         do {
             $response = Http::withToken($this->accessToken())
+                ->retry(3, 250, fn ($exception) => $this->isTransientFailure($exception), false)
                 ->get(self::API_BASE.'/calendars/'.rawurlencode($calendarId).'/events', array_filter([
                     'timeMin' => $from->format(\DATE_RFC3339),
                     'timeMax' => $to->format(\DATE_RFC3339),
@@ -77,10 +80,12 @@ class GoogleCalendarClient
         return Cache::remember(self::TOKEN_CACHE_KEY, now()->addMinutes(55), function () {
             $credentials = $this->credentials();
 
-            $response = Http::asForm()->post(self::TOKEN_URL, [
-                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-                'assertion' => $this->buildSignedJwt($credentials),
-            ]);
+            $response = Http::asForm()
+                ->retry(3, 250, fn ($exception) => $this->isTransientFailure($exception), false)
+                ->post(self::TOKEN_URL, [
+                    'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                    'assertion' => $this->buildSignedJwt($credentials),
+                ]);
 
             if ($response->failed()) {
                 throw new RuntimeException(
@@ -149,5 +154,15 @@ class GoogleCalendarClient
     private function base64UrlEncode(string $value): string
     {
         return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
+    }
+
+    private function isTransientFailure($exception): bool
+    {
+        if ($exception instanceof ConnectionException) {
+            return true;
+        }
+
+        return $exception instanceof RequestException
+            && ($exception->response->serverError() || $exception->response->status() === 429);
     }
 }

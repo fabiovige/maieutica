@@ -199,3 +199,9 @@ nao substitui os dados locais.
 - O historico de desistencias e substituicoes fica em
   `appointment_replacements`.
 - Os logs do Laravel registram somente IDs, horario e metadados operacionais.
+- Cada formulario gera um `operation_id` unico. O mesmo valor segue no
+  `event_id` e no header `X-Idempotency-Key`; repetir o mesmo formulario nao
+  dispara novamente a operacao no Laravel.
+- Nao habilite retry automatico nos nodes de WhatsApp enquanto o N8N nao
+  possuir armazenamento persistente de chaves processadas. Uma resposta
+  perdida depois do envio poderia gerar mensagem duplicada.

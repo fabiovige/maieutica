@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Agendamento originado no Google Calendar (criado pelo fluxo N8N via WhatsApp).
@@ -79,6 +80,11 @@ class Appointment extends BaseModel
     public function replacements(): HasMany
     {
         return $this->hasMany(AppointmentReplacement::class)->latest('occurred_at');
+    }
+
+    public function slot(): HasOne
+    {
+        return $this->hasOne(AppointmentSlot::class);
     }
 
     public function getSituationLabelAttribute(): string

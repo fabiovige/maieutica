@@ -242,6 +242,7 @@
                         <div class="modal-content">
                             <form method="POST" action="{{ route('appointments.cancel', $appointment) }}">
                                 @csrf
+                                <input type="hidden" name="operation_id" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
                                 @foreach(request()->only(['search', 'situation', 'from', 'to', 'page']) as $key => $value)
                                     <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                                 @endforeach
@@ -278,6 +279,7 @@
                         <div class="modal-content">
                             <form method="POST" action="{{ route('appointments.replace', $appointment) }}">
                                 @csrf
+                                <input type="hidden" name="operation_id" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
                                 @foreach(request()->only(['search', 'situation', 'from', 'to', 'page']) as $key => $value)
                                     <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                                 @endforeach
