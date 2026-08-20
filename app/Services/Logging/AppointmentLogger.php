@@ -39,6 +39,26 @@ class AppointmentLogger
         ], $this->buildUserContext(), $context));
     }
 
+    public function canceled(Appointment $appointment, array $context = []): void
+    {
+        Log::notice('Appointment canceled', array_merge([
+            'appointment_id' => $appointment->id,
+            'google_event_id' => $appointment->google_event_id,
+            'professional_id' => $appointment->professional_id,
+            'starts_at' => $appointment->starts_at?->toDateTimeString(),
+        ], $this->buildUserContext(), $context));
+    }
+
+    public function replaced(Appointment $appointment, array $context = []): void
+    {
+        Log::notice('Appointment patient replaced', array_merge([
+            'appointment_id' => $appointment->id,
+            'google_event_id' => $appointment->google_event_id,
+            'professional_id' => $appointment->professional_id,
+            'starts_at' => $appointment->starts_at?->toDateTimeString(),
+        ], $this->buildUserContext(), $context));
+    }
+
     private function buildUserContext(): array
     {
         return [

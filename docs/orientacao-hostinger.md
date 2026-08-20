@@ -261,6 +261,8 @@ Hostinger. Não use `/var/www/html`, pois esse é o caminho do Docker local.
 
 ```env
 N8N_APPOINTMENT_CONFIRMED_WEBHOOK=https://DOMINIO-PUBLICO-N8N/webhook/maieutica/agendamentos/confirmado
+N8N_APPOINTMENT_CANCELLED_WEBHOOK=https://DOMINIO-PUBLICO-N8N/webhook/maieutica/agendamentos/cancelado
+N8N_APPOINTMENT_REPLACED_WEBHOOK=https://DOMINIO-PUBLICO-N8N/webhook/maieutica/agendamentos/encaixe
 N8N_WEBHOOK_TOKEN=TOKEN_DO_HEADER_AUTH
 N8N_WEBHOOK_TIMEOUT=10
 N8N_NOTIFICATION_TEST_PHONE=
@@ -307,6 +309,8 @@ A migration esperada para esta funcionalidade é:
 
 ```text
 2026_08_18_170508_create_appointments_table
+2026_08_20_120000_add_cancellation_fields_to_appointments_table
+2026_08_20_120100_create_appointment_replacements_table
 ```
 
 Se o script de deploy ainda não executou o seeder, rode:
@@ -320,6 +324,8 @@ As permissões criadas são:
 - `appointment-list`;
 - `appointment-list-all`;
 - `appointment-confirm`.
+- `appointment-cancel`;
+- `appointment-replace`.
 
 O seeder atribui as permissões administrativas ao perfil administrador e a
 visualização dos próprios agendamentos ao perfil profissional.
@@ -361,6 +367,8 @@ Resultado esperado:
 GET|HEAD  appointments
 POST      appointments/{appointment}/confirm
 POST      appointments/{appointment}/refuse
+POST      appointments/{appointment}/cancel
+POST      appointments/{appointment}/replace
 ```
 
 Confirme também que o comando existe:
@@ -504,6 +512,19 @@ No EasyPanel/N8N, confirme:
   Evolution;
 - ambos usando a credencial correta `EvoGo Account`.
 
+Para desistencias e encaixes, importe e configure tambem:
+
+- `n8n/fluxo-desistencia-agendamento.json`, path
+  `maieutica/agendamentos/cancelado`;
+- `n8n/fluxo-encaixe-agendamento.json`, path
+  `maieutica/agendamentos/encaixe`.
+
+Nos dois workflows, selecione a mesma credencial Header Auth, confirme a
+credencial Google Calendar e substitua o placeholder do token da instancia
+Evolution. Ative cada workflow somente depois de salvar todas as credenciais.
+O procedimento detalhado esta em
+`docs/passo-a-passo-n8n-desistencia-encaixe.md`.
+
 Respostas úteis:
 
 - `404`: workflow inativo ou Production URL incorreta;
@@ -563,6 +584,8 @@ Teste:
 - menu **Agendamentos**;
 - filtros da listagem;
 - confirmação e recusa;
+- desistência de um agendamento confirmado;
+- encaixe de um novo paciente no mesmo horário;
 - visibilidade da recepção;
 - visibilidade do profissional;
 - recebimento das notificações;

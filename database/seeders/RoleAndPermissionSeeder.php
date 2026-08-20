@@ -126,6 +126,8 @@ class RoleAndPermissionSeeder extends Seeder
             'appointment-list',      // vê apenas os próprios, já confirmados
             'appointment-list-all',  // vê todos, incluindo a fila de pendentes
             'appointment-confirm',   // confirma / recusa um agendamento
+            'appointment-cancel',    // registra desistência e libera o horário
+            'appointment-replace',   // encaixa outro paciente no mesmo horário
 
             // Permissões adicionais / administrativas
             'dashboard-manage',

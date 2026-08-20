@@ -18,8 +18,8 @@ Esta spec cobre o fluxo completo em etapas. As etapas sao implementadas e docume
 |---|-------|--------|
 | 1 | Agendamento via WhatsApp (N8N cria o evento no Google Calendar) | Implementado |
 | 2 | Listagem de agendamentos no sistema (sincronizacao + tela de confirmacao) | Implementado |
-| 3 | Webhook de confirmacao Maieutica -> N8N | Parcial: emissor implementado; workflow N8N pendente |
-| 4+ | A definir | Pendente |
+| 3 | Webhook de confirmacao Maieutica -> N8N | Implementado e homologado |
+| 4 | Desistencia e encaixe manual | Implementado; workflows aguardam configuracao no N8N |
 
 ---
 
@@ -141,6 +141,35 @@ instalacoes sem suporte a variaveis N8N, configure uma credencial nativa
 `Header Auth` no node do webhook (`Authorization: Bearer <token>`) e informe o
 token da instancia Evolution diretamente nos dois nodes de envio. O Bearer
 token deve ser igual ao `N8N_WEBHOOK_TOKEN` configurado no Maieutica.
+
+---
+
+## Etapa 4 — Desistencia e encaixe manual
+
+Um agendamento confirmado oferece duas operacoes administrativas:
+
+- **Registrar desistencia:** o N8N exclui o evento do Google Calendar, tenta
+  avisar paciente e profissional e somente entao o Maieutica marca a situacao
+  como cancelada (`x`).
+- **Encaixar outro paciente:** o N8N atualiza o mesmo evento no Calendar sem
+  expor o horario como livre, tenta avisar paciente anterior, novo paciente e
+  profissional e somente entao o Maieutica troca os dados locais.
+
+As operacoes exigem, respectivamente, `appointment-cancel` e
+`appointment-replace`. Cada mudanca gera um snapshot em
+`appointment_replacements`, preservando os dados anteriores para auditoria.
+
+Ao contrario da notificacao simples da Etapa 3, essas operacoes sao criticas:
+um HTTP 200 vazio nao e aceito. O Laravel exige `ok: true` e o marcador
+`google_event_cancelled: true` ou `google_event_updated: true`. Se o N8N nao
+confirmar, os dados locais permanecem inalterados.
+
+Workflows independentes, sem alterar o fluxo principal:
+
+- `n8n/fluxo-desistencia-agendamento.json`;
+- `n8n/fluxo-encaixe-agendamento.json`.
+
+Configuracao operacional: `docs/passo-a-passo-n8n-desistencia-encaixe.md`.
 
 ---
 

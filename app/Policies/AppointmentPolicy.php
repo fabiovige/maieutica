@@ -47,4 +47,14 @@ class AppointmentPolicy
     {
         return $user->can('appointment-confirm');
     }
+
+    public function cancel(User $user, Appointment $appointment): bool
+    {
+        return $user->can('appointment-cancel');
+    }
+
+    public function replace(User $user, Appointment $appointment): bool
+    {
+        return $user->can('appointment-replace');
+    }
 }

@@ -1,0 +1,133 @@
+{
+  "name": "Maieutica - Encaixe manual de agendamento",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "maieutica/agendamentos/encaixe",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-760, 240],
+      "id": "8f03a83c-a746-48dd-bc9e-e5c1b4141e30",
+      "name": "Webhook encaixe",
+      "webhookId": "fd12ae80-e076-4269-b7ae-f9fd3e392bea"
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json.body || {};\nconst appointment = payload.appointment || {};\nconst previous = appointment.previous_patient || {};\nconst replacement = appointment.replacement_patient || {};\nconst professional = appointment.professional || {};\n\nif (payload.event !== 'appointment.replaced') throw new Error('Evento invalido: esperado appointment.replaced.');\nif (!payload.event_id || !appointment.id || !appointment.google_event_id || !appointment.starts_at) throw new Error('Payload incompleto: event_id, appointment.id, google_event_id e starts_at sao obrigatorios.');\nfunction whatsappNumber(value, label) {\n  let digits = String(value || '').replace(/\\D/g, '');\n  if (digits.length === 10 || digits.length === 11) digits = `55${digits}`;\n  if (digits.length < 12 || digits.length > 13) throw new Error(`Telefone ${label} ausente ou invalido.`);\n  return `${digits}@s.whatsapp.net`;\n}\nif (!previous.name || !replacement.name || !professional.name) throw new Error('Nomes dos pacientes e do profissional sao obrigatorios.');\nconst startsAt = new Date(appointment.starts_at);\nif (Number.isNaN(startsAt.getTime())) throw new Error('Data do agendamento invalida.');\nconst date = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric' }).format(startsAt);\nconst time = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false }).format(startsAt);\nconst specialty = professional.specialty || '';\nconst description = [`Motivo da consulta: ${replacement.reason || ''}`, `Especialidade: ${specialty}`, `Profissional: ${professional.name}`, `E-mail do cliente: ${replacement.email || ''}`, `Telefone: ${replacement.phone || ''}`].join('\\n');\nreturn [{ json: {\n  eventId: payload.event_id, appointmentId: appointment.id, googleEventId: appointment.google_event_id,\n  summary: `Agendamento: ${replacement.name}`, description,\n  previousPatientNumber: whatsappNumber(previous.phone, 'do paciente anterior'),\n  replacementPatientNumber: whatsappNumber(replacement.phone, 'do novo paciente'),\n  professionalNumber: whatsappNumber(professional.phone, 'do profissional'),\n  previousPatientMessage: `Ola, ${previous.name}. Sua desistencia do agendamento de ${date}, as ${time}, foi registrada.\\n\\nClinica Maieutica`,\n  replacementPatientMessage: `Ola, ${replacement.name}! Seu encaixe com ${professional.name}${specialty ? ` (${specialty})` : ''} foi confirmado para ${date}, as ${time}.\\n\\nClinica Maieutica`,\n  professionalMessage: `Ola, ${professional.name}. Houve uma substituicao no atendimento de ${date}, as ${time}.\\n\\nNovo paciente: ${replacement.name}\\nContato: ${replacement.phone}\\n\\nClinica Maieutica`\n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-520, 240],
+      "id": "96a75d64-0fd1-41b1-8276-cebf3bbf3baa",
+      "name": "Validar e preparar encaixe"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "3d0159fa6a0b6122554709c459b218c8ab77d1a33ee5f06a9035df7fc430e954@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Atendimento - TESTE"
+        },
+        "eventId": "={{ $('Validar e preparar encaixe').item.json.googleEventId }}",
+        "useDefaultReminders": true,
+        "updateFields": {
+          "summary": "={{ $('Validar e preparar encaixe').item.json.summary }}",
+          "description": "={{ $('Validar e preparar encaixe').item.json.description }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [-280, 240],
+      "id": "f6288a9f-034e-413c-a2e8-0cfb36518830",
+      "name": "Atualizar evento no Calendar",
+      "credentials": { "googleCalendarOAuth2Api": { "id": "apnT8OpZpBXXD8Zp", "name": "Google Calendar account" } }
+    },
+    {
+      "parameters": {
+        "resource": "sendMessage",
+        "instanceApiKey": "CONFIGURE_O_TOKEN_DA_INSTANCIA_EVOLUTION",
+        "sendTextNumber": "={{ $('Validar e preparar encaixe').item.json.previousPatientNumber }}",
+        "sendTextContent": "={{ $('Validar e preparar encaixe').item.json.previousPatientMessage }}",
+        "sendTextDelay": 1000,
+        "sendTextAdditionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-evolution-go.evoGo",
+      "typeVersion": 1,
+      "position": [200, 240],
+      "id": "09bac56d-48e0-49c5-ae98-ccf9d52798e5",
+      "name": "Avisar paciente anterior",
+      "continueOnFail": true,
+      "credentials": { "evoGoApi": { "id": "lOOX7PijKFAiSYv5", "name": "EvoGo Account" } }
+    },
+    {
+      "parameters": {
+        "resource": "sendMessage",
+        "instanceApiKey": "CONFIGURE_O_TOKEN_DA_INSTANCIA_EVOLUTION",
+        "sendTextNumber": "={{ $('Validar e preparar encaixe').item.json.replacementPatientNumber }}",
+        "sendTextContent": "={{ $('Validar e preparar encaixe').item.json.replacementPatientMessage }}",
+        "sendTextDelay": 1000,
+        "sendTextAdditionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-evolution-go.evoGo",
+      "typeVersion": 1,
+      "position": [440, 240],
+      "id": "539336b0-3e70-429a-932e-4476fcc5e763",
+      "name": "Avisar novo paciente",
+      "continueOnFail": true,
+      "credentials": { "evoGoApi": { "id": "lOOX7PijKFAiSYv5", "name": "EvoGo Account" } }
+    },
+    {
+      "parameters": {
+        "resource": "sendMessage",
+        "instanceApiKey": "CONFIGURE_O_TOKEN_DA_INSTANCIA_EVOLUTION",
+        "sendTextNumber": "={{ $('Validar e preparar encaixe').item.json.professionalNumber }}",
+        "sendTextContent": "={{ $('Validar e preparar encaixe').item.json.professionalMessage }}",
+        "sendTextDelay": 1000,
+        "sendTextAdditionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-evolution-go.evoGo",
+      "typeVersion": 1,
+      "position": [680, 240],
+      "id": "459931a6-825f-4d43-aaac-e63aac61bda8",
+      "name": "Avisar profissional",
+      "continueOnFail": true,
+      "credentials": { "evoGoApi": { "id": "lOOX7PijKFAiSYv5", "name": "EvoGo Account" } }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, event: 'appointment.replaced', event_id: $('Validar e preparar encaixe').item.json.eventId, appointment_id: $('Validar e preparar encaixe').item.json.appointmentId, google_event_updated: true, notifications_scheduled: true } }}",
+        "options": { "responseCode": 200 }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [-40, 240],
+      "id": "0120ea7e-bc20-41c8-abac-c4d76555e389",
+      "name": "Responder ao Maieutica"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook encaixe": { "main": [[{ "node": "Validar e preparar encaixe", "type": "main", "index": 0 }]] },
+    "Validar e preparar encaixe": { "main": [[{ "node": "Atualizar evento no Calendar", "type": "main", "index": 0 }]] },
+    "Atualizar evento no Calendar": { "main": [[{ "node": "Responder ao Maieutica", "type": "main", "index": 0 }]] },
+    "Responder ao Maieutica": { "main": [[{ "node": "Avisar paciente anterior", "type": "main", "index": 0 }]] },
+    "Avisar paciente anterior": { "main": [[{ "node": "Avisar novo paciente", "type": "main", "index": 0 }]] },
+    "Avisar novo paciente": { "main": [[{ "node": "Avisar profissional", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1", "availableInMCP": false },
+  "versionId": "e697b6e4-a567-414b-b957-c11dccaa34b1",
+  "meta": { "templateCredsSetupCompleted": false },
+  "tags": []
+}

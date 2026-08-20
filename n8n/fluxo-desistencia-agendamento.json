@@ -1,0 +1,116 @@
+{
+  "name": "Maieutica - Desistencia de agendamento",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "maieutica/agendamentos/cancelado",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-720, 240],
+      "id": "f91f063d-b2a2-4529-a9ae-65d9b59c0691",
+      "name": "Webhook desistencia",
+      "webhookId": "257230c7-c0ad-4e15-bb33-63cf1a25bc0d"
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json.body || {};\nconst appointment = payload.appointment || {};\nconst patient = appointment.patient || {};\nconst professional = appointment.professional || {};\n\nif (payload.event !== 'appointment.cancelled') {\n  throw new Error('Evento invalido: esperado appointment.cancelled.');\n}\nif (!payload.event_id || !appointment.id || !appointment.google_event_id || !appointment.starts_at) {\n  throw new Error('Payload incompleto: event_id, appointment.id, google_event_id e starts_at sao obrigatorios.');\n}\nfunction whatsappNumber(value, label) {\n  let digits = String(value || '').replace(/\\D/g, '');\n  if (digits.length === 10 || digits.length === 11) digits = `55${digits}`;\n  if (digits.length < 12 || digits.length > 13) throw new Error(`Telefone ${label} ausente ou invalido.`);\n  return `${digits}@s.whatsapp.net`;\n}\nif (!patient.name || !professional.name) throw new Error('Nomes do paciente e do profissional sao obrigatorios.');\nconst startsAt = new Date(appointment.starts_at);\nif (Number.isNaN(startsAt.getTime())) throw new Error('Data do agendamento invalida.');\nconst date = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric' }).format(startsAt);\nconst time = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false }).format(startsAt);\nconst reason = appointment.cancellation_reason ? `\\nMotivo informado: ${appointment.cancellation_reason}` : '';\nreturn [{ json: {\n  eventId: payload.event_id,\n  appointmentId: appointment.id,\n  googleEventId: appointment.google_event_id,\n  patientNumber: whatsappNumber(patient.phone, 'do paciente'),\n  professionalNumber: whatsappNumber(professional.phone, 'do profissional'),\n  patientMessage: `Ola, ${patient.name}. Sua desistencia do agendamento de ${date}, as ${time}, foi registrada.${reason}\\n\\nClinica Maieutica`,\n  professionalMessage: `Ola, ${professional.name}. O atendimento de ${date}, as ${time}, foi cancelado por desistência do paciente ${patient.name}. O horario foi liberado.${reason}\\n\\nClinica Maieutica`\n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-480, 240],
+      "id": "bb7471b4-7d51-457a-83fc-085781398572",
+      "name": "Validar e preparar cancelamento"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "3d0159fa6a0b6122554709c459b218c8ab77d1a33ee5f06a9035df7fc430e954@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Atendimento - TESTE"
+        },
+        "eventId": "={{ $('Validar e preparar cancelamento').item.json.googleEventId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [-240, 240],
+      "id": "59be40df-b8a4-4a63-8161-eac9ad54de7c",
+      "name": "Excluir evento do Calendar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "apnT8OpZpBXXD8Zp",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "sendMessage",
+        "instanceApiKey": "CONFIGURE_O_TOKEN_DA_INSTANCIA_EVOLUTION",
+        "sendTextNumber": "={{ $('Validar e preparar cancelamento').item.json.patientNumber }}",
+        "sendTextContent": "={{ $('Validar e preparar cancelamento').item.json.patientMessage }}",
+        "sendTextDelay": 1000,
+        "sendTextAdditionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-evolution-go.evoGo",
+      "typeVersion": 1,
+      "position": [240, 240],
+      "id": "7528658f-8581-4cb2-916e-a81e78ec75a4",
+      "name": "Avisar paciente anterior",
+      "continueOnFail": true,
+      "credentials": { "evoGoApi": { "id": "lOOX7PijKFAiSYv5", "name": "EvoGo Account" } }
+    },
+    {
+      "parameters": {
+        "resource": "sendMessage",
+        "instanceApiKey": "CONFIGURE_O_TOKEN_DA_INSTANCIA_EVOLUTION",
+        "sendTextNumber": "={{ $('Validar e preparar cancelamento').item.json.professionalNumber }}",
+        "sendTextContent": "={{ $('Validar e preparar cancelamento').item.json.professionalMessage }}",
+        "sendTextDelay": 1000,
+        "sendTextAdditionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-evolution-go.evoGo",
+      "typeVersion": 1,
+      "position": [480, 240],
+      "id": "05898b58-7d5e-41fe-a1c2-d3ccac56e6ee",
+      "name": "Avisar profissional",
+      "continueOnFail": true,
+      "credentials": { "evoGoApi": { "id": "lOOX7PijKFAiSYv5", "name": "EvoGo Account" } }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, event: 'appointment.cancelled', event_id: $('Validar e preparar cancelamento').item.json.eventId, appointment_id: $('Validar e preparar cancelamento').item.json.appointmentId, google_event_cancelled: true, notifications_scheduled: true } }}",
+        "options": { "responseCode": 200 }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [0, 240],
+      "id": "50d6ed4f-74e0-4908-bc0e-1daa1f780833",
+      "name": "Responder ao Maieutica"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook desistencia": { "main": [[{ "node": "Validar e preparar cancelamento", "type": "main", "index": 0 }]] },
+    "Validar e preparar cancelamento": { "main": [[{ "node": "Excluir evento do Calendar", "type": "main", "index": 0 }]] },
+    "Excluir evento do Calendar": { "main": [[{ "node": "Responder ao Maieutica", "type": "main", "index": 0 }]] },
+    "Responder ao Maieutica": { "main": [[{ "node": "Avisar paciente anterior", "type": "main", "index": 0 }]] },
+    "Avisar paciente anterior": { "main": [[{ "node": "Avisar profissional", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1", "availableInMCP": false },
+  "versionId": "4369dcc2-e3cd-49b1-b940-10f4f671bb60",
+  "meta": { "templateCredsSetupCompleted": false },
+  "tags": []
+}

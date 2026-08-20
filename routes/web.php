@@ -156,6 +156,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
     Route::post('appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->name('appointments.confirm');
     Route::post('appointments/{appointment}/refuse', [AppointmentController::class, 'refuse'])->name('appointments.refuse');
+    Route::post('appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
+    Route::post('appointments/{appointment}/replace', [AppointmentController::class, 'replace'])->name('appointments.replace');
 
     Route::get('releases', [ReleaseController::class, 'index'])->name('releases.index');
     Route::get('releases/{release}', [ReleaseController::class, 'show'])->name('releases.show');

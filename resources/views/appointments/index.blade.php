@@ -149,10 +149,16 @@
                                                 em {{ $appointment->confirmed_at->format('d/m/Y H:i') }}
                                             </small>
                                         @endif
+                                        @if($appointment->canceled_at)
+                                            <br><small class="text-muted">
+                                                {{ $appointment->canceledBy?->name }}
+                                                em {{ $appointment->canceled_at->format('d/m/Y H:i') }}
+                                            </small>
+                                        @endif
                                     </td>
                                     <td class="text-center">
-                                        @can('appointment-confirm')
-                                            @if($appointment->situation === \App\Models\Appointment::SITUATION_PENDING)
+                                        @if($appointment->situation === \App\Models\Appointment::SITUATION_PENDING)
+                                            @can('appointment-confirm')
                                                 <form method="POST"
                                                       action="{{ route('appointments.confirm', $appointment) }}"
                                                       class="d-flex gap-1 justify-content-center align-items-center">
@@ -193,8 +199,29 @@
                                                 </form>
                                             @else
                                                 <span class="text-muted">—</span>
-                                            @endif
-                                        @endcan
+                                            @endcan
+                                        @elseif($appointment->isConfirmed())
+                                            <div class="d-flex flex-column gap-1">
+                                                @can('appointment-replace')
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-primary"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#replaceAppointment{{ $appointment->id }}">
+                                                        <i class="bi bi-person-plus"></i> Encaixar paciente
+                                                    </button>
+                                                @endcan
+                                                @can('appointment-cancel')
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#cancelAppointment{{ $appointment->id }}">
+                                                        <i class="bi bi-calendar-x"></i> Registrar desistência
+                                                    </button>
+                                                @endcan
+                                            </div>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
                                     </td>
                                 @endcan
                             </tr>
@@ -207,6 +234,107 @@
         <div class="mt-3">
             {{ $appointments->onEachSide(1)->appends(request()->query())->links() }}
         </div>
+
+        @foreach($appointments->where('situation', \App\Models\Appointment::SITUATION_CONFIRMED) as $appointment)
+            @can('appointment-cancel')
+                <div class="modal fade" id="cancelAppointment{{ $appointment->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ route('appointments.cancel', $appointment) }}">
+                                @csrf
+                                @foreach(request()->only(['search', 'situation', 'from', 'to', 'page']) as $key => $value)
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endforeach
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Registrar desistência</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>
+                                        O evento de <strong>{{ $appointment->patient_name }}</strong>, em
+                                        <strong>{{ $appointment->starts_at?->format('d/m/Y') }} às {{ $appointment->starts_at?->format('H:i') }}</strong>,
+                                        será removido do Google Calendar e o horário ficará livre.
+                                    </p>
+                                    <label for="cancel-reason-{{ $appointment->id }}" class="form-label">Motivo da desistência</label>
+                                    <textarea id="cancel-reason-{{ $appointment->id }}"
+                                              name="cancellation_reason"
+                                              class="form-control"
+                                              rows="3"
+                                              maxlength="1000"></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                                    <button type="submit" class="btn btn-danger">Confirmar desistência</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endcan
+
+            @can('appointment-replace')
+                <div class="modal fade" id="replaceAppointment{{ $appointment->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ route('appointments.replace', $appointment) }}">
+                                @csrf
+                                @foreach(request()->only(['search', 'situation', 'from', 'to', 'page']) as $key => $value)
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endforeach
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Encaixar outro paciente</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-info">
+                                        O evento atual será atualizado no Google Calendar, mantendo
+                                        {{ $appointment->starts_at?->format('d/m/Y') }} às {{ $appointment->starts_at?->format('H:i') }}.
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Nome do novo paciente</label>
+                                            <input type="text" name="patient_name" class="form-control" maxlength="255" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">WhatsApp</label>
+                                            <input type="text" name="patient_phone" class="form-control" maxlength="30" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">E-mail</label>
+                                            <input type="email" name="patient_email" class="form-control" maxlength="255">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Profissional</label>
+                                            <select name="professional_id" class="form-select" required>
+                                                <option value="">Selecione...</option>
+                                                @foreach($professionals as $professional)
+                                                    <option value="{{ $professional->id }}" @selected($professional->id === $appointment->professional_id)>
+                                                        {{ $professional->user->first()?->name }}
+                                                        @if($professional->specialty) — {{ $professional->specialty->name }} @endif
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Motivo da consulta</label>
+                                            <input type="text" name="reason" class="form-control" maxlength="2000">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Motivo da desistência do paciente anterior</label>
+                                            <textarea name="cancellation_reason" class="form-control" rows="2" maxlength="1000"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                                    <button type="submit" class="btn btn-primary">Confirmar encaixe</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endcan
+        @endforeach
     @endif
 
 @endsection

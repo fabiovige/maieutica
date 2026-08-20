@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Agendamento originado no Google Calendar (criado pelo fluxo N8N via WhatsApp).
@@ -45,6 +46,9 @@ class Appointment extends BaseModel
         'situation',
         'confirmed_by',
         'confirmed_at',
+        'canceled_by',
+        'canceled_at',
+        'cancellation_reason',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -54,6 +58,7 @@ class Appointment extends BaseModel
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
         'confirmed_at' => 'datetime',
+        'canceled_at' => 'datetime',
     ];
 
     public function professional(): BelongsTo
@@ -64,6 +69,16 @@ class Appointment extends BaseModel
     public function confirmedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'confirmed_by');
+    }
+
+    public function canceledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'canceled_by');
+    }
+
+    public function replacements(): HasMany
+    {
+        return $this->hasMany(AppointmentReplacement::class)->latest('occurred_at');
     }
 
     public function getSituationLabelAttribute(): string

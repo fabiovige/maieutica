@@ -57,6 +57,8 @@ return [
     // quando a recepcao confirmar o agendamento no Maieutica.
     'n8n' => [
         'appointment_confirmed_webhook' => env('N8N_APPOINTMENT_CONFIRMED_WEBHOOK'),
+        'appointment_cancelled_webhook' => env('N8N_APPOINTMENT_CANCELLED_WEBHOOK'),
+        'appointment_replaced_webhook' => env('N8N_APPOINTMENT_REPLACED_WEBHOOK'),
         'webhook_token' => env('N8N_WEBHOOK_TOKEN'),
         'webhook_timeout' => env('N8N_WEBHOOK_TIMEOUT', 10),
         // Somente para homologacao: redireciona paciente e profissional para
