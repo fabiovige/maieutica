@@ -30,7 +30,10 @@ class N8nAppointmentNotifier
             return self::NOT_CONFIGURED;
         }
 
-        $appointment->loadMissing(['professional.user', 'confirmedBy']);
+        $appointment->loadMissing([
+            'professional.user' => fn ($query) => $query->where('allow', 1),
+            'confirmedBy',
+        ]);
         $professionalUser = $appointment->professional?->user?->first();
         $testPhone = config('services.n8n.notification_test_phone');
         $testMode = filled($testPhone);

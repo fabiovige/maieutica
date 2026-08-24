@@ -1,311 +1,60 @@
-# Orientação para publicação dos agendamentos na Hostinger
+# Publicação dos agendamentos na Hostinger
 
-Este documento reúne o que precisa ser configurado na Hostinger para colocar em
-produção a integração completa de agendamentos do Maiêutica.
+Guia enxuto para publicar e manter a integração de agendamentos do Maiêutica.
+A Hostinger não usa Docker. Todos os comandos abaixo são executados diretamente
+no servidor.
 
-O fluxo final é:
-
-```text
-WhatsApp
-  -> N8N cria o evento
-    -> Google Calendar
-      -> Hostinger executa agenda:sync
-        -> Maiêutica lista o agendamento
-          -> recepção confirma
-            -> Maiêutica chama o webhook público do N8N
-              -> Evolution envia WhatsApp ao paciente e ao profissional
-```
-
-## 1. Diferença entre os ambientes
-
-O Docker existente no projeto é usado somente no desenvolvimento local. A
-Hostinger executa PHP, Laravel, banco e cron diretamente na hospedagem.
-
-Na Hostinger:
-
-- não use comandos `docker compose`;
-- não use caminhos internos como `/var/www/html`;
-- use o caminho absoluto real da conta de hospedagem;
-- configure o cron pelo painel da Hostinger;
-- use a URL pública HTTPS do N8N administrado pelo EasyPanel.
-
-## 2. Como o deploy de produção funciona
-
-O deploy do Maiêutica é automático:
+## 1. Caminhos usados em produção
 
 ```text
-branch de funcionalidade
-  -> Pull Request
-    -> merge na main
-      -> webhook do GitHub
-        -> Hostinger inicia o deploy
+PHP:     /usr/bin/php
+Projeto: /home/u350247040/domains/maieuticavalia.com.br/public_html
+Artisan: /home/u350247040/domains/maieuticavalia.com.br/public_html/artisan
 ```
 
-O procedimento normal de publicação **não** usa `git pull` manual por SSH. O
-merge na `main` é o evento que autoriza e inicia o deploy.
-
-O painel da Hostinger deve ser usado para:
-
-- acompanhar o status e os logs do deploy;
-- configurar as variáveis de ambiente de produção;
-- configurar o cron;
-- executar comandos manuais de diagnóstico quando necessário;
-- confirmar qual commit da `main` está publicado.
-
-Configurações externas ao Git não são recriadas pelo merge:
-
-- `.env` de produção;
-- chave JSON da Service Account;
-- compartilhamento do Google Calendar;
-- cron do Laravel;
-- workflow e credenciais do N8N/Evolution.
-
-## 3. Antes da publicação
-
-Confirme que:
-
-- a branch da funcionalidade foi revisada e está pronta para Pull Request;
-- o destino do Pull Request é a `main`;
-- o webhook GitHub -> Hostinger está ativo;
-- há acesso aos logs do deploy automático;
-- o workflow N8N está salvo e ativo;
-- o webhook N8N usa Header Auth;
-- os dois nodes EvoGo usam a credencial e o token corretos da Evolution;
-- a agenda está compartilhada com a Service Account;
-- há backup recente do banco de produção;
-- a chave JSON da Service Account está disponível em local seguro.
-
-Não envie chaves ou tokens por mensagens e não os coloque no Git.
-
-## 4. Descobrir os caminhos reais da Hostinger
-
-Com acesso SSH, execute:
+Para executar comandos manualmente:
 
 ```bash
-pwd
-which php
-php -v
+cd /home/u350247040/domains/maieuticavalia.com.br/public_html
 ```
 
-Entre no diretório da aplicação e confirme:
+## 2. Publicação pelo GitHub
 
-```bash
-cd /CAMINHO/REAL/DA/APLICACAO
-pwd
-test -f artisan && echo "Laravel encontrado"
-```
-
-Exemplos de caminhos possíveis, que devem ser substituídos pelos valores reais:
+O deploy é iniciado automaticamente quando o Pull Request é mesclado na
+`main`:
 
 ```text
-/home/USUARIO/domains/DOMINIO/public_html
-/home/USUARIO/htdocs
-/home/USUARIO/public_html
+merge na main -> webhook do GitHub -> deploy na Hostinger
 ```
 
-Não copie um caminho de exemplo sem conferir no servidor.
+Antes do merge, confirme que `.env`, credenciais JSON e tokens não estão no
+commit. Também faça um backup do banco de produção.
 
-## 5. Fazer backup
-
-Antes de atualizar o código:
-
-```bash
-cd /CAMINHO/REAL/DA/APLICACAO
-```
-
-Faça backup do banco pelo painel da Hostinger ou pelo terminal:
-
-```bash
-mysqldump -u USUARIO_DB -p NOME_DB > backup_agendamentos_$(date +%Y%m%d_%H%M%S).sql
-```
-
-Guarde também uma cópia do `.env`:
-
-```bash
-cp .env ../env_backup_$(date +%Y%m%d_%H%M%S)
-```
-
-O backup deve ficar fora de `public_html`.
-
-## 6. Publicar o código pelo GitHub
-
-O fluxo oficial de publicação é:
-
-1. Finalize e valide a branch da funcionalidade.
-2. Envie os commits para o GitHub.
-3. Abra um Pull Request para a `main`.
-4. Revise o diff e confirme que não há `.env`, chaves JSON ou tokens.
-5. Faça o merge na `main`.
-6. Acompanhe no painel da Hostinger o deploy iniciado pelo webhook.
-7. Confirme que o commit publicado é o commit resultante do merge.
-
-Não execute `git pull` manual como parte do procedimento normal. Isso pode
-divergir do estado administrado pelo deploy automático da Hostinger.
-
-### Comandos esperados no deploy automático
-
-Confira na configuração ou nos logs da Hostinger se o processo executa, nessa
-ordem ou em ordem equivalente:
+O deploy deve executar:
 
 ```bash
 composer install --no-dev --optimize-autoloader
 php artisan migrate --force
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
+php artisan db:seed --class=RoleAndPermissionSeeder --force
+php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 ```
 
-O seeder de permissões também precisa ser executado nesta publicação:
+Se migrations e seeder não fizerem parte do script automático, execute-os uma
+vez por SSH após o deploy.
 
-```bash
-php artisan db:seed --class=RoleAndPermissionSeeder --force
-```
+## 3. Migrations necessárias
 
-Se o deploy automático não executa migrations ou seeders, rode esses comandos
-uma vez pelo terminal da Hostinger após o deploy. Não assuma que o merge, por si
-só, alterou o banco.
-
-Se a Hostinger oferece um campo de script pós-deploy, mantenha esses comandos
-nele para que futuras publicações sejam consistentes. Antes de modificar esse
-script, salve uma cópia da configuração atual.
-
-### Falha no deploy
-
-Se o deploy falhar:
-
-1. Não repita merges sem entender a causa.
-2. Consulte o log da etapa que falhou.
-3. Confirme se o código anterior continua ativo.
-4. Corrija em uma nova branch e abra outro Pull Request.
-5. Para reverter código já publicado, prefira um `revert` no GitHub seguido de
-   merge na `main`, preservando o histórico.
-6. Não faça rollback de migration automaticamente sem analisar se há dados
-   gravados na nova tabela.
-
-## 7. Instalar a credencial do Google Calendar
-
-A chave JSON da Service Account deve ficar fora do diretório público da
-aplicação.
-
-Crie um diretório privado, por exemplo:
-
-```bash
-mkdir -p /home/USUARIO/secure
-chmod 700 /home/USUARIO/secure
-```
-
-Envie a credencial para:
-
-```text
-/home/USUARIO/secure/google-calendar.json
-```
-
-Restrinja sua leitura:
-
-```bash
-chmod 600 /home/USUARIO/secure/google-calendar.json
-```
-
-Confirme que o arquivo pode ser lido pelo mesmo usuário que executa o PHP:
-
-```bash
-test -r /home/USUARIO/secure/google-calendar.json \
-  && echo "Credencial legível" \
-  || echo "Credencial NÃO legível"
-```
-
-Nunca coloque a credencial em:
-
-```text
-public_html/
-public/
-storage/app/public/
-```
-
-## 8. Confirmar o compartilhamento do Calendar
-
-No Google Calendar, a agenda usada pelo N8N precisa estar compartilhada com o
-`client_email` da Service Account.
-
-Permissão recomendada:
-
-```text
-Ver todos os detalhes de eventos
-```
-
-O Maiêutica usa o escopo `calendar.readonly` e não precisa alterar eventos.
-
-Copie também o valor de **Configurações e compartilhamento > Integrar agenda >
-ID da agenda**. Não confunda esse valor com o ID da Service Account.
-
-## 9. Configurar o `.env` da Hostinger
-
-Edite o `.env` de produção sem substituir as demais configurações existentes.
-
-### Google Calendar
-
-```env
-GOOGLE_CALENDAR_ID=ID_REAL_DA_AGENDA
-GOOGLE_CALENDAR_CREDENTIALS=/home/USUARIO/secure/google-calendar.json
-GOOGLE_CALENDAR_SYNC_DAYS=60
-```
-
-O caminho de `GOOGLE_CALENDAR_CREDENTIALS` precisa ser absoluto e válido na
-Hostinger. Não use `/var/www/html`, pois esse é o caminho do Docker local.
-
-### Webhook N8N
-
-```env
-N8N_APPOINTMENT_CONFIRMED_WEBHOOK=https://DOMINIO-PUBLICO-N8N/webhook/maieutica/agendamentos/confirmado
-N8N_APPOINTMENT_CANCELLED_WEBHOOK=https://DOMINIO-PUBLICO-N8N/webhook/maieutica/agendamentos/cancelado
-N8N_APPOINTMENT_REPLACED_WEBHOOK=https://DOMINIO-PUBLICO-N8N/webhook/maieutica/agendamentos/encaixe
-N8N_WEBHOOK_TOKEN=TOKEN_DO_HEADER_AUTH
-N8N_WEBHOOK_TIMEOUT=10
-N8N_NOTIFICATION_TEST_PHONE=
-```
-
-Regras:
-
-- usar a Production URL do N8N;
-- usar HTTPS;
-- não usar `/webhook-test/`;
-- usar o mesmo token salvo na credencial Header Auth do N8N;
-- deixar `N8N_NOTIFICATION_TEST_PHONE` vazio em produção;
-- não colocar `Bearer` em `N8N_WEBHOOK_TOKEN`: o Laravel adiciona esse prefixo;
-- não usar colchetes, parênteses ou formatação Markdown na URL.
-
-### Configurações gerais importantes
-
-Confira também:
-
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://DOMINIO-DO-MAIEUTICA
-SESSION_SECURE_COOKIE=true
-```
-
-Não copie integralmente o `.env` local para a produção.
-
-## 10. Verificar a migration e o seeder
-
-Verifique primeiro o estado das migrations:
-
-```bash
-php artisan migrate:status
-```
-
-Se o deploy automático ainda não as executou, rode:
+Não execute migrations individualmente. O comando correto é:
 
 ```bash
 php artisan migrate --force
 ```
 
-A migration esperada para esta funcionalidade é:
+Ele executa somente as migrations ainda pendentes. Para esta funcionalidade,
+confirme que as seguintes aparecem como `Ran`:
 
 ```text
 2026_08_18_170508_create_appointments_table
@@ -316,382 +65,246 @@ A migration esperada para esta funcionalidade é:
 2026_08_20_130200_backfill_confirmed_appointment_slots
 ```
 
-Se o script de deploy ainda não executou o seeder, rode:
+Verificação:
+
+```bash
+php artisan migrate:status
+```
+
+A última migration preenche os horários já confirmados. Por isso, faça backup
+do banco antes da publicação e não execute rollback automaticamente se houver
+falha.
+
+## 4. Seeder de permissões
+
+Execute somente o seeder de papéis e permissões:
 
 ```bash
 php artisan db:seed --class=RoleAndPermissionSeeder --force
+php artisan permission:cache-reset
 ```
 
-As permissões criadas são:
+Não execute `php artisan db:seed` sem informar a classe, pois o
+`DatabaseSeeder` também chama seeders de usuários, profissionais, pacientes e
+outros dados do sistema.
 
-- `appointment-list`;
-- `appointment-list-all`;
-- `appointment-confirm`.
-- `appointment-cancel`;
-- `appointment-replace`.
+Permissões adicionadas para agendamentos:
 
-O seeder atribui as permissões administrativas ao perfil administrador e a
-visualização dos próprios agendamentos ao perfil profissional.
+- `appointment-list`: profissional visualiza os próprios confirmados;
+- `appointment-list-all`: administração visualiza todos e os pendentes;
+- `appointment-confirm`: confirma ou recusa;
+- `appointment-cancel`: registra desistência;
+- `appointment-replace`: realiza encaixe manual.
 
-## 11. Verificar os caches
+O `RoleAndPermissionSeeder` atribui todas elas ao papel `admin` e somente
+`appointment-list` ao papel `profissional`.
 
-O deploy automático deve tratar os caches. Depois de alterar o `.env`
-manualmente, ou se os logs do deploy não mostrarem essa etapa, execute:
+## 5. Variáveis do `.env`
 
-```bash
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
+### Google Calendar
+
+```env
+GOOGLE_CALENDAR_ID=ID_REAL_DA_AGENDA
+GOOGLE_CALENDAR_CREDENTIALS=/home/u350247040/secure/google-calendar.json
+GOOGLE_CALENDAR_SYNC_DAYS=60
 ```
 
-Em seguida, recrie os caches de produção:
+A credencial da Service Account deve ficar fora de `public_html`:
 
 ```bash
+mkdir -p /home/u350247040/secure
+chmod 700 /home/u350247040/secure
+chmod 600 /home/u350247040/secure/google-calendar.json
+```
+
+A agenda utilizada pelo N8N deve estar compartilhada com o `client_email` da
+Service Account, com permissão para ver todos os detalhes dos eventos.
+
+### N8N
+
+```env
+N8N_APPOINTMENT_CONFIRMED_WEBHOOK=https://DOMINIO-N8N/webhook/maieutica/agendamentos/confirmado
+N8N_APPOINTMENT_CANCELLED_WEBHOOK=https://DOMINIO-N8N/webhook/maieutica/agendamentos/cancelado
+N8N_APPOINTMENT_REPLACED_WEBHOOK=https://DOMINIO-N8N/webhook/maieutica/agendamentos/encaixe
+N8N_WEBHOOK_TOKEN=TOKEN_DO_HEADER_AUTH
+N8N_WEBHOOK_TIMEOUT=10
+N8N_NOTIFICATION_TEST_PHONE=TELEFONE_DE_HOMOLOGACAO
+```
+
+Use as URLs de produção `/webhook/`, nunca `/webhook-test/`. Durante a
+homologação, mantenha o telefone de teste atualmente configurado. Remova-o
+somente quando for decidido iniciar o envio para os números reais.
+
+### Aplicação e fila
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://maieuticavalia.com.br
+SESSION_SECURE_COOKIE=true
+QUEUE_CONNECTION=database
+```
+
+Depois de alterar o `.env`:
+
+```bash
+php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 ```
 
-Se algum comando de cache falhar, não ignore a mensagem; corrija o erro antes
-de reabrir a aplicação.
+## 6. Qual fila executar
 
-## 12. Validar as rotas
+Os e-mails usam a fila `emails`. O sistema também possui jobs que usam a fila
+`default`. Portanto, o worker deve ouvir as duas, nesta ordem:
 
-Confirme as rotas da tela:
+```text
+emails,default
+```
+
+Os agendamentos não usam a fila para sincronizar o Google Calendar. A
+sincronização é executada diretamente pelo scheduler do Laravel.
+
+## 7. Crons da Hostinger
+
+São necessárias duas tarefas cron separadas.
+
+### Cron 1 — scheduler do Laravel
+
+Frequência: a cada minuto (`* * * * *`).
 
 ```bash
+/usr/bin/php /home/u350247040/domains/maieuticavalia.com.br/public_html/artisan schedule:run >> /dev/null 2>&1
+```
+
+O scheduler chama `agenda:sync` a cada cinco minutos e impede duas execuções
+simultâneas. Não crie outro cron chamando `agenda:sync` diretamente.
+
+### Cron 2 — filas
+
+Frequência: a cada minuto (`* * * * *`).
+
+```bash
+/usr/bin/php /home/u350247040/domains/maieuticavalia.com.br/public_html/artisan queue:work database --queue=emails,default --stop-when-empty --tries=3 --timeout=90 >> /dev/null 2>&1
+```
+
+O `--stop-when-empty` é importante quando `queue:work` é iniciado por cron:
+ele processa o que estiver pendente e encerra, evitando acumular workers
+permanentes a cada minuto.
+
+Esse comando substitui a cron antiga que ouvia apenas `emails`:
+
+```text
+queue:work --queue=emails --verbose
+```
+
+Se a Hostinger estiver gerenciando um worker permanente em vez de uma tarefa
+cron, não use `--stop-when-empty`; nesse caso, mantenha somente um processo com
+`--queue=emails,default` e reinicie-o após cada deploy.
+
+## 8. N8N e Evolution
+
+Confirme que estes workflows estão importados, configurados e ativos:
+
+- confirmação: `maieutica/agendamentos/confirmado`;
+- desistência: `maieutica/agendamentos/cancelado`;
+- encaixe: `maieutica/agendamentos/encaixe`.
+
+Em cada workflow:
+
+- selecione a credencial Header Auth com o mesmo `N8N_WEBHOOK_TOKEN`;
+- selecione a credencial correta do Google Calendar quando houver esse node;
+- selecione a credencial EvoGo e o token da instância Evolution;
+- use a Production URL;
+- ative o workflow depois de salvar as credenciais.
+
+No workflow de confirmação, confira também o node **Adicionar profissional ao
+Calendar**. Ele deve usar a agenda central `Atendimento - TESTE`, adicionar o
+e-mail do profissional no modo `add` e enviar atualizações para todos os
+convidados. O cadastro de cada profissional precisa ter um e-mail válido.
+
+Erro `401` no EvoGo normalmente significa credencial ou token da Evolution
+incorreto. Erro `403` no webhook indica Header Auth divergente.
+
+## 9. Validação após o deploy
+
+Execute, na ordem:
+
+```bash
+php artisan migrate:status
 php artisan route:list --path=appointments
-```
-
-Resultado esperado:
-
-```text
-GET|HEAD  appointments
-POST      appointments/{appointment}/confirm
-POST      appointments/{appointment}/refuse
-POST      appointments/{appointment}/cancel
-POST      appointments/{appointment}/replace
-```
-
-Confirme também que o comando existe:
-
-```bash
-php artisan list | grep agenda
-```
-
-## 13. Testar o Google Calendar sem gravar
-
-Execute:
-
-```bash
-php artisan agenda:sync --dry-run
-```
-
-O comando deve informar a janela consultada e a quantidade de eventos recebidos.
-
-Exemplo:
-
-```text
-Consultando eventos de DD/MM/AAAA a DD/MM/AAAA...
-Eventos recebidos: 7
-Criados: 6
-Execução em --dry-run: nada foi gravado.
-```
-
-Se aparecer:
-
-```text
-Integração com o Google Calendar não configurada
-```
-
-verifique `GOOGLE_CALENDAR_ID`, `GOOGLE_CALENDAR_CREDENTIALS`, permissões do
-arquivo e cache de configuração.
-
-Se retornar `403`, confirme o compartilhamento da agenda com o `client_email`
-da Service Account.
-
-## 14. Executar a primeira sincronização real
-
-Depois do `--dry-run` bem-sucedido:
-
-```bash
-php artisan agenda:sync
-```
-
-Abra no navegador:
-
-```text
-https://DOMINIO-DO-MAIEUTICA/appointments
-```
-
-Confirme que:
-
-- eventos reais foram importados;
-- registros novos estão pendentes;
-- data e horário estão corretos;
-- nome, contato, especialidade e profissional solicitado foram interpretados;
-- não existem registros artificiais `TESTE_*` em produção.
-
-## 15. Configurar o cron da Hostinger
-
-O Laravel agenda `agenda:sync` a cada cinco minutos. Para isso funcionar, a
-Hostinger deve executar `schedule:run` uma vez por minuto.
-
-No painel da Hostinger:
-
-1. Acesse **Avançado > Tarefas Cron** ou a área equivalente.
-2. Crie uma nova tarefa.
-3. Configure a frequência para cada minuto:
-
-```text
-* * * * *
-```
-
-4. Configure o comando usando os caminhos reais:
-
-```bash
-/CAMINHO/DO/PHP /CAMINHO/REAL/DA/APLICACAO/artisan schedule:run
-```
-
-Exemplo ilustrativo:
-
-```bash
-/usr/bin/php /home/USUARIO/domains/DOMINIO/public_html/artisan schedule:run
-```
-
-O caminho do PHP pode variar. Use o resultado de `which php` ou a informação
-fornecida pelo painel da Hostinger.
-
-Depois de confirmar o funcionamento, a saída pode ser direcionada para um log:
-
-```bash
-/CAMINHO/DO/PHP /CAMINHO/REAL/DA/APLICACAO/artisan schedule:run >> /home/USUARIO/scheduler.log 2>&1
-```
-
-Não configure simultaneamente outro cron chamando `agenda:sync`, porque o
-scheduler já fará isso a cada cinco minutos.
-
-## 16. Verificar o scheduler
-
-Pelo SSH:
-
-```bash
 php artisan schedule:list
+php artisan agenda:sync --dry-run
+php artisan agenda:sync
+php artisan queue:failed
 ```
 
-Deve aparecer:
+Em seguida:
+
+1. Abra `/appointments` e confirme que os eventos do Calendar aparecem.
+2. Confirme um agendamento de teste.
+3. Confira o convite na agenda/e-mail do profissional.
+4. Confira as duas mensagens no WhatsApp e a execução no N8N.
+5. Teste desistência e encaixe.
+6. Confira `storage/logs/laravel.log`.
+
+O resultado esperado de `schedule:list` contém:
 
 ```text
 */5 * * * *  php artisan agenda:sync
 ```
 
-Faça uma execução manual do scheduler:
+## 10. Diagnóstico rápido
+
+Lista desatualizada:
 
 ```bash
-php artisan schedule:run --verbose
+php artisan agenda:sync --dry-run
+php artisan schedule:list
 ```
 
-Consulte depois:
+Se o evento não vier no `--dry-run`, confira o ID e o compartilhamento da
+agenda. Se vier, execute `php artisan agenda:sync` e recarregue a lista sem
+filtros.
+
+Mensagens não entregues:
+
+- confira a execução do workflow no N8N;
+- confira Header Auth e `N8N_WEBHOOK_TOKEN`;
+- confira a credencial EvoGo e a conexão da Evolution;
+- confira o telefone recebido no payload;
+- consulte `storage/logs/laravel.log`.
+
+Fila parada:
 
 ```bash
-tail -n 100 storage/logs/laravel.log
+php artisan queue:failed
+php artisan queue:retry all
 ```
 
-O comando usa `withoutOverlapping`, impedindo execuções simultâneas do mesmo
-sincronizador.
+Use `queue:retry all` somente depois de corrigir a causa, pois ele pode reenviar
+e-mails ou outras notificações.
 
-## 17. Validar o webhook N8N
+## Checklist final
 
-No EasyPanel/N8N, confirme:
-
-- workflow **Maieutica - Notificar confirmação de agendamento** ativo;
-- domínio público HTTPS configurado;
-- path `maieutica/agendamentos/confirmado`;
-- autenticação `Header Auth`;
-- credencial com `Authorization: Bearer TOKEN`;
-- node de validação sem referência a `$vars.MAIEUTICA_WEBHOOK_TOKEN`;
-- nodes **Avisar paciente** e **Avisar profissional** com o token da instância
-  Evolution;
-- ambos usando a credencial correta `EvoGo Account`.
-
-Para desistencias e encaixes, importe e configure tambem:
-
-- `n8n/fluxo-desistencia-agendamento.json`, path
-  `maieutica/agendamentos/cancelado`;
-- `n8n/fluxo-encaixe-agendamento.json`, path
-  `maieutica/agendamentos/encaixe`.
-
-Nos dois workflows, selecione a mesma credencial Header Auth, confirme a
-credencial Google Calendar e substitua o placeholder do token da instancia
-Evolution. Ative cada workflow somente depois de salvar todas as credenciais.
-O procedimento detalhado esta em
-`docs/passo-a-passo-n8n-desistencia-encaixe.md`.
-
-Respostas úteis:
-
-- `404`: workflow inativo ou Production URL incorreta;
-- `403`: Header Auth/token incorreto;
-- `401` no node EvoGo: token da instância Evolution ou credencial EvoGo
-  incorretos;
-- `200`: webhook aceitou a requisição; confira também a execução completa no
-  N8N.
-
-## 18. Teste controlado em produção
-
-Antes de confirmar um evento real:
-
-1. Crie um evento específico de homologação no Google Calendar.
-2. Use apenas números autorizados para o teste.
-3. Execute `php artisan agenda:sync`.
-4. Abra `/appointments`.
-5. Confirme o evento de homologação.
-6. Confira a execução no N8N.
-7. Confirme a entrega ao paciente e ao profissional.
-8. Verifique `storage/logs/laravel.log`.
-
-Se for indispensável redirecionar temporariamente as duas notificações para um
-único número controlado, configure:
-
-```env
-N8N_NOTIFICATION_TEST_PHONE=DDDNUMERO
-```
-
-Depois da homologação, obrigatoriamente restaure:
-
-```env
-N8N_NOTIFICATION_TEST_PHONE=
-```
-
-e execute:
-
-```bash
-php artisan config:clear
-php artisan config:cache
-```
-
-Não deixe o telefone de teste ativo durante o uso normal da produção.
-
-## 19. Confirmar que a aplicação está disponível
-
-Se o script automático usa modo de manutenção, confirme nos logs que ele
-executou `php artisan up`. Se a aplicação continuar em manutenção, execute:
-
-```bash
-php artisan up
-```
-
-Teste:
-
-- login;
-- menu **Agendamentos**;
-- filtros da listagem;
-- confirmação e recusa;
-- desistência de um agendamento confirmado;
-- encaixe de um novo paciente no mesmo horário;
-- visibilidade da recepção;
-- visibilidade do profissional;
-- recebimento das notificações;
-- rota `/health`.
-
-## 20. Monitoramento pós-publicação
-
-Nas primeiras horas, monitore:
-
-```bash
-tail -f storage/logs/laravel.log
-```
-
-No N8N, acompanhe **Executions** e procure falhas nos nodes:
-
-- `Webhook confirmacao`;
-- `Validar e preparar mensagens`;
-- `Avisar paciente`;
-- `Avisar profissional`;
-- `Responder ao Maieutica`.
-
-No EasyPanel, monitore os logs dos serviços N8N e Evolution.
-
-Também confirme periodicamente que o cron da Hostinger continua executando. Um
-cron parado deixa a tela desatualizada mesmo que o Google Calendar e o N8N
-estejam funcionando.
-
-## 21. Problemas comuns
-
-### A lista não recebe novos eventos
-
-- execute `php artisan agenda:sync --dry-run`;
-- confira a credencial JSON e o ID da agenda;
-- confirme o compartilhamento do Calendar;
-- confira o cron da Hostinger;
-- limpe o cache de configuração.
-
-### A lista mostra eventos antigos ou incorretos
-
-- confirme se são registros locais de teste;
-- execute a sincronização real;
-- confira se o Calendar configurado é o mesmo usado pelo N8N;
-- verifique a janela `GOOGLE_CALENDAR_SYNC_DAYS`.
-
-### A confirmação é salva, mas o WhatsApp não chega
-
-- abra a execução correspondente no N8N;
-- `403` no webhook indica token Header Auth incorreto;
-- `401` no EvoGo indica token da instância Evolution incorreto;
-- confira os telefones cadastrados;
-- confirme que a instância Evolution está conectada;
-- confira se o modo de teste está vazio em produção.
-
-### O cron informa sucesso, mas não sincroniza
-
-Execute `agenda:sync --dry-run` manualmente. Sem as variáveis do Google, o
-comando encerra com sucesso para evitar poluir os logs, mas informa que nada foi
-sincronizado quando executado no terminal.
-
-## 22. Segurança
-
-- Chave JSON sempre fora de `public_html`.
-- Arquivo da chave com permissão restrita.
-- Nunca versionar `.env` ou credenciais.
-- Nunca reutilizar o token do webhook como token da Evolution.
-- HTTPS obrigatório entre Hostinger e N8N.
-- Service Account com acesso somente leitura ao Calendar.
-- Rotacionar imediatamente qualquer segredo exposto.
-- Não registrar payloads completos com dados de pacientes nos logs.
-- Manter `APP_DEBUG=false` em produção.
-- Manter `N8N_NOTIFICATION_TEST_PHONE` vazio fora da homologação.
-
-## 23. Checklist final
-
-- [ ] Pull Request revisado e direcionado para a `main`.
-- [ ] Merge na `main` concluído.
-- [ ] Webhook GitHub -> Hostinger acionado.
-- [ ] Deploy automático concluído sem erros.
-- [ ] Commit publicado conferido no painel/log.
-- [ ] Backup realizado.
-- [ ] `composer install --no-dev --optimize-autoloader` confirmado no deploy.
-- [ ] Chave JSON fora de `public_html`.
-- [ ] Agenda compartilhada com a Service Account.
-- [ ] Variáveis `GOOGLE_CALENDAR_*` configuradas.
-- [ ] Variáveis `N8N_*` configuradas.
-- [ ] `N8N_NOTIFICATION_TEST_PHONE` vazio.
-- [ ] Migration de `appointments` executada.
+- [ ] Backup do banco concluído.
+- [ ] Merge na `main` e deploy automático concluídos.
+- [ ] `php artisan migrate --force` executado.
 - [ ] `RoleAndPermissionSeeder` executado.
-- [ ] Caches limpos e recriados.
-- [ ] `agenda:sync --dry-run` concluído.
-- [ ] Primeira sincronização real concluída.
+- [ ] `.env` de produção configurado.
+- [ ] Credencial Google fora de `public_html`.
+- [ ] Agenda compartilhada com a Service Account.
+- [ ] Três workflows N8N ativos.
 - [ ] Cron `schedule:run` ativo a cada minuto.
-- [ ] Workflow N8N ativo.
-- [ ] Header Auth validado.
-- [ ] EvoGo validado.
-- [ ] Teste controlado concluído.
-- [ ] Aplicação retirada do modo de manutenção.
-- [ ] Logs monitorados.
+- [ ] Cron da fila ouvindo `emails,default`.
+- [ ] `agenda:sync --dry-run` concluído.
+- [ ] Confirmação, desistência e encaixe testados.
+- [ ] Logs do Laravel, N8N e Evolution verificados.
 
-## 24. Documentos relacionados
+## Documentos relacionados
 
 - `docs/passo-a-passo-google-calender.md`
 - `docs/passo-a-passo-n8n-confirmacao-agendamento.md`
-- `docs/specs/agendamentos.md`
+- `docs/passo-a-passo-n8n-desistencia-encaixe.md`
 - `docs/MANUAL_ATUALIZACAO_PRODUCAO.md`
-- `n8n/fluxo-confirmacao-agendamento.json`

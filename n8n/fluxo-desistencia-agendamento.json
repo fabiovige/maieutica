@@ -7,7 +7,9 @@
         "path": "maieutica/agendamentos/cancelado",
         "authentication": "headerAuth",
         "responseMode": "responseNode",
-        "options": {}
+        "options": {
+          "sendUpdates": "all"
+        }
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,

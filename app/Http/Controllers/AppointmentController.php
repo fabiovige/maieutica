@@ -97,6 +97,7 @@ class AppointmentController extends Controller
         ]);
 
         $professional = Professional::query()
+            ->with(['user' => fn ($query) => $query->where('allow', 1)])
             ->whereKey($validated['professional_id'])
             ->whereHas('user', fn ($query) => $query->where('allow', 1))
             ->first();
@@ -104,6 +105,14 @@ class AppointmentController extends Controller
         if (! $professional) {
             throw ValidationException::withMessages([
                 'professional_id' => 'Selecione um profissional ativo.',
+            ]);
+        }
+
+        $professionalEmail = $professional->user->first()?->email;
+
+        if (blank($professionalEmail) || ! filter_var($professionalEmail, FILTER_VALIDATE_EMAIL)) {
+            throw ValidationException::withMessages([
+                'professional_id' => 'O profissional selecionado precisa ter um e-mail válido para receber o convite do Google Calendar.',
             ]);
         }
 
@@ -300,7 +309,10 @@ class AppointmentController extends Controller
                 ->with('success', 'Este encaixe já havia sido registrado.');
         }
 
-        $professional = Professional::with(['user', 'specialty'])
+        $professional = Professional::with([
+            'user' => fn ($query) => $query->where('allow', 1),
+            'specialty',
+        ])
             ->whereKey($validated['professional_id'])
             ->whereHas('user', fn ($query) => $query->where('allow', 1))
             ->first();
@@ -308,6 +320,14 @@ class AppointmentController extends Controller
         if (! $professional) {
             throw ValidationException::withMessages([
                 'professional_id' => 'Selecione um profissional ativo.',
+            ]);
+        }
+
+        $professionalEmail = $professional->user->first()?->email;
+
+        if (blank($professionalEmail) || ! filter_var($professionalEmail, FILTER_VALIDATE_EMAIL)) {
+            throw ValidationException::withMessages([
+                'professional_id' => 'O profissional selecionado precisa ter um e-mail válido para receber o convite do Google Calendar.',
             ]);
         }
 

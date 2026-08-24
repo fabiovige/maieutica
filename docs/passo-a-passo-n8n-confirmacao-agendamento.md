@@ -30,7 +30,7 @@ domínio público HTTPS do N8N, nunca endereços internos como `http://n8n:5678`
 
 - Google Calendar: existência e horário original do evento.
 - Maiêutica: confirmação clínica e vínculo com o profissional real.
-- N8N: orquestração das notificações.
+- N8N: adiciona o profissional como convidado no evento e orquestra as notificações.
 - Evolution API: envio das mensagens ao WhatsApp.
 
 A confirmação é salva no Maiêutica antes da chamada ao N8N. Uma indisponibilidade
@@ -59,9 +59,10 @@ O novo workflow contém:
 ```text
 Webhook confirmacao
   -> Validar e preparar mensagens
-    -> Avisar paciente
-      -> Avisar profissional
-        -> Responder ao Maieutica
+    -> Adicionar profissional ao Calendar
+      -> Avisar paciente
+        -> Avisar profissional
+          -> Responder ao Maieutica
 ```
 
 ## 4. Importar o workflow
@@ -71,6 +72,10 @@ Webhook confirmacao
 3. Selecione `n8n/fluxo-confirmacao-agendamento.json`.
 4. Salve o workflow.
 5. Mantenha-o inativo durante a configuração inicial.
+
+Se uma versão anterior já estiver ativa, desative-a antes de importar ou
+substituir o fluxo. Configure as credenciais no arquivo atualizado e mantenha
+somente um workflow ativo para o path `maieutica/agendamentos/confirmado`.
 
 ## 5. Gerar o token do webhook
 
@@ -143,12 +148,31 @@ feita pelo próprio node Webhook através da credencial Header Auth.
 Esse node:
 
 - aceita somente o evento `appointment.confirmed`;
-- exige identificador e horário do agendamento;
+- exige identificador local, `google_event_id` e horário do agendamento;
 - exige nomes do paciente e profissional;
+- exige um e-mail válido no cadastro do profissional;
 - valida e normaliza os telefones brasileiros;
 - formata data e hora em `America/Sao_Paulo`;
 - prepara uma mensagem para o paciente;
 - prepara outra mensagem para o profissional.
+
+### 8.1. Configurar o convite do Google Calendar
+
+Abra o node **Adicionar profissional ao Calendar** e selecione a mesma
+credencial **Google Calendar account** usada pelos outros workflows.
+
+O node atualiza o evento existente pelo `google_event_id`, mantém eventuais
+convidados já cadastrados e adiciona o e-mail do profissional. A opção **Send
+Updates: All** faz o Google enviar o convite. O evento continua pertencendo à
+agenda central `Atendimento - TESTE`; não é criada uma cópia independente.
+
+O e-mail do usuário vinculado ao profissional precisa ser uma conta capaz de
+receber convites do Google Calendar. Conforme a configuração pessoal dessa
+conta, o compromisso pode aparecer automaticamente ou após a aceitação.
+
+Os workflows de desistência e encaixe também mantêm esse convite consistente:
+a desistência cancela o evento para os convidados e o encaixe substitui o
+convidado pelo profissional selecionado.
 
 ## 9. Configurar a Evolution API
 
@@ -323,6 +347,7 @@ controlados.
 8. Confirme a execução dos nodes:
    - `Webhook confirmacao`;
    - `Validar e preparar mensagens`;
+   - `Adicionar profissional ao Calendar`;
    - `Avisar paciente`;
    - `Avisar profissional`;
    - `Responder ao Maieutica`.
